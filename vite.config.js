@@ -23,6 +23,9 @@ export default defineConfig({
                 globals: {
                     react: 'React',
                     'react-dom': 'ReactDOM',
+                    '@mui/material': 'MaterialUI', // Add this line
+                    '@emotion/react': 'emotionReact', // And these for Emotion
+                    '@emotion/styled': 'emotionStyled'
                 },
             },
         },
