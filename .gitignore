@@ -43,3 +43,4 @@ build
 # Test reports
 /coverage/
 .nycrc
+/package-lock.json
