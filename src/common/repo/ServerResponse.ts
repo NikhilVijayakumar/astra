@@ -2,7 +2,7 @@
 import { ResponseSucess, ResponseError } from './APITypes';
 import { HttpStatusCode } from './HttpStatusCode';
 
-export default class ServerResponse<T> {
+export class ServerResponse<T> {
   public isError: boolean = false;
   public isSuccess: boolean = false;
   public status: HttpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;

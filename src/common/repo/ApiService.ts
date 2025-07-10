@@ -1,6 +1,6 @@
 //src/common/repo/ApiService.ts
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import ServerResponse from './ServerResponse';
+import {ServerResponse} from './ServerResponse';
 import { HttpStatusCode } from './HttpStatusCode';
 import { ResponseSucess, ResponseError } from './APITypes';
 

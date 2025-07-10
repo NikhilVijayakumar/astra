@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
-import { default as ServerResponse } from './ServerResponse';
+import { ServerResponse } from './ServerResponse';
 export declare class ApiService {
     private baseUrl;
     private literal;
