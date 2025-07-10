@@ -1,13 +1,14 @@
 {
   "name": "astra",
   "private": false,
-  "version": "v0.0.2",
+  "version": "v0.0.3",
   "type": "module",
    "main": "./dist/astra.umd.js",
   "module": "./dist/astra.es.js",
   "types": "./dist/lib.d.ts",
    "exports": {
     ".": {
+       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
       "require": "./dist/astra.umd.js"
     }
