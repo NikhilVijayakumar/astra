@@ -3,8 +3,8 @@ import { AppState} from '../../state/AppState';
 //import { AppState, StateType } from '../../state/AppState';
 // import LoadingSpinner from './LoadingSpinner';
 // import ErrorDisplay from './ErrorDisplay';
-import EmptyState from './EmptyState';
-
+//import EmptyState from './EmptyState';
+import { Box, Typography } from '@mui/material';
 interface PageStateWrapperProps<T> {
   appState: AppState<T>;
   children: React.ReactNode;
@@ -16,7 +16,13 @@ export function PageStateWrapper<T>({ appState, children }: PageStateWrapperProp
   console.log('PageStateWrapper children');
  if(appState)
   console.log('PageStateWrapper appState');
-    return <EmptyState />;
+    return  (
+    <Box sx={{ p: 4, textAlign: 'center', mt: 8 }}>
+      <Typography variant="h6">
+        This is the temporary empty state component.
+      </Typography>
+    </Box>
+  );
   // switch (appState.state) {
   //       case StateType.LOADING:    
   //       console.log('PageStateWrapper LOADING');
