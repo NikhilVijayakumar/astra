@@ -31,8 +31,9 @@ export function PageStateWrapper<T>({ appState, children }: PageStateWrapperProp
         console.log('PageStateWrapper EmptyState');
         return <EmptyState />;
       }
+      if(children)
        console.log('PageStateWrapper children');
-      return <>{children}</>;
+      return <EmptyState />;
       
     default:
       console.log('PageStateWrapper default null');
