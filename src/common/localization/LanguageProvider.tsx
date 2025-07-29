@@ -1,8 +1,8 @@
 //src\common\localization\LanguageProvider.tsx
-import { useState, useMemo, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { LanguageContext, LanguageDefinition } from './LanguageContext';
 
-type TranslationMap = {
+export type TranslationMap = {
   [key: string]: Record<string, string>;
 };
 
@@ -21,10 +21,13 @@ export function LanguageProvider({
 }: LanguageProviderProps) {
   const [currentLanguage, setCurrentLanguage] = useState(defaultLanguage);
 
-  const literal = useMemo(
-    () => translations[currentLanguage] || {},
-    [currentLanguage, translations]
-  );
+ const [literal, setLiteral] = useState(translations[defaultLanguage] || {});
+
+  useEffect(() => {
+    setCurrentLanguage(defaultLanguage);
+    setLiteral(translations[defaultLanguage] || {});
+  }, [defaultLanguage, translations]);
+
 
   const contextValue = {
     currentLanguage,
