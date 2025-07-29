@@ -10,6 +10,8 @@ interface ErrorDisplayProps {
 
 const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ message }) => {
   const { literal } = useLanguage(); // Access localized unknown message
+    console.log('The "message" value is:', message);
+  console.log('The type of "message" is:', typeof message);
 
   return (
     <Box sx={{ p: 4, textAlign: 'center', mt: 8 }}>

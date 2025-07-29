@@ -310,7 +310,7 @@ const Xt = ({ message: e }) => {
   return /* @__PURE__ */ A.jsx(le, { sx: { p: 4, textAlign: "center", mt: 8 }, children: /* @__PURE__ */ A.jsx(ct, { variant: "h6", children: e || t.no_content_message || "No content available." }) });
 }, Zt = ({ message: e }) => {
   const { literal: t } = fe();
-  return /* @__PURE__ */ A.jsx(le, { sx: { p: 4, textAlign: "center", mt: 8 }, children: /* @__PURE__ */ A.jsx(Mt, { severity: "error", children: e || t.unknown_message || "An unexpected error occurred." }) });
+  return console.log('The "message" value is:', e), console.log('The type of "message" is:', typeof e), /* @__PURE__ */ A.jsx(le, { sx: { p: 4, textAlign: "center", mt: 8 }, children: /* @__PURE__ */ A.jsx(Mt, { severity: "error", children: e || t.unknown_message || "An unexpected error occurred." }) });
 }, Qt = () => {
   const { literal: e } = fe();
   return /* @__PURE__ */ A.jsxs(le, { sx: { p: 4, textAlign: "center", mt: 8 }, children: [
