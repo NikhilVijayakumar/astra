@@ -44,3 +44,23 @@ build
 /coverage/
 .nycrc
 /package-lock.json
+
+# Storybook build output
+storybook-static/
+
+# Storybook cache (if using Vite, Webpack, etc.)
+.node_modules/
+.cache/
+.storybook-out/
+
+# Optional: if you generate type definitions or use auto-generated files
+*.stories.tsx.d.ts
+
+# Storybook specific temp/config files (if generated)
+.storybook/*.local.js
+.storybook/*.local.ts
+.storybook/*.cache
+
+# Mac/Linux hidden files
+.storybook/.DS_Store
+
