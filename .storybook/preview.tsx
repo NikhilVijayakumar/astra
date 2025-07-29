@@ -1,6 +1,8 @@
 import type { Preview } from '@storybook/react';
 import { LanguageProvider } from '../src/common/localization/LanguageProvider';
 import { getTranslation, availableLanguages } from './storybook-locales';
+import { ThemeProvider } from '../src/common/theme/ThemeProvider';
+import { lightTheme, darkTheme } from './themes/appTheme'; 
 
 const preview: Preview = {
   globalTypes: {
@@ -16,6 +18,19 @@ const preview: Preview = {
         showName: true,
       },
     },
+     theme: {
+      name: 'Theme',
+      description: 'Global theme for components',
+      defaultValue: 'light',
+      toolbar: {
+        icon: 'circlehollow',
+        items: [
+          { value: 'light', title: 'Light', left: '🌞' },
+          { value: 'dark', title: 'Dark', left: '🌚' },
+        ],
+        dynamicTitle: true,
+      },
+    },
   },
 
   parameters: {
@@ -27,13 +42,26 @@ const preview: Preview = {
     },
   },
 
+  
+
   decorators: [
+   (Story, context) => {
+      const theme = context.globals.theme;
+      return (
+        <ThemeProvider
+          lightTheme={lightTheme}
+          darkTheme={darkTheme}
+          forceTheme={theme}
+        >
+          <Story />
+        </ThemeProvider>
+      );
+    },
     (Story, context) => {
       
-     const locale = context?.globals?.locale || 'en';
-    
+     const locale = context?.globals?.locale || 'en';    
       const translations = getTranslation(locale); 
-       console.log('[Storybook translations]', translations);
+     
       return (
         <LanguageProvider
           translations={translations}
