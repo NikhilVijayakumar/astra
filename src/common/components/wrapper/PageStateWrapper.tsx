@@ -1,8 +1,8 @@
 // src/common/components/PageStateWrapper.tsx
-
-import { AppState, StateType } from '../../state/AppState';
-import LoadingSpinner from './LoadingSpinner';
-import ErrorDisplay from './ErrorDisplay';
+import { AppState} from '../../state/AppState';
+//import { AppState, StateType } from '../../state/AppState';
+// import LoadingSpinner from './LoadingSpinner';
+// import ErrorDisplay from './ErrorDisplay';
 import EmptyState from './EmptyState';
 
 interface PageStateWrapperProps<T> {
@@ -12,31 +12,36 @@ interface PageStateWrapperProps<T> {
 
 export function PageStateWrapper<T>({ appState, children }: PageStateWrapperProps<T>) {
    console.log('PageStateWrapper inside');
-  switch (appState.state) {
-        case StateType.LOADING:    
-        console.log('PageStateWrapper LOADING');
-      return <LoadingSpinner />;         
-    case StateType.INIT:
-       console.log('PageStateWrapper INIT');
-      return <LoadingSpinner />;
+    if(children)
+  console.log('PageStateWrapper children');
+ if(appState)
+  console.log('PageStateWrapper appState');
+    return <EmptyState />;
+  // switch (appState.state) {
+  //       case StateType.LOADING:    
+  //       console.log('PageStateWrapper LOADING');
+  //     return <LoadingSpinner />;         
+  //   case StateType.INIT:
+  //      console.log('PageStateWrapper INIT');
+  //     return <LoadingSpinner />;
 
-    case StateType.COMPLETED:
-       console.log('PageStateWrapper COMPLETED');
-      if (appState.isError) {
-         console.log('PageStateWrapper isError');
-        return <ErrorDisplay message={appState.statusMessage} />;
-      }
-      // Check for empty data (e.g., an empty array)
-      if (!appState.data || (Array.isArray(appState.data) && appState.data.length === 0)) {
-        console.log('PageStateWrapper EmptyState');
-        return <EmptyState />;
-      }
-      if(children)
-       console.log('PageStateWrapper children');
-      return <EmptyState />;
+  //   case StateType.COMPLETED:
+  //      console.log('PageStateWrapper COMPLETED');
+  //     if (appState.isError) {
+  //        console.log('PageStateWrapper isError');
+  //       return <ErrorDisplay message={appState.statusMessage} />;
+  //     }
+  //     // Check for empty data (e.g., an empty array)
+  //     if (!appState.data || (Array.isArray(appState.data) && appState.data.length === 0)) {
+  //       console.log('PageStateWrapper EmptyState');
+  //       return <EmptyState />;
+  //     }
+  //     if(children)
+  //      console.log('PageStateWrapper children');
+  //     return <EmptyState />;
       
-    default:
-      console.log('PageStateWrapper default null');
-      return null;
-  }
+  //   default:
+  //     console.log('PageStateWrapper default null');
+  //     return <EmptyState />;
+  // }
 }
