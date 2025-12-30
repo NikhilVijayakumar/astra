@@ -1,69 +1,165 @@
-# React + TypeScript + Vite
+# Astra
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A robust React library designed to serve as a comprehensive boilerplate for building scalable applications. It implements **MVVM (Model-View-ViewModel)** patterns, handles **localization**, manages **state**, and provides a solid foundation for **theming** and **API interactions**.
 
-Currently, two official plugins are available:
+This library abstracts away the repetitive setup code so you can focus on your application's business logic.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+-   **MVVM Architecture**: Built-in hooks to manage data fetching and state transitions cleanly.
+-   **State Management**: Structured application state handling (`INIT`, `LOADING`, `COMPLETED`, `ERROR`).
+-   **Localization (i18n)**: Ready-to-use `LanguageProvider` and context for multi-language support.
+-   **Theming**: Integrated Material UI (MUI) theme management with Light/Dark mode interaction.
+-   **API Repository**: A type-safe Axios wrapper for standardized API requests and error handling.
+-   **Type Safety**: Fully written in TypeScript.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📦 Installation
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+To use this library in your project, add it to your `package.json`. Since this is hosted on GitHub, you can add it directly:
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```json
+"dependencies": {
+  "astra": "git+https://github.com/your-username/astra.git"
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Or if you are developing locally and linking it:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```json
+"dependencies": {
+  "astra": "file:../path/to/astra"
+}
+```
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🛠 Usage
+
+### 1. Theming Setup
+
+Wrap your application with `ThemeProvider`. You need to provide your Light and Dark theme configurations (MUI Theme objects).
+
+```tsx
+import { ThemeProvider, ThemeToggle } from 'astra';
+import { createTheme } from '@mui/material/styles';
+
+const lightTheme = createTheme({ palette: { mode: 'light' } });
+const darkTheme = createTheme({ palette: { mode: 'dark' } });
+
+function App() {
+  return (
+    <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+       <ThemeToggle /> {/* Optional toggle button */}
+       <YourMainComponent />
+    </ThemeProvider>
+  );
+}
+```
+
+### 2. Localization Setup
+
+Use `LanguageProvider` to manage translations.
+
+```tsx
+import { LanguageProvider } from 'astra';
+
+const translations = {
+  en: { hello: 'Hello World', welcome: 'Welcome' },
+  es: { hello: 'Hola Mundo', welcome: 'Bienvenido' },
+};
+
+const availableLanguages = [
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Español' },
+];
+
+function App() {
+  return (
+    <LanguageProvider 
+      translations={translations} 
+      availableLanguages={availableLanguages} 
+      defaultLanguage="en"
+    >
+      <YourContent />
+    </LanguageProvider>
+  );
+}
+```
+
+### 3. Consuming Data (MVVM Pattern)
+
+Astra encourages the use of Repository pattern combined with the `useDataState` hook.
+
+**Step 1: Create your API Service**
+
+```ts
+import { ApiService } from 'astra';
+
+const api = new ApiService('https://api.example.com', {
+  internal_server_error: 'Something went wrong on our end.'
+});
+
+export const UserRepo = {
+  getUsers: () => api.get<User[]>('users')
+};
+```
+
+**Step 2: Use it in a Component**
+
+```tsx
+import { useDataState, StateType } from 'astra';
+import { useEffect } from 'react';
+import { UserRepo } from './repo';
+
+function UserList() {
+  const [appState, execute] = useDataState<User[]>();
+
+  useEffect(() => {
+    execute(() => UserRepo.getUsers());
+  }, []);
+
+  if (appState.state === StateType.LOADING) return <div>Loading...</div>;
+  if (appState.isError) return <div>Error: {appState.statusMessage}</div>;
+
+  return (
+    <ul>
+      {appState.data?.map(user => <li key={user.id}>{user.name}</li>)}
+    </ul>
+  );
+}
+```
+
+## 📁 Project Structure
+
+The core logic resides in `src/common`:
+
+-   **`components/`**: Reusable UI components.
+-   **`hooks/`**: Custom hooks, primarily `useDataState` for MVVM state management.
+-   **`localization/`**: `LanguageProvider` and context for i18n.
+-   **`repo/`**: `ApiService`, `ServerResponse`, and networking types.
+-   **`state/`**: `AppState` type definitions (`INIT`, `LOADING`, `COMPLETED`).
+-   **`theme/`**: `ThemeProvider` and theming logic.
+
+## 💻 Development
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Run Dev Server
+
+```bash
+npm run dev
+```
+
+### Build Library
+
+```bash
+npm run build
+```
+
+### Run Linter
+
+```bash
+npm run lint
 ```
