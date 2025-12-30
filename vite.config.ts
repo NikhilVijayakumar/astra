@@ -27,11 +27,19 @@ export default defineConfig({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',         
-          '@mui/material': 'MaterialUI', // Add this line
-          '@emotion/react': 'emotionReact', // And these for Emotion
+          '@mui/material': 'MaterialUI', 
+          '@emotion/react': 'emotionReact', 
           '@emotion/styled': 'emotionStyled'
         },
       },
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    setupFiles: './vitest.setup.ts',
+    coverage: {
+        provider: 'istanbul',
     },
   },
 });

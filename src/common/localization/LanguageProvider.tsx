@@ -24,9 +24,8 @@ export function LanguageProvider({
  const [literal, setLiteral] = useState(translations[defaultLanguage] || {});
 
   useEffect(() => {
-    setCurrentLanguage(defaultLanguage);
-    setLiteral(translations[defaultLanguage] || {});
-  }, [defaultLanguage, translations]);
+    setLiteral(translations[currentLanguage] || {});
+  }, [currentLanguage, translations]);
 
 
   const contextValue = {
