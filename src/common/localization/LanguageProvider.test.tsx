@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { LanguageProvider } from './LanguageProvider';
 import { useLanguage } from './LanguageContext';
-import React from 'react';
+
 
 // Test Component to consume context
 const TestComponent = () => {

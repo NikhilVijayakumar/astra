@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { LanguageDefinition } from './LanguageContext';
-type TranslationMap = {
+export type TranslationMap = {
     [key: string]: Record<string, string>;
 };
 interface LanguageProviderProps {

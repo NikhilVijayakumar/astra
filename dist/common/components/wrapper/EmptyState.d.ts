@@ -1,12 +1,7 @@
 import { default as React } from 'react';
 /**
- * Props for EmptyState component.
+ * Renders a common, localized message for when no content is available.
+ * It always uses the 'no_content_message' key from the LanguageContext.
  */
-interface EmptyStateProps {
-    message?: string;
-}
-/**
- * Renders a common message for when no content is available.
- */
-declare const EmptyState: React.FC<EmptyStateProps>;
+declare const EmptyState: React.FC;
 export default EmptyState;

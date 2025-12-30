@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useDataState } from './useDataState';
 import { StateType } from '../state/AppState';
@@ -30,7 +30,7 @@ describe('useDataState', () => {
     const { result } = renderHook(() => useDataState<{ id: number }>());
     const mockData = { id: 123 };
     const mockResponse = ServerResponse.success({
-      status: HttpStatusCode.OK,
+      status: HttpStatusCode.SUCCESS,
       statusMessage: 'OK',
       data: mockData,
     });
@@ -45,7 +45,7 @@ describe('useDataState', () => {
       state: StateType.COMPLETED,
       isSuccess: true,
       isError: false,
-      status: HttpStatusCode.OK,
+      status: HttpStatusCode.SUCCESS,
       statusMessage: 'OK',
       data: mockData,
     });

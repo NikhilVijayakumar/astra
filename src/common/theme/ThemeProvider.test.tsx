@@ -1,9 +1,9 @@
-import { render, screen, fireEvent, renderHook } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ThemeProvider } from './ThemeProvider';
 import { useTheme } from './themeContext';
 import { createTheme } from '@mui/material/styles';
-import React from 'react';
+
 
 // Mocks
 const lightTheme = createTheme({ palette: { mode: 'light' } });

@@ -1,2 +1,7 @@
 import { ThemeProviderProps } from './themeData';
-export declare function ThemeProvider({ children, lightTheme, darkTheme }: ThemeProviderProps): import("react/jsx-runtime").JSX.Element;
+type ControllableThemeProviderProps = ThemeProviderProps & {
+    /** Optional prop to externally control the theme mode, for Storybook integration */
+    forceTheme?: 'light' | 'dark';
+};
+export declare function ThemeProvider({ children, lightTheme, darkTheme, forceTheme, }: ControllableThemeProviderProps): import("react/jsx-runtime").JSX.Element;
+export {};
