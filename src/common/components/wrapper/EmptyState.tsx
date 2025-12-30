@@ -1,7 +1,4 @@
 // src/common/components/EmptyState.tsx
-
-
-
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { useLanguage } from '../../localization/LanguageContext';

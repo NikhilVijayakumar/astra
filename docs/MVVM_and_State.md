@@ -88,3 +88,50 @@ export function UserList() {
   );
 }
 ```
+
+---
+
+### 3. AppStateHandler Component (`src/common/components/wrapper/AppStateHandler.tsx`)
+
+`AppStateHandler` is a higher-order component that standardizes how different state transitions are rendered in the UI. Instead of writing multiple `if` statements in every component, you can delegate that logic to `AppStateHandler`.
+
+#### Props
+
+-   **`appState`**: The `AppState` object from `useDataState`.
+-   **`SuccessComponent`**: A React Component to render when the state is `COMPLETED` (success) and data is present. It receives the full `appState` as a prop.
+-   **`emptyCondition`** *(Optional)*: A function `(data: T) => boolean`. If it returns `true`, the `EmptyState` component is rendered instead of the `SuccessComponent`.
+-   **`errorMessage`** *(Optional)*: Custom error message to display in the `ErrorState` view.
+
+#### Internal Logic
+
+1.  **Loading**: Checks `state === StateType.LOADING`. Renders `<LoadingState />`.
+2.  **Error**: Checks `isError` or `status === INTERNET_ERROR`. Renders `<ErrorState />`.
+3.  **Success**: Checks `isSuccess` and `data !== null`.
+    -   If `emptyCondition(data)` is true -> Renders `<EmptyState />`.
+    -   Otherwise -> Renders `<SuccessComponent />`.
+4.  **Fallback**: Renders `<EmptyState />` for idle or unhandled states.
+
+
+---
+
+### 4. Other State Components
+
+Astra provides standalone components for each state, which can be used independently if `AppStateHandler` doesn't fit your needs.
+
+#### EmptyState (`src/common/components/wrapper/EmptyState.tsx`)
+Displays a localized "No data found" message.
+- **Usage**: `<EmptyState />`
+
+#### ErrorState (`src/common/components/wrapper/ErrorState.tsx`)
+Displays an error alert.
+- **Props**: `message?: string`
+- **Usage**:
+  ```tsx
+  <ErrorState message="Something went wrong" />
+  // or for default localized message
+  <ErrorState />
+  ```
+
+#### LoadingState (`src/common/components/wrapper/LoadingState.tsx`)
+Displays a circular progress indicator with a localized "Loading" message.
+- **Usage**: `<LoadingState />`

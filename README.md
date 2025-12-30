@@ -127,6 +127,37 @@ function UserList() {
 }
 ```
 
+### 4. Handling UI States (AppStateHandler)
+
+For a cleaner UI that automatically handles `LOADING`, `ERROR`, and `EMPTY` states, use the `AppStateHandler` component.
+
+```tsx
+import { AppStateHandler, useDataState, StateType } from 'astra';
+import { useEffect } from 'react';
+import { UserRepo } from './repo';
+
+function UserList() {
+  const [userState, fetchUsers] = useDataState<User[]>();
+
+  useEffect(() => {
+    fetchUsers(UserRepo.getUsers);
+  }, []);
+
+  return (
+    <AppStateHandler
+      appState={userState}
+      SuccessComponent={({ appState }) => (
+        <ul>
+          {appState.data?.map(user => <li key={user.id}>{user.name}</li>)}
+        </ul>
+      )}
+      emptyCondition={(data) => data.length === 0}
+      errorMessage="Unable to load users."
+    />
+  );
+}
+```
+
 ## 📁 Project Structure
 
 The core logic resides in `src/common`:

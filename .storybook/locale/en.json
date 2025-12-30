@@ -1,5 +1,5 @@
 {
- "loading": "Loading...",
-  "error_fetching_data": "Error fetching data.",
+ "loading_message": "Loading...",
+  "unknown_message": "An unexpected error occurred.",
   "no_data_found": "No data found."
 }

@@ -1,7 +1,7 @@
 
  {
-  "loading": "Cargando...",
-  "error_fetching_data": "Error al obtener los datos.",
+  "loading_message": "Cargando...",
+  "unknown_message": "Ocurrió un error inesperado.",
   "no_data_found": "No se encontraron datos."
 }
 
