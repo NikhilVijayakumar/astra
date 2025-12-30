@@ -1,21 +1,15 @@
-// src/common/components/ErrorState.tsx
-
 import { FC } from 'react';
-import { Box, Alert } from '@mui/material';
-import { useLanguage } from '../../localization/LanguageContext';
-
 /**
  * Defines the props for the ErrorState component.
  */
 interface ErrorStateProps {
-  /**
-   * The optional error message to display.
-   * If not provided, the component will use a default message
-   * from the localization context.
-   */
-  message?: string;
+    /**
+     * The optional error message to display.
+     * If not provided, the component will use a default message
+     * from the localization context.
+     */
+    message?: string;
 }
-
 /**
  * `ErrorState` is a reusable UI component that shows a prominent error message.
  *
@@ -38,19 +32,5 @@ interface ErrorStateProps {
  * // Displaying a generic, localized error
  * <ErrorState />
  */
-const ErrorState: FC<ErrorStateProps> = ({ message }) => {
-  const { literal } = useLanguage();
-
-  // Determine the final message to display.
-  // 1. Use the provided message prop.
-  // 2. Fall back to the localized "unknown_message".
-  const finalMessage = message || literal.unknown_message;
-
-  return (
-    <Box sx={{ p: 4, textAlign: 'center', mt: 8 }}>
-      <Alert severity="error">{finalMessage}</Alert>
-    </Box>
-  );
-};
-
+declare const ErrorState: FC<ErrorStateProps>;
 export default ErrorState;

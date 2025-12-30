@@ -1,11 +1,4 @@
-// src/common/components/LoadingState.tsx
-
-// src/common/components/LoadingState.tsx
-
 import { FC } from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
-import { useLanguage } from '../../localization/LanguageContext';
-
 /**
  * `LoadingState` is a standardized component used to indicate that content
  * is being loaded or an operation is in progress.
@@ -26,26 +19,5 @@ import { useLanguage } from '../../localization/LanguageContext';
  * }
  * return <MyComponent data={data} />;
  */
-const LoadingState: FC = () => {
-  const { literal } = useLanguage();
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 4,
-        mt: 8,
-      }}
-    >
-      <CircularProgress sx={{ mb: 2 }} />
-      <Typography variant="h6" component="div">
-        {literal.loading_message}
-      </Typography>
-    </Box>
-  );
-};
-
+declare const LoadingState: FC;
 export default LoadingState;

@@ -1,5 +1,5 @@
 // src/common/components/EmptyState.tsx
-import React from 'react';
+import { FC } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useLanguage } from '../../localization/LanguageContext';
 
@@ -9,7 +9,7 @@ import { useLanguage } from '../../localization/LanguageContext';
  * Renders a common, localized message for when no content is available.
  * It always uses the 'no_content_message' key from the LanguageContext.
  */
-const EmptyState: React.FC = () => {
+const EmptyState: FC = () => {
   // Access the localized strings from the context
   const { literal } = useLanguage();
 

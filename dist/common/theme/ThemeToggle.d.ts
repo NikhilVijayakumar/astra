@@ -1,6 +1,6 @@
-import { default as React } from 'react';
+import { FC } from 'react';
 import { ThemeContextValue } from './themeData';
-declare const ThemeToggle: React.FC<{
+declare const ThemeToggle: FC<{
     themeContext: ThemeContextValue;
 }>;
 export default ThemeToggle;

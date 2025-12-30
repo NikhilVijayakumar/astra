@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC, ReactElement } from 'react';
 import { AppState, StateType } from '../../state/AppState';
 import { HttpStatusCode } from '../../repo/HttpStatusCode';
 import LoadingState from './LoadingState';
@@ -19,7 +19,7 @@ export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
    * The component to render when the appState is in a success state and not empty.
    * It receives the entire appState object as a prop.
    */
-  SuccessComponent: React.FC<{ appState: S }>;
+  SuccessComponent: FC<{ appState: S }>;
   /**
    * An optional function that receives the success data and returns `true` if the state
    * should be considered "empty". For example, for an array, this could be `(data) => data.length === 0`.
@@ -66,7 +66,7 @@ const AppStateHandler = <T, S extends AppState<T>>({
   SuccessComponent,
   emptyCondition,
   errorMessage,
-}: AppStateHandlerProps<T, S>): React.ReactElement => {
+}: AppStateHandlerProps<T, S>): ReactElement => {
   const { state, isError, isSuccess, data, status } = appState;
 
   // 1. Handle Loading State

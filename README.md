@@ -19,7 +19,15 @@ To use this library in your project, add it to your `package.json`. Since this i
 
 ```json
 "dependencies": {
-  "astra": "git+https://github.com/your-username/astra.git"
+  "astra": "git+https://github.com/NikhilVijayakumar/astra.git"
+}
+```
+
+To target a specific version (tag), branch, or commit hash (recommended for production stability):
+
+```json
+"dependencies": {
+  "astra": "git+https://github.com/NikhilVijayakumar/astra.git#v0.0.4"
 }
 ```
 

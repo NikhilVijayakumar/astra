@@ -1,5 +1,5 @@
 // ToolbarComponent.tsx
-import React from 'react';
+import { FC } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import ThemeToggle from '../../theme/ThemeToggle';
 import { ToolbarProps } from './Toolbardata';
 
-const ToolbarComponent: React.FC<ToolbarProps> = ({
+const ToolbarComponent: FC<ToolbarProps> = ({
   handleDrawerToggle,
   title,
   themeContext,

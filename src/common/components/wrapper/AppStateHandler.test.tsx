@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import AppStateHandler from './AppStateHandler';
@@ -124,7 +124,7 @@ describe('AppStateHandler', () => {
       <AppStateHandler
         appState={appState}
         SuccessComponent={mockSuccessComponent}
-        emptyCondition={(d) => d.length === 0}
+        emptyCondition={(d: any[]) => d.length === 0}
       />
     );
 

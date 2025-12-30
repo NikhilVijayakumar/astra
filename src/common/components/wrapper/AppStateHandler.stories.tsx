@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import {
   Box,
@@ -31,7 +31,7 @@ interface MyFeatureState extends AppState<MyFeatureData> {
 
 // --- Success Components ---
 
-const MockSuccessComponent: React.FC<{ appState: AppState<MockData> }> = ({ appState }) => (
+const MockSuccessComponent: FC<any> = ({ appState }) => (
   <Paper
     elevation={3}
     sx={{
@@ -50,7 +50,7 @@ const MockSuccessComponent: React.FC<{ appState: AppState<MockData> }> = ({ appS
   </Paper>
 );
 
-const MyFeatureSuccessComponent: React.FC<{ appState: MyFeatureState }> = ({ appState }) => (
+const MyFeatureSuccessComponent: FC<any> = ({ appState }) => (
   <Paper elevation={3} sx={{ p: 3 }}>
     <Box
       sx={{
@@ -68,7 +68,7 @@ const MyFeatureSuccessComponent: React.FC<{ appState: MyFeatureState }> = ({ app
       />
     </Box>
     <List dense>
-      {appState.data?.items.map((item) => (
+      {appState.data?.items.map((item: string) => (
         <ListItem key={item} disableGutters>
           <ListItemText primary={item} />
         </ListItem>
@@ -120,7 +120,7 @@ export const Idle: Story = {
       status: HttpStatusCode.IDLE,
       statusMessage: 'Idle, awaiting trigger.',
       data: null,
-    },
+    } as AppState<MockData>,
     SuccessComponent: MockSuccessComponent,
   },
 };
@@ -135,7 +135,7 @@ export const Loading: Story = {
       status: HttpStatusCode.IDLE,
       statusMessage: 'Loading...',
       data: null,
-    },
+    } as AppState<MockData>,
     SuccessComponent: MockSuccessComponent,
   },
 };
@@ -153,7 +153,7 @@ export const Success: Story = {
         id: '123',
         content: 'This is a successful message!',
       },
-    },
+    } as AppState<MockData>,
     SuccessComponent: MockSuccessComponent,
   },
 };
@@ -168,9 +168,9 @@ export const Empty: Story = {
       status: HttpStatusCode.SUCCESS,
       statusMessage: 'Success, but no content',
       data: { id: '456', content: '' },
-    },
+    } as AppState<MockData>,
     SuccessComponent: MockSuccessComponent,
-    emptyCondition: (data) => data.content.length === 0,
+    emptyCondition: (data: any) => data.content.length === 0,
   },
 };
 
@@ -184,7 +184,7 @@ export const ServerError: Story = {
       status: HttpStatusCode.INTERNAL_SERVER_ERROR,
       statusMessage: 'Internal server error',
       data: null,
-    },
+    } as AppState<MockData>,
     SuccessComponent: MockSuccessComponent,
     errorMessage: 'Oops! Something went wrong on the server.',
   },
@@ -200,7 +200,7 @@ export const NotFoundError: Story = {
       status: HttpStatusCode.NOT_FOUND,
       statusMessage: 'Not found',
       data: null,
-    },
+    } as AppState<MockData>,
     SuccessComponent: MockSuccessComponent,
     errorMessage: "We couldn't find the item you were looking for.",
   },
@@ -220,9 +220,9 @@ export const WithExtendedState: Story = {
         lastUpdated: new Date().toISOString(),
       },
       isSynced: true,
-    },
+    } as MyFeatureState,
     SuccessComponent: MyFeatureSuccessComponent,
-    emptyCondition: (data) => data.items.length === 0,
+    emptyCondition: (data: any) => data.items.length === 0,
   },
 };
 
@@ -239,7 +239,7 @@ export const Playground: Story = {
         id: 'demo-id',
         content: 'Hello from Playground!',
       },
-    },
+    } as AppState<MockData>,
     SuccessComponent: MockSuccessComponent,
     errorMessage: 'Something went wrong!',
   },
@@ -259,10 +259,10 @@ export const ExtendedPlayground: Story = {
         items: ['Alpha', 'Beta', 'Gamma'],
         lastUpdated: new Date().toISOString(),
       },
-    },
+    } as MyFeatureState,
     SuccessComponent: MyFeatureSuccessComponent,
     errorMessage: 'Failed to load feature data.',
-    emptyCondition: (data) => data.items.length === 0,
+    emptyCondition: (data: any) => data.items.length === 0,
   },
 };
 

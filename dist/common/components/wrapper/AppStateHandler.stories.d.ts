@@ -1,0 +1,14 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { default as AppStateHandler } from './AppStateHandler';
+declare const meta: Meta<typeof AppStateHandler>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+export declare const Idle: Story;
+export declare const Loading: Story;
+export declare const Success: Story;
+export declare const Empty: Story;
+export declare const ServerError: Story;
+export declare const NotFoundError: Story;
+export declare const WithExtendedState: Story;
+export declare const Playground: Story;
+export declare const ExtendedPlayground: Story;
