@@ -3,7 +3,7 @@ import {
   LanguageProvider 
 } from 'astra';
 import { createTheme, CssBaseline } from '@mui/material';
-import { CharacterList } from './view/CharacterList';
+import { CharacterPage } from './view/CharacterPage';
 import { translations, availableLanguages } from './localization/translations';
 
 // --- Theme Setup ---
@@ -33,7 +33,7 @@ function App() {
     >
       <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
         <CssBaseline /> {/* Normalize CSS */}
-        <CharacterList />
+        <CharacterPage />
       </ThemeProvider>
     </LanguageProvider>
   );
