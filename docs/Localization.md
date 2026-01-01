@@ -43,22 +43,71 @@ type LanguageDefinition = {
 }
 ```
 
-## Usage Guide
+## Implementation Guide
 
-1.  **Define Translations**:
-    ```typescript
-    const translations = {
-      en: { welcome: "Welcome", logout: "Logout" },
-      es: { welcome: "Bienvenido", logout: "Cerrar sesión" }
-    };
-    ```
+### 1. Structure Your JSON Files
+Create a separation file for each language (e.g., `en.json`, `es.json`). 
+**Crucial**: The `LanguageProvider` expects a flattened `Record<string, string>`. Do not use nested objects. Use dot notation for keys.
 
-2.  **Wrap Application**:
-    ```tsx
-    <LanguageProvider translations={translations} availableLanguages={languages}>
-      <App />
+**`src/localization/en.json`**
+```json
+{
+  "app.title": "My Super App",
+  "auth.login": "Login",
+  "error.network": "Network Error"
+}
+```
+
+**`src/localization/es.json`**
+```json
+{
+  "app.title": "Mi Súper App",
+  "auth.login": "Iniciar Sesión",
+  "error.network": "Error de Red"
+}
+```
+
+### 2. Configure LanguageProvider
+
+Import your JSON files and pass them to the `LanguageProvider`.
+
+**`src/App.tsx`**
+```tsx
+import enTranslations from './localization/en.json';
+import esTranslations from './localization/es.json';
+
+// Map language codes to their translation objects
+const translations = {
+  en: enTranslations,
+  es: esTranslations
+};
+
+// Define available languages for the UI selector
+const availableLanguages = [
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Español' }
+];
+
+export const App = () => {
+  return (
+    // 'defaultLanguage' is optional. It falls back to 'en' if omitted.
+    // If you pass 'es', the app will start in Spanish.
+    <LanguageProvider 
+      translations={translations} 
+      availableLanguages={availableLanguages}
+      defaultLanguage="en" 
+    >
+      <MainLayout />
     </LanguageProvider>
-    ```
+  );
+};
+```
+
+#### Default Language Handling
+The `defaultLanguage` prop sets the initial state.
+-   If provided: The provider initializes `currentLanguage` to this value.
+-   If omitted: The provider defaults to `'en'`.
+-   **Fallback**: If the specified language key (e.g., `'fr'`) is missing from the `translations` map, the `literal` object will be empty `{}`. Always ensure your `defaultLanguage` matches a key in your `translations` map.
 
 3.  **Consume in Component**:
     ```tsx

@@ -1,4 +1,4 @@
-import { FC, ReactElement } from 'react';
+import { FC, ReactElement, ReactNode } from 'react';
 import { AppState } from '../../state/AppState';
 /**
  * Defines the props for the AppStateHandler component.
@@ -14,7 +14,7 @@ export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
      * The component to render when the appState is in a success state and not empty.
      * It receives the entire appState object as a prop.
      */
-    SuccessComponent: FC<{
+    SuccessComponent?: FC<{
         appState: S;
     }>;
     /**
@@ -28,6 +28,10 @@ export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
      * If not provided, `ErrorState` will use its default localized message.
      */
     errorMessage?: string;
+    /**
+     * Optional children to act as the Success component.
+     */
+    children?: ReactNode;
 }
 /**
  * `AppStateHandler` is a generic state-management component that abstracts the
@@ -57,5 +61,7 @@ export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
  * />
  * );
  */
-declare const AppStateHandler: <T, S extends AppState<T>>({ appState, SuccessComponent, emptyCondition, errorMessage, }: AppStateHandlerProps<T, S>) => ReactElement;
+declare const AppStateHandler: <T, S extends AppState<T>>({ appState, SuccessComponent, children, emptyCondition, errorMessage, }: AppStateHandlerProps<T, S> & {
+    children?: ReactNode;
+}) => ReactElement;
 export default AppStateHandler;

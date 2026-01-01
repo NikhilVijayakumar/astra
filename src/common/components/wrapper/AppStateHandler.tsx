@@ -1,4 +1,4 @@
-import { FC, ReactElement } from 'react';
+import { FC, ReactElement, ReactNode } from 'react';
 import { AppState, StateType } from '../../state/AppState';
 import { HttpStatusCode } from '../../repo/HttpStatusCode';
 import LoadingState from './LoadingState';
@@ -19,7 +19,7 @@ export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
    * The component to render when the appState is in a success state and not empty.
    * It receives the entire appState object as a prop.
    */
-  SuccessComponent: FC<{ appState: S }>;
+  SuccessComponent?: FC<{ appState: S }>;
   /**
    * An optional function that receives the success data and returns `true` if the state
    * should be considered "empty". For example, for an array, this could be `(data) => data.length === 0`.
@@ -31,6 +31,10 @@ export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
    * If not provided, `ErrorState` will use its default localized message.
    */
   errorMessage?: string;
+  /**
+   * Optional children to act as the Success component.
+   */
+  children?: ReactNode;
 }
 
 /**
@@ -64,9 +68,10 @@ export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
 const AppStateHandler = <T, S extends AppState<T>>({
   appState,
   SuccessComponent,
+  children,
   emptyCondition,
   errorMessage,
-}: AppStateHandlerProps<T, S>): ReactElement => {
+}: AppStateHandlerProps<T, S> & { children?: ReactNode }): ReactElement => {
   const { state, isError, isSuccess, data, status } = appState;
 
   // 1. Handle Loading State
@@ -85,12 +90,19 @@ const AppStateHandler = <T, S extends AppState<T>>({
     if (emptyCondition?.(data)) {
       return <EmptyState />;
     }
-    // If not empty, render the success component
-    return <SuccessComponent appState={appState} />;
+    
+    // Support children as the success view
+    if (children) {
+      return <>{children}</>;
+    }
+
+    // Support legacy/alternative SuccessComponent
+    if (SuccessComponent) {
+      return <SuccessComponent appState={appState} />;
+    }
   }
 
-  // 4. Fallback: Render EmptyState for any other unhandled cases,
-  // such as an initial idle state or a success state with null data.
+  // 4. Fallback: Render EmptyState if no data or no success view provided
   return <EmptyState />;
 };
 
