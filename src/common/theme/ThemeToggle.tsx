@@ -5,7 +5,7 @@ import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import { ThemeContextValue } from './themeData';
 
-const ThemeToggle: FC<{ themeContext: ThemeContextValue }> = ({
+export const ThemeToggle: FC<{ themeContext: ThemeContextValue }> = ({
   themeContext,
 }) => {
   const { darkMode, toggleDarkMode } = themeContext;
@@ -16,5 +16,3 @@ const ThemeToggle: FC<{ themeContext: ThemeContextValue }> = ({
     </IconButton>
   );
 };
-
-export  ThemeToggle;

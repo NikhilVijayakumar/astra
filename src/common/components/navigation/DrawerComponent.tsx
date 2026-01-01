@@ -12,7 +12,7 @@ import Drawer from '@mui/material/Drawer';
 import { Features, DrawerProps, drawerWidth } from './drawerData';
 
 
-const DrawerComponent = <T extends Features>(props: DrawerProps<T>) => {
+export const DrawerComponent = <T extends Features>(props: DrawerProps<T>) => {
   const {
     sortedFeatures,
     UiFeatureList,
@@ -112,5 +112,3 @@ const DrawerComponent = <T extends Features>(props: DrawerProps<T>) => {
     </Box>
   );
 };
-
-export default DrawerComponent;
