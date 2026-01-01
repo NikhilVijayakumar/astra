@@ -17,4 +17,4 @@ const ThemeToggle: FC<{ themeContext: ThemeContextValue }> = ({
   );
 };
 
-export default ThemeToggle;
+export  ThemeToggle;
