@@ -61,17 +61,23 @@ export const DarkModeView = () => (
 );
 ```
 
-## Setup Example
+## Setup Example & Overriding Tokens
+
+Astra provides a convenient factory function `createAstraTheme` that allows you to easily override default design tokens (like colors, typography, or spacing).
 
 ```tsx
-import { createTheme } from '@mui/material/styles';
 import { ThemeProvider } from 'astra';
+import { createAstraTheme } from 'astra/theme';
 
-const light = createTheme({ palette: { mode: 'light', primary: { main: '#007bff' } } });
-const dark = createTheme({ palette: { mode: 'dark', primary: { main: '#90caf9' } } });
+// 1. You can pass raw MUI ThemeOptions to override Astra's defaults
+const { lightTheme, darkTheme } = createAstraTheme(
+  { palette: { primary: { main: '#007bff' } } }, // Light overrides
+  { palette: { primary: { main: '#90caf9' } } }  // Dark overrides
+);
 
 export const App = () => (
-  <ThemeProvider lightTheme={light} darkTheme={dark}>
+  // 2. Pass the generated themes to the ThemeProvider
+  <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
     <MainLayout />
   </ThemeProvider>
 );
