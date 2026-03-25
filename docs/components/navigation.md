@@ -1,50 +1,100 @@
 # Navigation Components
 
-The `astra` library provides pre-built navigation components that integrate seamlessly with Material-UI and the application's theme/localization systems.
+Source:
+- src/common/components/navigation/DrawerComponent.tsx
+- src/common/components/navigation/ToolbarComponent.tsx
+- src/common/components/navigation/drawerData.ts
+- src/common/components/navigation/Toolbardata.ts
+
+## Shared Types
+
+```ts
+type UiFeature = {
+  url: string;
+};
+
+interface Features {
+  id: number;
+  name: string;
+  display_order: number;
+  icon: SvgIconComponent;
+}
+
+const drawerWidth = 240;
+```
 
 ## DrawerComponent
 
-A responsive navigation drawer that supports both mobile (temporary) and desktop (permanent) modes.
+Generic component:
 
-### Props
+```ts
+DrawerComponent<T extends Features>
+```
 
-`DrawerComponent` is a generic component `<T extends Features>` accepting the following props:
+Props:
 
--   `sortedFeatures`: `T[] | null` - An array of feature objects defining the navigation items.
--   `UiFeatureList`: `Record<string, UiFeature>` - A mapping of feature names to UI configurations (e.g., icons, routes).
--   `container`: `(() => HTMLElement) | undefined` - Optional container for the drawer portal (useful for testing or specific DOM structures).
--   `onMenuItemClick`: `(index: number) => void` - Callback fired when a navigation item is clicked.
--   `mobileOpen`: `boolean` - Controls the open state of the temporary drawer on mobile.
--   `handleDrawerToggle`: `() => void` - Callback to toggle the mobile drawer.
+```ts
+type DrawerProps<T extends Features> = {
+  sortedFeatures: T[] | null;
+  UiFeatureList: Record<string, UiFeature>;
+  container: (() => HTMLElement) | undefined;
+  onMenuItemClick: (index: number) => void;
+  mobileOpen: boolean;
+  handleDrawerToggle: () => void;
+};
+```
 
-### Usage
+Behavior:
+- Renders temporary drawer on xs screens.
+- Renders permanent drawer on sm+ screens.
+- Filters display by matching feature.name against UiFeatureList keys.
+- Calls onMenuItemClick(display_order - 1) on item click.
 
 ```tsx
 <DrawerComponent
-  sortedFeatures={features}
-  UiFeatureList={uiFeatures}
-  onMenuItemClick={handleNavigate}
+  sortedFeatures={sortedFeatures}
+  UiFeatureList={uiFeatureList}
+  container={container}
+  onMenuItemClick={handleMenuClick}
   mobileOpen={mobileOpen}
-  handleDrawerToggle={toggleDrawer}
+  handleDrawerToggle={handleDrawerToggle}
 />
 ```
 
 ## ToolbarComponent
 
-A standard application toolbar (AppBar) that includes a hamburger menu trigger (for mobile), a title, and a theme toggle switch.
+Props:
 
-### Props
+```ts
+type ToolbarProps = {
+  handleDrawerToggle: () => void;
+  title: string;
+  themeContext: ThemeContextValue;
+};
+```
 
--   `handleDrawerToggle`: `() => void` - Callback to open the mobile drawer.
--   `title`: `string` - The application title displayed in the toolbar.
--   `themeContext`: `ThemeContextValue` - The theme context object required by the internal `ThemeToggle`.
-
-### Usage
+Behavior:
+- Renders AppBar with:
+  - mobile menu icon button
+  - title
+  - ThemeToggle bound to provided themeContext
 
 ```tsx
 <ToolbarComponent
-  title="My App"
-  handleDrawerToggle={toggleDrawer}
+  title="Astra Admin"
+  handleDrawerToggle={handleDrawerToggle}
   themeContext={themeContext}
 />
 ```
+
+## Integration Notes
+
+1. Keep sortedFeatures in ViewModel/container layer.
+2. Keep UiFeatureList as stable map keyed by feature name.
+3. Use ToolbarComponent with Astra ThemeContextValue from useTheme().
+
+## Related Docs
+
+- ../MVVM_Clean_Architecture.md
+- ../Theming.md
+

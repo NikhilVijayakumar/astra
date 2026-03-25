@@ -41,6 +41,30 @@ Or if you are developing locally and linking it:
 
 ## 🛠 Usage
 
+## 📜 Consumption Contract
+
+Supported import styles:
+
+```ts
+import { ThemeProvider, spacing, HeroSection } from 'astra';
+```
+
+```ts
+import { spacing } from 'astra/theme';
+import { HeroSection } from 'astra/components';
+```
+
+Notes:
+
+- Root imports from `astra` remain the primary and recommended style.
+- Subpath imports are supported only for the documented package export contract (`astra/theme`, `astra/components`, `astra/common`, and their `/*` variants).
+- Direct imports into internal build output paths (for example `astra/dist/...`) are unsupported and may break without notice.
+
+Migration guidance for older consumers:
+
+- Replace any internal or alias-based imports with `astra` root imports where possible.
+- If selective paths are needed, use only the declared subpaths above.
+
 ### 1. Theming Setup
 
 Wrap your application with `ThemeProvider`. You need to provide your Light and Dark theme configurations (MUI Theme objects).
@@ -176,6 +200,24 @@ The core logic resides in `src/common`:
 -   **`repo/`**: `ApiService`, `ServerResponse`, and networking types.
 -   **`state/`**: `AppState` type definitions (`INIT`, `LOADING`, `COMPLETED`).
 -   **`theme/`**: `ThemeProvider` and theming logic.
+
+## 📚 Client Documentation
+
+For production integrations, follow these docs in order:
+
+1. `docs/MVVM_Clean_Architecture.md` for architecture boundaries and composition.
+2. `docs/Repository_Layer.md` for API and data access conventions.
+3. `docs/state.md` for app-state usage patterns and transitions.
+4. `docs/Localization.md` for language setup and translation contracts.
+5. `docs/Theming.md` for Astra token standards, theming architecture, and override strategy.
+6. `docs/Platform_Compatibility.md` for browser/platform behavior notes.
+
+Recommended onboarding path for client apps:
+
+- Start with root imports from `astra`.
+- Introduce `ThemeProvider` and `LanguageProvider` at app root.
+- Keep feature modules aligned to MVVM and repository contracts.
+- Prefer Astra token-driven styling and avoid per-feature hardcoded design constants.
 
 ## 💻 Development
 

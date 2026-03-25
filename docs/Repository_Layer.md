@@ -1,112 +1,149 @@
 # Repository & API Layer
 
-The repository layer abstracts all network interactions, ensuring consistent error handling and response formatting across the application. It is built on top of `axios`.
+This document describes Astra's data access contract implemented under src/common/repo.
 
-## Core Components
+## Source Modules
 
-### 1. ApiService (`src/common/repo/ApiService.ts`)
+- ApiService.ts
+- apiServiceFactory.ts
+- ServerResponse.ts
+- APITypes.ts
+- HttpStatusCode.ts
 
-The `ApiService` class is a generic wrapper for HTTP methods. It enforces a strict output format (`ServerResponse<T>`) so consumers never have to deal with raw `AxiosResponse` or `try-catch` blocks for basic networking errors.
+## ApiService
 
-#### Initialization & Factory Pattern
+ApiService is a thin HTTP wrapper over axios that always returns ServerResponse<T>.
 
-The `ApiService` requires a localization map (`literal`) during instantiation. This map is mandatory for generating user-friendly status messages (e.g., converting HTTP 404 to "Resource not found").
+Constructor:
 
-```typescript
-// Ideally, use a factory or provider to inject the current language literals
-const api = new ApiService(baseUrl, literalMap);
+```ts
+new ApiService(baseUrl: string, literal: Record<string, string>)
 ```
 
-### Localization Requirements
+Methods:
 
-For the `ApiService` and `getStatusMessage` helper to function correctly, the `literal` object **must** contain the following keys. Missing these keys will result in fallback failures or undefined messages.
+```ts
+get<T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>>
+post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ServerResponse<T>>
+put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ServerResponse<T>>
+delete<T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>>
+```
 
-| Key | Description |
-| :--- | :--- |
-| `success_message` | Default message for HTTP 200 OK |
-| `created_message` | Default message for HTTP 201 Created |
-| `bad_request_message` | Default message for HTTP 400 Bad Request |
-| `unauthorized_message` | Default message for HTTP 401 Unauthorized |
-| `not_found_message` | Default message for HTTP 404 Not Found |
-| `internal_server_error` | Default message for HTTP 500 Internal Server |
-| `internet_error` | Custom message for network connectivity issues |
-| `idle_message` | Message for the initial idle state |
-| `unknown_message` | Fallback for unmapped status codes |
+Behavior:
+- Uses baseUrl + "/" + url for request path.
+- Converts success responses to ServerResponse.success(...).
+- Converts axios errors and unknown errors to ServerResponse.error(...).
+- Uses literal.internal_server_error as fallback message.
 
-#### Methods
-- `get<T>(url, config?)`
-- `post<T>(url, data?, config?)`
-- `put<T>(url, data?, config?)`
-- `delete<T>(url, config?)`
+## ServerResponse Contract
 
-#### Error Handling Logic
-The `request` method automatically catches errors:
-- If it's an **Axios Error**: Extracts the status code and message from the response.
-- If it's a **Network/Unknown Error**: Defaults to 500 Internal Server Error using the `literalMap`.
+ServerResponse<T> has stable shape:
 
----
-
-### 2. ServerResponse (`src/common/repo/ServerResponse.ts`)
-
-A standardized wrapper class that normalizes the outcome of an API call.
-
-```typescript
-export class ServerResponse<T> {
-  public isError: boolean;
-  public isSuccess: boolean;
-  public status: HttpStatusCode;
-  public statusMessage: String;
-  public data?: T;
-  
-  // Factory methods
-  static success<T>(result: ResponseSuccess<T>): ServerResponse<T>;
-  static error<T>(error: ResponseError): ServerResponse<T>;
+```ts
+{
+  isError: boolean;
+  isSuccess: boolean;
+  status: HttpStatusCode;
+  statusMessage: string;
+  data?: T;
 }
 ```
 
-This ensures that whether the server returns 200, 400, or 500, the UI receives the same shape of object and can simply check `isSuccess` or `isError`.
+Creation helpers:
+- ServerResponse.success<T>(responseSuccess)
+- ServerResponse.error<T>(responseError)
 
----
+## HttpStatusCode and Message Mapping
 
-### 3. APITypes & HttpStatusCode
+HttpStatusCode enum includes network and app lifecycle values:
 
-#### HttpStatusCode Enum
-Standard HTTP codes (`SUCCESS = 200`, `BAD_REQUEST = 400`, etc.) to avoid magic numbers in the code.
-
-#### Helper: `getStatusMessage`
-A utility function that safely retrieves the localized string for a given `HttpStatusCode`.
-
-```typescript
-function getStatusMessage(status: HttpStatusCode, literal: Record<string, string>): string
-```
-It relies entirely on the `literal` map passed during `ApiService` construction or View rendering.
-
-#### Response Objects
-```typescript
-export type ResponseSuccess<T> = {
-  status: HttpStatusCode;
-  statusMessage: string;
-  data: T;
-};
-
-export type ResponseError = {
-  status: HttpStatusCode;
-  statusMessage: string;
-};
+```ts
+SUCCESS = 200
+CREATED = 201
+BAD_REQUEST = 400
+UNAUTHORIZED = 401
+NOT_FOUND = 404
+INTERNAL_SERVER_ERROR = 500
+INTERNET_ERROR = 0
+IDLE = 1000
 ```
 
-## Best Practices
+Use getStatusMessage(status, literal) to map status to localized strings.
 
-1.  **Repository Pattern**: Do not call `api.get` directly in components. Define a Repository object that exposes domain-specific methods.
-    ```typescript
-    // Good
-    AuthRepo.login(credentials);
-    
-    // Avoid
-    api.post('/auth/login', credentials);
-    ```
+Required literal keys:
+- success_message
+- created_message
+- bad_request_message
+- unauthorized_message
+- not_found_message
+- internal_server_error
+- internet_error
+- idle_message
+- unknown_message
 
-2.  **Type Safety**: Always pass the expected response type to the generic method.
-    ```typescript
-    api.get<UserProfile>('me');
-    ```
+## getApiService Factory
+
+getApiService(baseUrl, literal) caches ApiService by baseUrl.
+
+Important implication:
+- If the same baseUrl is requested again with a new literal object, the cached instance is reused.
+- For language-sensitive API messages, this means literal updates are not automatically reflected for the same baseUrl unless cache strategy is changed.
+
+Current behavior is intentional for reuse/performance, but client apps should be aware.
+
+## Repository Pattern Standard
+
+Each feature should define repository methods with domain names, not HTTP names.
+
+Good:
+
+```ts
+usersRepo.fetchUsers()
+usersRepo.createUser(payload)
+```
+
+Avoid in ViewModel/View:
+
+```ts
+api.get('users')
+api.post('users', payload)
+```
+
+## Example Repository
+
+```ts
+import { ApiService, ServerResponse } from 'astra';
+
+type User = { id: string; name: string };
+
+export class UsersRepo {
+  constructor(private api: ApiService) {}
+
+  fetchUsers(): Promise<ServerResponse<User[]>> {
+    return this.api.get<User[]>('users');
+  }
+
+  createUser(payload: Pick<User, 'name'>): Promise<ServerResponse<User>> {
+    return this.api.post<User>('users', payload);
+  }
+}
+```
+
+## Type Safety Standards
+
+1. Always pass method generic type: api.get<User[]>('users').
+2. Keep repository return type explicit: Promise<ServerResponse<T>>.
+3. Do not expose axios-specific types outside repository layer.
+
+## Error Handling Standards
+
+1. UI should read isError/isSuccess and status from ServerResponse/AppState.
+2. Do not throw repository errors for expected HTTP outcomes.
+3. Keep toast/snackbar and retry logic in ViewModel/View, not ApiService.
+
+## Related Docs
+
+- MVVM_Clean_Architecture.md
+- hooks.md
+- state.md
+

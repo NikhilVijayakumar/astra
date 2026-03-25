@@ -1,44 +1,63 @@
 # MVVM Clean Architecture Guide
 
-This guide provides step-by-step instructions for implementing the Model-View-ViewModel (MVVM) Clean Architecture in your application using the `astra` library.
+This guide defines Astra's feature architecture standard for client applications.
 
-## Architectural Overview
+## Architecture Contract
 
-Astra strictly separates concerns into three layers:
+Each feature should have three layers:
 
-1.  **View (UI)**: React Components (Container + Presentational).
-2.  **ViewModel**: State management and business logic hook.
-3.  **Repository**: Data abstraction and API handling.
+1. View: presentational and container React components.
+2. ViewModel: orchestration logic with hooks and action functions.
+3. Repository: data access abstraction using ApiService (or another backend client).
 
-## 1. Directory Structure
-
-Organize your features to keep related code together. We recommend a `features/` directory with subfolders for each domain.
+## Recommended Feature Structure
 
 ```text
 src/
-├── features/
-│   └── [feature_name]/        # e.g., users
-│       ├── view/              # UI Components
-│       │   ├── [Feature]Container.tsx
-│       │   └── [Feature]List.tsx
-│       ├── viewmodel/         # Business Logic
-│       │   └── use[Feature]ViewModel.ts
-│       └── repo/              # Data Layer
-│           └── [Feature]Repo.ts
-└── layout/                    # App Shell (MainLayout)
+  features/
+    users/
+      view/
+        UsersContainer.tsx
+        UsersList.tsx
+      viewmodel/
+        useUsersViewModel.ts
+      repo/
+        UsersRepo.ts
+  layout/
+    MainLayout.tsx
 ```
 
----
+This keeps each feature vertically sliced and testable.
 
-## 2. Step-by-Step Implementation
+## Layer Responsibilities
 
-### Step 1: The Repository Layer
+### View
 
-Create a repository to handle data fetching. Extend `ApiService` if using REST, or implement your own logic.
+- Renders UI only.
+- Reads ViewModel output.
+- Triggers ViewModel actions.
+- Does not call ApiService directly.
 
-**File:** `src/features/users/repo/UsersRepo.ts`
+### ViewModel
 
-```typescript
+- Owns useDataState hooks and async flows.
+- Maps repository responses into screen behaviors.
+- Exposes stable API for View:
+  - state objects
+  - computed flags
+  - event handlers
+
+### Repository
+
+- Encapsulates endpoint details and request payloads.
+- Returns ServerResponse<T>.
+- Contains no React code.
+
+## Source-Aligned Example
+
+### 1. Repository
+
+```ts
 import { ApiService, ServerResponse } from 'astra';
 
 export interface User {
@@ -46,170 +65,115 @@ export interface User {
   name: string;
 }
 
-class UsersRepo {
+export class UsersRepo {
   constructor(private api: ApiService) {}
 
-  async getUsers(): Promise<ServerResponse<User[]>> {
-    // Uses the injected ApiService instance
-    return this.api.get<User[]>('/api/users');
+  getUsers(): Promise<ServerResponse<User[]>> {
+    return this.api.get<User[]>('users');
   }
 }
 ```
 
-### Step 2: The ViewModel Layer
+### 2. ViewModel
 
-The ViewModel manages state. Use `useDataState` to handle loading, error, and success states automatically.
+```ts
+import { useEffect, useMemo } from 'react';
+import { useDataState, getApiService, HttpStatusCode, StateType } from 'astra';
+import { UsersRepo } from '../repo/UsersRepo';
 
-**File:** `src/features/users/viewmodel/useUsersViewModel.ts`
+const API_BASE = 'https://example.com/api';
 
-```typescript
-import { useEffect } from 'react';
-import { useDataState, useApiClient } from 'astra';
-import { UsersRepo, User } from '../repo/UsersRepo';
+export function useUsersViewModel(literal: Record<string, string>) {
+  const api = useMemo(() => getApiService(API_BASE, literal), [literal]);
+  const repo = useMemo(() => new UsersRepo(api), [api]);
 
-export const useUsersViewModel = () => {
-    const api = useApiClient();
-    const usersRepo = new UsersRepo(api);
-  // 1. Initialize state manager
-  const [usersState, setUsersState] = useDataState<User[]>([]);
+  const [usersState, executeUsers] = useDataState<{ id: string; name: string }[]>();
 
-  // 2. Define actions
-  const fetchUsers = async () => {
-    setUsersState.loading();
-    const response = await usersRepo.getUsers();
-    
-    if (response.isSuccess) {
-      setUsersState.success(response.data);
-    } else {
-      setUsersState.error(response.error);
-    }
-  };
+  const loadUsers = () => executeUsers(() => repo.getUsers());
 
-  // 3. Load on mount
   useEffect(() => {
-    fetchUsers();
+    loadUsers();
   }, []);
 
-  // 4. Expose public API
   return {
-    state: usersState, // Contains: data, isLoading, isError, error
-    reload: fetchUsers,
+    usersState,
+    loadUsers,
+    isLoading: usersState.state === StateType.LOADING,
+    isInternetError: usersState.status === HttpStatusCode.INTERNET_ERROR,
   };
-};
-```
-
-### Step 3: The View Layer
-
-Split your UI into a **Stateful Container** and **Stateless Components**.
-
-#### 3a. Stateless Component (The "XML")
-
-This component only renders props. It knows nothing about logic or API calls.
-
-**File:** `src/features/users/view/UsersList.tsx`
-
-```typescript
-import { FC } from 'react';
-import { User } from '../repo/UsersRepo';
-
-interface UsersListProps {
-  users: User[];
-  onReload: () => void;
 }
-
-export const UsersList: FC<UsersListProps> = ({ users, onReload }) => {
-  return (
-    <div>
-      <button onClick={onReload}>Reload</button>
-      <ul>
-        {users.map((user) => (
-          <li key={user.id}>{user.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-};
 ```
 
-#### 3b. Stateful Container (The "Fragment")
+### 3. Container + Presentational View
 
-This component connects the ViewModel to the View using `AppStateHandler`.
-
-**File:** `src/features/users/view/UsersContainer.tsx`
-
-```typescript
-import { FC } from 'react';
+```tsx
 import { AppStateHandler } from 'astra';
+import { useLanguage } from 'astra';
 import { useUsersViewModel } from '../viewmodel/useUsersViewModel';
 import { UsersList } from './UsersList';
 
-export const UsersContainer: FC = () => {
-  // 1. Hook into ViewModel
-  const { state, reload } = useUsersViewModel();
+export function UsersContainer() {
+  const { literal } = useLanguage();
+  const { usersState, loadUsers } = useUsersViewModel(literal);
 
-  // 2. Delegate state handling to Astra
   return (
     <AppStateHandler
-      state={state}
-      onRetry={reload}
+      appState={usersState}
+      emptyCondition={(data) => data.length === 0}
+      errorMessage={literal.unknown_message}
     >
-      {/* 3. Render Success View */}
-      <UsersList 
-        users={state.data} 
-        onReload={reload} 
-      />
+      <UsersList users={usersState.data ?? []} onReload={loadUsers} />
     </AppStateHandler>
   );
-};
+}
 ```
 
-### Step 4: App Initialization
+## App Root Composition Standard
 
-Astra provides core providers that must wrap your application to handle Theme and Localization.
-
-**File:** `src/App.tsx`
+Use LanguageProvider and ThemeProvider at root so all features can consume language and theme context.
 
 ```tsx
-import { FC } from 'react';
-import { ThemeProvider, LanguageProvider } from 'astra';
-import { translations, availableLanguages, DEFAULT_LANGUAGE } from './localization/i18n';
-import { lightTheme, darkTheme } from './theme/appTheme';
-import { MainLayout } from './layout/MainLayout'; // Your custom layout
-import { UsersContainer } from './features/users/view/UsersContainer';
+import { LanguageProvider, ThemeProvider } from 'astra';
+import { createAstraTheme } from 'astra/theme';
 
-export const App: FC = () => {
+const { lightTheme, darkTheme } = createAstraTheme();
+
+export function AppRoot() {
   return (
     <LanguageProvider
       translations={translations}
       availableLanguages={availableLanguages}
-      defaultLanguage={DEFAULT_LANGUAGE}
+      defaultLanguage="en"
     >
       <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
-        {/* Your Router or Main Layout */}
-        <MainLayout>
-           <UsersContainer />
-        </MainLayout>
+        <MainLayout />
       </ThemeProvider>
     </LanguageProvider>
   );
-};
+}
 ```
 
----
+## MVVM Standards Checklist
 
-## Reference & Documentation
+1. Every feature has view, viewmodel, and repo folders.
+2. Repositories return ServerResponse<T>.
+3. ViewModels own useDataState and async orchestration.
+4. Views do not import ApiService.
+5. AppStateHandler is used for consistent loading/error/empty/success rendering.
+6. Language literal is consumed from useLanguage in ViewModel or container boundary.
 
-*   **State Management**: See [Hooks Documentation](hooks.md) for `useDataState` and [State Documentation](state.md) for `AppState` definitions.
-*   **Theming**: See [Theming Documentation](Theming.md) for `ThemeProvider`.
-*   **Localization**: See [Localization Documentation](Localization.md).
-*   **UI Components**: See [Wrapper Components](components/wrapper.md) for details on `AppStateHandler`.
+## Anti-Patterns to Avoid
 
+- API calls directly in view components.
+- ViewModel returning raw AxiosResponse.
+- Stringly-typed status handling without HttpStatusCode.
+- Duplicate loading/error UI logic in every screen.
 
----
+## Related Docs
 
-## Best Practices
+- hooks.md
+- state.md
+- Repository_Layer.md
+- Localization.md
+- components/wrapper.md
 
-*   **Do** keep ViewModels pure (no UI imports like JSX).
-*   **Do** use `AppStateHandler` to ensure consistent Loading/Error UIs.
-*   **Don't** make API calls directly in components (even `.tsx`).
-*   **Don't** put complex logic in `useEffect` inside components; move it to the ViewModel.

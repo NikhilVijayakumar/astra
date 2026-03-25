@@ -1,12 +1,10 @@
-# State Management Documentation
+# State Management
 
-## AppState
+State primitives are implemented in src/common/state/AppState.ts and used by useDataState and AppStateHandler.
 
-`AppState` is the core interface used throughout the Astra library to represent the state of data-driven features. It provides a consistent structure for ViewModels and UI components to consume.
+## AppState Interface
 
-### Interface Definition
-
-```typescript
+```ts
 export interface AppState<T> {
   state: StateType;
   isError: boolean;
@@ -17,20 +15,77 @@ export interface AppState<T> {
 }
 ```
 
-### StateType Enum
+This is the shared contract across Repository -> ViewModel -> View.
 
-The `StateType` enum defines the high-level lifecycle of a data operation:
+## StateType Lifecycle
 
-```typescript
-export enum StateType {
-  INIT = 0,      // Initial state, no action taken yet
-  LOADING = 1,   // Operation in progress
-  COMPLETED = 2, // Operation finished (success or failure)
-}
+```ts
+INIT = 0
+LOADING = 1
+COMPLETED = 2
 ```
 
-### Best Practices
+Transition model:
 
-1.  **Immutability**: Always treat `AppState` as immutable. Use the `execute` helper from `useDataState` or properly spread previous state when updating manually.
-2.  **Type Safety**: Always specify the generic type `T` (e.g., `AppState<User[]>`) to ensure type safety for the `data` property.
-3.  **Consistency**: Use `AppState` in conjunction with `ServerResponse` from the Repository layer and `useDataState` in the ViewModel layer to maintain a consistent data flow.
+1. INIT: initial render before execution.
+2. LOADING: execute(...) started.
+3. COMPLETED: execute(...) finished with success or error.
+
+There is no separate SUCCESS enum value; success/failure is represented by isSuccess/isError and status.
+
+## Status Field Semantics
+
+status uses HttpStatusCode, including network and idle values.
+
+Common interpretations:
+- status === IDLE with INIT: untouched state.
+- status === INTERNET_ERROR: connectivity problem.
+- status >= 400: server/client error returned by repository.
+
+## Data Nullability
+
+data is T | null.
+
+Guidance:
+- Treat null as "no successful payload yet".
+- For list screens, use emptyCondition in AppStateHandler to handle [] as empty UI.
+- Avoid forcing fallback [] at ViewModel boundary unless component contract requires it.
+
+## State Ownership Standard
+
+1. ViewModel owns AppState creation and transitions.
+2. View reads AppState and renders via AppStateHandler.
+3. Repository never reads or mutates AppState.
+
+## Manual State Updates
+
+When using setAppState directly from useDataState, always spread previous state:
+
+```ts
+setAppState((prev) => ({
+  ...prev,
+  statusMessage: 'Refreshing cache...',
+}));
+```
+
+## Integration with AppStateHandler
+
+AppStateHandler expects appState and applies this logic:
+- LOADING -> LoadingState
+- isError or INTERNET_ERROR -> ErrorState
+- isSuccess + non-empty -> success view
+- otherwise -> EmptyState
+
+## Testing Guidance
+
+For ViewModel tests, verify:
+1. Initial state values.
+2. LOADING transition before API promise resolves.
+3. COMPLETED + success payload mapping.
+4. COMPLETED + error mapping.
+
+## Related Docs
+
+- hooks.md
+- components/wrapper.md
+

@@ -1,101 +1,109 @@
-# Hooks Documentation
+# Hooks
 
 ## useDataState
 
-The `useDataState` hook is a custom hook designed to manage the state of asynchronous data operations, typically API calls. It simplifies the process of handling different states like loading, success, error, and idle.
+Source: src/common/hooks/useDataState.ts
 
-### Usage
+useDataState is Astra's standard async state orchestration hook.
 
-```typescript
-import { useDataState } from 'astra';
-import { User } from './types';
+### Signature
 
-// DIRECT USAGE (Not Recommended for Production)
-const MyComponent = () => {
-  const [state, execute] = useDataState<User[]>();
+```ts
+useDataState<T>(customInitialState?: Partial<AppState<T>>) =>
+  readonly [
+    appState: AppState<T>,
+    execute: (apiCall: () => Promise<ServerResponse<T>>) => Promise<void>,
+    setAppState: React.Dispatch<React.SetStateAction<AppState<T>>>
+  ]
+```
 
-  const loadUsers = async () => {
-    await execute(() => api.getUsers());
-  };
-  
-  if (state.state === StateType.LOADING) return <LoadingSpinner />;
-  // ...
+### Internal Behavior
+
+execute(...) performs:
+
+1. state -> LOADING
+2. await apiCall()
+3. map ServerResponse fields to AppState
+4. on thrown error, set INTERNAL_SERVER_ERROR and generic message
+
+### Basic Usage
+
+```ts
+const [usersState, executeUsers, setUsersState] = useDataState<User[]>();
+
+const loadUsers = () => executeUsers(() => usersRepo.fetchUsers());
+```
+
+### Custom Initial State
+
+```ts
+const [state] = useDataState<User[]>({
+  statusMessage: 'Preparing user list...',
+});
+```
+
+## ViewModel Composition Pattern
+
+Use one useDataState per independent async concern.
+
+```ts
+const [listState, executeList] = useDataState<User[]>();
+const [detailState, executeDetail] = useDataState<User>();
+const [deleteState, executeDelete] = useDataState<boolean>();
+```
+
+Benefits:
+- clear loading indicators per action
+- isolated errors
+- predictable orchestration
+
+## Correct Orchestration Pattern
+
+Because state updates are asynchronous, branch using API response when sequencing actions.
+
+Preferred:
+
+```ts
+const deleteUser = async (id: string) => {
+  const response = await usersRepo.deleteUser(id);
+  if (response.isSuccess) {
+    await executeList(() => usersRepo.fetchUsers());
+  }
 };
 ```
 
-### API
+Alternative with execute + state observation is possible, but direct response checks are usually clearer.
 
-#### Parameters
+## Manual setAppState Usage
 
-- `customInitialState` (optional): `Partial<AppState<T>>` - Allows overriding the default initial state values.
+Use setAppState for local-only metadata transitions, not to re-implement execute.
 
-#### Return Value
-
-The hook returns a tuple `[appState, execute, setAppState]`:
-
-1.  **`appState`**: `AppState<T>` - The current state object (INIT, LOADING, COMPLETED, data, error, etc.).
-2.  **`execute`**: `(apiCall: () => Promise<ServerResponse<T>>) => Promise<void>` - Helper to auto-manage state transitions.
-3.  **`setAppState`**: `React.Dispatch<React.SetStateAction<AppState<T>>>` - Manual state setter.
-
----
-
-## Architectural Recommendation: The ViewModel Pattern
-
-While `useDataState` can be used directly in components, **Astra strongly recommends always wrapping it in a ViewModel (Custom Hook)**. 
-
-### Why Use a ViewModel?
-1.  **Separation of Concerns**: Keeps UI logic (Components) separate from Business logic (ViewModels).
-2.  **Composition**: Allows managing multiple simultaneous API states (e.g., a list loading while a delete action is pending).
-3.  **Consistency**: Provides a uniform interface for components, regardless of complexity.
-
-### Pattern: ViewModel as Orchestrator
-
-For features needing multiple API calls (CRUD), do not try to reuse a single `useDataState` hook. Instead, compose multiple hooks within one ViewModel.
-
-#### Example: Complex User ViewModel
-
-```typescript
-export const useUsersViewModel = () => {
-    // 1. State for the Main List (GET /users)
-    const [listState, executeList] = useDataState<User[]>();
-
-    // 2. State for a Specific User Detail (GET /users/:id)
-    const [detailState, executeDetail] = useDataState<User>();
-
-    // 3. State for an Action (DELETE /users/:id)
-    // Use 'boolean' or 'void' since we only care about success/failure status
-    const [deleteState, executeDelete] = useDataState<boolean>();
-
-    // --- Actions ---
-
-    const loadUsers = () => executeList(() => api.getUsers());
-
-    const selectUser = (id: string) => executeDetail(() => api.getUser(id));
-
-    const deleteUser = async (id: string) => {
-        // Run the delete operation
-        await executeDelete(() => api.deleteUser(id));
-
-        // ORCHESTRATION: If delete succeeded, reload the list
-        if (deleteState.isSuccess) {
-            await loadUsers();
-        }
-    };
-
-    // --- Public Interface for the View ---
-    return {
-        // Data
-        users: listState.data,
-        selectedUser: detailState.data,
-        
-        // Granular Loading States (allows UI to show specific spinners)
-        isListLoading: listState.state === StateType.LOADING,
-        isDeleting: deleteState.state === StateType.LOADING,
-        
-        // Actions
-        loadUsers,
-        selectUser,
-        deleteUser
-    };
-};
+```ts
+setAppState((prev) => ({
+  ...prev,
+  statusMessage: 'Applying local filter...',
+}));
 ```
+
+## Hooks Standards
+
+1. Keep useDataState in ViewModel hooks, not view components.
+2. Repositories return ServerResponse<T> so execute can map reliably.
+3. Expose stable ViewModel API:
+   - state objects
+   - computed booleans
+   - handler functions
+4. Avoid coupling one useDataState to multiple unrelated async workflows.
+
+## Common Mistakes
+
+- Calling execute in presentational components.
+- Returning raw setAppState to view layer unnecessarily.
+- Checking stale state immediately after execute for branching.
+
+## Related Docs
+
+- state.md
+- MVVM_Clean_Architecture.md
+- components/wrapper.md
+

@@ -1,59 +1,86 @@
 # Wrapper Components
 
-Wrapper components in `astra` are designed to simplify common UI patterns, such as handling different states of a data view (loading, error, empty, success).
+Source:
+- src/common/components/wrapper/AppStateHandler.tsx
+- src/common/components/wrapper/LoadingState.tsx
+- src/common/components/wrapper/ErrorState.tsx
+- src/common/components/wrapper/EmptyState.tsx
 
 ## AppStateHandler
 
-The `AppStateHandler` is a generic controller component that renders specific UI based on the current `AppState`. It eliminates repetitive conditional logic in your components.
+AppStateHandler is Astra's standard state-rendering controller for feature screens.
 
-### Logic Flow
+### Generic Contract
 
-1.  **Loading**: If `state === StateType.LOADING`, renders `<LoadingState />`.
-2.  **Error**: If `isError` is true or status is `INTERNET_ERROR`, renders `<ErrorState />`.
-3.  **Success**: If `isSuccess` is true and data exists:
-    -   It checks the `emptyCondition` (if provided). If true, renders `<EmptyState />`.
-    -   Otherwise, renders the provided `SuccessComponent`.
-4.  **Fallback**: Renders `<EmptyState />` for idle or unhandled states.
-
-### Props
-
-`AppStateHandler` is a generic component `<T, S extends AppState<T>>` accepting:
-
--   `appState`: `S` - The state object to inspect.
--   `SuccessComponent`: `FC<{ appState: S }>` (Optional) - The component to render when data is successfully loaded.
--   `children`: `ReactNode` (Optional) - Alternative to `SuccessComponent`. Content to render on success.
--   `emptyCondition`: `(data: T) => boolean` (Optional) - Predicate to determine if the data should be considered "empty" (e.g., empty array).
--   `errorMessage`: `string` (Optional) - Custom error message.
-
-### Usage
-
-### Usage
-
-#### Using Children (Recommended)
-
-```tsx
-<AppStateHandler 
-    appState={state}
-    emptyCondition={(data) => data.length === 0}
->
-    <MySuccessView data={state.data} />
-</AppStateHandler>
+```ts
+AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
+    appState: S;
+    SuccessComponent?: FC<{ appState: S }>;
+    emptyCondition?: (data: T) => boolean;
+    errorMessage?: string;
+    children?: ReactNode;
+}
 ```
 
-#### Using SuccessComponent (Legacy)
+### Runtime Logic
+
+AppStateHandler evaluates appState in this order:
+
+1. state === LOADING -> LoadingState
+2. isError OR status === INTERNET_ERROR -> ErrorState
+3. isSuccess && data !== null:
+     - if emptyCondition(data) is true -> EmptyState
+     - else if children provided -> render children
+     - else if SuccessComponent provided -> render SuccessComponent
+4. fallback -> EmptyState
+
+### Usage Pattern (Recommended)
 
 ```tsx
 <AppStateHandler
-    appState={state}
-    SuccessComponent={MySuccessView}
+    appState={usersState}
+    emptyCondition={(data) => data.length === 0}
+    errorMessage={literal.unknown_message}
+>
+    <UsersList users={usersState.data ?? []} onReload={loadUsers} />
+</AppStateHandler>
+```
+
+### Alternate SuccessComponent Pattern
+
+```tsx
+<AppStateHandler
+    appState={usersState}
+    SuccessComponent={({ appState }) => (
+        <UsersList users={appState.data ?? []} onReload={loadUsers} />
+    )}
 />
 ```
 
+## Subcomponents
 
-## State Components
+### LoadingState
+- Used for asynchronous loading feedback.
+- Controlled by AppStateHandler during LOADING.
 
-These are simple display components used internally by `AppStateHandler`, but can also be used directly.
+### ErrorState
+- Displays an error message.
+- Uses passed errorMessage or localized fallback behavior from implementation.
 
--   **`LoadingState`**: Renders a centered circular loading spinner.
--   **`ErrorState`**: Renders an error message with an optional retry button (if extended).
--   **`EmptyState`**: Renders a placeholder indicating no data is available.
+### EmptyState
+- Displays no-data UI.
+- Used for empty success datasets and fallback states.
+
+## Standards
+
+1. Use AppStateHandler at feature container boundaries.
+2. Keep emptyCondition feature-specific and explicit.
+3. Prefer children pattern for readability.
+4. Do not duplicate loading/error/empty conditional trees in each container.
+
+## Related Docs
+
+- ../state.md
+- ../hooks.md
+- ../MVVM_Clean_Architecture.md
+

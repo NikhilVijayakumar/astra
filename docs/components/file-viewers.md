@@ -1,41 +1,131 @@
 # File Viewers
 
-Astra provides robust, stateless UI components for viewing various file formats. These are fully compatible with both Web and Electron environments since they don't depend on native file system APIs.
+Source:
+- src/components/file-viewers/FileViewerRouter.tsx
+- src/components/file-viewers/CsvViewer.tsx
+- src/components/file-viewers/ImageViewer.tsx
+- src/components/file-viewers/JsonViewer.tsx
+- src/components/file-viewers/MdViewer.tsx
 
-## Exported Components
+Import:
 
 ```tsx
-import { 
-  FileViewerRouter, 
-  CsvViewer, 
-  ImageViewer, 
-  JsonViewer, 
-  MdViewer 
+import {
+  FileViewerRouter,
+  CsvViewer,
+  ImageViewer,
+  JsonViewer,
+  MdViewer,
 } from 'astra/components';
 ```
 
-### Usage
-File viewers accept standard data formats as `props` and render them cleanly.
+## Common Input Model
+
+All viewers are driven by in-memory content props, making them compatible with web and electron app shells.
+
+## FileViewerRouter
+
+Props:
+
+```ts
+type FileViewerRouterProps = {
+  fileName: string;
+  fileContent?: string;
+  fileEncoding?: 'text' | 'base64';
+  mimeType?: string;
+};
+```
+
+Extension routing:
+- csv -> CsvViewer
+- md, markdown, txt -> MdViewer
+- jpg, jpeg, png, gif, svg, webp -> ImageViewer
+- json, jsonl -> JsonViewer
+- default -> unsupported fallback panel
 
 ```tsx
-<JsonViewer 
-  fileName="config.json"
-  content='{"key": "value"}'
+<FileViewerRouter
+  fileName="release-notes.md"
+  fileContent={markdownContent}
 />
 ```
 
-Available Viewers:
-- **`CsvViewer`**: Renders comma-separated data as an interactive data table with pagination.
-- **`ImageViewer`**: Renders standard images (PNG, JPG, SVG) with zoom and rotate controls.
-- **`JsonViewer`**: Renders JSON strings with syntax highlighting block (`react-syntax-highlighter`).
-- **`MdViewer`**: Renders Markdown content with full formatting using `react-markdown`.
+## CsvViewer
 
-### FileViewerRouter
-A convenient switch component that automatically routes to the appropriate viewer component based on the file extension.
+Props:
 
-```tsx
-<FileViewerRouter 
-  fileName="example.md" 
-  content="# Hello World"
-/>
+```ts
+type CsvViewerProps = {
+  fileName: string;
+  fileContent?: string;
+};
 ```
+
+Behavior:
+- auto-detects delimiter (semicolon or comma)
+- parses first line as headers
+- paginates rows with TablePagination
+
+## JsonViewer
+
+Props:
+
+```ts
+type JsonViewerProps = {
+  fileName: string;
+  fileContent?: string;
+};
+```
+
+Behavior:
+- pretty-prints valid JSON
+- supports jsonl by parsing each line
+- renders parse fallback object when content is invalid
+- syntax highlighting via react-syntax-highlighter
+
+## ImageViewer
+
+Props:
+
+```ts
+type ImageViewerProps = {
+  fileName: string;
+  fileContent?: string;
+  fileEncoding?: 'text' | 'base64';
+  mimeType?: string;
+};
+```
+
+Behavior:
+- expects base64 when rendering image payload
+- supports zoom in/out and 90-degree rotation
+- shows fallback placeholder if no content
+
+## MdViewer
+
+Props:
+
+```ts
+type MdViewerProps = {
+  fileName: string;
+  fileContent?: string;
+};
+```
+
+Behavior:
+- renders markdown using react-markdown
+- applies token-aware typography and spacing styles
+- shows default placeholder text when content is empty
+
+## Standards
+
+1. Keep file loading logic outside viewers.
+2. Pass content from ViewModel/container layer.
+3. Use FileViewerRouter when extension-based routing is sufficient.
+4. Use direct viewer components for fixed-format screens.
+
+## Related Docs
+
+- ui.md
+- ../Theming.md
+
