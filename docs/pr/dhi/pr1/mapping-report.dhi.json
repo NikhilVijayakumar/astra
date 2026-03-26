@@ -1,0 +1,313 @@
+{
+  "metadata": {
+    "astraPackageVersion": "0.0.8",
+    "astraCommit": "workspace-local-review",
+    "generatedAt": "2026-03-26",
+    "generatedBy": "astra-integration-review",
+    "status": "ready-for-integration",
+    "totalComponentsAudited": 14,
+    "promoted": 12,
+    "duplicate": 1,
+    "deferred": 1,
+    "estimatedEffort": "6-9 hours",
+    "handoverContractUrl": "./HANDOVER_CONTRACT.md",
+    "mappingDocUrl": "./Mapping-DHI.md"
+  },
+  "executionPhases": [
+    {
+      "phase": "A",
+      "title": "Rename-Only Components (Tier 1)",
+      "estimatedEffort": "40 minutes",
+      "count": 8,
+      "risk": "LOW",
+      "components": ["StatusDot", "SeverityBadge", "TrendMetricCard", "PageHeader", "SummaryPanel", "StatusListRow", "AlertListItem", "SummaryListItem"]
+    },
+    {
+      "phase": "B",
+      "title": "Prop Contract Refactoring (Tier 2)",
+      "estimatedEffort": "4-8 hours",
+      "count": 4,
+      "risk": "MEDIUM-CRITICAL",
+      "components": ["DecisionActionCard", "WeeklyReportCard", "EntityConfidenceRow", "ReviewDecisionDialog"],
+      "sequence": ["DecisionActionCard (30m)", "WeeklyReportCard (20m)", "EntityConfidenceRow (1-2h)", "ReviewDecisionDialog (4-6h)"]
+    },
+    {
+      "phase": "C",
+      "title": "PlaceholderPage Replacement (Tier 3)",
+      "estimatedEffort": "30 minutes",
+      "count": 1,
+      "risk": "MEDIUM",
+      "components": ["HeroSection (existing)"]
+    },
+    {
+      "phase": "D",
+      "title": "Cleanup & Validation",
+      "estimatedEffort": "30 minutes",
+      "count": 13,
+      "risk": "LOW",
+      "actions": ["Remove local DHI components", "Update export barrels", "Run tsc validation", "Run build", "Smoke test"]
+    }
+  ],
+  "mappings": [
+    {
+      "oldComponent": "StatusIndicatorDot",
+      "newComponent": "StatusDot",
+      "oldImport": "import { StatusIndicatorDot } from '@/common/components'",
+      "newImport": "import { StatusDot } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "StatusIndicatorDot",
+          "new": "StatusDot",
+          "note": "Component symbol renamed to Astra generic standard."
+        }
+      ],
+      "migrationNotes": "Rename component import and usage only.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "5 min"
+    },
+    {
+      "oldComponent": "SeverityStatusBadge",
+      "newComponent": "SeverityBadge",
+      "oldImport": "import { SeverityStatusBadge } from '@/common/components'",
+      "newImport": "import { SeverityBadge } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "SeverityStatusBadge",
+          "new": "SeverityBadge",
+          "note": "Symbol normalized to concise generic name."
+        }
+      ],
+      "migrationNotes": "Rename import and component usage.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "5 min"
+    },
+    {
+      "oldComponent": "MetricCardWithTrend",
+      "newComponent": "TrendMetricCard",
+      "oldImport": "import { MetricCardWithTrend } from '@/common/components'",
+      "newImport": "import { TrendMetricCard } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "MetricCardWithTrend",
+          "new": "TrendMetricCard",
+          "note": "Naming aligned to Astra generic card naming."
+        }
+      ],
+      "migrationNotes": "Rename only.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "5 min"
+    },
+    {
+      "oldComponent": "PlaceholderPage",
+      "newComponent": "HeroSection",
+      "oldImport": "import { PlaceholderPage } from '@/common/components'",
+      "newImport": "import { HeroSection } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "behavior-change",
+          "old": "PlaceholderPage(headline, code)",
+          "new": "HeroSection(headline, description)",
+          "note": "Duplicate use-case mapped to existing Astra component."
+        }
+      ],
+      "migrationNotes": "Compose equivalent placeholder message in container and pass as HeroSection description.",
+      "status": "mapped",
+      "priority": "MEDIUM",
+      "effort": "10 min"
+    },
+    {
+      "oldComponent": "HeaderWithPageControls",
+      "newComponent": "PageHeader",
+      "oldImport": "import { HeaderWithPageControls } from '@/common/components'",
+      "newImport": "import { PageHeader } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "HeaderWithPageControls",
+          "new": "PageHeader",
+          "note": "Simplified generic naming."
+        }
+      ],
+      "migrationNotes": "Rename symbol only.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "5 min"
+    },
+    {
+      "oldComponent": "InfoSummaryPanel",
+      "newComponent": "SummaryPanel",
+      "oldImport": "import { InfoSummaryPanel } from '@/common/components'",
+      "newImport": "import { SummaryPanel } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "InfoSummaryPanel",
+          "new": "SummaryPanel",
+          "note": "Generic naming for broader use."
+        }
+      ],
+      "migrationNotes": "Rename symbol only.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "5 min"
+    },
+    {
+      "oldComponent": "FunctionStatusRow",
+      "newComponent": "StatusListRow",
+      "oldImport": "import { FunctionStatusRow } from '@/common/components'",
+      "newImport": "import { StatusListRow } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "FunctionStatusRow",
+          "new": "StatusListRow",
+          "note": "Removed domain-specific term from component name."
+        }
+      ],
+      "migrationNotes": "Rename symbol only.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "5 min"
+    },
+    {
+      "oldComponent": "InvestorLeadRow",
+      "newComponent": "EntityConfidenceRow",
+      "oldImport": "import { InvestorLeadRow } from '@/common/components'",
+      "newImport": "import { EntityConfidenceRow } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "type-change",
+          "old": "firm, stage",
+          "new": "secondaryLabel, statusTag",
+          "note": "Prop naming generalized for cross-domain reuse."
+        }
+      ],
+      "migrationNotes": "Update prop names to generic contract while preserving same UI behavior.",
+      "status": "mapped",
+      "priority": "HIGH",
+      "effort": "1-2 hours"
+    },
+    {
+      "oldComponent": "NotificationItemCard",
+      "newComponent": "AlertListItem",
+      "oldImport": "import { NotificationItemCard } from '@/common/components'",
+      "newImport": "import { AlertListItem } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "NotificationItemCard",
+          "new": "AlertListItem",
+          "note": "Naming unified with Astra alert primitives."
+        }
+      ],
+      "migrationNotes": "Rename symbol only.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "5 min"
+    },
+    {
+      "oldComponent": "RequestSummaryItem",
+      "newComponent": "SummaryListItem",
+      "oldImport": "import { RequestSummaryItem } from '@/common/components'",
+      "newImport": "import { SummaryListItem } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "RequestSummaryItem",
+          "new": "SummaryListItem",
+          "note": "Domain noun removed from public name."
+        }
+      ],
+      "migrationNotes": "Rename symbol only.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "5 min"
+    },
+    {
+      "oldComponent": "DecisionQueueCard",
+      "newComponent": "DecisionActionCard",
+      "oldImport": "import { DecisionQueueCard } from '@/common/components'",
+      "newImport": "import { DecisionActionCard } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "type-change",
+          "old": "actions.color supports 'inherit'",
+          "new": "actions.color uses Astra-safe palette only",
+          "note": "Use `primary` or omit color for text variants."
+        }
+      ],
+      "migrationNotes": "Replace `inherit` button color with `primary` or undefined.",
+      "status": "mapped",
+      "priority": "MEDIUM",
+      "effort": "30 minutes"
+    },
+    {
+      "oldComponent": "AgentWeeklyReportCard",
+      "newComponent": "WeeklyReportCard",
+      "oldImport": "import { AgentWeeklyReportCard } from '@/common/components'",
+      "newImport": "import { WeeklyReportCard } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "AgentWeeklyReportCard",
+          "new": "WeeklyReportCard",
+          "note": "Generic naming for wider app reuse."
+        }
+      ],
+      "migrationNotes": "Rename symbol only.",
+      "status": "mapped",
+      "priority": "LOW",
+      "effort": "20 minutes"
+    },
+    {
+      "oldComponent": "SyncHealthWidget",
+      "newComponent": "N/A (keep local)",
+      "oldImport": "import { SyncHealthWidget } from '@/common/components'",
+      "newImport": "No Astra import yet",
+      "breakingChanges": [],
+      "migrationNotes": "Keep in DHI feature module until domain-specific logic and labels are decomposed into reusable primitives.",
+      "status": "deprecated",
+      "priority": "N/A",
+      "effort": "0 (no action)"
+    },
+    {
+      "oldComponent": "ReviewActionModal",
+      "newComponent": "ReviewDecisionDialog",
+      "oldImport": "import { ReviewActionModal } from '@/common/components'",
+      "newImport": "import { ReviewDecisionDialog } from 'astra/components'",
+      "breakingChanges": [
+        {
+          "type": "type-change",
+          "old": "internal state for mode/notes",
+          "new": "controlled props for mode and notes",
+          "note": "Required to meet Astra stateless component standard."
+        }
+      ],
+      "migrationNotes": "Container/ViewModel must manage mode and note state; component emits only callbacks.",
+      "status": "mapped",
+      "priority": "CRITICAL",
+      "effort": "4-6 hours"
+    }
+  ],
+  "summary": {
+    "totalMappings": 13,
+    "statusCounts": {
+      "mapped": 12,
+      "deprecated": 1
+    },
+    "priorityCounts": {
+      "LOW": 8,
+      "MEDIUM": 2,
+      "HIGH": 1,
+      "CRITICAL": 1,
+      "N/A": 1
+    },
+    "totalEffortHours": "6-9"
+  }
+}
