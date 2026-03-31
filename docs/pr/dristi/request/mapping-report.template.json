@@ -1,0 +1,193 @@
+{
+  "metadata": {
+    "astraPackageVersion": "",
+    "astraCommit": "",
+    "generatedAt": "",
+    "owner": "drishti-team",
+    "status": "draft",
+    "sourceContract": "docs/pr/astra/request/Handover-Contract.md"
+  },
+  "executionPhases": [
+    {
+      "phase": "A",
+      "title": "Rename-only import swaps",
+      "risk": "LOW",
+      "exitCriteria": [
+        "Typecheck passes",
+        "No unresolved imports"
+      ]
+    },
+    {
+      "phase": "B",
+      "title": "Contract refactor integrations",
+      "risk": "MEDIUM-HIGH",
+      "exitCriteria": [
+        "Typecheck passes",
+        "Impacted UI smoke checks pass"
+      ]
+    },
+    {
+      "phase": "C",
+      "title": "Duplicate replacements",
+      "risk": "MEDIUM",
+      "exitCriteria": [
+        "All mapped duplicates replaced",
+        "No local duplicate usage remains"
+      ]
+    },
+    {
+      "phase": "D",
+      "title": "Deferred or split-required cleanup",
+      "risk": "HIGH",
+      "exitCriteria": [
+        "Deferred rationale documented",
+        "Revisit trigger documented"
+      ]
+    }
+  ],
+  "mappings": [
+    {
+      "oldComponent": "ScrollProgress",
+      "newComponent": "",
+      "oldImport": "import { ScrollProgress } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "< 30 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "FlowStep",
+      "newComponent": "",
+      "oldImport": "import { FlowStep } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "< 30 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "HeritageLetter",
+      "newComponent": "",
+      "oldImport": "import { HeritageLetter } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "30-45 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "SegmentCard",
+      "newComponent": "",
+      "oldImport": "import { SegmentCard } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "30-45 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "TrackCard",
+      "newComponent": "",
+      "oldImport": "import { TrackCard } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "30-45 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "PrincipleItem",
+      "newComponent": "",
+      "oldImport": "import { PrincipleItem } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "30-45 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "PersonaCard",
+      "newComponent": "",
+      "oldImport": "import { PersonaCard } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "30-60 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "TimelineNode",
+      "newComponent": "",
+      "oldImport": "import { TimelineNode } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "30-60 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "AudioPlayer",
+      "newComponent": "",
+      "oldImport": "import { AudioPlayer } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "MEDIUM",
+      "effort": "1-2 hrs",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "FlowVisualizer",
+      "newComponent": "",
+      "oldImport": "import { FlowVisualizer } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "MEDIUM",
+      "effort": "1-2 hrs",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    },
+    {
+      "oldComponent": "ThemeToggle",
+      "newComponent": "",
+      "oldImport": "import { ThemeToggle } from 'drishti/common/components'",
+      "newImport": "import {  } from 'astra/components'",
+      "status": "duplicate",
+      "executionPhase": "C",
+      "priority": "LOW",
+      "effort": "< 30 min",
+      "breakingChanges": [],
+      "migrationNotes": "",
+      "decisionRationale": ""
+    }
+  ]
+}

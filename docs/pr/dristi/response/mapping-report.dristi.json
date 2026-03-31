@@ -1,0 +1,96 @@
+{
+  "version": "1.0",
+  "generated": "2026-03-31",
+  "target": "Astra",
+  "source": "Dristi",
+  "mappings": [
+    {
+      "originalName": "ScrollProgress",
+      "newName": "VerticalStepIndicator",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "Renamed component"
+    },
+    {
+      "originalName": "FlowStep",
+      "newName": "InteractiveStepNode",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "Renamed component"
+    },
+    {
+      "originalName": "HeritageLetter",
+      "newName": "AnimatedHeroCharacter",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "person -> title, value -> subtitle"
+    },
+    {
+      "originalName": "ThemeToggle",
+      "newName": "ThemeToggle",
+      "status": "duplicate",
+      "lane": "C",
+      "importPath": "astra/theme",
+      "notes": "Adopt Astra's native theme toggle from astra/theme"
+    },
+    {
+      "originalName": "SegmentCard",
+      "newName": "FeatureSegmentCard",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "targetAudience -> tags"
+    },
+    {
+      "originalName": "TrackCard",
+      "newName": "PlayableMediaCard",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "Renamed component"
+    },
+    {
+      "originalName": "PrincipleItem",
+      "newName": "IconDescriptionListItem",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "Renamed component"
+    },
+    {
+      "originalName": "PersonaCard",
+      "newName": "ProfileRevealCard",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "ageGroup -> primaryBadge, contentScope -> secondaryMetadata"
+    },
+    {
+      "originalName": "TimelineNode",
+      "newName": "TimelineNode",
+      "status": "mapped",
+      "lane": "B",
+      "importPath": "astra/components",
+      "notes": "isEducation -> alignRight, ageGroup/genres -> tags, track -> category"
+    },
+    {
+      "originalName": "AudioPlayer",
+      "newName": "AudioPlayerBar",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "Renamed component"
+    },
+    {
+      "originalName": "FlowVisualizer",
+      "newName": "MultiPhaseWorkflowDiagram",
+      "status": "mapped",
+      "lane": "A",
+      "importPath": "astra/components",
+      "notes": "Expects WorkflowPhase instead of FlowSection"
+    }
+  ]
+}

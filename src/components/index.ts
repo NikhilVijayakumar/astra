@@ -19,6 +19,16 @@ export * from './ui/MultiStepProgressIndicator';
 export * from './ui/EntryLayoutFrame';
 export * from './ui/OperationHealthPanel';
 
+export * from './ui/VerticalStepIndicator';
+export * from './ui/InteractiveStepNode';
+export * from './ui/AnimatedHeroCharacter';
+export * from './ui/FeatureSegmentCard';
+export * from './ui/PlayableMediaCard';
+export * from './ui/IconDescriptionListItem';
+export * from './ui/ProfileRevealCard';
+export * from './ui/TimelineNode';
+export * from './ui/AudioPlayerBar';
+export * from './ui/MultiPhaseWorkflowDiagram';
 export * from './file-viewers/FileViewerRouter';
 export * from './file-viewers/CsvViewer';
 export * from './file-viewers/ImageViewer';
