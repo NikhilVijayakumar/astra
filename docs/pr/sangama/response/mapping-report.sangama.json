@@ -1,0 +1,220 @@
+{
+  "metadata": {
+    "astraPackageVersion": "0.1.0",
+    "generatedAt": "2026-04-01",
+    "owner": "astra-integration-review",
+    "status": "completed",
+    "sourceContract": "docs/pr/sangama/request/Astra-PR-Specification.md"
+  },
+  "executionPhases": [
+    {
+      "phase": "A",
+      "title": "Rename-only import swaps",
+      "risk": "LOW",
+      "exitCriteria": [
+        "Typecheck passes",
+        "No unresolved imports"
+      ]
+    },
+    {
+      "phase": "B",
+      "title": "Component rename refactors",
+      "risk": "LOW-MEDIUM",
+      "exitCriteria": [
+        "Typecheck passes",
+        "All renamed references updated"
+      ]
+    },
+    {
+      "phase": "C",
+      "title": "Duplicate replacements",
+      "risk": "MEDIUM",
+      "exitCriteria": [
+        "All mapped duplicates replaced",
+        "No local duplicate usage remains"
+      ]
+    },
+    {
+      "phase": "D",
+      "title": "Deferred cleanup",
+      "risk": "LOW",
+      "exitCriteria": [
+        "Deferred rationale documented",
+        "Revisit trigger documented"
+      ]
+    }
+  ],
+  "mappings": [
+    {
+      "oldComponent": "CanvasNote",
+      "newComponent": "CanvasNote",
+      "oldImport": "import { CanvasNote } from 'sangama/common/components/CanvasNote'",
+      "newImport": "import { CanvasNote } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "15-30 min",
+      "breakingChanges": [],
+      "migrationNotes": "Import path swap only. Hardcoded colors were refactored to MUI theme tokens internally — no consumer-side changes.",
+      "decisionRationale": "Unique canvas sticky-note component with no Astra equivalent. Accepted after theme-token refactoring."
+    },
+    {
+      "oldComponent": "CanvasGroup",
+      "newComponent": "CanvasGroup",
+      "oldImport": "import { CanvasGroup } from 'sangama/common/components/CanvasGroup'",
+      "newImport": "import { CanvasGroup } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "15-30 min",
+      "breakingChanges": [],
+      "migrationNotes": "Import path swap only. Hardcoded colors were refactored to MUI theme tokens internally — no consumer-side changes.",
+      "decisionRationale": "Unique canvas grouping container with no Astra equivalent. Accepted after theme-token refactoring."
+    },
+    {
+      "oldComponent": "StatusCard",
+      "newComponent": "StatusActionCard",
+      "oldImport": "import { StatusCard } from 'sangama/common/components/StatusCard'",
+      "newImport": "import { StatusActionCard } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "B",
+      "priority": "MEDIUM",
+      "effort": "30-60 min",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "StatusCard / StatusCardProps",
+          "new": "StatusActionCard / StatusActionCardProps",
+          "note": "Component and props type renamed for clarity"
+        }
+      ],
+      "migrationNotes": "Rename component and type references. No prop shape changes — all fields and callbacks remain identical.",
+      "decisionRationale": "Unique status-with-actions card pattern. Renamed to distinguish from basic status primitives in Astra."
+    },
+    {
+      "oldComponent": "HistoryDropdown",
+      "newComponent": "VersionHistorySelector",
+      "oldImport": "import { HistoryDropdown } from 'sangama/common/components/HistoryDropdown'",
+      "newImport": "import { VersionHistorySelector } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "B",
+      "priority": "MEDIUM",
+      "effort": "30-60 min",
+      "breakingChanges": [
+        {
+          "type": "rename",
+          "old": "HistoryDropdown / HistoryDropdownProps",
+          "new": "VersionHistorySelector / VersionHistorySelectorProps",
+          "note": "Component and props type renamed for domain neutrality"
+        }
+      ],
+      "migrationNotes": "Rename component and type references. HistoryEntry interface unchanged and re-exported from Astra.",
+      "decisionRationale": "Unique version selection pattern with no Astra equivalent. Renamed for domain-neutral reuse."
+    },
+    {
+      "oldComponent": "FileTree",
+      "newComponent": "FileTree",
+      "oldImport": "import { FileTree } from 'sangama/common/components/FileTree'",
+      "newImport": "import { FileTree } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "15-30 min",
+      "breakingChanges": [],
+      "migrationNotes": "Import path swap only. Component, props, and FileTreeNode interface are unchanged.",
+      "decisionRationale": "Unique recursive file-tree component with no Astra equivalent. Already domain-neutral."
+    },
+    {
+      "oldComponent": "TerminalViewer",
+      "newComponent": "TerminalViewer",
+      "oldImport": "import { TerminalViewer } from 'sangama/common/components/TerminalViewer'",
+      "newImport": "import { TerminalViewer } from 'astra/components'",
+      "status": "mapped",
+      "executionPhase": "A",
+      "priority": "LOW",
+      "effort": "15-30 min",
+      "breakingChanges": [],
+      "migrationNotes": "Import path swap only. Component, props, and LogEntry interface are unchanged.",
+      "decisionRationale": "Unique terminal log display with no Astra equivalent. Already domain-neutral."
+    },
+    {
+      "oldComponent": "ThemeToggle",
+      "newComponent": "",
+      "oldImport": "import ThemeToggle from 'sangama/common/components/ThemeToggle'",
+      "newImport": "import { useTheme } from 'astra'",
+      "status": "duplicate",
+      "executionPhase": "C",
+      "priority": "LOW",
+      "effort": "15-30 min",
+      "breakingChanges": [
+        {
+          "type": "behavior-change",
+          "old": "Self-contained toggle component",
+          "new": "Inline useTheme() hook usage",
+          "note": "Build toggle UI inline using { darkMode, toggleDarkMode } from useTheme()"
+        }
+      ],
+      "migrationNotes": "Remove local ThemeToggle component. Use Astra's useTheme() hook directly in app shell to build an inline dark/light toggle.",
+      "decisionRationale": "Rejected as library component — trivial 10-line wrapper around Astra's own useTheme hook. Belongs in app code."
+    },
+    {
+      "oldComponent": "StatusTable",
+      "newComponent": "DataTable",
+      "oldImport": "import { StatusTable } from 'sangama/common/components/StatusTable'",
+      "newImport": "import { DataTable } from 'astra/components'",
+      "status": "duplicate",
+      "executionPhase": "C",
+      "priority": "MEDIUM",
+      "effort": "1-2 hrs",
+      "breakingChanges": [
+        {
+          "type": "type-change",
+          "old": "StatusTableRow with fixed status/statusColor/columns shape",
+          "new": "Generic T with Column<T>[] render functions",
+          "note": "Use column render prop: (row) => <Chip label={row.status} color={row.statusColor} />"
+        },
+        {
+          "type": "behavior-change",
+          "old": "Built-in selectedId/onSelect row selection",
+          "new": "No built-in selection; add via TableRow onClick in column render",
+          "note": "Wrap DataTable or extend consumer with selection state"
+        }
+      ],
+      "migrationNotes": "Replace StatusTable with DataTable. Define columns with render functions for status chip display. Manage selection state in container.",
+      "decisionRationale": "Rejected as net-new because Astra's DataTable with Column<T> render functions is strictly more flexible."
+    },
+    {
+      "oldComponent": "CodeViewer",
+      "newComponent": "FileViewerRouter",
+      "oldImport": "import { CodeViewer } from 'sangama/common/components/CodeViewer'",
+      "newImport": "import { FileViewerRouter } from 'astra/components'",
+      "status": "duplicate",
+      "executionPhase": "C",
+      "priority": "MEDIUM",
+      "effort": "1-2 hrs",
+      "breakingChanges": [
+        {
+          "type": "type-change",
+          "old": "content + extension + isJson + headerLabel + headerExtra",
+          "new": "fileName + fileContent + fileEncoding + mimeType",
+          "note": "FileViewerRouter routes by file extension to specialized viewers"
+        }
+      ],
+      "migrationNotes": "Map CodeViewer usage to FileViewerRouter. Construct fileName from extension (e.g., 'content.json'). Wrap with custom header Box if headerLabel/headerExtra are needed. YAML/TOML: contribute extension to FileViewerRouter rather than maintaining parallel viewer.",
+      "decisionRationale": "Rejected as net-new because Astra's file-viewer infrastructure (FileViewerRouter + JsonViewer + MdViewer) already covers primary use cases."
+    },
+    {
+      "oldComponent": "DynamicForm",
+      "newComponent": "",
+      "oldImport": "",
+      "newImport": "",
+      "status": "deferred",
+      "executionPhase": "D",
+      "priority": "HIGH",
+      "effort": "N/A",
+      "breakingChanges": [],
+      "migrationNotes": "Source code not provided in PR components folder. Keep local until source is resubmitted.",
+      "decisionRationale": "Cannot evaluate without source code. Listed in specification but absent from components delivery."
+    }
+  ]
+}
