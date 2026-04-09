@@ -1,35 +1,34 @@
-
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
-import AppStateHandler from './AppStateHandler';
-import { StateType } from '../../state/AppState';
-import { HttpStatusCode } from '../../repo/HttpStatusCode';
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import AppStateHandler from "./AppStateHandler";
+import { StateType } from "../../state/AppState";
+import { HttpStatusCode } from "../../repo/HttpStatusCode";
 
 // Mock child components to verify they are rendered correctly
-vi.mock('./LoadingState', () => ({
+vi.mock("../atoms/LoadingState", () => ({
   default: () => <div data-testid="loading-state">Loading...</div>,
 }));
-vi.mock('./ErrorState', () => ({
+vi.mock("../atoms/ErrorState", () => ({
   default: ({ message }: { message?: string }) => (
-    <div data-testid="error-state">{message || 'Error'}</div>
+    <div data-testid="error-state">{message || "Error"}</div>
   ),
 }));
-vi.mock('./EmptyState', () => ({
+vi.mock("../atoms/EmptyState", () => ({
   default: () => <div data-testid="empty-state">Empty</div>,
 }));
 
-describe('AppStateHandler', () => {
+describe("AppStateHandler", () => {
   const mockSuccessComponent = ({ appState }: { appState: any }) => (
     <div data-testid="success-component">{JSON.stringify(appState.data)}</div>
   );
 
-  it('renders LoadingState when state is LOADING', () => {
+  it("renders LoadingState when state is LOADING", () => {
     const appState = {
       state: StateType.LOADING,
       isError: false,
       isSuccess: false,
       status: HttpStatusCode.IDLE,
-      statusMessage: '',
+      statusMessage: "",
       data: null,
     };
 
@@ -37,19 +36,19 @@ describe('AppStateHandler', () => {
       <AppStateHandler
         appState={appState}
         SuccessComponent={mockSuccessComponent}
-      />
+      />,
     );
 
-    expect(screen.getByTestId('loading-state')).toBeTruthy();
+    expect(screen.getByTestId("loading-state")).toBeTruthy();
   });
 
-  it('renders ErrorState when isError is true', () => {
+  it("renders ErrorState when isError is true", () => {
     const appState = {
       state: StateType.COMPLETED,
       isError: true,
       isSuccess: false,
       status: HttpStatusCode.INTERNAL_SERVER_ERROR,
-      statusMessage: 'Failed',
+      statusMessage: "Failed",
       data: null,
     };
 
@@ -58,21 +57,21 @@ describe('AppStateHandler', () => {
         appState={appState}
         SuccessComponent={mockSuccessComponent}
         errorMessage="Custom Error"
-      />
+      />,
     );
 
-    const errorState = screen.getByTestId('error-state');
+    const errorState = screen.getByTestId("error-state");
     expect(errorState).toBeTruthy();
-    expect(errorState.textContent).toBe('Custom Error');
+    expect(errorState.textContent).toBe("Custom Error");
   });
 
-  it('renders ErrorState when status is INTERNET_ERROR', () => {
+  it("renders ErrorState when status is INTERNET_ERROR", () => {
     const appState = {
       state: StateType.COMPLETED,
       isError: false, // Even if isError is false, specific status might trigger error
       isSuccess: false,
       status: HttpStatusCode.INTERNET_ERROR,
-      statusMessage: 'No Internet',
+      statusMessage: "No Internet",
       data: null,
     };
 
@@ -80,20 +79,20 @@ describe('AppStateHandler', () => {
       <AppStateHandler
         appState={appState}
         SuccessComponent={mockSuccessComponent}
-      />
+      />,
     );
 
-    expect(screen.getByTestId('error-state')).toBeTruthy();
+    expect(screen.getByTestId("error-state")).toBeTruthy();
   });
 
-  it('renders SuccessComponent when state is successful and data is present', () => {
-    const data = { id: 1, name: 'Test' };
+  it("renders SuccessComponent when state is successful and data is present", () => {
+    const data = { id: 1, name: "Test" };
     const appState = {
       state: StateType.COMPLETED,
       isError: false,
       isSuccess: true,
       status: HttpStatusCode.SUCCESS,
-      statusMessage: 'OK',
+      statusMessage: "OK",
       data: data,
     };
 
@@ -101,22 +100,22 @@ describe('AppStateHandler', () => {
       <AppStateHandler
         appState={appState}
         SuccessComponent={mockSuccessComponent}
-      />
+      />,
     );
 
-    const successComponent = screen.getByTestId('success-component');
+    const successComponent = screen.getByTestId("success-component");
     expect(successComponent).toBeTruthy();
     expect(successComponent.textContent).toBe(JSON.stringify(data));
   });
 
-  it('renders EmptyState when emptyCondition is met', () => {
+  it("renders EmptyState when emptyCondition is met", () => {
     const data: any[] = [];
     const appState = {
       state: StateType.COMPLETED,
       isError: false,
       isSuccess: true,
       status: HttpStatusCode.SUCCESS,
-      statusMessage: 'OK',
+      statusMessage: "OK",
       data: data,
     };
 
@@ -125,19 +124,19 @@ describe('AppStateHandler', () => {
         appState={appState}
         SuccessComponent={mockSuccessComponent}
         emptyCondition={(d: any[]) => d.length === 0}
-      />
+      />,
     );
 
-    expect(screen.getByTestId('empty-state')).toBeTruthy();
+    expect(screen.getByTestId("empty-state")).toBeTruthy();
   });
 
-  it('renders EmptyState as fallback for idle or null data states', () => {
+  it("renders EmptyState as fallback for idle or null data states", () => {
     const appState = {
       state: StateType.INIT,
       isError: false, // Not error
       isSuccess: false, // Not success
       status: HttpStatusCode.IDLE,
-      statusMessage: '',
+      statusMessage: "",
       data: null,
     };
 
@@ -145,9 +144,9 @@ describe('AppStateHandler', () => {
       <AppStateHandler
         appState={appState}
         SuccessComponent={mockSuccessComponent}
-      />
+      />,
     );
 
-    expect(screen.getByTestId('empty-state')).toBeTruthy();
+    expect(screen.getByTestId("empty-state")).toBeTruthy();
   });
 });
