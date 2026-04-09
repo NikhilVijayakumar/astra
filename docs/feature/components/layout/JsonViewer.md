@@ -1,3 +1,7 @@
+---
+tier: template
+---
+
 # JsonViewer
 
 A file viewer component that displays JSON/JSONL content with syntax highlighting.
@@ -46,7 +50,7 @@ interface JsonViewerProps {
 
 ### Display Format
 
-- Header bar shows file name
+- Header bar show file name
 - Code block uses `vscDarkPlus` theme
 - Font size: `12px`
 - Background: `background.paper`
@@ -54,7 +58,7 @@ interface JsonViewerProps {
 ## Usage Example
 
 ```tsx
-import { JsonViewer } from "@/components/file-viewers/JsonViewer";
+import { JsonViewer } from "@/common/components/file-viewers/JsonViewer";
 
 // Standard JSON
 const ConfigViewer = () => {
@@ -82,6 +86,12 @@ const LogViewer = () => {
 const EmptyViewer = () => <JsonViewer fileName="empty.json" />;
 ```
 
+## Design Principles
+
+This component is a template — a page-level layout component.
+
+See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/file-viewers/JsonViewer.tsx`
+`src/common/components/file-viewers/JsonViewer.tsx`

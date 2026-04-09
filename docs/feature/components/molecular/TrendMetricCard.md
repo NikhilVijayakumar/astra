@@ -1,3 +1,7 @@
+---
+tier: molecule
+---
+
 # TrendMetricCard
 
 A molecular component that displays a metric value with an optional trend indicator.
@@ -49,7 +53,7 @@ export interface TrendMetricCardProps {
 ## Usage Example
 
 ```tsx
-import { TrendMetricCard } from "@/components/ui/TrendMetricCard";
+import { TrendMetricCard } from "@/common/components/molecules/TrendMetricCard";
 
 const MetricsDashboard = () => (
   <div style={{ display: "flex", gap: "16px" }}>
@@ -70,6 +74,12 @@ const MetricsDashboard = () => (
 );
 ```
 
+## Design Principles
+
+This component is a molecule — a composed functional unit.
+
+See [Molecules](../atomic-design/molecules.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/ui/TrendMetricCard.tsx`
+`src/common/components/molecules/TrendMetricCard.tsx`

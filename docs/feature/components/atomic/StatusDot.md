@@ -1,3 +1,7 @@
+---
+tier: atom
+---
+
 # StatusDot
 
 An atomic component that displays a colored dot representing a status indicator.
@@ -41,7 +45,7 @@ export type StatusDotTone =
 ## Usage Example
 
 ```tsx
-import { StatusDot } from "@/components/ui/StatusDot";
+import { StatusDot } from "@/common/components/atoms/StatusDot";
 
 const StatusIndicator = ({ status }) => {
   const toneMap = {
@@ -55,6 +59,12 @@ const StatusIndicator = ({ status }) => {
 };
 ```
 
+## Design Principles
+
+This component is an atom — a fundamental UI primitive.
+
+See [Atoms](../atomic-design/atoms.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/ui/StatusDot.tsx`
+`src/common/components/atoms/StatusDot.tsx`

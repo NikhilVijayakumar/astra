@@ -1,3 +1,7 @@
+---
+tier: template
+---
+
 # PageHeader
 
 A layout component that provides a standardized page-level header with title, subtitle, and action buttons.
@@ -52,9 +56,9 @@ export interface PageHeaderProps {
 ## Usage Example
 
 ```tsx
-import { PageHeader } from "@/components/ui/PageHeader";
-import { StatusDot } from "@/components/ui/StatusDot";
-import { SeverityBadge } from "@/components/ui/SeverityBadge";
+import { PageHeader } from "@/common/components/templates/PageHeader";
+import { StatusDot } from "@/common/components/atoms/StatusDot";
+import { SeverityBadge } from "@/common/components/atoms/SeverityBadge";
 
 const UserManagementPage = () => (
   <PageHeader
@@ -87,6 +91,12 @@ const UserManagementPage = () => (
 );
 ```
 
+## Design Principles
+
+This component is a template — a page-level layout component.
+
+See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/ui/PageHeader.tsx`
+`src/common/components/templates/PageHeader.tsx`

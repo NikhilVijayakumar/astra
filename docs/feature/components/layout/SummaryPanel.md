@@ -1,3 +1,7 @@
+---
+tier: template
+---
+
 # SummaryPanel
 
 A layout component that displays a titled collection of text lines.
@@ -43,7 +47,7 @@ export interface SummaryPanelProps {
 ## Usage Example
 
 ```tsx
-import { SummaryPanel } from "@/components/ui/SummaryPanel";
+import { SummaryPanel } from "@/common/components/templates/SummaryPanel";
 
 const SystemInfo = () => (
   <SummaryPanel
@@ -69,6 +73,12 @@ const ContactInfo = () => (
 );
 ```
 
+## Design Principles
+
+This component is a template — a page-level layout component.
+
+See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/ui/SummaryPanel.tsx`
+`src/common/components/templates/SummaryPanel.tsx`

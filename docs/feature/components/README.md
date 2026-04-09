@@ -1,3 +1,11 @@
+---
+tier_index:
+  atoms: ./atomic/
+  molecules: ./molecular/
+  organisms: ./organisms/
+  templates: ./layout/
+---
+
 # Component Library
 
 This document provides an overview of the UI component library organized by atomic design principles.
@@ -117,3 +125,7 @@ npm test -- --run
 ```
 
 Test files follow the pattern `*.test.tsx` and use Vitest + Testing Library.
+
+## Atomic Design Methodology
+
+For detailed methodology on component classification and design principles, see [Atomic Design](./atomic-design/README.md).

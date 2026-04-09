@@ -1,3 +1,7 @@
+---
+tier: atom
+---
+
 # SeverityBadge
 
 An atomic component that displays a severity label with color-coded background.
@@ -44,7 +48,7 @@ export type SeverityLevel =
 ## Usage Example
 
 ```tsx
-import { SeverityBadge, SeverityLevel } from '@/components/ui/SeverityBadge';
+import { SeverityBadge, SeverityLevel } from '@/common/components/atoms/SeverityBadge';
 
 const AlertItem = ({ severity }) => {
   return (
@@ -60,6 +64,12 @@ const AlertItem = ({ severity }) => {
 <SeverityBadge level="SUCCESS" />
 ```
 
+## Design Principles
+
+This component is an atom — a fundamental UI primitive.
+
+See [Atoms](../atomic-design/atoms.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/ui/SeverityBadge.tsx`
+`src/common/components/atoms/SeverityBadge.tsx`

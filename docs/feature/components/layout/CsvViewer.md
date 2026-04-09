@@ -1,3 +1,7 @@
+---
+tier: template
+---
+
 # CsvViewer
 
 A file viewer component that displays CSV data in a paginated table format.
@@ -31,7 +35,7 @@ interface CsvViewerProps {
 - **Pagination**: Configurable rows per page (10, 25, 50)
 - **Empty state**: Displays message when no CSV content is available
 
-### Parsing Behavior
+### Parse Behavior
 
 1. Splits content by newlines (handles both `\n` and `\r\n`)
 2. Trims empty lines
@@ -41,7 +45,7 @@ interface CsvViewerProps {
 ## Usage Example
 
 ```tsx
-import { CsvViewer } from "@/components/file-viewers/CsvViewer";
+import { CsvViewer } from "@/common/components/file-viewers/CsvViewer";
 
 const CsvPreview = () => {
   const csvData = `Name,Age,Department,Salary
@@ -61,6 +65,12 @@ const LargeCsvViewer = ({ fileData }) => (
 );
 ```
 
+## Design Principles
+
+This component is a template — a page-level layout component.
+
+See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/file-viewers/CsvViewer.tsx`
+`src/common/components/file-viewers/CsvViewer.tsx`

@@ -1,3 +1,7 @@
+---
+tier: template
+---
+
 # HeroSection
 
 A layout component that displays a prominent headline section with optional description and action button.
@@ -43,7 +47,7 @@ export interface HeroSectionProps {
 ## Usage Example
 
 ```tsx
-import { HeroSection } from "@/components/ui/HeroSection";
+import { HeroSection } from "@/common/components/templates/HeroSection";
 
 const LandingPage = () => (
   <HeroSection
@@ -70,6 +74,12 @@ const FeatureLanding = () => (
 );
 ```
 
+## Design Principles
+
+This component is a template — a page-level layout component.
+
+See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/ui/HeroSection.tsx`
+`src/common/components/templates/HeroSection.tsx`

@@ -1,3 +1,7 @@
+---
+tier: molecule
+---
+
 # Notification
 
 A molecular component that displays a snackbar-style notification message.
@@ -39,7 +43,7 @@ export interface NotificationProps {
 
 ```tsx
 import { useState } from "react";
-import { Notification } from "@/components/ui/Notification";
+import { Notification } from "@/common/components/molecules/Notification";
 
 const NotificationExample = () => {
   const [open, setOpen] = useState(false);
@@ -70,6 +74,12 @@ const NotificationExample = () => {
 />;
 ```
 
+## Design Principles
+
+This component is a molecule — a composed functional unit.
+
+See [Molecules](../atomic-design/molecules.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/ui/Notification.tsx`
+`src/common/components/molecules/Notification.tsx`

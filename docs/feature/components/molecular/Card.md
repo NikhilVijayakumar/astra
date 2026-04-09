@@ -1,3 +1,7 @@
+---
+tier: molecule
+---
+
 # Card
 
 A molecular component that provides a styled container with optional title, supporting text, and action button.
@@ -39,7 +43,7 @@ export interface CardProps {
 ## Usage Example
 
 ```tsx
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/common/components/molecules/Card";
 import { Button } from "@mui/material";
 
 const DashboardCard = () => (
@@ -60,6 +64,12 @@ const SimpleCard = () => (
 );
 ```
 
+## Design Principles
+
+This component is a molecule — a composed functional unit.
+
+See [Molecules](../atomic-design/molecules.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/ui/Card.tsx`
+`src/common/components/molecules/Card.tsx`

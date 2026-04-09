@@ -1,3 +1,7 @@
+---
+tier: template
+---
+
 # FileViewerRouter
 
 A file viewer component that routes to the appropriate viewer based on file extension.
@@ -48,7 +52,7 @@ For unsupported file types, displays:
 ## Usage Example
 
 ```tsx
-import { FileViewerRouter } from "@/components/file-viewers/FileViewerRouter";
+import { FileViewerRouter } from "@/common/components/file-viewers/FileViewerRouter";
 
 const FilePreview = ({ file }) => (
   <FileViewerRouter
@@ -77,6 +81,12 @@ const ImagePreview = () => (
 );
 ```
 
+## Design Principles
+
+This component is a template — a page-level layout component.
+
+See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
+
 ## Source
 
-`src/components/file-viewers/FileViewerRouter.tsx`
+`src/common/components/file-viewers/FileViewerRouter.tsx`
