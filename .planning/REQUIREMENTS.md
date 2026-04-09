@@ -1,143 +1,104 @@
-# Requirements: Astra Quality Improvements
+# Requirements: Astra v1.1.0
 
-**Date:** 2026-04-09
-**Goal:** Improve library quality without breaking changes
-**Type:** Boilerplate Library (not application)
+**Defined:** 2026-04-09
+**Core Value:** Provide a production-ready, well-tested foundation that developers can extend with confidence
 
----
+## v1 Requirements
 
-## Phase 1: Type Safety & Exports
+Requirements for v1.1.0 milestone. Each maps to roadmap phases.
 
-### R1.1: Fix ApiService Type Gaps
+### DOCS: Documentation Architecture
 
-- **Description:** Replace `data?: any` with generic types
-- **Acceptance Criteria:**
-  - `post<T>()` and `put<T>()` use generic type parameters
-  - No `any` types in public API methods
-  - Backward compatible with existing consumers
-- **Files:** `src/common/repo/ApiService.ts`
-- **Priority:** Critical
-- **Effort:** Low
+- [ ] **DOCS-01**: Create Atomic Design methodology documentation
+  - Document atoms, molecules, organisms, templates definitions
+  - Include decision flowchart for classification
+  - Explain rationale for component tier assignments
 
-### R1.2: Remove console.log from ApiService
+- [ ] **DOCS-02**: Create component tier guides
+  - atoms guide: StatusDot, SeverityBadge
+  - molecules guide: Card, Notification, TrendMetricCard
+  - organisms guide: 27 complex components
+  - templates guide: PageHeader, SummaryPanel, HeroSection
 
-- **Description:** Replace verbose logging with structured approach
-- **Acceptance Criteria:**
-  - No `console.log` calls in production code
-  - Errors logged to console.error with sanitized message
-  - Stack traces never exposed to consumers
-- **Files:** `src/common/repo/ApiService.ts`
-- **Priority:** High
-- **Effort:** Low
+- [ ] **DOCS-03**: Update components/README.md
+  - Add atomic design structure overview
+  - Include import patterns
+  - Link to tier guides
 
-### R1.3: Export Surface Audit
+### DOCS: Component Documentation
 
-- **Description:** Ensure all required exports are in main bundle
-- **Acceptance Criteria:**
-  - `useOnboardingActionGate` exportable
-  - `OnboardingActionGate` exportable
-  - `DynamicProfileRenderer` exportable
-  - All documented subpath exports work (`astra/theme`, `astra/components`, etc.)
-  - No TypeScript errors for known consumers
-- **Files:** `src/common/index.ts`, `src/components/index.ts`, `package.json`
-- **Priority:** High
-- **Effort:** Medium
+- [ ] **DOCS-04**: Add tier classification to component docs
+  - Mark each component doc with its tier (atoms/molecules/organisms/templates)
+  - Add "Design Principles" section linking to tier guide
 
----
+- [ ] **DOCS-05**: Create atomic-design/ methodology directory
+  - docs/feature/components/atomic-design/README.md
+  - docs/feature/components/atomic-design/atoms.md
+  - docs/feature/components/atomic-design/molecules.md
+  - docs/feature/components/atomic-design/organisms.md
+  - docs/feature/components/atomic-design/templates.md
 
-## Phase 2: Testing & Coverage
+### DOCS: Integration Guide Updates
 
-### R2.1: Increase Component Test Coverage
+- [ ] **DOCS-06**: Update docs/integration-guide/getting-started.md
+  - Add component structure overview
+  - Reference atomic design methodology
 
-- **Description:** Add tests for UI components
-- **Acceptance Criteria:**
-  - Critical components have >80% coverage
-  - All stateful components tested
-  - Storybook interactions used where appropriate
-- **Files:** `src/components/**/*.test.tsx`
-- **Priority:** High
-- **Effort:** High
+- [ ] **DOCS-07**: Update docs/integration-guide/react.md
+  - Add "why" context for component architecture
+  - Link to component docs
 
-### R2.2: Hook Tests
+### REFA: Refactoring
 
-- **Description:** Test core hooks thoroughly
-- **Acceptance Criteria:**
-  - useDataState all state transitions tested
-  - LanguageProvider context tested
-  - ThemeProvider context tested
-- **Files:** `src/common/hooks/**/*.test.tsx`
-- **Priority:** High
-- **Effort:** Medium
+- [ ] **REFA-01**: Verify component structure compliance
+  - Audit src/common/components/ structure
+  - Ensure all components follow atomic design tier assignment
 
-### R2.3: Integration Test for Repository Layer
+## v2 Requirements
 
-- **Description:** Add integration tests for ApiService
-- **Acceptance Criteria:**
-  - Mocked HTTP responses tested
-  - Error handling paths tested
-  - Timeout behavior verified
-- **Files:** `src/common/repo/*.test.ts`
-- **Priority:** Medium
-- **Effort:** Medium
+### Storybook Enhancement
 
----
+- **DOCS-08**: Organize Storybook stories by atomic hierarchy
+  - Reorganize story titles to reflect tier structure
+  - Add MDX documentation files
 
-## Phase 3: Security & Robustness
+### Governance
 
-### R3.1: localStorage Error Handling
-
-- **Description:** Add try-catch for storage operations in ThemeProvider
-- **Acceptance Criteria:**
-  - ThemeProvider handles `QuotaExceededError`
-  - ThemeProvider handles private browsing mode
-  - Graceful fallback to default theme on error
-- **Files:** `src/common/theme/ThemeProvider.tsx`
-- **Priority:** High
-- **Effort:** Low
-
-### R3.2: Validate Stored Theme Values
-
-- **Description:** Sanitize localStorage reads
-- **Acceptance Criteria:**
-  - Only accept valid theme values from storage
-  - Ignore malformed/corrupted storage data
-  - Default to light theme on invalid input
-- **Files:** `src/common/theme/ThemeProvider.tsx`
-- **Priority:** Medium
-- **Effort:** Low
-
-### R3.3: Bundle Size Baseline
-
-- **Description:** Document and analyze bundle size
-- **Acceptance Criteria:**
-  - Report identifies size contributors
-  - Tree-shaking verified working
-  - Recommendations documented
-- **Priority:** Low
-- **Effort:** Low
-
----
+- **DOCS-09**: Create component ownership documentation
+  - Define ownership model for component docs
+  - Document contribution workflow
 
 ## Out of Scope
 
-- CI/CD pipeline (library, not app)
-- React Native support
-- IE11 browser support
-- Major API changes
-- Breaking changes to exports
-- New component development
+| Feature                   | Reason                                       |
+| ------------------------- | -------------------------------------------- |
+| Legacy docs consolidation | docs/ root vs docs/feature/ - separate issue |
+| CI/CD for documentation   | Library, not application                     |
+| Automated lint rules      | Phase 2 enhancement                          |
+| Storybook MDX migration   | v2 - valuable but not critical               |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase   | Status  |
+| ----------- | ------- | ------- |
+| DOCS-01     | Phase 1 | Pending |
+| DOCS-02     | Phase 1 | Pending |
+| DOCS-03     | Phase 1 | Pending |
+| DOCS-04     | Phase 2 | Pending |
+| DOCS-05     | Phase 1 | Pending |
+| DOCS-06     | Phase 3 | Pending |
+| DOCS-07     | Phase 3 | Pending |
+| REFA-01     | Phase 1 | Pending |
+
+**Coverage:**
+
+- v1 requirements: 8 total
+- Mapped to phases: 8
+- Unmapped: 0 ✓
 
 ---
 
-## Success Metrics
-
-| Metric          | Current | Target   |
-| --------------- | ------- | -------- |
-| Test Coverage   | ~15%    | >60%     |
-| Type Errors     | 0       | 0        |
-| Security Issues | 2       | 0        |
-| Export Surface  | Gaps    | Complete |
-
----
-
-_Draft requirements: 2026-04-09_
+_Requirements defined: 2026-04-09_
+_Last updated: 2026-04-09 after requirements gathering_
