@@ -16,7 +16,7 @@ Organisms are complex UI sections composed of multiple molecules and atoms. They
 
 ## Organism Components in Astra
 
-The organism tier contains 27 complex components including:
+The organism tier contains 33 complex components including:
 
 | Component              | Purpose                                     | Complexity |
 | ---------------------- | ------------------------------------------- | ---------- |

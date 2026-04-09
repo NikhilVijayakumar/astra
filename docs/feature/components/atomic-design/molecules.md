@@ -21,6 +21,9 @@ Molecules are self-contained components composed of 2+ atoms. They represent sin
 | `Card`            | Container with consistent styling   | Box, Typography atoms     | `src/common/components/molecules/Card.tsx`            |
 | `Notification`    | Alert/message display               | SeverityBadge, Typography | `src/common/components/molecules/Notification.tsx`    |
 | `TrendMetricCard` | Metric display with trend indicator | StatusDot, Typography     | `src/common/components/molecules/TrendMetricCard.tsx` |
+| `ImageViewer`     | Image file display                  | Box, img atoms            | `src/common/components/molecules/ImageViewer.tsx`     |
+| `MdViewer`        | Markdown file display               | Box, Typography atoms     | `src/common/components/molecules/MdViewer.tsx`        |
+| `JsonViewer`      | JSON file display                   | Box, Typography atoms     | `src/common/components/molecules/JsonViewer.tsx`      |
 
 ## Classification Rules
 

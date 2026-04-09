@@ -14,42 +14,41 @@ This document provides an overview of the UI component library organized by atom
 
 The component library is organized into four tiers following atomic design methodology:
 
-| Tier             | Components                                                      | Description                                                     |
-| ---------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
-| **Atoms**        | StatusDot, SeverityBadge                                        | Small, reusable primitives representing basic states            |
-| **Molecules**    | Card, Notification, TrendMetricCard                             | Composed components that combine atoms for specific UI patterns |
-| **Organisms**    | 27 complex components (DataTable, TimelineNode, FileTree, etc.) | Complex UI sections composed of molecules and atoms             |
-| **Templates**    | PageHeader, SummaryPanel, HeroSection                           | Page structure components                                       |
-| **File Viewers** | FileViewerRouter, CsvViewer, JsonViewer, ImageViewer, MdViewer  | File rendering components                                       |
+| Tier          | Components                                                                        | Description                                                     |
+| ------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Atoms**     | StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState                    | Small, reusable primitives representing basic states            |
+| **Molecules** | Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer            | Composed components that combine atoms for specific UI patterns |
+| **Organisms** | 33 complex components (DataTable, TimelineNode, FileTree, FileViewerRouter, etc.) | Complex UI sections composed of molecules and atoms             |
+| **Templates** | PageHeader, SummaryPanel, HeroSection                                             | Page structure components                                       |
 
 ## Directory Structure
 
 ```
 src/common/components/
-├── atoms/                # Primitive UI elements
+├── atoms/                # Primitive UI elements (5 components)
 │   ├── StatusDot.tsx
-│   └── SeverityBadge.tsx
-├── molecules/            # Composite components
+│   ├── SeverityBadge.tsx
+│   ├── LoadingState.tsx
+│   ├── ErrorState.tsx
+│   └── EmptyState.tsx
+├── molecules/            # Composite components (6 components)
 │   ├── Card.tsx
 │   ├── Notification.tsx
-│   └── TrendMetricCard.tsx
-├── organisms/            # Complex UI sections (27 components)
+│   ├── TrendMetricCard.tsx
+│   ├── ImageViewer.tsx
+│   ├── MdViewer.tsx
+│   └── JsonViewer.tsx
+├── organisms/            # Complex UI sections (33 components)
 │   ├── DataTable.tsx
 │   ├── TimelineNode.tsx
 │   ├── FileTree.tsx
-│   └── ... (24 more)
-├── templates/            # Page structure components
-│   ├── PageHeader.tsx
-│   ├── SummaryPanel.tsx
-│   └── HeroSection.tsx
-├── file-viewers/         # File rendering components
 │   ├── FileViewerRouter.tsx
 │   ├── CsvViewer.tsx
-│   ├── JsonViewer.tsx
-│   ├── ImageViewer.tsx
-│   └── MdViewer.tsx
-├── navigation/           # Navigation components
-└── wrapper/             # Wrapper components
+│   └── ... (28 more)
+└── templates/            # Page structure components (3 components)
+    ├── PageHeader.tsx
+    ├── SummaryPanel.tsx
+    └── HeroSection.tsx
 ```
 
 ## Import Patterns
@@ -100,12 +99,12 @@ import {
 } from "@/common/components/templates/SummaryPanel";
 import { HeroSection } from "@/common/components/templates/HeroSection";
 
-// File Viewers
-import { FileViewerRouter } from "@/common/components/file-viewers/FileViewerRouter";
-import { CsvViewer } from "@/common/components/file-viewers/CsvViewer";
-import { JsonViewer } from "@/common/components/file-viewers/JsonViewer";
-import { ImageViewer } from "@/common/components/file-viewers/ImageViewer";
-import { MdViewer } from "@/common/components/file-viewers/MdViewer";
+// File Viewers (organized by atomic tier)
+import { FileViewerRouter } from "@/common/components/organisms/FileViewerRouter";
+import { CsvViewer } from "@/common/components/organisms/CsvViewer";
+import { JsonViewer } from "@/common/components/molecules/JsonViewer";
+import { ImageViewer } from "@/common/components/molecules/ImageViewer";
+import { MdViewer } from "@/common/components/molecules/MdViewer";
 ```
 
 ## Theme Integration

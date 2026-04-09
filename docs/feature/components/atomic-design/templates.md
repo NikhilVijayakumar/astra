@@ -16,14 +16,13 @@ Templates define the structure and composition rules for page-level layouts. The
 
 ## Template Components in Astra
 
-| Component          | Purpose                   | Layout Pattern        | File                                                   |
-| ------------------ | ------------------------- | --------------------- | ------------------------------------------------------ |
-| `PageHeader`       | Page title and actions    | Vertical stack        | `src/common/components/templates/PageHeader.tsx`       |
-| `SummaryPanel`     | Summary metrics display   | Grid layout           | `src/common/components/templates/SummaryPanel.tsx`     |
-| `HeroSection`      | Hero/intro section        | Centered content      | `src/common/components/templates/HeroSection.tsx`      |
-| `FileViewerRouter` | File viewer orchestration | Conditional rendering | `src/common/components/templates/FileViewerRouter.tsx` |
-| `CsvViewer`        | CSV file display          | Table layout          | `src/common/components/templates/CsvViewer.tsx`        |
-| `JsonViewer`       | JSON file display         | Code block            | `src/common/components/templates/JsonViewer.tsx`       |
+| Component      | Purpose                 | Layout Pattern   | File                                               |
+| -------------- | ----------------------- | ---------------- | -------------------------------------------------- |
+| `PageHeader`   | Page title and actions  | Vertical stack   | `src/common/components/templates/PageHeader.tsx`   |
+| `SummaryPanel` | Summary metrics display | Grid layout      | `src/common/components/templates/SummaryPanel.tsx` |
+| `HeroSection`  | Hero/intro section      | Centered content | `src/common/components/templates/HeroSection.tsx`  |
+
+**Note:** File viewers (FileViewerRouter, CsvViewer, JsonViewer, ImageViewer, MdViewer) are organisms/molecules, not templates. See [organisms](./organisms.md) and [molecules](./molecules.md) documentation.
 
 ## Classification Rules
 

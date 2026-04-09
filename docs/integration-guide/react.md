@@ -454,9 +454,9 @@ When you see a component's tier (atom, molecule, organism, template), you immedi
 
 Lower-tier components are designed to be composed:
 
-- Atoms (StatusDot, SeverityBadge) can be used anywhere
-- Molecules (Card, Notification) compose atoms into functional units
-- Organisms combine molecules and atoms into coherent sections
+- Atoms (StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState) can be used anywhere
+- Molecules (Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer) compose atoms into functional units
+- Organisms (DataTable, FileViewerRouter, TimelineNode) combine molecules and atoms into coherent sections
 
 **3. Clear Ownership**
 

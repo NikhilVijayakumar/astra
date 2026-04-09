@@ -20,6 +20,9 @@ Atoms are the smallest, most fundamental building blocks in the Atomic Design sy
 | --------------- | ---------------------------------------------------- | ----------------------------------------------- |
 | `StatusDot`     | Visual status indicator (online/offline/error)       | `src/common/components/atoms/StatusDot.tsx`     |
 | `SeverityBadge` | Severity level display (info/warning/error/critical) | `src/common/components/atoms/SeverityBadge.tsx` |
+| `LoadingState`  | Loading indicator with optional message              | `src/common/components/atoms/LoadingState.tsx`  |
+| `ErrorState`    | Error display with retry action                      | `src/common/components/atoms/ErrorState.tsx`    |
+| `EmptyState`    | Empty state display with optional illustration       | `src/common/components/atoms/EmptyState.tsx`    |
 
 ## Classification Rules
 
