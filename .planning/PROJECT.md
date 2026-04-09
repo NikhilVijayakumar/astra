@@ -27,11 +27,12 @@ Provide a production-ready, well-tested foundation that developers can extend wi
 - v1.0: Component library refactored to Atomic Design structure
 - v1.0: Modular documentation structure in docs/feature/
 - v1.1 Phase 1: DOCS-01, DOCS-02, DOCS-05, REFA-01 (Atomic Design methodology docs)
+- v1.1 Phase 2: DOCS-03, DOCS-04 (Component doc enhancement)
 
 ### Active
 
-- [ ] **DOCS-03**: Update docs/integration-guide/ with new component structure
-- [ ] **DOCS-04**: Add tier classification to component docs
+- [ ] **DOCS-06**: Update docs/integration-guide/getting-started.md with component structure
+- [ ] **DOCS-07**: Update docs/integration-guide/react.md with component architecture context
 
 ### Out of Scope
 
