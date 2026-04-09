@@ -102,7 +102,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({
               width: 400,
               height: 300,
               border: `1px solid ${muiTheme.palette.divider}`,
-              borderRadius: "4px",
+              borderRadius: spacing.internal,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",

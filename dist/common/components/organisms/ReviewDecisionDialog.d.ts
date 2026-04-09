@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-export type ReviewDecisionMode = 'idle' | 'approve' | 'reject';
+export type ReviewDecisionMode = "idle" | "approve" | "reject";
 export interface ReviewDecisionDialogLabels {
     title: string;
     selectAction: string;

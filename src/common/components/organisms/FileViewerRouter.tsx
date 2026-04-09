@@ -4,6 +4,7 @@ import { MdViewer } from "../molecules/MdViewer";
 import { ImageViewer } from "../molecules/ImageViewer";
 import { JsonViewer } from "../molecules/JsonViewer";
 import { Box, Typography } from "@mui/material";
+import { spacing } from "../../../theme/tokens/spacing";
 
 interface FileViewerRouterProps {
   fileName: string;
@@ -46,7 +47,7 @@ export const FileViewerRouter: FC<FileViewerRouterProps> = ({
       return <JsonViewer fileName={fileName} fileContent={fileContent} />;
     default:
       return (
-        <Box sx={{ p: 4, textAlign: "center" }}>
+        <Box sx={{ p: spacing.lg, textAlign: "center" }}>
           <Typography variant="h6">Binary / Unsupported File</Typography>
           <Typography variant="body2" color="text.secondary">
             Extension: .{ext}

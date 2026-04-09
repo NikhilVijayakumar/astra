@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -10,9 +10,10 @@ import {
   Typography,
   Stack,
   useTheme as useMuiTheme,
-} from '@mui/material';
+} from "@mui/material";
+import { spacing } from "../../../theme/tokens/spacing";
 
-export type ReviewDecisionMode = 'idle' | 'approve' | 'reject';
+export type ReviewDecisionMode = "idle" | "approve" | "reject";
 
 export interface ReviewDecisionDialogLabels {
   title: string;
@@ -51,20 +52,21 @@ export interface ReviewDecisionDialogProps {
 }
 
 const defaultLabels: ReviewDecisionDialogLabels = {
-  title: 'Review Decision',
-  selectAction: 'Choose an action below.',
-  approveLabel: 'Approve',
-  rejectLabel: 'Reject',
-  confirmApprove: 'Confirm Approve',
-  confirmReject: 'Confirm Reject',
-  approveNote: 'Approval Note (Optional)',
-  approveNotePlaceholder: 'Record optional feedback...',
-  rejectNote: 'Rejection Reason (Required)',
-  rejectNotePlaceholder: 'Explain why this is rejected so follow-up is actionable...',
-  noteMinLength: 'Minimum 4 characters required',
-  noteRequired: 'Required: provide feedback for improvement',
-  cancel: 'Cancel',
-  back: 'Back',
+  title: "Review Decision",
+  selectAction: "Choose an action below.",
+  approveLabel: "Approve",
+  rejectLabel: "Reject",
+  confirmApprove: "Confirm Approve",
+  confirmReject: "Confirm Reject",
+  approveNote: "Approval Note (Optional)",
+  approveNotePlaceholder: "Record optional feedback...",
+  rejectNote: "Rejection Reason (Required)",
+  rejectNotePlaceholder:
+    "Explain why this is rejected so follow-up is actionable...",
+  noteMinLength: "Minimum 4 characters required",
+  noteRequired: "Required: provide feedback for improvement",
+  cancel: "Cancel",
+  back: "Back",
 };
 
 export const ReviewDecisionDialog = ({
@@ -88,8 +90,8 @@ export const ReviewDecisionDialog = ({
   const muiTheme = useMuiTheme();
   const text = { ...defaultLabels, ...labels };
 
-  const isRejectMode = mode === 'reject';
-  const isApproveMode = mode === 'approve';
+  const isRejectMode = mode === "reject";
+  const isApproveMode = mode === "approve";
   const isRejectNoteFilled = rejectNote.trim().length >= minRejectNoteLength;
 
   const handleApproveClick = (): void => {
@@ -105,13 +107,22 @@ export const ReviewDecisionDialog = ({
   };
 
   return (
-    <Dialog open={isOpen} onClose={onCancel} maxWidth="sm" fullWidth aria-labelledby="review-decision-dialog">
+    <Dialog
+      open={isOpen}
+      onClose={onCancel}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="review-decision-dialog"
+    >
       <DialogTitle id="review-decision-dialog">{text.title}</DialogTitle>
 
       <DialogContent>
-        <Stack spacing={2} sx={{ pt: 2 }}>
+        <Stack spacing={spacing.md} sx={{ pt: spacing.md }}>
           <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: 600, mb: spacing.xs }}
+            >
               {entityType}
             </Typography>
             {entityName && (
@@ -122,15 +133,15 @@ export const ReviewDecisionDialog = ({
             {entitySummary && (
               <Box
                 sx={{
-                  mt: 1,
-                  p: 1,
-                  backgroundColor: 'background.default',
+                  mt: spacing.xs,
+                  p: spacing.xs,
+                  backgroundColor: "background.default",
                   borderRadius: 1,
-                  fontFamily: 'monospace',
+                  fontFamily: "monospace",
                   fontSize: muiTheme.typography.caption.fontSize,
                   maxHeight: 200,
-                  overflowY: 'auto',
-                  wordBreak: 'break-word',
+                  overflowY: "auto",
+                  wordBreak: "break-word",
                 }}
               >
                 <Typography variant="body2" component="pre" sx={{ m: 0 }}>
@@ -140,7 +151,7 @@ export const ReviewDecisionDialog = ({
             )}
           </Box>
 
-          {mode === 'idle' && (
+          {mode === "idle" && (
             <Typography variant="body2" color="textSecondary">
               {text.selectAction}
             </Typography>
@@ -173,9 +184,13 @@ export const ReviewDecisionDialog = ({
               disabled={isLoading}
               variant="outlined"
               size="small"
-              error={rejectNote.trim().length > 0 && rejectNote.trim().length < minRejectNoteLength}
+              error={
+                rejectNote.trim().length > 0 &&
+                rejectNote.trim().length < minRejectNoteLength
+              }
               helperText={
-                rejectNote.trim().length > 0 && rejectNote.trim().length < minRejectNoteLength
+                rejectNote.trim().length > 0 &&
+                rejectNote.trim().length < minRejectNoteLength
                   ? text.noteMinLength
                   : text.noteRequired
               }
@@ -184,16 +199,26 @@ export const ReviewDecisionDialog = ({
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2 }}>
-        {mode === 'idle' && (
+      <DialogActions sx={{ p: spacing.md }}>
+        {mode === "idle" && (
           <>
             <Button onClick={onCancel} disabled={isLoading}>
               {text.cancel}
             </Button>
-            <Button onClick={() => onModeChange('approve')} variant="contained" color="success" disabled={isLoading}>
+            <Button
+              onClick={() => onModeChange("approve")}
+              variant="contained"
+              color="success"
+              disabled={isLoading}
+            >
               {text.approveLabel}
             </Button>
-            <Button onClick={() => onModeChange('reject')} variant="contained" color="error" disabled={isLoading}>
+            <Button
+              onClick={() => onModeChange("reject")}
+              variant="contained"
+              color="error"
+              disabled={isLoading}
+            >
               {text.rejectLabel}
             </Button>
           </>
@@ -201,10 +226,15 @@ export const ReviewDecisionDialog = ({
 
         {isApproveMode && (
           <>
-            <Button onClick={() => onModeChange('idle')} disabled={isLoading}>
+            <Button onClick={() => onModeChange("idle")} disabled={isLoading}>
               {text.back}
             </Button>
-            <Button onClick={handleApproveClick} variant="contained" color="success" disabled={isLoading}>
+            <Button
+              onClick={handleApproveClick}
+              variant="contained"
+              color="success"
+              disabled={isLoading}
+            >
               {text.confirmApprove}
             </Button>
           </>
@@ -212,10 +242,15 @@ export const ReviewDecisionDialog = ({
 
         {isRejectMode && (
           <>
-            <Button onClick={() => onModeChange('idle')} disabled={isLoading}>
+            <Button onClick={() => onModeChange("idle")} disabled={isLoading}>
               {text.back}
             </Button>
-            <Button onClick={handleRejectClick} variant="contained" color="error" disabled={isLoading || !isRejectNoteFilled}>
+            <Button
+              onClick={handleRejectClick}
+              variant="contained"
+              color="error"
+              disabled={isLoading || !isRejectNoteFilled}
+            >
               {text.confirmReject}
             </Button>
           </>

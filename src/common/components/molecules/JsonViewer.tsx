@@ -75,8 +75,8 @@ export const JsonViewer: FC<JsonViewerProps> = ({ fileName, fileContent }) => {
           customStyle={{
             margin: 0,
             padding: spacing.md,
-            borderRadius: "4px",
-            fontSize: "12px",
+            borderRadius: spacing.internal,
+            fontSize: "0.75rem",
             backgroundColor: muiTheme.palette.background.paper,
           }}
         >

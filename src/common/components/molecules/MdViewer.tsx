@@ -49,7 +49,7 @@ export const MdViewer: FC<MdViewerProps> = ({ fileName, fileContent }) => {
           "& blockquote": {
             borderLeft: `4px solid ${muiTheme.palette.primary.main}`,
             pl: spacing.md,
-            py: "4px",
+            py: spacing.internal,
             my: spacing.md,
             backgroundColor: muiTheme.palette.action.hover,
             fontStyle: "italic",

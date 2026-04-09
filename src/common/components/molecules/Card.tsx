@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import { ReactNode } from "react";
+import { Box, Paper, Typography } from "@mui/material";
+import { spacing } from "../../../theme/tokens/spacing";
 
 export interface CardProps {
   title?: string;
@@ -8,31 +9,48 @@ export interface CardProps {
   action?: ReactNode;
 }
 
-export const Card = ({ title, supportingText, children, action }: CardProps) => {
+export const Card = ({
+  title,
+  supportingText,
+  children,
+  action,
+}: CardProps) => {
   return (
     <Paper
       elevation={1}
       sx={{
-        p: 3,
-        borderRadius: '8px',
-        backgroundColor: 'background.paper',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        
+        p: spacing.lg,
+        borderRadius: spacing.xs,
+        backgroundColor: "background.paper",
+        display: "flex",
+        flexDirection: "column",
+        gap: spacing.xs,
       }}
-      
     >
       {(title || supportingText || action) && (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
           <Box>
             {title && (
-              <Typography variant="subtitle1" fontWeight={600} color="text.primary">
+              <Typography
+                variant="subtitle1"
+                fontWeight={600}
+                color="text.primary"
+              >
                 {title}
               </Typography>
             )}
             {supportingText && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: spacing.internal }}
+              >
                 {supportingText}
               </Typography>
             )}
