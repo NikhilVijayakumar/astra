@@ -1,45 +1,50 @@
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import dts from 'vite-plugin-dts';
-import path from 'path';
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import dts from "vite-plugin-dts";
+import path from "path";
 
-export default defineConfig({  
-  server: {
-  },
- 
+export default defineConfig({
+  server: {},
+
   plugins: [
     react(),
     dts({
       insertTypesEntry: true,
+      exclude: [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+      ],
     }),
   ],
- 
+
   build: {
-    lib: {     
-      entry: path.resolve(__dirname, 'src/lib.ts'),     
-      name: 'Astra',     
-      formats: ['es', 'umd'],
+    lib: {
+      entry: path.resolve(__dirname, "src/lib.ts"),
+      name: "Astra",
+      formats: ["es", "umd"],
       fileName: (format) => `astra.${format}.js`,
     },
-    rollupOptions: {    
-      external: ['react', 'react-dom', /^@mui\/.*/, /^@emotion\/.*/],
-      output: {      
+    rollupOptions: {
+      external: ["react", "react-dom", /^@mui\/.*/, /^@emotion\/.*/],
+      output: {
         globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',         
-          '@mui/material': 'MaterialUI', 
-          '@emotion/react': 'emotionReact', 
-          '@emotion/styled': 'emotionStyled'
+          react: "React",
+          "react-dom": "ReactDOM",
+          "@mui/material": "MaterialUI",
+          "@emotion/react": "emotionReact",
+          "@emotion/styled": "emotionStyled",
         },
       },
     },
   },
   test: {
     globals: true,
-    environment: 'happy-dom',
-    setupFiles: './vitest.setup.ts',
+    environment: "happy-dom",
+    setupFiles: "./vitest.setup.ts",
     coverage: {
-        provider: 'istanbul',
+      provider: "istanbul",
     },
   },
 });

@@ -1,3 +1,3 @@
 export * from './common';
-export * from './components';
+export * from './common/components';
 export * from './theme';
