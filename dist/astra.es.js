@@ -2335,7 +2335,10 @@ class IS {
       };
       return ft.success(r);
     } catch (n) {
-      if (console.log(n), ge.isAxiosError(n)) {
+      if (console.error(
+        "API Error:",
+        n instanceof Error ? n.message : "Unknown error"
+      ), ge.isAxiosError(n)) {
         const r = n, a = r.response?.status || Ct.INTERNAL_SERVER_ERROR, i = r.message || this.literal.internal_server_error, o = {
           status: a,
           statusMessage: i
@@ -2399,16 +2402,27 @@ function JC({
   forceTheme: r
   // This prop will be passed from Storybook
 }) {
-  const [a, i] = Ne(() => typeof window < "u" ? localStorage.getItem("darkMode") === "true" : !1), o = r ? r === "dark" : a, s = () => {
+  const [a, i] = Ne(() => {
+    if (typeof window < "u")
+      try {
+        return localStorage.getItem("darkMode") === "true";
+      } catch {
+        return !1;
+      }
+    return !1;
+  }), o = r ? r === "dark" : a, s = () => {
     if (!r) {
       const u = !a;
-      i(u), localStorage.setItem("darkMode", String(u));
+      i(u);
+      try {
+        localStorage.setItem("darkMode", String(u));
+      } catch {
+      }
     }
-  }, l = ht(() => o ? n : t, [
-    o,
-    t,
-    n
-  ]);
+  }, l = ht(
+    () => o ? n : t,
+    [o, t, n]
+  );
   return /* @__PURE__ */ g.jsx(sm.Provider, { value: { darkMode: o, toggleDarkMode: s }, children: /* @__PURE__ */ g.jsxs(fy, { theme: l, children: [
     /* @__PURE__ */ g.jsx(gy, {}),
     e

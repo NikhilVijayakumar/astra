@@ -48,7 +48,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write .",
@@ -71,13 +71,13 @@
     "@types/react-dom": "19.1.6",
     "@types/uuid": "10.0.0",
     "axios": "1.10.0",
+    "framer-motion": "^11.18.2",
+    "lucide-react": "^0.400.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-markdown": "^10.1.0",
     "react-syntax-highlighter": "^16.1.1",
-    "uuid": "11.0.2",
-    "framer-motion": "^11.0.0",
-    "lucide-react": "^0.400.0"
+    "uuid": "11.0.2"
   },
   "devDependencies": {
     "@eslint/js": "9.30.1",

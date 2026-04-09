@@ -1,0 +1,18 @@
+{
+  "project": "Astra",
+  "initialized": "2026-04-09",
+  "goal": "improve-code-quality",
+  "workflow": {
+    "autoResearch": false,
+    "requirePlanApproval": true,
+    "autoCommit": true
+  },
+  "agentDefaults": {
+    "temperature": 0.7,
+    "maxTokens": 4000
+  },
+  "checkpoints": {
+    "phase": 0,
+    "lastCommit": null
+  }
+}
