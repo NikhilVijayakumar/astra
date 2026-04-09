@@ -3,16 +3,8 @@ import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 import path from "path";
 
-const customLogger = {
-  warn: (msg: string) => {
-    if (msg.includes("No name was provided for external module")) return;
-    console.warn(msg);
-  },
-};
-
 export default defineConfig({
   server: {},
-  logLevel: "error",
 
   plugins: [
     react(),
@@ -130,13 +122,6 @@ export default defineConfig({
           },
         },
       ],
-      onwarn(warning, warn) {
-        if (
-          warning.message?.includes("No name was provided for external module")
-        )
-          return;
-        warn(warning);
-      },
     },
   },
   test: {
