@@ -9,13 +9,19 @@ export default defineConfig({
   plugins: [
     react(),
     dts({
+      tsconfigPath: "./tsconfig.app.json",
       insertTypesEntry: true,
       exclude: [
         "**/*.test.ts",
         "**/*.test.tsx",
         "**/*.spec.ts",
         "**/*.spec.tsx",
+        "**/*.stories.ts",
+        "**/*.stories.tsx",
       ],
+      compilerOptions: {
+        skipLibCheck: true,
+      },
     }),
   ],
 

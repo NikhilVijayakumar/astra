@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { PageHeader } from "./PageHeader";
 
-const mockButton = vi.fn();
 vi.mock("@mui/material", async () => {
   const actual = await vi.importActual("@mui/material");
   return {
