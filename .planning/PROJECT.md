@@ -28,11 +28,11 @@ Provide a production-ready, well-tested foundation that developers can extend wi
 - v1.0: Modular documentation structure in docs/feature/
 - v1.1 Phase 1: DOCS-01, DOCS-02, DOCS-05, REFA-01 (Atomic Design methodology docs)
 - v1.1 Phase 2: DOCS-03, DOCS-04 (Component doc enhancement)
+- v1.1 Phase 3: DOCS-06, DOCS-07 (Integration guide updates)
 
 ### Active
 
-- [ ] **DOCS-06**: Update docs/integration-guide/getting-started.md with component structure
-- [ ] **DOCS-07**: Update docs/integration-guide/react.md with component architecture context
+None — v1.1 milestone complete
 
 ### Out of Scope
 
