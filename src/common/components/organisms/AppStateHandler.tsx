@@ -1,9 +1,9 @@
-import { FC, ReactElement, ReactNode } from 'react';
-import { AppState, StateType } from '../../state/AppState';
-import { HttpStatusCode } from '../../repo/HttpStatusCode';
-import LoadingState from './LoadingState';
-import ErrorState from './ErrorState';
-import EmptyState from './EmptyState';
+import { FC, ReactElement, ReactNode } from "react";
+import { AppState, StateType } from "../../state/AppState";
+import { HttpStatusCode } from "../../repo/HttpStatusCode";
+import LoadingState from "../atoms/LoadingState";
+import ErrorState from "../atoms/ErrorState";
+import EmptyState from "../atoms/EmptyState";
 
 /**
  * Defines the props for the AppStateHandler component.
@@ -90,7 +90,7 @@ const AppStateHandler = <T, S extends AppState<T>>({
     if (emptyCondition?.(data)) {
       return <EmptyState />;
     }
-    
+
     // Support children as the success view
     if (children) {
       return <>{children}</>;
