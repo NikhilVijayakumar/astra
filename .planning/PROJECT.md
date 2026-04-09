@@ -26,13 +26,12 @@ Provide a production-ready, well-tested foundation that developers can extend wi
 - v1.0: Quality improvements (type safety, testing, security fixes)
 - v1.0: Component library refactored to Atomic Design structure
 - v1.0: Modular documentation structure in docs/feature/
+- v1.1 Phase 1: DOCS-01, DOCS-02, DOCS-05, REFA-01 (Atomic Design methodology docs)
 
 ### Active
 
-- [ ] **DOCS-01**: Document Atomic Design methodology as official design principle
-- [ ] **DOCS-02**: Create component placement guidelines for future development
 - [ ] **DOCS-03**: Update docs/integration-guide/ with new component structure
-- [ ] **REFA-01**: Refactor any remaining code that doesn't follow Atomic Design
+- [ ] **DOCS-04**: Add tier classification to component docs
 
 ### Out of Scope
 
@@ -86,11 +85,13 @@ src/common/components/
 
 ## Key Decisions
 
-| Decision                     | Rationale                                    | Outcome |
-| ---------------------------- | -------------------------------------------- | ------- |
-| Atomic Design for components | Consistency, predictability, maintainability | ✓ Good  |
-| Modular docs structure       | Better discoverability than monolith docs    | ✓ Good  |
-| Barrel exports               | Clean import API for consumers               | ✓ Good  |
+| Decision                                  | Rationale                                    | Outcome |
+| ----------------------------------------- | -------------------------------------------- | ------- |
+| Atomic Design for components              | Consistency, predictability, maintainability | ✓ Good  |
+| Modular docs structure                    | Better discoverability than monolith docs    | ✓ Good  |
+| Barrel exports                            | Clean import API for consumers               | ✓ Good  |
+| Methodology docs: Mermaid diagrams        | Visual clarity without external dependencies | ✓ Good  |
+| Methodology docs: Comprehensive reference | Full explanations with anti-patterns         | ✓ Good  |
 
 ## Dependencies
 
