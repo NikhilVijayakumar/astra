@@ -440,8 +440,52 @@ export const UserProfile = () => {
 };
 ```
 
+## Component Architecture Rationale
+
+### Why Atomic Design?
+
+Astra uses Atomic Design methodology to organize the component library. This isn't just organizational—it's a design philosophy:
+
+**1. Predictability at Scale**
+
+When you see a component's tier (atom, molecule, organism, template), you immediately understand its complexity and purpose. Atoms are simple primitives; organisms are complex UI sections.
+
+**2. Composability**
+
+Lower-tier components are designed to be composed:
+
+- Atoms (StatusDot, SeverityBadge) can be used anywhere
+- Molecules (Card, Notification) compose atoms into functional units
+- Organisms combine molecules and atoms into coherent sections
+
+**3. Clear Ownership**
+
+- Atoms: Design system team owns primitives
+- Molecules: Feature teams compose functional units
+- Organisms: Domain teams build business-specific sections
+- Templates: Platform team owns page structures
+
+### Finding the Right Component
+
+When building a feature:
+
+1. **Start with atoms** for simple UI needs (StatusDot for status indicators)
+2. **Look for molecules** for common patterns (Card for content containers)
+3. **Check organisms** for complex UI (DataTable for data display)
+4. **Use templates** for page structure (PageHeader for standard page layout)
+
+Explore the full component library: [Component Documentation](../feature/components/README.md)
+
+For tier-specific guidance, see:
+
+- [Atoms Guide](../feature/components/atomic-design/atoms.md)
+- [Molecules Guide](../feature/components/atomic-design/molecules.md)
+- [Organisms Guide](../feature/components/atomic-design/organisms.md)
+- [Templates Guide](../feature/components/atomic-design/templates.md)
+
 ## Next Steps
 
+- [Component Documentation](../feature/components/README.md) - Browse the full component library
 - [Getting Started Guide](./getting-started.md) - Basic installation
 - [Electron Integration Guide](./electron.md) - Desktop app integration
 - [MVVM Architecture](../MVVM_Clean_Architecture.md) - Architecture deep dive

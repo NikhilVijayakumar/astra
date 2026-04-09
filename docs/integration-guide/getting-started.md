@@ -217,16 +217,17 @@ function UserList() {
 | `AppStateHandler`  | Automatic state UI handler component               |
 | `StateType`        | Enum: `INIT`, `LOADING`, `COMPLETED`, `ERROR`      |
 
-### UI Components
+### UI Components (Atomic Design)
 
-Astra includes 30+ ready-to-use components:
+Astra includes 30+ ready-to-use components organized by Atomic Design tiers:
 
-- **Layout**: `HeroSection`, `Card`, `PageHeader`, `EntryLayoutFrame`
-- **Data Display**: `DataTable`, `SummaryPanel`, `TrendMetricCard`
-- **Feedback**: `Notification`, `AlertListItem`, `SeverityBadge`
-- **Forms**: `FormLayout`, `MultiStepProgressIndicator`
-- **Navigation**: Various navigation components
-- **File Viewers**: `CsvViewer`, `ImageViewer`, `JsonViewer`, `MdViewer`
+- **Atoms** (Fundamental primitives): `StatusDot`, `SeverityBadge`
+- **Molecules** (Composed units): `Card`, `Notification`, `TrendMetricCard`
+- **Organisms** (Complex sections): `DataTable`, `FormLayout`, `TimelineNode`, `FileTree`
+- **Templates** (Page layouts): `PageHeader`, `SummaryPanel`, `HeroSection`
+- **File Viewers**: `CsvViewer`, `JsonViewer`, `ImageViewer`, `MdViewer`, `FileViewerRouter`
+
+See [Component Documentation](../feature/components/README.md) for the full library.
 
 ### Import Styles
 
@@ -239,8 +240,34 @@ import { spacing, typography } from "astra/theme";
 import { HeroSection, Card } from "astra/components";
 ```
 
+## Component Architecture
+
+Astra's component library follows **Atomic Design** methodology, organizing components into four tiers:
+
+| Tier      | Description                                                  | Examples                              |
+| --------- | ------------------------------------------------------------ | ------------------------------------- |
+| Atoms     | Fundamental UI primitives (smallest building blocks)         | StatusDot, SeverityBadge              |
+| Molecules | Composed functional units (combine atoms into working units) | Card, Notification, TrendMetricCard   |
+| Organisms | Complex UI sections (composed of molecules and atoms)        | DataTable, FormLayout                 |
+| Templates | Page-level layouts (structural composition for pages)        | PageHeader, HeroSection, SummaryPanel |
+
+### Why Atomic Design?
+
+This structure provides:
+
+- **Predictability**: Components have consistent patterns based on their tier
+- **Maintainability**: Clear boundaries make updates localized
+- **Reusability**: Lower-tier components can be recombined in many ways
+
+For detailed methodology and classification guidelines, see [Atomic Design Methodology](../feature/components/atomic-design/README.md).
+
+### Finding Components
+
+Browse the full component library at [Component Documentation](../feature/components/README.md).
+
 ## Next Steps
 
+- [Component Documentation](../feature/components/README.md) - Browse the full component library
 - [React Integration Guide](./react.md) - Framework-specific setup
 - [Electron Integration Guide](./electron.md) - Desktop app integration
 - [MVVM Architecture](../MVVM_Clean_Architecture.md) - Architecture patterns
