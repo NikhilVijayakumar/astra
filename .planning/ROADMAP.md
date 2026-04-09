@@ -1,103 +1,97 @@
-# Roadmap: Astra Quality Improvements
+# Roadmap: Astra v1.1.0
 
 **Project:** Astra
-**Goal:** Improve library quality for consumer applications
+**Version:** 1.1.0
+**Goal:** Document Atomic Design methodology as official design principle
 **Phases:** 3
+**Granularity:** Standard
 
 ---
 
-## Phase 1: Type Safety & Exports ⏱ 1-2 days
+## Phases
 
-**Goal:** Fix critical type gaps and export surface
-
-### Tasks
-
-1. Fix ApiService generics
-   - Update `post<T>()` signature - no `any`
-   - Update `put<T>()` signature - no `any`
-   - Verify backward compatibility
-
-2. Remove console.log from ApiService
-   - Replace with console.error
-   - Sanitize error messages for consumers
-
-3. Export surface audit
-   - Verify `useOnboardingActionGate` exports
-   - Verify `OnboardingActionGate` exports
-   - Verify `DynamicProfileRenderer` exports
-   - Test subpath imports work
-
-**Definition of Done:**
-
-- [ ] No `any` types in ApiService public API
-- [ ] No console.log in production code
-- [ ] All required exports verified working
+- [ ] **Phase 1: Methodology Foundation** - Create atomic design methodology and verify compliance
+- [ ] **Phase 2: Component Doc Enhancement** - Update component docs with tier classification
+- [ ] **Phase 3: Integration Guide Updates** - Add context to integration guides
 
 ---
 
-## Phase 2: Testing Coverage ⏱ 3-5 days
+## Phase Details
 
-**Goal:** Increase test coverage for library reliability
+### Phase 1: Methodology Foundation
 
-### Tasks
+**Goal:** Establish atomic design methodology documentation and verify component compliance
 
-1. Component tests
-   - HeroSection, AppStateHandler tests
-   - Form components (ReviewDecisionDialog, StatusActionCard)
-   - Profile components
+**Depends on:** Nothing (first phase)
 
-2. Hook tests
-   - useDataState with all state transitions
-   - LanguageProvider context tests
+**Requirements:** DOCS-01, DOCS-02, DOCS-05, REFA-01
 
-3. Integration tests
-   - ApiService with mocked axios
-   - ThemeProvider context
+**Success Criteria** (what must be TRUE):
 
-**Definition of Done:**
+1. Users can read a comprehensive methodology document explaining atoms, molecules, organisms, templates definitions
+2. Users can access tier-specific guides for each component level (atoms, molecules, organisms, templates)
+3. All components in src/common/components/ have been verified for atomic design compliance
+4. The methodology directory exists with all 5 files (README + 4 tier guides) in docs/feature/components/atomic-design/
 
-- [ ] > 60% overall coverage
-- [ ] All critical paths tested
-- [ ] Tests pass with `npm test`
+**Plans:** TBD
+
+**UI hint:** no
 
 ---
 
-## Phase 3: Security & Polish ⏱ 1-2 days
+### Phase 2: Component Doc Enhancement
 
-**Goal:** Fix security concerns and polish
+**Goal:** Update existing component documentation with tier classification and methodology links
 
-### Tasks
+**Depends on:** Phase 1
 
-1. localStorage robustness (ThemeProvider)
-   - Add try-catch blocks
-   - Handle private browsing mode
-   - Validate stored values
+**Requirements:** DOCS-03, DOCS-04
 
-2. Error message sanitization
-   - Never expose stack traces to consumers
-   - Structured error messages
+**Success Criteria** (what must be TRUE):
 
-3. Bundle size documentation
-   - Document current size
-   - Identify tree-shaking status
+1. docs/feature/components/README.md includes atomic design structure overview and links to tier guides
+2. All component documentation pages display their tier classification (atoms/molecules/organisms/templates)
+3. Each component doc includes "Design Principles" section linking to relevant tier guide
 
-**Definition of Done:**
+**Plans:** TBD
 
-- [ ] ThemeProvider handles all storage errors
-- [ ] No information leakage in errors
-- [ ] Performance documented
+**UI hint:** yes
 
 ---
 
-## Timeline
+### Phase 3: Integration Guide Updates
 
-```
-Week 1: Phase 1 (Type Safety) + Phase 2 (Testing)
-Week 2: Phase 2 (Testing continued)
-Week 3: Phase 3 (Security & Polish)
-```
+**Goal:** Provide component architecture context in integration guides
 
-**Total Estimated:** 5-9 days
+**Depends on:** Phase 2
+
+**Requirements:** DOCS-06, DOCS-07
+
+**Success Criteria** (what must be TRUE):
+
+1. docs/integration-guide/getting-started.md contains component structure overview and references atomic design methodology
+2. docs/integration-guide/react.md explains "why" context for component architecture and links to component docs
+3. Both guides provide clear path to component documentation for developers learning the library
+
+**Plans:** TBD
+
+---
+
+## Progress
+
+| Phase                        | Plans Complete | Status      | Completed |
+| ---------------------------- | -------------- | ----------- | --------- |
+| 1. Methodology Foundation    | 0/1            | Not started | -         |
+| 2. Component Doc Enhancement | 0/1            | Not started | -         |
+| 3. Integration Guide Updates | 0/1            | Not started | -         |
+
+---
+
+## Coverage
+
+- v1 requirements: 8 total
+- Mapped to phases: 8
+- Unmapped: 0 ✓
 
 ---
 

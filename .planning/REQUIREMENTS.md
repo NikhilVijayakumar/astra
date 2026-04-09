@@ -85,7 +85,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ----------- | ------- | ------- |
 | DOCS-01     | Phase 1 | Pending |
 | DOCS-02     | Phase 1 | Pending |
-| DOCS-03     | Phase 1 | Pending |
+| DOCS-03     | Phase 2 | Pending |
 | DOCS-04     | Phase 2 | Pending |
 | DOCS-05     | Phase 1 | Pending |
 | DOCS-06     | Phase 3 | Pending |
