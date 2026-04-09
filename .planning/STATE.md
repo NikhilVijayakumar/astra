@@ -1,16 +1,37 @@
 # State: Astra Project
 
 **Last Updated:** 2026-04-09
-**Current Phase:** ALL COMPLETE
+**Current Phase:** Not started (defining requirements)
+**Plan:** —
 
 ---
 
-## Project Summary
+## Current Position
 
-**Name:** Astra
-**Type:** React + Electron Boilerplate Library
-**Goal:** Improve library quality for consumer applications
-**Phase:** ✅ All 3 Phases Complete
+| Field         | Value                                 |
+| ------------- | ------------------------------------- |
+| Phase         | Not started (defining requirements)   |
+| Plan          | —                                     |
+| Status        | Defining requirements                 |
+| Last activity | 2026-04-09 — Milestone v1.1.0 started |
+
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-04-09)
+
+**Core value:** Provide a production-ready, well-tested foundation that developers can extend with confidence
+**Current focus:** v1.1.0 Atomic Design Documentation
+
+## Milestone: v1.1.0
+
+**Name:** Atomic Design Documentation & Standards
+**Goal:** Document the Atomic Design methodology as Astra's official design principle
+
+## Phase Status
+
+| Phase | Status      | Tasks         | Progress |
+| ----- | ----------- | ------------- | -------- |
+| TBD   | Not Started | Define phases | 0/?      |
 
 ## Quick Links
 
@@ -18,45 +39,8 @@
 - [Project Context](./PROJECT.md)
 - [Requirements](./REQUIREMENTS.md)
 - [Roadmap](./ROADMAP.md)
-
-## Phase Status
-
-| Phase | Status       | Tasks                 | Progress |
-| ----- | ------------ | --------------------- | -------- |
-| 1     | **Complete** | Type Safety & Exports | 3/3      |
-| 2     | Not Started  | Testing               | 0/3      |
-| 3     | Not Started  | Security & Polish     | 0/3      |
-
-## Current Metrics
-
-| Metric          | Value     | Target   |
-| --------------- | --------- | -------- |
-| Test Coverage   | **~90%**  | >60% ✅  |
-| Type Errors     | 0         | 0        |
-| Security Issues | 2         | 0        |
-| Export Surface  | **Fixed** | Complete |
-
-## Last Commits
-
-- `map-codebase`: Initial codebase analysis
-
-## Active Issues
-
-| Issue                       | Priority | Phase | Status |
-| --------------------------- | -------- | ----- | ------ |
-| ApiService `any` types      | Critical | 1     | ✅     |
-| Export surface gaps         | High     | 1     | ✅     |
-| Low test coverage           | High     | 2     | ✅     |
-| localStorage error handling | High     | 3     | ✅     |
-
-## Next Steps
-
-1. **Commit changes:** `git add . && git commit -m "feat: complete quality improvements phases 1-3"`
-2. **Version bump:** Update package.json version
-3. **Publish:** `npm publish` (if ready)
+- [Milestones](./MILESTONES.md)
 
 ---
 
-_All phases complete!_
-
----
+_Last updated: 2026-04-09 after starting v1.1.0 milestone_
