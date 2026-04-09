@@ -1,5 +1,17 @@
 # Milestones: Astra
 
+## v1.1.0 Atomic Design Documentation (Shipped: 2026-04-09)
+
+**Phases completed:** 3 phases, 3 plans
+
+**Key accomplishments:**
+
+- Phase 1: Created Atomic Design methodology docs (5 files: README + 4 tier guides)
+- Phase 2: Updated 12 component docs with tier classification and Design Principles sections
+- Phase 3: Added component architecture context to integration guides (getting-started, react)
+
+---
+
 Changelog of shipped milestones.
 
 ---
@@ -50,4 +62,4 @@ Changelog of shipped milestones.
 
 ---
 
-_Last milestone: v1.0.2 - 2026-04-09_
+_Last milestone: v1.1.0 - 2026-04-09_
