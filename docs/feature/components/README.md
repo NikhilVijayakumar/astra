@@ -1,9 +1,9 @@
 ---
 tier_index:
-  atoms: ./atomic/
-  molecules: ./molecular/
+  atoms: ./atoms/
+  molecules: ./molecules/
   organisms: ./organisms/
-  templates: ./layout/
+  templates: ./templates/
 ---
 
 # Component Library
