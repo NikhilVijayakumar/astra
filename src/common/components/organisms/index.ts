@@ -30,4 +30,5 @@ export * from "./ToolbarComponent";
 export * from "./VersionHistorySelector";
 export * from "./VerticalStepIndicator";
 export * from "./WeeklyReportCard";
-export * from "./AppStateHandler";
+export { default as AppStateHandler } from "./AppStateHandler";
+export type { AppStateHandlerProps } from "./AppStateHandler";

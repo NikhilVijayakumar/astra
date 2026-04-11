@@ -109,5 +109,8 @@
     "vite": "7.3.2",
     "vite-plugin-dts": "4.5.4",
     "vitest": "^4.0.16"
+  },
+  "overrides": {
+    "glob": "^13.0.6"
   }
 }
