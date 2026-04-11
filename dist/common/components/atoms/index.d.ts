@@ -1,5 +1,5 @@
 export * from './StatusDot';
 export * from './SeverityBadge';
-export * from './LoadingState';
-export * from './ErrorState';
-export * from './EmptyState';
+export { default as LoadingState } from './LoadingState';
+export { default as ErrorState } from './ErrorState';
+export { default as EmptyState } from './EmptyState';
