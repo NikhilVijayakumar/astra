@@ -71,11 +71,14 @@ function sectionNavigation() {
   return `
 ## Navigation Guide
 
-- Modify UI → Component Inventory
-- Change API → Repository Layer
-- Update theme → Theming
-- Add feature → Feature System
-- Debug state → State Management
+**For quick reference:**
+- **Modify UI** → Component Inventory
+- **Change API** → Repository (ApiService)
+- **Update theme** → Theming (src/theme/)
+- **Add feature** → Feature docs (docs/feature/)
+- **Debug state** → State Management
+
+**For detailed docs:** See Feature Details section below.
 `;
 }
 
@@ -92,10 +95,16 @@ function sectionGlobal() {
 }
 
 function sectionVision() {
+  // Clean up the summary - remove # and extra whitespace
+  let summary = summarize(readme)
+    .replace(/^#+\s*Astra\s*/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  
   return `
 ## High-Level Vision
 
-${summarize(readme)}
+Astra is a React + Electron boilerplate library providing a production-ready foundation for building applications. ${summary}
 `;
 }
 
@@ -164,6 +173,49 @@ ${config.flows
 `;
 }
 
+function sectionFeatureDetails() {
+  return `
+## Feature Details
+
+### Theming (src/theme/, docs/feature/theming/)
+- **Purpose:** Material UI 7 theme system with design tokens
+- **Key:** ThemeProvider, ThemeToggle, theme tokens (colors, typography, spacing)
+- **Usage:** Wrap app, use tokens (never hardcode colors)
+- **Mode:** Light/Dark supported
+
+### Localization (src/common/localization/, docs/feature/localization/)
+- **Purpose:** Internationalization (i18n)
+- **Key:** LanguageProvider, useLanguage hook
+- **Usage:** Provide translations, use hook to access
+- **Languages:** Configurable, any language
+
+### State Management (src/common/hooks/, docs/feature/state/)
+- **Purpose:** MVVM pattern with useDataState
+- **Key:** useDataState hook, AppStateHandler
+- **States:** INIT, LOADING, COMPLETED, ERROR
+- **Usage:** Data fetching with auto state handling
+
+### Repository (src/common/repo/, docs/feature/repository/)
+- **Purpose:** Type-safe API layer (Axios wrapper)
+- **Key:** ApiService, HttpStatusCode, ServerResponse
+- **Usage:** Create instance, use typed methods
+- **Errors:** Built-in status code handling
+
+### MVVM Architecture (src/common/, docs/feature/mvvm/)
+- **Purpose:** Model-View-ViewModel separation
+- **Pattern:** useDataState + Repository + Component
+- **Flow:** Model → ViewModel → View
+
+### Component Library (src/common/components/)
+- **Organized by:** Atomic Design (atoms → molecules → organisms → templates)
+- **Tiers:** 
+  - Atoms: StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState (5)
+  - Molecules: Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer (6)
+  - Organisms: DataTable, DecisionActionCard, TimelineNode, +30 more (33)
+  - Templates: PageHeader, SummaryPanel, HeroSection (3)
+`;
+}
+
 function sectionDocsManifest() {
   return `
 ## Documentation Manifest
@@ -215,6 +267,7 @@ const sectionMap = {
   conceptMap: sectionConceptMap,
   editMap: sectionEditMap,
   flows: sectionFlows,
+  featureDetails: sectionFeatureDetails,
   docsManifest: sectionDocsManifest,
   rules: sectionRules,
   api: sectionAPI,
