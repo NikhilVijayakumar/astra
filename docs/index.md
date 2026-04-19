@@ -2,6 +2,21 @@
 
 **Purpose:** This is the LLM-optimized knowledge map for Astra. Start here to understand the project, then navigate to specific documentation as needed.
 
+> **Tracking:** See [wiki-steps.md](wiki-steps.md) for enhancement roadmap.
+
+---
+
+## Global Constants
+
+| Constant | Value |
+|-----------|-------|
+| Version | 1.1.0 |
+| Build Output | ESM + UMD (dual format) |
+| Tests | ~120 passing |
+| License | MIT |
+| npm Package | astra |
+| GitHub | NikhilVijayakumar/astra |
+
 ---
 
 ## High-Level Vision
@@ -105,13 +120,105 @@ astra/
 
 ---
 
+## External Integrations
+
+| Project | Type | Summary | Location |
+|---------|------|---------|----------|
+| Dristi | Request/Response | Integration with Dristi system | [View](./docs/pr/dristi/) |
+| Sangama | Request/Response | Integration with Sangama system | [View](./docs/pr/sangama/) |
+| Prana | Request/Response | Integration with Prana system | [View](./docs/pr/prana/) |
+| Dhi | Request/Response | Integration with Dhi system | [View](./docs/pr/dhi/) |
+
+---
+
+## Legacy Documentation
+
+| File | Summary | Status |
+|------|---------|--------|
+| MVVM_Clean_Architecture.md | Architecture overview | Legacy |
+| Theming.md | Theming guide | Legacy |
+| Localization.md | i18n guide | Legacy |
+| Repository_Layer.md | API layer | Legacy |
+| state.md | State management | Legacy |
+
+> Note: See docs/feature/ for current documentation.
+
+---
+
+## Component Inventory
+
+### Atoms (5)
+
+| Component | Key Props | Description |
+|-----------|----------|-------------|
+| StatusDot | `tone`, `size` | Status indicator (ok/warning/error/executing/waiting/default) |
+| SeverityBadge | `severity`, `label` | Severity level indicator (low/medium/high/critical) |
+| LoadingState | `status` | Loading spinner state |
+| ErrorState | `error` | Error display state |
+| EmptyState | `data` | Empty data state |
+
+### Molecules (6)
+
+| Component | Key Props | Description |
+|-----------|----------|-------------|
+| Card | `variant`, `children` | Container card (elevated/outlined) |
+| Notification | `severity`, `message` | Alert notification (success/warning/error/info) |
+| TrendMetricCard | `value`, `trend` | Metric with trend indicator |
+| ImageViewer | `src`, `alt` | Image display component |
+| MdViewer | `content` | Markdown rendering |
+| JsonViewer | `data` | JSON data display |
+
+### Organisms (32)
+
+| Component | Key Props | Description |
+|-----------|----------|-------------|
+| AlertListItem | `alert`, `onAction` | Alert list item |
+| AudioPlayerBar | `src`, `controls` | Audio playback |
+| DataTable | `data`, `columns` | Data table with sorting/filtering |
+| DecisionActionCard | `decision`, `actions` | Decision with actions |
+| DrawerComponent | `open`, `onClose` | Drawer/sidebar |
+| EntityConfidenceRow | `entity`, `confidence` | Entity confidence display |
+| EntryLayoutFrame | `children`, `title` | Layout container |
+| FeatureSegmentCard | `feature`, `segment` | Feature segment |
+| FileTree | `files`, `onSelect` | File tree display |
+| FileViewerRouter | `file`, `type` | File viewer router |
+| FormLayout | `schema`, `onSubmit` | Form layout |
+| IconDescriptionListItem | `icon`, `description` | Icon with description |
+| InteractiveStepNode | `step`, `active` | Interactive step |
+| MultiPhaseWorkflowDiagram | `phases`, `current` | Workflow display |
+| MultiStepProgressIndicator | `steps`, `current` | Progress indicator |
+| OperationHealthPanel | `operations`, `health` | Health panel |
+| PlayableMediaCard | `media`, `controls` | Media playback |
+| ProfileRevealCard | `profile`, `onReveal` | Profile reveal |
+| ReviewDecisionDialog | `decision`, `onApprove` | Review dialog |
+| StatusActionCard | `status`, `action` | Status with action |
+| StatusListRow | `status`, `label` | Status list item |
+| SummaryListItem | `summary`, `details` | Summary item |
+| TerminalViewer | `output`, `input` | Terminal display |
+| TimelineNode | `events`, `current` | Timeline display |
+| ToolbarComponent | `tools`, `onSelect` | Toolbar |
+| VersionHistorySelector | `versions`, `current` | Version selector |
+| VerticalStepIndicator | `steps`, `current` | Vertical steps |
+| WeeklyReportCard | `report`, `metrics` | Weekly report |
+| AppStateHandler | `appState`, `children` | State handler wrapper |
+
+### Templates (3)
+
+| Component | Key Props | Description |
+|-----------|----------|-------------|
+| PageHeader | `title`, `subtitle` | Page header with breadcrumb |
+| SummaryPanel | `items`, `actions` | Summary panel |
+| HeroSection | `title`, `description` | Hero section |
+
+---
+
 ## Atomic Design Methodology
 
 Astra uses Atomic Design to organize components into tiers:
 
 - **Atoms**: StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState
 - **Molecules**: Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer
-- **Organisms**: 27 complex components (DataGrid, TimelineView, etc.)
+- **Organisms**: 32 complex components
 - **Templates**: PageHeader, SummaryPanel, HeroSection
 
 **Decision Flowchart:**
@@ -192,4 +299,8 @@ export * from './common/components';
 
 ---
 
-*Last updated: 2026-04-19 | Version: 1.1.0*
+## Maintenance
+
+- **Tracking:** [wiki-steps.md](wiki-steps.md)
+- **Last updated:** 2026-04-19
+- **Version:** 1.1.0
