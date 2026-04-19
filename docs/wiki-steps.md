@@ -43,22 +43,21 @@ ls -R src/
 
 ## Step 2: Scan Documentation
 
-### A. Feature Docs
+### A. List All Docs Directories
 ```bash
-ls docs/feature/
-# theming/, localization/, state/, repository/, mvvm/, components/
+ls -la docs/           # Root level docs
+ls -la docs/feature/   # Feature docs
+ls -la docs/integration-guide/  # Integration guides
 ```
 
-### B. Integration Guides
+### B. Scan Recursively (includes NEW files/folders)
 ```bash
-ls docs/integration-guide/
-# getting-started.md, react.md, electron.md
+find docs/ -type f -name "*.md"  # All markdown files - tracks new additions automatically
 ```
 
-### C. External Integrations (if any)
+### C. Read Root README for Project Overview
 ```bash
-ls docs/pr*/
-# Dristi, Sangama, Prana, Dhi integrations
+cat README.md                 # High-level project overview (for High-Level Vision section)
 ```
 
 ---
@@ -86,9 +85,10 @@ Extract from package.json:
 - GitHub
 
 ### Section 3: High-Level Vision
-2-sentence summary from README.md:
+2-sentence summary from README.md (Step 2C):
 - What the project is
 - What it provides
+- Core value proposition
 
 ### Section 4: Dependency Stack
 From package.json dependencies:
