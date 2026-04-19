@@ -99,7 +99,8 @@ function sectionGlobal() {
 |-----|------|
 | Name | ${pkg.name} |
 | Version | ${pkg.version} |
-| License | ${pkg.license || "N/A"} |
+| Type | React + Electron Library |
+| Build | Vite (ESM + UMD) |
 `;
 }
 
@@ -221,7 +222,7 @@ function sectionFeatureDetails() {
 - **Tiers:** 
   - Atoms: StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState (5)
   - Molecules: Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer (6)
-  - Organisms: DataTable, DecisionActionCard, TimelineNode, +30 more (33)
+  - Organisms: DataTable, DecisionActionCard, TimelineNode, +29 more (32)
   - Templates: PageHeader, SummaryPanel, HeroSection (3)
 `;
 }

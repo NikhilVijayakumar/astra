@@ -26,7 +26,8 @@
 |-----|------|
 | Name | astra |
 | Version | 1.0.6 |
-| License | N/A |
+| Type | React + Electron Library |
+| Build | Vite (ESM + UMD) |
 
 ## High-Level Vision
 
@@ -145,7 +146,7 @@ Astra is a React + Electron boilerplate library providing a production-ready fou
 - **Tiers:** 
   - Atoms: StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState (5)
   - Molecules: Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer (6)
-  - Organisms: DataTable, DecisionActionCard, TimelineNode, +30 more (33)
+  - Organisms: DataTable, DecisionActionCard, TimelineNode, +29 more (32)
   - Templates: PageHeader, SummaryPanel, HeroSection (3)
 
 ## Concept Mapping
