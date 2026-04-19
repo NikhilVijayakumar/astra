@@ -72,14 +72,22 @@ function sectionNavigation() {
 ## Navigation Guide
 
 **Task-based quick reference:**
-- **Add/modify UI component** → src/common/components/ ( Atomic Design tiers)
-- **API calls** → src/common/repo/ApiService
+- **Add/modify UI component** → src/common/components/{atoms,molecules,organisms,templates}/
+- **API calls** → src/common/repo/ (ApiService)
 - **Theme/styling** → src/theme/, src/common/theme/
 - **i18n/localization** → src/common/localization/
 - **State management** → src/common/hooks/useDataState
 - **Build/config** → vite.config.js, package.json
 
-**For detailed docs:** See Feature Details section below.
+**Debug & Fix:**
+- **Debug API error** → src/common/repo/ApiService.ts + src/common/hooks/useDataState.ts
+- **Fix UI style** → src/theme/tokens/ (colors, spacing, typography)
+- **Fix state bug** → src/common/state/AppState.ts
+
+**Docs:**
+- **Core features** → docs/feature/
+- **Integration** → docs/integration-guide/
+- **Component docs** → docs/feature/components/
 `;
 }
 
@@ -96,16 +104,10 @@ function sectionGlobal() {
 }
 
 function sectionVision() {
-  // Clean up the summary - remove # and extra whitespace
-  let summary = summarize(readme)
-    .replace(/^#+\s*Astra\s*/, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  
   return `
 ## High-Level Vision
 
-Astra is a React + Electron boilerplate library providing a production-ready foundation for building applications. ${summary}
+Astra is a React + Electron boilerplate library providing a production-ready foundation with MVVM architecture, Material UI 7 theming, localization, type-safe API, and 46+ UI components organized by Atomic Design.
 `;
 }
 
@@ -166,11 +168,23 @@ function sectionFlows() {
   return `
 ## Critical Flows
 
-${config.flows
-  .map(
-    (f) => `### ${f.name}\n${f.steps.join(" → ")}`
-  )
-  .join("\n\n")}
+### Data Flow (API to UI)
+Hook component → useDataState() → ApiService.get/post/put/delete() → ServerResponse<T> → Render data
+
+### Theme Flow
+Wrap <ThemeProvider> → useTheme() hook → MUI theme tokens → component styles
+
+### Localization Flow
+Wrap <LanguageProvider> → useLanguage() hook → translations['key'] → UI text
+
+### Component Creation
+Define props → Create {Component}.tsx → Export from {tier}/index.ts → Add doc to docs/feature/components/
+
+### State Flow
+INIT → (loading) → LOADING → (success) → COMPLETED | (error) → ERROR
+
+### Build Flow
+npm run build → Vite + vite-plugin-dts → dist/astra.es.js + dist/astra.umd.js + dist/lib.d.ts
 `;
 }
 
@@ -213,16 +227,44 @@ function sectionFeatureDetails() {
 }
 
 function sectionDocsManifest() {
+  function normalizePath(p) {
+    return p.replace(/\\/g, "/");
+  }
+  
+  // Group docs by priority
+  const allDocs = docsFiles.map(f => normalizePath(f));
+  const featureFiles = allDocs.filter(f => f.startsWith("docs/feature/"));
+  const integrationFiles = allDocs.filter(f => f.startsWith("docs/integration-guide/"));
+  const prFiles = allDocs.filter(f => f.startsWith("docs/pr/") || f.startsWith("docs/issue/"));
+  
+  const section = (title, files) => {
+    if (files.length === 0) return "";
+    return `### ${title}\n` + files
+      .map((file) => {
+        const rel = file.replace("docs/", "");
+        const content = readFileSafe(file);
+        const summary = summarize(content).slice(0, 80);
+        return `- **${rel}** → ${summary}`;
+      })
+      .join("\n") + "\n\n";
+  };
+  
   return `
 ## Documentation Manifest
 
-${docsFiles
-  .map((file) => {
-    const rel = file.replace(/^docs\//, "");
-    const content = readFileSafe(file);
-    return `- **${rel}** → ${summarize(content)}`;
-  })
-  .join("\n")}
+### Core Features (HIGH PRIORITY)
+${section("Theming", featureFiles.filter(f => f.includes("/theming/")))}
+${section("Localization", featureFiles.filter(f => f.includes("/localization/")))}
+${section("State", featureFiles.filter(f => f.includes("/state/")))}
+${section("Repository", featureFiles.filter(f => f.includes("/repository/")))}
+${section("Components", featureFiles.filter(f => f.includes("/components/")))}
+${section("MVVM", featureFiles.filter(f => f.includes("/mvvm/")))}
+
+### Integration Guides
+${section("Guides", integrationFiles)}
+
+### PR / Integration Docs (LOW PRIORITY)
+${section("PR Docs", prFiles)}
 `;
 }
 
