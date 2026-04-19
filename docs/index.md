@@ -106,17 +106,54 @@ astra/
 | [react.md](integration-guide/react.md) | React integration and usage |
 | [electron.md](integration-guide/electron.md) | Electron setup |
 
-### Legacy Docs (`docs/`)
+---
 
-| File | Description |
-|------|-------------|
-| [MVVM_Clean_Architecture.md](MVVM_Clean_Architecture.md) | Architecture overview |
-| [Theming.md](Theming.md) | Theming guide |
-| [Localization.md](Localization.md) | i18n guide |
-| [Repository_Layer.md](Repository_Layer.md) | API layer |
-| [state.md](state.md) | State management |
-| [hooks.md](hooks.md) | Custom hooks |
-| [Platform_Compatibility.md](Platform_Compatibility.md) | Platform notes |
+## Feature Details
+
+### Theming
+- **Purpose:** Material UI 7 theme system with design tokens for consistent styling
+- **Key Components:** ThemeProvider, ThemeToggle, theme tokens (colors, typography, spacing)
+- **Usage:** Wrap your app with ThemeProvider, use theme tokens instead of hardcoded values
+- **Light/Dark Mode:** Supported via built-in theme mode toggle
+- **Files:** docs/feature/theming/
+
+### Localization (i18n)
+- **Purpose:** Internationalization support for multi-language applications
+- **Key Components:** LanguageProvider, useLanguage hook, translation patterns
+- **Usage:** Provide translations via LanguageProvider, use useLanguage() hook to access
+- **Languages:** Configurable - supports any language with dynamic language switching
+- **Files:** docs/feature/localization/
+
+### State Management (MVVM)
+- **Purpose:** Structured state management following MVVM pattern
+- **Key Components:** useDataState hook, AppStateHandler component
+- **State Types:** INIT, LOADING, COMPLETED, ERROR (automatic handling)
+- **Usage:** Data fetching with built-in loading/error/empty states
+- **Files:** docs/feature/state/
+
+### Repository (API Layer)
+- **Purpose:** Type-safe Axios wrapper for standardized API interactions
+- **Key Components:** ApiService, HttpStatusCode, ServerResponse, apiServiceFactory
+- **Usage:** Create ApiService instance with base URL, use typed methods (get/post/put/delete)
+- **Error Handling:** Built-in HTTP status code handling and custom error messages
+- **Files:** docs/feature/repository/
+
+### MVVM Architecture
+- **Purpose:** Model-View-ViewModel pattern implementation for clean separation
+- **Key Components:** useDataState (ViewModel), Repository (Model), React Components (View)
+- **Patterns:** useDataState hook, repository pattern, state transitions
+- **Flow:** Model (data/repo) → ViewModel (useDataState) → View (React component)
+- **Files:** docs/feature/mvvm/
+
+### Component Library (Atomic Design)
+- **Purpose:** 46 UI components organized by Atomic Design methodology
+- **Tiers:**
+  - Atoms (5): StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState
+  - Molecules (6): Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer
+  - Organisms (32): DataTable, DecisionActionCard, TimelineNode, +29 more
+  - Templates (3): PageHeader, SummaryPanel, HeroSection
+- **Usage:** Import from astra, wrap with ThemeProvider and LanguageProvider
+- **Files:** docs/feature/components/
 
 ---
 
@@ -129,19 +166,7 @@ astra/
 | Prana | Request/Response | Integration with Prana system | [View](./docs/pr/prana/) |
 | Dhi | Request/Response | Integration with Dhi system | [View](./docs/pr/dhi/) |
 
----
-
-## Legacy Documentation
-
-| File | Summary | Status |
-|------|---------|--------|
-| MVVM_Clean_Architecture.md | Architecture overview | Legacy |
-| Theming.md | Theming guide | Legacy |
-| Localization.md | i18n guide | Legacy |
-| Repository_Layer.md | API layer | Legacy |
-| state.md | State management | Legacy |
-
-> Note: See docs/feature/ for current documentation.
+> Note: External integrations are tracked in wiki-steps.md
 
 ---
 
@@ -304,3 +329,4 @@ export * from './common/components';
 - **Tracking:** [wiki-steps.md](wiki-steps.md)
 - **Last updated:** 2026-04-19
 - **Version:** 1.1.0
+- **Phase 1:** Complete
