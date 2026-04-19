@@ -76,18 +76,19 @@ function sectionNavigation() {
 - **API calls** → src/common/repo/ (ApiService)
 - **Theme/styling** → src/theme/, src/common/theme/
 - **i18n/localization** → src/common/localization/
-- **State management** → src/common/hooks/useDataState
+- **State management** → src/common/hooks/useDataState.ts (hook), src/common/state/AppState.ts (types)
 - **Build/config** → vite.config.js, package.json
 
 **Debug & Fix:**
-- **Debug API error** → src/common/repo/ApiService.ts + src/common/hooks/useDataState.ts
-- **Fix UI style** → src/theme/tokens/ (colors, spacing, typography)
-- **Fix state bug** → src/common/state/AppState.ts
+- **Debug API error** → src/common/repo/
+- **Fix UI style** → src/theme/tokens/, src/common/theme/
+- **Fix state bug** → src/common/state/, src/common/hooks/
 
 **Docs:**
 - **Core features** → docs/feature/
 - **Integration** → docs/integration-guide/
 - **Component docs** → docs/feature/components/
+- **Atomic Design** → docs/feature/components/atomic-design/
 `;
 }
 
