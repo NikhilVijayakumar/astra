@@ -4,6 +4,8 @@ A robust React library designed to serve as a comprehensive boilerplate for buil
 
 This library abstracts away the repetitive setup code so you can focus on your application's business logic.
 
+> **For full documentation and AI context, see [docs/index.md](docs/index.md)** — the LLM-optimized knowledge map with module mapping, dependency stack, and file manifest.
+
 ## 🚀 Features
 
 - **MVVM Architecture**: Built-in hooks to manage data fetching and state transitions cleanly.
