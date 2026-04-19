@@ -39,7 +39,14 @@ function walkDir(dir) {
 }
 
 function summarize(text) {
-  return text.split("\n").slice(0, config.summaryLines).join(" ").trim();
+  return text
+    .split("\n")
+    .slice(0, config.summaryLines)
+    .join(" ")
+    .replace(/<!--[\s\S]*?-->/g, "")  // Remove HTML comments
+    .replace(/\*\*/g, "")         // Remove bold markers
+    .replace(/---[\s\S]*?---/g, "")  // Remove horizontal rules
+    .trim();
 }
 
 function buildTree(dir, depth = config.maxDepth, prefix = "") {
@@ -233,11 +240,29 @@ function sectionDocsManifest() {
     return p.replace(/\\/g, "/");
   }
   
+  // Clean HTML/comments from text - returns single line
+  function cleanText(text) {
+    return text
+      .replace(/<!--[\s\S]*?-->/g, "")   // Remove HTML comments
+      .replace(/^#+\s*/gm, "")       // Remove markdown headers
+      .replace(/\*\*/g, "")          // Remove bold markers
+      .replace(/---.*/g, "")        // Remove horizontal rules
+      .replace(/\n+/g, " ")          // Replace newlines with space
+      .replace(/\s+/g, " ")          // Collapse whitespace
+      .slice(0, 80);          // Limit to 80 chars
+  }
+  
   // Group docs by priority
   const allDocs = docsFiles.map(f => normalizePath(f));
   const featureFiles = allDocs.filter(f => f.startsWith("docs/feature/"));
   const integrationFiles = allDocs.filter(f => f.startsWith("docs/integration-guide/"));
-  const prFiles = allDocs.filter(f => f.startsWith("docs/pr/") || f.startsWith("docs/issue/"));
+  
+  // Combine smaller sections into single "Core Features" section for LLM
+  const coreFiles = featureFiles.filter(f => 
+    f.includes("/theming/") || f.includes("/localization/") || 
+    f.includes("/state/") || f.includes("/repository/") || f.includes("/mvvm/")
+  );
+  const componentFiles = featureFiles.filter(f => f.includes("/components/"));
   
   const section = (title, files) => {
     if (files.length === 0) return "";
@@ -245,8 +270,8 @@ function sectionDocsManifest() {
       .map((file) => {
         const rel = file.replace("docs/", "");
         const content = readFileSafe(file);
-        const summary = summarize(content).slice(0, 80);
-        return `- **${rel}** → ${summary}`;
+        const summary = cleanText(content);
+        return `- **${rel}** → ${summary || "(documentation)"}`;
       })
       .join("\n") + "\n\n";
   };
@@ -254,19 +279,16 @@ function sectionDocsManifest() {
   return `
 ## Documentation Manifest
 
-### Core Features (HIGH PRIORITY)
-${section("Theming", featureFiles.filter(f => f.includes("/theming/")))}
-${section("Localization", featureFiles.filter(f => f.includes("/localization/")))}
-${section("State", featureFiles.filter(f => f.includes("/state/")))}
-${section("Repository", featureFiles.filter(f => f.includes("/repository/")))}
-${section("Components", featureFiles.filter(f => f.includes("/components/")))}
-${section("MVVM", featureFiles.filter(f => f.includes("/mvvm/")))}
+### Core Features (theming, localization, state, repository, mvvm)
+${section("Core", coreFiles)}
 
-### Integration Guides
+### Component Docs
+${section("Components", componentFiles)}
+
+### Integration Guides (react, electron, getting-started)
 ${section("Guides", integrationFiles)}
 
-### PR / Integration Docs (LOW PRIORITY)
-${section("PR Docs", prFiles)}
+> **Archived:** PR/Integration docs in docs/pr/ (historical)
 `;
 }
 

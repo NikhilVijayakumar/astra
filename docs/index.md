@@ -191,117 +191,61 @@ npm run build → Vite + vite-plugin-dts → dist/astra.es.js + dist/astra.umd.j
 
 ## Documentation Manifest
 
-### Core Features (HIGH PRIORITY)
-### Theming
-- **feature/theming/hooks.md** → <!-- generated-by: gsd-doc-writer -->  # useTheme Hook
-- **feature/theming/provider.md** → <!-- generated-by: gsd-doc-writer -->  # ThemeProvider
-- **feature/theming/README.md** → <!-- generated-by: gsd-doc-writer -->  # Theming System
-- **feature/theming/ThemeToggle.md** → <!-- generated-by: gsd-doc-writer -->  # ThemeToggle Component
-- **feature/theming/tokens.md** → <!-- generated-by: gsd-doc-writer -->  # Design Tokens
+### Core Features (theming, localization, state, repository, mvvm)
+### Core
+- **feature/localization/hooks.md** →  useLanguage Hook The `useLanguage` hook provides access to the i18n context. It
+- **feature/localization/patterns.md** →  Translation Patterns Guidelines for organizing translations and accessing local
+- **feature/localization/provider.md** →  LanguageProvider The `LanguageProvider` component wraps your React application 
+- **feature/localization/README.md** →  Localization System The Astra i18n system provides React context-based internat
+- **feature/mvvm/best-practices.md** → MVVM Best Practices Do ✅ Use for async data flows — API calls, file loading, com
+- **feature/mvvm/pattern.md** → MVVM Implementation Pattern ViewModel: useDataState Hook The `useDataState<T>` h
+- **feature/mvvm/README.md** → MVVM Architecture in Astra Astra implements the Model-View-ViewModel pattern to 
+- **feature/repository/api-service.md** → ApiService HTTP client wrapper implementing the Repository pattern. Class Overvi
+- **feature/repository/http-status.md** → HttpStatusCode Enum of HTTP status codes used throughout the repository layer. E
+- **feature/repository/README.md** → Repository Layer Provides a unified API client abstraction using the Repository 
+- **feature/repository/server-response.md** → ServerResponse<T> Generic wrapper for API responses with success/error states. C
+- **feature/state/AppStateHandler.md** → AppStateHandler Component A conditional UI router that renders Loading, Error, E
+- **feature/state/README.md** → State Management in Astra Astra uses a centralized state pattern with MVVM to ha
+- **feature/state/useDataState.md** → useDataState Hook API Manages async state with built-in loading, success, and er
+- **feature/theming/hooks.md** →  useTheme Hook The `useTheme` hook provides access to theme context values in an
+- **feature/theming/provider.md** →  ThemeProvider The `ThemeProvider` component wraps your application to provide t
+- **feature/theming/README.md** →  Theming System The theming system provides light/dark mode support using MUI's 
+- **feature/theming/ThemeToggle.md** →  ThemeToggle Component A Material UI icon button that toggles between light and 
+- **feature/theming/tokens.md** →  Design Tokens Design tokens define the visual foundation of the theming system:
 
 
-### Localization
-- **feature/localization/hooks.md** → <!-- generated-by: gsd-doc-writer -->  # useLanguage Hook
-- **feature/localization/patterns.md** → <!-- generated-by: gsd-doc-writer -->  # Translation Patterns
-- **feature/localization/provider.md** → <!-- generated-by: gsd-doc-writer -->  # LanguageProvider
-- **feature/localization/README.md** → <!-- generated-by: gsd-doc-writer -->  # Localization System
 
-
-### State
-- **feature/state/AppStateHandler.md** → # AppStateHandler Component  A conditional UI router that renders Loading, Error
-- **feature/state/README.md** → # State Management in Astra  Astra uses a **centralized state pattern** with MVV
-- **feature/state/useDataState.md** → # useDataState Hook API  Manages async state with built-in loading, success, and
-
-
-### Repository
-- **feature/repository/api-service.md** → # ApiService  HTTP client wrapper implementing the Repository pattern.
-- **feature/repository/http-status.md** → # HttpStatusCode  Enum of HTTP status codes used throughout the repository layer
-- **feature/repository/README.md** → # Repository Layer  Provides a unified API client abstraction using the Reposito
-- **feature/repository/server-response.md** → # ServerResponse<T>  Generic wrapper for API responses with success/error states
-
-
+### Component Docs
 ### Components
-- **feature/components/atomic-design/atoms.md** → # Atoms  **Tier:** Atoms — Fundamental UI Primitives
-- **feature/components/atomic-design/molecules.md** → # Molecules  **Tier:** Molecules — Composed Functional Units
-- **feature/components/atomic-design/organisms.md** → # Organisms  **Tier:** Organisms — Complex UI Sections
-- **feature/components/atomic-design/README.md** → # Atomic Design Methodology  **Purpose:** Establishes classification rules for U
-- **feature/components/atomic-design/templates.md** → # Templates  **Tier:** Templates — Page-Level Layouts
-- **feature/components/atoms/SeverityBadge.md** → --- tier: atom ---
-- **feature/components/atoms/StatusDot.md** → --- tier: atom ---
-- **feature/components/molecules/Card.md** → --- tier: molecule ---
-- **feature/components/molecules/JsonViewer.md** → --- tier: template ---
-- **feature/components/molecules/Notification.md** → --- tier: molecule ---
-- **feature/components/molecules/TrendMetricCard.md** → --- tier: molecule ---
-- **feature/components/organisms/CsvViewer.md** → --- tier: template ---
-- **feature/components/organisms/FileViewerRouter.md** → --- tier: template ---
-- **feature/components/README.md** → --- tier_index:   atoms: ./atoms/
-- **feature/components/templates/HeroSection.md** → --- tier: template ---
-- **feature/components/templates/PageHeader.md** → --- tier: template ---
-- **feature/components/templates/SummaryPanel.md** → --- tier: template ---
-
-
-### MVVM
-- **feature/mvvm/best-practices.md** → # MVVM Best Practices  ## Do
-- **feature/mvvm/pattern.md** → # MVVM Implementation Pattern  ## ViewModel: useDataState Hook
-- **feature/mvvm/README.md** → # MVVM Architecture in Astra  Astra implements the **Model-View-ViewModel** patt
+- **feature/components/atomic-design/atoms.md** → Atoms Tier: Atoms — Fundamental UI Primitives Definition Atoms are the smallest,
+- **feature/components/atomic-design/molecules.md** → Molecules Tier: Molecules — Composed Functional Units Definition Molecules are s
+- **feature/components/atomic-design/organisms.md** → Organisms Tier: Organisms — Complex UI Sections Definition Organisms are complex
+- **feature/components/atomic-design/README.md** → Atomic Design Methodology Purpose: Establishes classification rules for UI compo
+- **feature/components/atomic-design/templates.md** → Templates Tier: Templates — Page-Level Layouts Definition Templates define the s
+- **feature/components/atoms/SeverityBadge.md** →  tier: atom SeverityBadge An atomic component that displays a severity label wit
+- **feature/components/atoms/StatusDot.md** →  tier: atom StatusDot An atomic component that displays a colored dot representi
+- **feature/components/molecules/Card.md** →  tier: molecule Card A molecular component that provides a styled container with
+- **feature/components/molecules/JsonViewer.md** →  tier: template JsonViewer A file viewer component that displays JSON/JSONL cont
+- **feature/components/molecules/Notification.md** →  tier: molecule Notification A molecular component that displays a snackbar-styl
+- **feature/components/molecules/TrendMetricCard.md** →  tier: molecule TrendMetricCard A molecular component that displays a metric val
+- **feature/components/organisms/CsvViewer.md** →  tier: template CsvViewer A file viewer component that displays CSV data in a pa
+- **feature/components/organisms/FileViewerRouter.md** →  tier: template FileViewerRouter A file viewer component that routes to the appr
+- **feature/components/README.md** →  tier_index: atoms: ./atoms/ molecules: ./molecules/ organisms: ./organisms/ tem
+- **feature/components/templates/HeroSection.md** →  tier: template HeroSection A layout component that displays a prominent headlin
+- **feature/components/templates/PageHeader.md** →  tier: template PageHeader A layout component that provides a standardized page-
+- **feature/components/templates/SummaryPanel.md** →  tier: template SummaryPanel A layout component that displays a titled collectio
 
 
 
-### Integration Guides
+### Integration Guides (react, electron, getting-started)
 ### Guides
-- **integration-guide/electron.md** → # Electron Integration Guide  Astra works seamlessly in Electron desktop applica
-- **integration-guide/getting-started.md** → # Getting Started with Astra  A comprehensive guide to integrating the Astra lib
-- **integration-guide/react.md** → # React Integration Guide  This guide covers integrating Astra into React applic
+- **integration-guide/electron.md** → Electron Integration Guide Astra works seamlessly in Electron desktop applicatio
+- **integration-guide/getting-started.md** → Getting Started with Astra A comprehensive guide to integrating the Astra librar
+- **integration-guide/react.md** → React Integration Guide This guide covers integrating Astra into React applicati
 
 
 
-### PR / Integration Docs (LOW PRIORITY)
-### PR Docs
-- **issue/ASTRA-EXPORT-SURFACE-GAP-2026-03-25.md** → # ASTRA Export Surface Gap (2026-03-25)  ## Scope
-- **issue/ASTRA-INTEGRATION-GAPS-2026-03-25.md** → # Astra Integration Gap Log for Prana (2026-03-25)  Purpose:
-- **pr/dhi/pr1/HANDOVER_CONTRACT.md** → # DHI ← Astra PR1 Component Promotion: Handover Contract  **Date**: 2026-03-26
-- **pr/dhi/pr1/INDEX.md** → # 🎁 DHI Handover Package - Final Delivery  **Delivered**: 2026-03-26
-- **pr/dhi/pr1/INTEGRATION_SUMMARY.md** → # DHI ← Astra PR1: Complete Handover Documentation Summary  **Generated**: 202
-- **pr/dhi/pr1/Mapping-DHI.md** → # DHI → Astra Component Mapping (PR1)  **Status**: ✅ Ready for Integration
-- **pr/dhi/pr1/plan.md** → # DHI PR1 Integration Plan (Feasibility + Astra Alignment)  ## Scope Reviewed
-- **pr/dhi/pr1/README.md** → # DHI ← Astra PR1 Integration Index  **Status**: ✅ **Ready for DHI Consumption
-- **pr/dristi/request/01-Atomic-Elements.md** → # 01 Atomic Elements  > Request snapshot (2026-03-31).
-- **pr/dristi/request/02-Molecular-Layouts.md** → # 02 Molecular Layouts  > Request snapshot (2026-03-31).
-- **pr/dristi/request/03-Organism-Complex-UI.md** → # 03 Organism Complex UI  > Request snapshot (2026-03-31).
-- **pr/dristi/request/Astra-PR-Specification.md** → # Astra PR Specification (Drishti -> Astra)  Date: 2026-03-31
-- **pr/dristi/request/Component-Audit-Manifest.md** → # Component Audit Manifest (Drishti -> Astra)  Generated: 2026-03-31
-- **pr/dristi/request/Component-Inventory.md** → # Component Inventory (Drishti -> Astra)  > Request snapshot (2026-03-31).
-- **pr/dristi/request/Handover-Contract.md** → # Handover Contract (Drishti -> Astra)  ## Purpose
-- **pr/dristi/request/Integration-Mapping-Log.md** → # Integration Mapping Log (Drishti <-> Astra)  Created: 2026-03-31
-- **pr/dristi/request/Mapping-Template.md** → # Drishti -> Astra Mapping Template  Fill one row per candidate returned by As
-- **pr/dristi/response/HANDOVER_CONTRACT.md** → # Dristi -> Astra Handover Contract  ## 1. Astra Responsibilities (Completed)
-- **pr/dristi/response/INDEX.md** → # Dristi Integration Index  ## Handover Documents
-- **pr/dristi/response/INTEGRATION_SUMMARY.md** → # Integration Workflow Summary  The Dristi UI component promotion is now compl
-- **pr/dristi/response/Mapping-Dristi.md** → # Dristi -> Astra Mapping (Response)  Status: Completed
-- **pr/dristi/response/README.md** → # Dristi <- Astra PR Response  Status: Ready for Dristi consumption
-- **pr/prana/request/01-Atomic-Elements.md** → # 01 Atomic Elements  ## Goal
-- **pr/prana/request/02-Molecular-Layouts.md** → # 02 Molecular Layouts  ## Goal
-- **pr/prana/request/03-Organism-Complex-UI.md** → # 03 Organism Complex UI  ## Goal
-- **pr/prana/request/Component-Inventory.md** → # Component Inventory (Prana -> Astra)  ## Scope
-- **pr/prana/request/Handover-Contract.md** → # Handover Contract (Prana -> Astra)  ## Purpose
-- **pr/prana/request/Mapping-Template.md** → # Prana -> Astra Mapping Template  Fill one row per candidate returned by Astra.
-- **pr/prana/response/HANDOVER_CONTRACT.md** → # Prana <- Astra Handover Contract (Response)  Date: 2026-03-28
-- **pr/prana/response/INDEX.md** → # Prana Response Index  Delivered: 2026-03-28
-- **pr/prana/response/INTEGRATION_SUMMARY.md** → # Prana Response Integration Summary  Generated: 2026-03-28
-- **pr/prana/response/Mapping-Prana.md** → # Prana -> Astra Mapping (Response)  Status: Completed
-- **pr/prana/response/plan.md** → # Astra Plan and Deep Analysis (Prana Request)  Date: 2026-03-28
-- **pr/prana/response/README.md** → # Prana <- Astra PR Response  Status: Ready for Prana consumption
-- **pr/sangama/request/Astra-PR-Specification.md** → # Astra PR Specification (Sangama → Astra)  Date: 2026-03-31
-- **pr/sangama/request/Component-Audit-Manifest.md** → # Component Audit Manifest (Sangama → Astra)  Generated: 2026-03-31
-- **pr/sangama/request/Integration-Mapping-Log.md** → # Integration Mapping Log (Sangama ↔ Astra)  Created: 2026-03-31
-- **pr/sangama/response/HANDOVER_CONTRACT.md** → # Sangama ← Astra Handover Contract (Response)  Date: 2026-04-01
-- **pr/sangama/response/INDEX.md** → # Sangama Response Index  Delivered: 2026-04-01
-- **pr/sangama/response/INTEGRATION_SUMMARY.md** → # Sangama Response Integration Summary  Generated: 2026-04-01
-- **pr/sangama/response/Mapping-Sangama.md** → # Sangama -> Astra Mapping (Response)  Status: Completed
-- **pr/sangama/response/plan.md** → # Astra Plan and Deep Analysis (Sangama Request)  Date: 2026-04-01
-- **pr/sangama/response/README.md** → # Sangama ← Astra PR Response  Status: Ready for Sangama consumption
-
-
+> **Archived:** PR/Integration docs in docs/pr/ (historical)
 
 ## Rules
 
