@@ -2,12 +2,13 @@
 
 ## Navigation Guide
 
-**For quick reference:**
-- **Modify UI** → Component Inventory
-- **Change API** → Repository (ApiService)
-- **Update theme** → Theming (src/theme/)
-- **Add feature** → Feature docs (docs/feature/)
-- **Debug state** → State Management
+**Task-based quick reference:**
+- **Add/modify UI component** → src/common/components/ ( Atomic Design tiers)
+- **API calls** → src/common/repo/ApiService
+- **Theme/styling** → src/theme/, src/common/theme/
+- **i18n/localization** → src/common/localization/
+- **State management** → src/common/hooks/useDataState
+- **Build/config** → vite.config.js, package.json
 
 **For detailed docs:** See Feature Details section below.
 
@@ -105,6 +106,40 @@ Astra is a React + Electron boilerplate library providing a production-ready fou
 
 ```
 
+## Feature Details
+
+### Theming (src/theme/, src/common/theme/)
+- **Purpose:** Material UI 7 theme system with design tokens
+- **Key:** ThemeProvider, ThemeToggle, theme tokens (colors, typography, spacing)
+- **Usage:** Wrap app, use tokens (never hardcode colors)
+- **Mode:** Light/Dark supported
+
+### Localization (src/common/localization/)
+- **Purpose:** Internationalization (i18n)
+- **Key:** LanguageProvider, useLanguage hook
+- **Usage:** Provide translations, use hook to access
+- **Languages:** Configurable, any language
+
+### State Management (src/common/hooks/)
+- **Purpose:** MVVM pattern with useDataState
+- **Key:** useDataState hook, AppStateHandler
+- **States:** INIT, LOADING, COMPLETED, ERROR
+- **Usage:** Data fetching with auto state handling
+
+### Repository (src/common/repo/)
+- **Purpose:** Type-safe API layer (Axios wrapper)
+- **Key:** ApiService, HttpStatusCode, ServerResponse
+- **Usage:** Create instance, use typed methods
+- **Errors:** Built-in status code handling
+
+### Component Library (src/common/components/)
+- **Organized by:** Atomic Design (atoms → molecules → organisms → templates)
+- **Tiers:** 
+  - Atoms: StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState (5)
+  - Molecules: Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer (6)
+  - Organisms: DataTable, DecisionActionCard, TimelineNode, +30 more (33)
+  - Templates: PageHeader, SummaryPanel, HeroSection (3)
+
 ## Concept Mapping
 
 | Concept | Implementation | Location |
@@ -131,45 +166,6 @@ Define interface → Create component → Export index → Add documentation →
 
 ### Add feature
 Create docs/feature/[name]/ → Add to wiki-steps.json → Update generate-index.js
-
-## Feature Details
-
-### Theming (src/theme/, docs/feature/theming/)
-- **Purpose:** Material UI 7 theme system with design tokens
-- **Key:** ThemeProvider, ThemeToggle, theme tokens (colors, typography, spacing)
-- **Usage:** Wrap app, use tokens (never hardcode colors)
-- **Mode:** Light/Dark supported
-
-### Localization (src/common/localization/, docs/feature/localization/)
-- **Purpose:** Internationalization (i18n)
-- **Key:** LanguageProvider, useLanguage hook
-- **Usage:** Provide translations, use hook to access
-- **Languages:** Configurable, any language
-
-### State Management (src/common/hooks/, docs/feature/state/)
-- **Purpose:** MVVM pattern with useDataState
-- **Key:** useDataState hook, AppStateHandler
-- **States:** INIT, LOADING, COMPLETED, ERROR
-- **Usage:** Data fetching with auto state handling
-
-### Repository (src/common/repo/, docs/feature/repository/)
-- **Purpose:** Type-safe API layer (Axios wrapper)
-- **Key:** ApiService, HttpStatusCode, ServerResponse
-- **Usage:** Create instance, use typed methods
-- **Errors:** Built-in status code handling
-
-### MVVM Architecture (src/common/, docs/feature/mvvm/)
-- **Purpose:** Model-View-ViewModel separation
-- **Pattern:** useDataState + Repository + Component
-- **Flow:** Model → ViewModel → View
-
-### Component Library (src/common/components/)
-- **Organized by:** Atomic Design (atoms → molecules → organisms → templates)
-- **Tiers:** 
-  - Atoms: StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState (5)
-  - Molecules: Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer (6)
-  - Organisms: DataTable, DecisionActionCard, TimelineNode, +30 more (33)
-  - Templates: PageHeader, SummaryPanel, HeroSection (3)
 
 ## Documentation Manifest
 
