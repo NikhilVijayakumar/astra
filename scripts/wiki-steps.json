@@ -1,0 +1,54 @@
+{
+  "name": "astra",
+  "summaryLines": 3,
+  "maxDepth": 3,
+  "sections": [
+    "navigation",
+    "global",
+    "vision",
+    "dependencies",
+    "systemMap",
+    "conceptMap",
+    "editMap",
+    "flows",
+    "docsManifest",
+    "rules",
+    "api",
+    "maintenance"
+  ],
+  "conceptMap": [
+    { "name": "MVVM State", "impl": "useDataState", "path": "src/common/hooks/useDataState.ts" },
+    { "name": "Theme", "impl": "ThemeProvider", "path": "src/common/theme/themeContext.ts" },
+    { "name": "Localization", "impl": "LanguageProvider", "path": "src/common/localization/LanguageContext.ts" },
+    { "name": "API", "impl": "ApiService", "path": "src/common/repo/ApiService.ts" },
+    { "name": "Components", "impl": "Atomic Design", "path": "src/common/components/" }
+  ],
+  "editMap": [
+    { "task": "Add component", "path": "src/common/components/{tier}/" },
+    { "task": "Add feature doc", "path": "docs/feature/" },
+    { "task": "Update theming", "path": "src/theme/" },
+    { "task": "Add integration guide", "path": "docs/integration-guide/" }
+  ],
+  "flows": [
+    { "name": "Create component", "steps": ["Define interface", "Create component", "Export index", "Add documentation", "Update index.md"] },
+    { "name": "Add feature", "steps": ["Create docs/feature/[name]/", "Add to wiki-steps.json", "Update generate-index.js"] }
+  ],
+  "rules": [
+    "All components use theme tokens - never hardcode colors",
+    "All components stateless with data via props",
+    "Use localization - never hardcode strings",
+    "Follow Atomic Design methodology"
+  ],
+  "componentTiers": {
+    "atoms": ["StatusDot", "SeverityBadge", "LoadingState", "ErrorState", "EmptyState"],
+    "molecules": ["Card", "Notification", "TrendMetricCard", "ImageViewer", "MdViewer", "JsonViewer"],
+    "organisms": ["DataTable", "DecisionActionCard", "TimelineNode", "DrawerComponent", "AppStateHandler"],
+    "templates": ["PageHeader", "SummaryPanel", "HeroSection"]
+  },
+  "externalIntegrations": [
+    { "name": "Dristi", "path": "docs/pr/dristi/" },
+    { "name": "Sangama", "path": "docs/pr/sangama/" },
+    { "name": "Prana", "path": "docs/pr/prana/" },
+    { "name": "Dhi", "path": "docs/pr/dhi/" }
+  ]
+}

@@ -57,7 +57,8 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "index": "node scripts/generate-index.js"
   },
   "dependencies": {
     "@emotion/react": "11.13.3",

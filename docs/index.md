@@ -331,6 +331,7 @@ export * from './common/components';
 
 ## Maintenance
 
-- **Generate from:** [wiki-steps.md](wiki-steps.md) (recipe to rebuild)
+- **Config:** [scripts/wiki-steps.json](../scripts/wiki-steps.json)
+- **Generate:** `npm run index`
 - **Last updated:** 2026-04-19
 - **Version:** 1.1.0
