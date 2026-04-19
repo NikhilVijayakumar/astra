@@ -159,14 +159,14 @@ astra/
 
 ## External Integrations
 
-| Project | Type | Summary | Location |
-|---------|------|---------|----------|
-| Dristi | Request/Response | Integration with Dristi system | [View](./docs/pr/dristi/) |
-| Sangama | Request/Response | Integration with Sangama system | [View](./docs/pr/sangama/) |
-| Prana | Request/Response | Integration with Prana system | [View](./docs/pr/prana/) |
-| Dhi | Request/Response | Integration with Dhi system | [View](./docs/pr/dhi/) |
+| Project | Type | Summary |
+|---------|------|---------|
+| Dristi | Request/Response | Integration with Dristi system |
+| Sangama | Request/Response | Integration with Sangama system |
+| Prana | Request/Response | Integration with Prana system |
+| Dhi | Request/Response | Integration with Dhi system |
 
-> Note: External integrations are tracked in wiki-steps.md
+> Note: For details, see docs/pr/* directories.
 
 ---
 
@@ -193,12 +193,16 @@ astra/
 | MdViewer | `content` | Markdown rendering |
 | JsonViewer | `data` | JSON data display |
 
-### Organisms (32)
+### Organisms (33)
 
 | Component | Key Props | Description |
 |-----------|----------|-------------|
 | AlertListItem | `alert`, `onAction` | Alert list item |
+| AnimatedHeroCharacter | `character`, `animation` | Animated hero character |
 | AudioPlayerBar | `src`, `controls` | Audio playback |
+| CanvasGroup | `canvases`, `layout` | Canvas group |
+| CanvasNote | `note`, `onEdit` | Canvas note |
+| CsvViewer | `data`, `options` | CSV data display |
 | DataTable | `data`, `columns` | Data table with sorting/filtering |
 | DecisionActionCard | `decision`, `actions` | Decision with actions |
 | DrawerComponent | `open`, `onClose` | Drawer/sidebar |
@@ -222,6 +226,7 @@ astra/
 | TerminalViewer | `output`, `input` | Terminal display |
 | TimelineNode | `events`, `current` | Timeline display |
 | ToolbarComponent | `tools`, `onSelect` | Toolbar |
+| ToolbarData | `tools`, `config` | Toolbar data |
 | VersionHistorySelector | `versions`, `current` | Version selector |
 | VerticalStepIndicator | `steps`, `current` | Vertical steps |
 | WeeklyReportCard | `report`, `metrics` | Weekly report |
@@ -326,7 +331,6 @@ export * from './common/components';
 
 ## Maintenance
 
-- **Tracking:** [wiki-steps.md](wiki-steps.md)
+- **Generate from:** [wiki-steps.md](wiki-steps.md) (recipe to rebuild)
 - **Last updated:** 2026-04-19
 - **Version:** 1.1.0
-- **Phase 1:** Complete

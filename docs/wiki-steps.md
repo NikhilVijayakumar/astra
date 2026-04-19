@@ -1,136 +1,157 @@
-# Documentation Enhancement Steps
+# How to Generate docs/index.md
 
-**Purpose:** Track wiki/documentation improvements for iterative execution.
-**Parent:** docs/index.md (documentation index)
-
----
-
-## Completed
-
-| Date | Step | Status | Notes |
-|------|------|--------|-------|
-| 2026-04-19 | Initial docs/index.md created | AI |
-| 2026-04-19 | Add wiki-steps.md created | Tracking file |
+**Purpose:** This file contains instructions to regenerate docs/index.md from scratch.
+**Usage:** If docs/index.md is deleted, run these steps to recreate it.
 
 ---
 
-## In Progress (Phase 1)
+## Overview
 
-| # | Step | Description | Status |
-|---|------|-------------|---------|
-| A1 | Add Global Constants | ✅ Complete |
-| A2 | Expand Component Inventory | ✅ Complete |
-| A3 | Add External Integration Brief | ✅ Complete |
-| A4 | Add Feature Details (expanded) | ✅ Complete |
-| A5 | Remove legacy section from index | ✅ Complete |
+docs/index.md is the LLM-optimized knowledge map for Astra. It should contain all project information in a structured format that allows an LLM to understand the project without reading every individual document.
 
 ---
 
-## Planned (Phase 2+)
+## Step 1: Gather Project Information
 
-| # | Step | Priority | Notes |
-|---|------|----------|-------|
-| B1 | Component API detail (props table) | High | Expand from tier overview, add detailed props per component |
-| B2 | Add Storybook integration docs | Medium | Storybook setup and stories |
-| B3 | Add electron-example usage guide | Medium | Electron-specific usage |
-| B4 | Add migration guides for v1→v2 | Low | Breaking changes guide |
-| B5 | Add contribution guidelines | Low | How to contribute |
-
-## Completed (This Session)
-
-| Date | Step | Status | Notes |
-|------|------|--------|-------|
-| 2026-04-19 | Phase 1: Global Constants | ✅ Complete |
-| 2026-04-19 | Phase 1: Component Inventory | ✅ Complete |
-| 2026-04-19 | Phase 1: External Integrations | ✅ Complete |
-| 2026-04-19 | Phase 1: Feature Details (expanded) | ✅ Complete |
-| 2026-04-19 | Phase 1: Remove legacy from index | ✅ Complete |
-
----
-
-## External Integrations (docs/pr*/)
-
-| Project | Type | Summary | Location |
-|---------|------|---------|----------|
-| Dristi | Request/Response | Integration with Dristi system | docs/pr/dristi/ |
-| Sangama | Request/Response | Integration with Sangama system | docs/pr/sangama/ |
-| Prana | Request/Response | Integration with Prana system | docs/pr/prana/ |
-| Dhi | Request/Response | Integration with Dhi system | docs/pr/dhi/ |
-
----
-
-## Legacy Systems (docs/)
-
-| File | Summary | Status |
-|------|---------|--------|
-| MVVM_Clean_Architecture.md | Architecture overview | Legacy |
-| Theming.md | Theming guide | Legacy |
-| Localization.md | i18n guide | Legacy |
-| Repository_Layer.md | API layer | Legacy |
-| state.md | State management | Legacy |
-| hooks.md | Custom hooks | Legacy |
-
-> Note: See docs/feature/ for current documentation. Legacy docs retained for reference.
-
----
-
-## How to Execute Future Steps
-
+### A. Get Basic Info (package.json)
 ```bash
-# Run Phase 1 steps (when ready)
-# 1. Edit docs/index.md
-# 2. Add sections in order (A1→A4)
-# 3. Update this file with completion dates
-# 4. Commit with "docs: enhance wiki Phase 1"
+# Read package.json for:
+# - name, version
+# - dependencies (React, MUI, etc.)
+# - devDependencies (TypeScript, Vite, etc.)
+# - main, module, types (entry points)
+# - scripts (dev, build, test)
+cat package.json
+```
 
-# Run future steps (Phase 2+)
-# 1. Update wiki-steps.md with step details
-# 2. Execute enhancement
-# 3. Mark complete in wiki-steps.md
-# 4. Commit with "docs: [enhancement description]"
+### B. Get Component List
+```bash
+# List all component tier exports
+cat src/common/components/atoms/index.ts   # Atoms
+cat src/common/components/molecules/index.ts # Molecules
+cat src/common/components/organisms/index.ts # Organisms
+cat src/common/components/templates/index.ts  # Templates
+```
+
+### C. Get Module Structure
+```bash
+# List src/ structure
+ls -R src/
 ```
 
 ---
 
-## Component Inventory Reference
+## Step 2: Scan Documentation
 
-### Atoms (5)
-| Component | Key Props | Type |
-|-----------|----------|------|
-| StatusDot | tone, size | atom |
-| SeverityBadge | severity, label | atom |
-| LoadingState | status | atom |
-| ErrorState | error | atom |
-| EmptyState | data | atom |
+### A. Feature Docs
+```bash
+ls docs/feature/
+# theming/, localization/, state/, repository/, mvvm/, components/
+```
 
-### Molecules (6)
-| Component | Key Props | Type |
-|-----------|----------|------|
-| Card | variant, children | molecule |
-| Notification | severity, message | molecule |
-| TrendMetricCard | value, trend | molecule |
-| ImageViewer | src, alt | molecule |
-| MdViewer | content | molecule |
-| JsonViewer | data | molecule |
+### B. Integration Guides
+```bash
+ls docs/integration-guide/
+# getting-started.md, react.md, electron.md
+```
 
-### Organisms (32)
-| Component | Key Props | Type |
-|-----------|----------|------|
-| AlertListItem | alert, onAction | organism |
-| AudioPlayerBar | src, controls | organism |
-| DataTable | data, columns | organism |
-| DecisionActionCard | decision, actions | organism |
-| DrawerComponent | open, onClose | organism |
-| ... (28 more) | ... | organism |
+### C. External Integrations (if any)
+```bash
+ls docs/pr*/
+# Dristi, Sangama, Prana, Dhi integrations
+```
 
-### Templates (3)
-| Component | Key Props | Type |
-|-----------|----------|------|
-| PageHeader | title, subtitle | template |
-| SummaryPanel | items, actions | template |
-| HeroSection | title, description | template |
+---
+
+## Step 3: Generate docs/index.md Sections
+
+Generate these sections in order:
+
+### Section 1: Header
+```markdown
+# Astra Documentation Index
+
+**Purpose:** This is the LLM-optimized knowledge map for Astra. Start here to understand the project, then navigate to specific documentation as needed.
+
+> **Tracking:** See [wiki-steps.md](wiki-steps.md) for enhancement instructions.
+```
+
+### Section 2: Global Constants
+Extract from package.json:
+- Version
+- Build Output (ESM + UMD)
+- Tests
+- License
+- npm Package
+- GitHub
+
+### Section 3: High-Level Vision
+2-sentence summary from README.md:
+- What the project is
+- What it provides
+
+### Section 4: Dependency Stack
+From package.json dependencies:
+| Category | Library | Version |
+
+### Section 5: Module Overview
+Tree showing:
+- src/lib.ts (entry)
+- src/common/* (components, hooks, repo, theme, localization, state)
+- docs/feature/* (documentation)
+
+### Section 6: File Manifest
+Categorized list of docs files with brief descriptions.
+
+### Section 7: Feature Details
+For each feature (theming, localization, state, repository, mvvm, components):
+- Purpose
+- Key Components
+- Usage
+- Files location
+
+### Section 8: Component Inventory
+List all components by tier with key props:
+- Atoms (5): StatusDot, SeverityBadge, etc.
+- Molecules (6): Card, Notification, etc.
+- Organisms (32): DataTable, DecisionActionCard, etc.
+- Templates (3): PageHeader, SummaryPanel, HeroSection
+
+### Section 9: Atomic Design Methodology
+Brief explanation of tiers and decision flowchart.
+
+### Section 10: Quick Start
+```bash
+npm install astra
+npm run dev
+npm run build
+npm test
+```
+
+### Section 11: Key Design Patterns
+- MVVM Architecture
+- Theme Integration
+- Localization
+
+### Section 12: Maintenance Footer
+```markdown
+## Maintenance
+
+- **Tracking:** [wiki-steps.md](wiki-steps.md)
+- **Last updated:** [DATE]
+- **Version:** [VERSION]
+```
+
+---
+
+## Step 4: Commit
+
+```bash
+git add docs/index.md docs/wiki-steps.md
+git commit -m "docs: [description]"
+```
 
 ---
 
 *Last updated: 2026-04-19*
-*Tracking: docs/index.md enhancement roadmap*
+*Purpose: Recipe to regenerate docs/index.md*
