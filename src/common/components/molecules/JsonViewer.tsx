@@ -13,10 +13,11 @@ interface JsonViewerProps {
 const normalizeJsonForDisplay = (
   fileName: string,
   fileContent?: string,
+  emptyMessage?: string,
 ): string => {
   if (!fileContent || fileContent.trim().length === 0) {
     return JSON.stringify(
-      { message: "No JSON content available for preview." },
+      { message: emptyMessage || "No JSON content available for preview." },
       null,
       2,
     );
@@ -48,9 +49,8 @@ const normalizeJsonForDisplay = (
 
 export const JsonViewer: FC<JsonViewerProps> = ({ fileName, fileContent }) => {
   const { literal } = useLanguage();
-  const normalized = normalizeJsonForDisplay(fileName, fileContent);
-
   const emptyMessage = literal["viewer.empty_json"] || "No JSON content available for preview.";
+  const normalized = normalizeJsonForDisplay(fileName, fileContent, emptyMessage);
 
   return (
     <Box

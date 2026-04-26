@@ -25,7 +25,6 @@ export const FileViewerRouter: FC<FileViewerRouterProps> = ({
 
   const fallbackTitle = literal["viewer.unsupported"] || "Unsupported File";
   const fallbackExt = literal["viewer.extension"] || "Extension";
-  const fallbackBody = literal["viewer.empty"] || "No content available";
 
   switch (ext) {
     case "csv":

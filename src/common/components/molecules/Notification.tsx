@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import { Snackbar, Alert, AlertColor } from '@mui/material';
-import { spacing } from "../../../theme/tokens/spacing";
 
 export interface NotificationProps {
   open: boolean;

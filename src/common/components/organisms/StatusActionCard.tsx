@@ -138,10 +138,10 @@ export const StatusActionCard: React.FC<StatusActionCardProps> = ({
                 label={statusLabel}
                 size="small"
                 sx={{
-                  bgcolor: `${bgColorHex}20`,
-                  color: bgColorHex,
+                  bgcolor: `${statusColorValue}20`,
+                  color: statusColorValue,
                   fontWeight: 700,
-                  border: `1px solid ${bgColorHex}`,
+                  border: `1px solid ${statusColorValue}`,
                 }}
               />
               {onCheckStatus && (
@@ -168,7 +168,7 @@ export const StatusActionCard: React.FC<StatusActionCardProps> = ({
 
               {lastChecked && (
                 <Typography variant="caption" color="text.disabled">
-                  {lastCheckedLabel}: {lastChecked}
+                  {labelLastChecked}: {lastChecked}
                 </Typography>
               )}
             </Box>
@@ -195,7 +195,7 @@ export const StatusActionCard: React.FC<StatusActionCardProps> = ({
                   opacity: !isConnectDisabled ? 1 : 0.6,
                 }}
               >
-                {isConnecting ? loadingLabel : connectLabel}
+                {isConnecting ? labelLoading : labelConnect}
               </Button>
             )}
           </Box>

@@ -3,10 +3,8 @@ import {
   Box,
   Button,
   Typography,
-  useTheme as useMuiTheme,
 } from "@mui/material";
 import { spacing } from "../../../theme/tokens/spacing";
-import { colors } from "../../../theme/tokens/colors";
 
 export interface HeaderActionConfig {
   label: string;

@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { Box, Paper, Typography } from "@mui/material";
 import { spacing } from "../../../theme/tokens/spacing";
-import { colors } from "../../../theme/tokens/colors";
 
 export interface CardProps {
   title?: string;

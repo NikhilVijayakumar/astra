@@ -115,10 +115,10 @@ export const ImageViewer: FC<ImageViewerProps> = ({
             }}
           >
             <Typography
-              variant="micro"
+              variant="body2"
               sx={{ color: 'text.secondary' }}
             >
-              No image content available for preview.
+              {emptyMessage}
             </Typography>
           </Box>
         )}
