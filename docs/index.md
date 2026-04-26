@@ -26,7 +26,7 @@
 | Key | Value |
 |-----|------|
 | Name | astra |
-| Version | 1.0.6 |
+| Version | 1.0.7 |
 | Type | React + Electron Library |
 | Build | Vite (ESM + UMD) |
 
@@ -55,7 +55,7 @@ Astra is a React + Electron boilerplate library providing a production-ready fou
 | react-dom | ^19.2.3 |
 | react-markdown | ^10.1.0 |
 | react-syntax-highlighter | ^16.1.1 |
-| uuid | 11.0.2 |
+| uuid | 14.0.0 |
 
 ## System Map
 
@@ -225,7 +225,7 @@ npm run build → Vite + vite-plugin-dts → dist/astra.es.js + dist/astra.umd.j
 - **feature/components/atoms/SeverityBadge.md** →  tier: atom SeverityBadge An atomic component that displays a severity label wit
 - **feature/components/atoms/StatusDot.md** →  tier: atom StatusDot An atomic component that displays a colored dot representi
 - **feature/components/molecules/Card.md** →  tier: molecule Card A molecular component that provides a styled container with
-- **feature/components/molecules/JsonViewer.md** →  tier: template JsonViewer A file viewer component that displays JSON/JSONL cont
+- **feature/components/molecules/JsonViewer.md** →  tier: molecule JsonViewer A file viewer component that displays JSON data with 
 - **feature/components/molecules/Notification.md** →  tier: molecule Notification A molecular component that displays a snackbar-styl
 - **feature/components/molecules/TrendMetricCard.md** →  tier: molecule TrendMetricCard A molecular component that displays a metric val
 - **feature/components/organisms/CsvViewer.md** →  tier: template CsvViewer A file viewer component that displays CSV data in a pa
@@ -261,5 +261,5 @@ See: src/lib.ts
 ## Maintenance
 
 - Config: scripts/wiki-steps.json
-- Generated: 2026-04-19
-- Version: 1.0.6
+- Generated: 2026-04-26
+- Version: 1.0.7
