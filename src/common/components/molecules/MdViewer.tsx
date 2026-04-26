@@ -3,9 +3,9 @@ import {
   Box,
   Typography,
   Divider,
-  useTheme as useMuiTheme,
 } from "@mui/material";
 import Markdown from "react-markdown";
+import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
 
 interface MdViewerProps {
@@ -14,11 +14,12 @@ interface MdViewerProps {
 }
 
 export const MdViewer: FC<MdViewerProps> = ({ fileName, fileContent }) => {
-  const muiTheme = useMuiTheme();
+  const { literal } = useLanguage();
+  const emptyMessage = literal["viewer.empty_markdown"] || "No markdown content available for preview.";
   const content =
     fileContent && fileContent.trim().length > 0
       ? fileContent
-      : "_No markdown content available for preview._";
+      : `_${emptyMessage}_`;
 
   return (
     <Box
@@ -27,12 +28,12 @@ export const MdViewer: FC<MdViewerProps> = ({ fileName, fileContent }) => {
         display: "flex",
         flexDirection: "column",
         p: spacing.xl,
-        backgroundColor: muiTheme.palette.background.paper,
-        color: muiTheme.palette.text.primary,
+        backgroundColor: 'background.paper',
+        color: 'text.primary',
         overflowY: "auto",
       }}
     >
-      <Typography variant="h5" sx={{ mb: spacing.sm }}>
+      <Typography variant="h3" sx={{ mb: spacing.sm, fontWeight: 600 }}>
         {fileName}
       </Typography>
       <Divider sx={{ mb: spacing.md }} />
@@ -40,18 +41,19 @@ export const MdViewer: FC<MdViewerProps> = ({ fileName, fileContent }) => {
       <Box
         sx={{
           "& h1, & h2, & h3": {
-            color: muiTheme.palette.primary.main,
+            color: 'primary.main',
             mt: spacing.md,
             mb: spacing.xs,
           },
           "& p": { mb: spacing.sm, lineHeight: 1.6 },
           "& ul, & ol": { pl: spacing.lg, mb: spacing.sm },
           "& blockquote": {
-            borderLeft: `4px solid ${muiTheme.palette.primary.main}`,
+            borderLeft: `4px solid`,
+            borderColor: 'primary.main',
             pl: spacing.md,
             py: spacing.internal,
             my: spacing.md,
-            backgroundColor: muiTheme.palette.action.hover,
+            backgroundColor: 'action.hover',
             fontStyle: "italic",
           },
           "& hr": { my: spacing.lg, opacity: 0.1 },

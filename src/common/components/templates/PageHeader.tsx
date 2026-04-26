@@ -6,6 +6,7 @@ import {
   useTheme as useMuiTheme,
 } from "@mui/material";
 import { spacing } from "../../../theme/tokens/spacing";
+import { colors } from "../../../theme/tokens/colors";
 
 export interface HeaderActionConfig {
   label: string;
@@ -30,6 +31,10 @@ const renderAction = (action: HeaderActionConfig): ReactNode => (
     size={action.size ?? "small"}
     onClick={action.onClick}
     disabled={action.disabled}
+    sx={{
+      borderRadius: 1,
+      textTransform: 'none',
+    }}
   >
     {action.label}
   </Button>
@@ -43,8 +48,6 @@ export const PageHeader: FC<PageHeaderProps> = ({
   leadingMeta,
   trailingMeta,
 }) => {
-  const muiTheme = useMuiTheme();
-
   return (
     <Box
       sx={{
@@ -58,15 +61,15 @@ export const PageHeader: FC<PageHeaderProps> = ({
     >
       <Box>
         <Typography
-          variant="h3"
-          sx={{ color: muiTheme.palette.text.primary, mb: spacing.xs }}
+          variant="h2"
+          sx={{ color: 'text.primary', mb: spacing.xs, fontWeight: 600 }}
         >
           {title}
         </Typography>
         {subtitle && (
           <Typography
             variant="body1"
-            sx={{ color: muiTheme.palette.text.secondary }}
+            sx={{ color: 'text.secondary' }}
           >
             {subtitle}
           </Typography>

@@ -1,7 +1,4 @@
 // src/common/components/LoadingState.tsx
-
-// src/common/components/LoadingState.tsx
-
 import { FC } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { useLanguage } from "../../localization/LanguageContext";
@@ -21,8 +18,8 @@ const LoadingState: FC = () => {
         mt: spacing.xl,
       }}
     >
-      <CircularProgress sx={{ mb: spacing.md }} />
-      <Typography variant="h6" component="div">
+      <CircularProgress sx={{ mb: spacing.md, color: 'primary.main' }} />
+      <Typography variant="body1" color="text.secondary">
         {literal.loading_message}
       </Typography>
     </Box>

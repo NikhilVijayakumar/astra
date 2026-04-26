@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Paper, Typography, useTheme } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
+import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
 
 export interface LogEntry {
@@ -15,35 +16,39 @@ export interface TerminalViewerProps {
   bottomRef?: React.RefObject<HTMLDivElement>;
 }
 
+const levelColorMap: Record<string, string> = {
+  ERROR: 'error.main',
+  WARN: 'warning.main',
+  INFO: 'success.main',
+};
+
 export const TerminalViewer: React.FC<TerminalViewerProps> = ({
   logs,
-  emptyMessage = "Waiting for logs...",
+  emptyMessage,
   bottomRef,
 }) => {
-  const theme = useTheme();
-
+  const { literal } = useLanguage();
+  const defaultMessage = literal["viewer.waiting_logs"] || "Waiting for logs...";
+  const displayMessage = emptyMessage || defaultMessage;
   return (
     <Paper
+      elevation={0}
       sx={{
         height: "100%",
-        bgcolor:
-          theme.palette.mode === "dark"
-            ? theme.palette.background.paper
-            : (theme.palette as any).neutral?.[900] || "#0d1117",
-        color:
-          theme.palette.mode === "dark"
-            ? theme.palette.text.primary
-            : (theme.palette as any).neutral?.[50] || "#c9d1d9",
+        bgcolor: 'background.paper',
+        color: 'text.primary',
         p: spacing.md,
         overflow: "auto",
-        fontFamily: (theme.typography as any).code?.fontFamily || "monospace",
-        fontSize: (theme.typography as any).code?.fontSize || "0.875rem",
-        border: `1px solid ${theme.palette.divider}`,
+        fontFamily: '"IBM Plex Mono", "Menlo", monospace',
+        fontSize: "0.8125rem",
+        border: `1px solid`,
+        borderColor: 'divider',
+        borderRadius: 1,
       }}
     >
       {logs.length === 0 && (
-        <Typography sx={{ color: "text.disabled", fontStyle: "italic" }}>
-          {emptyMessage}
+        <Typography sx={{ color: 'text.disabled', fontStyle: "italic" }}>
+          {displayMessage}
         </Typography>
       )}
       {logs.map((log) => (
@@ -53,19 +58,14 @@ export const TerminalViewer: React.FC<TerminalViewerProps> = ({
         >
           <Typography
             component="span"
-            sx={{ color: "text.secondary", minWidth: 90, opacity: 0.7 }}
+            sx={{ color: 'text.secondary', minWidth: 90, opacity: 0.7 }}
           >
             {log.timestamp}
           </Typography>
           <Typography
             component="span"
             sx={{
-              color:
-                log.level === "ERROR"
-                  ? theme.palette.error.light
-                  : log.level === "WARN"
-                    ? theme.palette.warning.light
-                    : theme.palette.success.light,
+              color: levelColorMap[log.level] || 'text.secondary',
               fontWeight: "bold",
               minWidth: 60,
             }}

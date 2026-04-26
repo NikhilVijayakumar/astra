@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Box, Paper, Typography } from "@mui/material";
 import { spacing } from "../../../theme/tokens/spacing";
+import { colors } from "../../../theme/tokens/colors";
 
 export interface CardProps {
   title?: string;
@@ -17,11 +18,13 @@ export const Card = ({
 }: CardProps) => {
   return (
     <Paper
-      elevation={1}
+      elevation={0}
       sx={{
         p: spacing.lg,
-        borderRadius: spacing.xs,
-        backgroundColor: "background.paper",
+        borderRadius: 1,
+        border: '1px solid',
+        borderColor: 'divider',
+        backgroundColor: 'background.paper',
         display: "flex",
         flexDirection: "column",
         gap: spacing.xs,
@@ -38,7 +41,7 @@ export const Card = ({
           <Box>
             {title && (
               <Typography
-                variant="subtitle1"
+                variant="h4"
                 fontWeight={600}
                 color="text.primary"
               >

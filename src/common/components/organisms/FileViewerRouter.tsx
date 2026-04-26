@@ -4,6 +4,7 @@ import { MdViewer } from "../molecules/MdViewer";
 import { ImageViewer } from "../molecules/ImageViewer";
 import { JsonViewer } from "../molecules/JsonViewer";
 import { Box, Typography } from "@mui/material";
+import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
 
 interface FileViewerRouterProps {
@@ -19,7 +20,12 @@ export const FileViewerRouter: FC<FileViewerRouterProps> = ({
   fileEncoding,
   mimeType,
 }) => {
+  const { literal } = useLanguage();
   const ext = fileName.split(".").pop()?.toLowerCase();
+
+  const fallbackTitle = literal["viewer.unsupported"] || "Unsupported File";
+  const fallbackExt = literal["viewer.extension"] || "Extension";
+  const fallbackBody = literal["viewer.empty"] || "No content available";
 
   switch (ext) {
     case "csv":
@@ -48,9 +54,11 @@ export const FileViewerRouter: FC<FileViewerRouterProps> = ({
     default:
       return (
         <Box sx={{ p: spacing.lg, textAlign: "center" }}>
-          <Typography variant="h6">Binary / Unsupported File</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 600 }}>
+            {fallbackTitle}
+          </Typography>
           <Typography variant="body2" color="text.secondary">
-            Extension: .{ext}
+            {fallbackExt}: .{ext}
           </Typography>
         </Box>
       );

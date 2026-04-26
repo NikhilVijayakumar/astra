@@ -3,11 +3,11 @@ import {
   Box,
   Typography,
   IconButton,
-  useTheme as useMuiTheme,
 } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
+import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
 
 interface ImageViewerProps {
@@ -23,7 +23,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({
   fileEncoding,
   mimeType,
 }) => {
-  const muiTheme = useMuiTheme();
+  const { literal } = useLanguage();
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const imageSource =
@@ -31,13 +31,15 @@ export const ImageViewer: FC<ImageViewerProps> = ({
       ? `data:${mimeType || "image/png"};base64,${fileContent}`
       : null;
 
+  const emptyMessage = literal["viewer.empty_image"] || "No image content available for preview.";
+
   return (
     <Box
       sx={{
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: muiTheme.palette.background.default,
+        backgroundColor: 'background.default',
       }}
     >
       <Box
@@ -46,11 +48,14 @@ export const ImageViewer: FC<ImageViewerProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          backgroundColor: muiTheme.palette.background.paper,
-          borderBottom: `1px solid ${muiTheme.palette.divider}`,
+          backgroundColor: 'background.paper',
+          borderBottom: `1px solid`,
+          borderColor: 'divider',
         }}
       >
-        <Typography variant="body2">{fileName}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {fileName}
+        </Typography>
         <Box>
           <IconButton
             size="small"
@@ -101,8 +106,9 @@ export const ImageViewer: FC<ImageViewerProps> = ({
             sx={{
               width: 400,
               height: 300,
-              border: `1px solid ${muiTheme.palette.divider}`,
-              borderRadius: spacing.internal,
+              border: `1px solid`,
+              borderColor: 'divider',
+              borderRadius: 1,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -110,7 +116,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({
           >
             <Typography
               variant="micro"
-              sx={{ color: muiTheme.palette.text.secondary }}
+              sx={{ color: 'text.secondary' }}
             >
               No image content available for preview.
             </Typography>

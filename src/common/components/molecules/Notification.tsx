@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { Snackbar, Alert, AlertColor } from '@mui/material';
+import { spacing } from "../../../theme/tokens/spacing";
 
 export interface NotificationProps {
   open: boolean;
@@ -23,7 +24,15 @@ export const Notification: FC<NotificationProps> = ({
       onClose={onClose}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
     >
-      <Alert onClose={onClose} severity={severity} sx={{ width: '100%', boxShadow: 3, borderRadius: 2 }}>
+      <Alert
+        onClose={onClose}
+        severity={severity}
+        sx={{
+          width: '100%',
+          boxShadow: 3,
+          borderRadius: 1,
+        }}
+      >
         {message}
       </Alert>
     </Snackbar>

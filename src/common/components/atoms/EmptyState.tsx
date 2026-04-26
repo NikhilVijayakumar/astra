@@ -9,7 +9,9 @@ const EmptyState: FC = () => {
 
   return (
     <Box sx={{ p: spacing.lg, textAlign: "center", mt: spacing.xl }}>
-      <Typography variant="h6">{literal.no_data_found}</Typography>
+      <Typography variant="body1" color="text.secondary">
+        {literal.no_data_found}
+      </Typography>
     </Box>
   );
 };

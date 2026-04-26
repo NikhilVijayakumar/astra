@@ -34,30 +34,57 @@ interface CsvViewerProps {
 - **Sticky header**: Column headers remain visible during scroll
 - **Pagination**: Configurable rows per page (10, 25, 50)
 - **Empty state**: Displays message when no CSV content is available
+- **Localization**: Uses `useLanguage` hook for empty message
 
-### Parse Behavior
+## Localization
 
-1. Splits content by newlines (handles both `\n` and `\r\n`)
-2. Trims empty lines
-3. Uses first line as headers
-4. Subsequent lines become data rows
+Uses `useLanguage` hook. Required translation key:
+- `viewer.empty_csv` - Message shown when CSV content is empty
+
+Default fallback: `"No CSV content available"`
+
+```tsx
+const translations = {
+  en: {
+    "viewer.empty_csv": "No CSV data to display",
+  }
+};
+```
+
+## Premium UI
+
+Follows premium-ui-patterns skill:
+- Border radius: 1 (8px)
+- Uses spacing tokens (spacing.md, spacing.sm)
+- Typography: h4 for title, body2 for content
 
 ## Usage Example
 
 ```tsx
-import { CsvViewer } from "@/common/components/file-viewers/CsvViewer";
+import { CsvViewer } from "@/common/components/organisms/CsvViewer";
+import { useLanguage } from "@/common/localization/LanguageContext";
 
 const CsvPreview = () => {
+  const { literal } = useLanguage();
   const csvData = `Name,Age,Department,Salary
 John Doe,32,Engineering,85000
-Jane Smith,28,Marketing,72000
-Bob Wilson,45,Sales,95000
-Alice Brown,35,Engineering,88000`;
+Jane Smith,28,Marketing,72000`;
 
   return <CsvViewer fileName="employees.csv" fileContent={csvData} />;
 };
 
-// With state management for large datasets
+const CsvPreviewLocalized = () => {
+  const { literal } = useLanguage();
+  const csvContent = literal["data.employees"] || "";
+  
+  return (
+    <CsvViewer 
+      fileName={literal["files.employees"]} 
+      fileContent={csvContent} 
+    />
+  );
+};
+```
 const LargeCsvViewer = ({ fileData }) => (
   <div style={{ height: "500px" }}>
     <CsvViewer fileName={fileData.name} fileContent={fileData.content} />

@@ -8,6 +8,7 @@ import {
   Paper,
   Box,
 } from '@mui/material';
+import { spacing } from "../../../theme/tokens/spacing";
 
 export interface Column<T> {
   id: string;
@@ -33,6 +34,7 @@ export const DataTable = <T extends Record<string, any>>({ columns, data, keyFie
           border: '1px solid',
           borderColor: 'divider',
           borderRadius: 2,
+          backgroundColor: 'background.paper',
         }}
       >
         <Table stickyHeader aria-label="premium data table">
@@ -42,8 +44,15 @@ export const DataTable = <T extends Record<string, any>>({ columns, data, keyFie
                 <TableCell
                   key={column.id}
                   align={column.align}
-                  style={{ minWidth: column.minWidth, fontWeight: 600 }}
-                  sx={{ backgroundColor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}
+                  sx={{
+                    minWidth: column.minWidth,
+                    fontWeight: 600,
+                    backgroundColor: 'background.paper',
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    px: spacing.md,
+                    py: spacing.sm,
+                  }}
                 >
                   {column.label}
                 </TableCell>
@@ -52,10 +61,23 @@ export const DataTable = <T extends Record<string, any>>({ columns, data, keyFie
           </TableHead>
           <TableBody>
             {data.map((row) => (
-              <TableRow hover role="checkbox" tabIndex={-1} key={String(row[keyField])} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              <TableRow
+                hover
+                role="checkbox"
+                tabIndex={-1}
+                key={String(row[keyField])}
+                sx={{
+                  '&:last-child td, &:last-child th': { border: 0 },
+                  '&:hover': { backgroundColor: 'action.hover' },
+                }}
+              >
                 {columns.map((column) => {
                   return (
-                    <TableCell key={column.id} align={column.align}>
+                    <TableCell
+                      key={column.id}
+                      align={column.align}
+                      sx={{ px: spacing.md, py: spacing.sm }}
+                    >
                       {column.render ? column.render(row) : row[column.id]}
                     </TableCell>
                   );

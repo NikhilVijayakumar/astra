@@ -7,11 +7,11 @@ import {
   Button,
   Chip,
   IconButton,
-  useTheme,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
 
 export type StatusColorType =
@@ -44,17 +44,21 @@ export const StatusActionCard: React.FC<StatusActionCardProps> = ({
   statusLabel,
   statusColor,
   lastChecked,
-  lastCheckedLabel = "Last checked",
+  lastCheckedLabel,
   isConnectDisabled = false,
   onDelete,
   onConnect,
   onCheckStatus,
-  connectLabel = "Connect",
-  loadingLabel = "Loading...",
+  connectLabel,
+  loadingLabel,
 }) => {
-  const theme = useTheme();
+  const { literal } = useLanguage();
   const [isChecking, setIsChecking] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+
+  const labelLastChecked = literal["time.last_checked"] || lastCheckedLabel || "Last checked";
+  const labelConnect = literal["ui.connect"] || connectLabel || "Connect";
+  const labelLoading = literal["msg.loading"] || loadingLabel || "Loading...";
 
   const handleCheckStatus = async () => {
     if (!onCheckStatus) return;
@@ -76,22 +80,22 @@ export const StatusActionCard: React.FC<StatusActionCardProps> = ({
     }
   };
 
-  const getColorHex = () => {
+  const getStatusColor = (): string => {
     switch (statusColor) {
       case "success":
-        return theme.palette.success.main;
+        return 'success.main';
       case "error":
-        return theme.palette.error.main;
+        return 'error.main';
       case "warning":
-        return theme.palette.warning.main;
+        return 'warning.main';
       case "info":
-        return theme.palette.info.main;
+        return 'info.main';
       default:
-        return theme.palette.text.secondary;
+        return 'text.secondary';
     }
   };
 
-  const bgColorHex = getColorHex();
+  const statusColorValue = getStatusColor();
 
   return (
     <Card
@@ -111,7 +115,7 @@ export const StatusActionCard: React.FC<StatusActionCardProps> = ({
           top: 0,
           bottom: 0,
           width: 6,
-          backgroundColor: bgColorHex,
+          backgroundColor: statusColorValue,
         },
       }}
     >

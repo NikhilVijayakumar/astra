@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Typography, useTheme as useMuiTheme } from "@mui/material";
+import { Typography } from "@mui/material";
 import { spacing } from "../../../theme/tokens/spacing";
 
 export type SeverityLevel =
@@ -13,40 +13,30 @@ export interface SeverityBadgeProps {
   level: SeverityLevel | string;
 }
 
-const resolveSeverityColor = (
-  level: string,
-  errorColor: string,
-  warningColor: string,
-  infoColor: string,
-  successColor: string,
-): string => {
-  if (level === "CRITICAL") return errorColor;
-  if (level === "WARNING" || level === "URGENT") return warningColor;
-  if (level === "SUCCESS") return successColor;
-  return infoColor;
-};
-
-const withAlphaSuffix = (color: string): string => `${color}20`;
-
 export const SeverityBadge: FC<SeverityBadgeProps> = ({ level }) => {
-  const muiTheme = useMuiTheme();
-  const tone = resolveSeverityColor(
-    level,
-    muiTheme.palette.error.main,
-    muiTheme.palette.warning.main,
-    muiTheme.palette.info.main,
-    muiTheme.palette.success.main,
-  );
+  const colorMap: Record<string, string> = {
+    CRITICAL: 'error.main',
+    ERROR: 'error.main',
+    WARNING: 'warning.main',
+    URGENT: 'warning.main',
+    SUCCESS: 'success.main',
+    INFO: 'info.main',
+  };
+  const tone = colorMap[level] || 'info.main';
 
   return (
     <Typography
-      variant="captionBold"
+      variant="caption"
       sx={{
         px: spacing.sm,
         py: spacing.internal,
-        borderRadius: spacing.internal,
-        backgroundColor: withAlphaSuffix(tone),
+        borderRadius: 1,
+        backgroundColor: `${tone}15`,
         color: tone,
+        fontWeight: 600,
+        fontSize: '0.6875rem',
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
       }}
     >
       {level}

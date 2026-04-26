@@ -7,6 +7,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Typography from "@mui/material/Typography";
 import { ThemeToggle } from "../../theme/ThemeToggle";
 import { ToolbarProps } from "./ToolbarData";
+import { spacing } from "../../../theme/tokens/spacing";
 
 export const ToolbarComponent: FC<ToolbarProps> = ({
   handleDrawerToggle,
@@ -16,6 +17,7 @@ export const ToolbarComponent: FC<ToolbarProps> = ({
   return (
     <AppBar
       position="fixed"
+      elevation={0}
       sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
     >
       <Toolbar>
@@ -24,11 +26,11 @@ export const ToolbarComponent: FC<ToolbarProps> = ({
           aria-label="open drawer"
           edge="start"
           onClick={handleDrawerToggle}
-          sx={{ mr: 2, display: { sm: "none" } }}
+          sx={{ mr: spacing.md, display: { sm: "none" } }}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h4" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
           {title}
         </Typography>
         <ThemeToggle themeContext={themeContext} />

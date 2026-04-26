@@ -9,9 +9,9 @@ import {
   TableRow,
   Paper,
   Typography,
-  useTheme as useMuiTheme,
   TablePagination,
 } from "@mui/material";
+import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
 
 interface CsvViewerProps {
@@ -38,13 +38,15 @@ const parseCsv = (content: string): { headers: string[]; rows: string[][] } => {
 };
 
 export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
-  const muiTheme = useMuiTheme();
+  const { literal } = useLanguage();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const parsed = parseCsv(fileContent ?? "");
   const headers = parsed.headers;
   const rows = parsed.rows;
+
+  const emptyMessage = literal["viewer.empty_csv"] || "No CSV content available";
 
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
   const handleChangeRowsPerPage = (
@@ -64,8 +66,8 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
       }}
     >
       <Typography
-        variant="h6"
-        sx={{ mb: spacing.md, color: muiTheme.palette.text.primary }}
+        variant="h4"
+        sx={{ mb: spacing.md, color: 'text.primary', fontWeight: 600 }}
       >
         {fileName}
       </Typography>
@@ -73,9 +75,9 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
       {headers.length === 0 && (
         <Typography
           variant="body2"
-          sx={{ mb: spacing.md, color: muiTheme.palette.text.secondary }}
+          sx={{ mb: spacing.md, color: 'text.secondary' }}
         >
-          No CSV content available for preview.
+          {emptyMessage}
         </Typography>
       )}
 
@@ -83,8 +85,10 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
         component={Paper}
         sx={{
           flexGrow: 1,
-          backgroundColor: muiTheme.palette.background.default,
-          border: `1px solid ${muiTheme.palette.divider}`,
+          backgroundColor: 'background.default',
+          border: `1px solid`,
+          borderColor: 'divider',
+          borderRadius: 1,
         }}
       >
         <Table stickyHeader size="small">
@@ -94,8 +98,10 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
                 <TableCell
                   key={header}
                   sx={{
-                    backgroundColor: muiTheme.palette.background.paper,
-                    fontWeight: "bold",
+                    backgroundColor: 'background.paper',
+                    fontWeight: 600,
+                    px: spacing.md,
+                    py: spacing.sm,
                   }}
                 >
                   {header}
@@ -111,7 +117,7 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
                   {row.map((cell, cIdx) => (
                     <TableCell
                       key={cIdx}
-                      sx={{ color: muiTheme.palette.text.secondary }}
+                      sx={{ color: 'text.secondary', px: spacing.md, py: spacing.sm }}
                     >
                       {cell}
                     </TableCell>

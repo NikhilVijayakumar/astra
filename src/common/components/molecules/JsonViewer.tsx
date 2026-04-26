@@ -1,7 +1,8 @@
 import { FC } from "react";
-import { Box, Typography, useTheme as useMuiTheme } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
 
 interface JsonViewerProps {
@@ -46,8 +47,10 @@ const normalizeJsonForDisplay = (
 };
 
 export const JsonViewer: FC<JsonViewerProps> = ({ fileName, fileContent }) => {
-  const muiTheme = useMuiTheme();
+  const { literal } = useLanguage();
   const normalized = normalizeJsonForDisplay(fileName, fileContent);
+
+  const emptyMessage = literal["viewer.empty_json"] || "No JSON content available for preview.";
 
   return (
     <Box
@@ -55,17 +58,20 @@ export const JsonViewer: FC<JsonViewerProps> = ({ fileName, fileContent }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: muiTheme.palette.background.default,
+        backgroundColor: 'background.default',
       }}
     >
       <Box
         sx={{
           p: spacing.sm,
-          backgroundColor: muiTheme.palette.background.paper,
-          borderBottom: `1px solid ${muiTheme.palette.divider}`,
+          backgroundColor: 'background.paper',
+          borderBottom: `1px solid`,
+          borderColor: 'divider',
         }}
       >
-        <Typography variant="body2">{fileName}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {fileName}
+        </Typography>
       </Box>
 
       <Box sx={{ flexGrow: 1, overflow: "auto", p: spacing.sm }}>
@@ -75,9 +81,10 @@ export const JsonViewer: FC<JsonViewerProps> = ({ fileName, fileContent }) => {
           customStyle={{
             margin: 0,
             padding: spacing.md,
-            borderRadius: spacing.internal,
+            borderRadius: 1,
             fontSize: "0.75rem",
-            backgroundColor: muiTheme.palette.background.paper,
+            fontFamily: '"IBM Plex Mono", "Menlo", monospace',
+            backgroundColor: 'background.paper',
           }}
         >
           {normalized}

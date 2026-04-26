@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Box, Typography, useTheme as useMuiTheme } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { spacing } from "../../../theme/tokens/spacing";
 
 export interface SummaryLine {
@@ -13,21 +13,19 @@ export interface SummaryPanelProps {
 }
 
 export const SummaryPanel: FC<SummaryPanelProps> = ({ title, lines }) => {
-  const muiTheme = useMuiTheme();
-
   return (
     <Box
       sx={{
         p: spacing.lg,
         border: 1,
         borderColor: "divider",
-        borderRadius: spacing.xs,
-        backgroundColor: muiTheme.palette.background.paper,
+        borderRadius: 1,
+        backgroundColor: 'background.paper',
       }}
     >
       <Typography
-        variant="h6"
-        sx={{ color: muiTheme.palette.text.primary, mb: spacing.sm }}
+        variant="h4"
+        sx={{ color: 'text.primary', mb: spacing.sm, fontWeight: 600 }}
       >
         {title}
       </Typography>
@@ -37,7 +35,7 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({ title, lines }) => {
           key={`${line.text}-${index}`}
           variant={line.variant ?? "body2"}
           sx={{
-            color: muiTheme.palette.text.secondary,
+            color: 'text.secondary',
             display: line.variant === "caption" ? "block" : "inline",
           }}
         >

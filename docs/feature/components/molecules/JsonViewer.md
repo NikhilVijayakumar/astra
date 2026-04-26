@@ -1,21 +1,21 @@
 ---
-tier: template
+tier: molecule
 ---
 
 # JsonViewer
 
-A file viewer component that displays JSON/JSONL content with syntax highlighting.
+A file viewer component that displays JSON data with syntax highlighting.
 
 ## Overview
 
-A specialized viewer for JSON and JSON Lines (JSONL) files. Pretty-prints JSON with syntax highlighting using react-syntax-highlighter. Handles both standard JSON and newline-delimited JSON.
+A specialized viewer for JSON and JSONL files with Prism syntax highlighting. Displays formatted JSON with monospace font.
 
 ## API
 
 ### Props
 
-| Prop          | Type     | Default   | Description                    |
-| ------------- | -------- | --------- | ------------------------------ |
+| Prop          | Type     | Default   | Description                   |
+| ------------- | -------- | --------- | ----------------------------- |
 | `fileName`    | `string` | Required  | The JSON file name for display |
 | `fileContent` | `string` | undefined | JSON content as string         |
 
@@ -30,68 +30,39 @@ interface JsonViewerProps {
 
 ### Features
 
-- **Syntax highlighting**: Uses `vscDarkPlus` theme
-- **JSONL support**: Parses newline-delimited JSON (one object per line)
-- **Error handling**: Displays parse errors gracefully
-- **Empty state**: Shows message when no content available
+- **Syntax highlighting**: Uses Prism with vscDarkPlus theme
+- **Monospace font**: IBM Plex Mono for code display
+- **Empty state**: Displays message when no content available
+- **Localization**: Uses `useLanguage` hook
 
-### Normalization Behavior
+## Localization
 
-#### Standard JSON (`.json`)
+Uses `useLanguage` hook. Required translation key:
+- `viewer.empty_json` - Message shown when JSON content is empty
 
-- Attempts to parse and pretty-print with 2-space indentation
-- On parse failure, displays raw content with error indicator
+Default fallback: `"No JSON content available for preview."`
 
-#### JSON Lines (`.jsonl`)
+## Premium UI
 
-- Splits by newlines and parses each line as separate JSON object
-- Converts to an array of objects for display
-- Line numbers included in error objects for failed parses
-
-### Display Format
-
-- Header bar show file name
-- Code block uses `vscDarkPlus` theme
-- Font size: `12px`
-- Background: `background.paper`
+- Font: `"IBM Plex Mono", "Menlo", monospace`
+- Font size: 0.75rem (12px)
+- Border radius: 1 (8px)
+- Uses spacing tokens
 
 ## Usage Example
 
 ```tsx
-import { JsonViewer } from "@/common/components/file-viewers/JsonViewer";
+import { JsonViewer } from "@/common/components/molecules/JsonViewer";
+import { useLanguage } from "@/common/localization/LanguageContext";
 
-// Standard JSON
-const ConfigViewer = () => {
-  const config = `{
-  "name": "my-app",
-  "version": "1.0.0",
-  "dependencies": {
-    "react": "^18.0.0"
-  }
-}`;
+const JsonPreview = () => {
+  const { literal } = useLanguage();
+  const jsonData = JSON.stringify({ name: "John", age: 32 });
 
-  return <JsonViewer fileName="package.json" fileContent={config} />;
+  return <JsonViewer fileName="user.json" fileContent={jsonData} />;
 };
-
-// JSON Lines / JSONL
-const LogViewer = () => {
-  const logs = `{"level": "info", "message": "Server started", "timestamp": "2024-01-15T10:30:00Z"}
-{"level": "warn", "message": "High memory usage", "timestamp": "2024-01-15T10:35:00Z"}
-{"level": "error", "message": "Connection failed", "timestamp": "2024-01-15T10:40:00Z"}`;
-
-  return <JsonViewer fileName="app.jsonl" fileContent={logs} />;
-};
-
-// Empty content handling
-const EmptyViewer = () => <JsonViewer fileName="empty.json" />;
 ```
-
-## Design Principles
-
-This component is a template — a page-level layout component.
-
-See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
 
 ## Source
 
-`src/common/components/file-viewers/JsonViewer.tsx`
+`src/common/components/molecules/JsonViewer.tsx`

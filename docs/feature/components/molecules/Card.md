@@ -34,27 +34,58 @@ export interface CardProps {
 
 ### Styling Details
 
-- Elevation: `1` (subtle shadow)
-- Padding: `3` (24px)
-- Border radius: `8px`
+- Elevation: `0` (border-based, premium style)
+- Padding: `spacing.lg` (24px)
+- Border radius: `1` (8px)
 - Background: `background.paper` from theme
-- Gap between elements: `2` (16px)
+- Gap between elements: `spacing.xs` (8px)
+- Border: 1px solid divider
+
+## Localization
+
+This component uses props for text. Ensure parent passes localized strings:
+
+```tsx
+// Parent component provides localized titles
+<Card
+  title={literal["card.system_status"]}
+  supportingText={literal["card.current_health"]}
+>
+  {children}
+</Card>
+```
+
+Required translation keys:
+- `card.system_status` - Card title
+- `card.current_health` - Supporting text
+
+## Premium UI
+
+Follows premium-ui-patterns skill guidelines:
+- Soft surface contrast
+- Subtle border over elevation
+- Clear content hierarchy
 
 ## Usage Example
 
 ```tsx
 import { Card } from "@/common/components/molecules/Card";
 import { Button } from "@mui/material";
+import { useLanguage } from "@/common/localization/LanguageContext";
 
-const DashboardCard = () => (
-  <Card
-    title="System Status"
-    supportingText="Current health metrics"
-    action={<Button size="small">View Details</Button>}
-  >
-    <div>Card content goes here...</div>
-  </Card>
-);
+const DashboardCard = () => {
+  const { literal } = useLanguage();
+  
+  return (
+    <Card
+      title={literal["card.system_status"]}
+      supportingText={literal["card.current_health"]}
+      action={<Button size="small">{literal["ui.view_details"]}</Button>}
+    >
+      <div>Card content goes here...</div>
+    </Card>
+  );
+};
 
 // Without header
 const SimpleCard = () => (

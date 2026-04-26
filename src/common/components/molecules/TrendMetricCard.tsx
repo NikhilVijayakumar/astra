@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Box, Typography, useTheme as useMuiTheme } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { spacing } from "../../../theme/tokens/spacing";
 
 export type MetricTrend = "up" | "down" | "neutral";
@@ -11,39 +11,26 @@ export interface TrendMetricCardProps {
   trend?: MetricTrend;
 }
 
-const resolveTrendColor = (
-  trend: MetricTrend | undefined,
-  successColor: string,
-  errorColor: string,
-  neutralColor: string,
-): string => {
-  if (trend === "up") return successColor;
-  if (trend === "down") return errorColor;
-  return neutralColor;
-};
-
 export const TrendMetricCard: FC<TrendMetricCardProps> = ({
   label,
   value,
   trendValue,
   trend,
 }) => {
-  const muiTheme = useMuiTheme();
-
   return (
     <Box
       sx={{
         flex: 1,
         p: spacing.md,
-        backgroundColor: muiTheme.palette.background.paper,
+        backgroundColor: 'background.paper',
         border: 1,
         borderColor: "divider",
-        borderRadius: spacing.xs,
+        borderRadius: 1,
       }}
     >
       <Typography
         variant="micro"
-        sx={{ color: muiTheme.palette.text.secondary }}
+        sx={{ color: 'text.secondary' }}
       >
         {label}
       </Typography>
@@ -56,9 +43,10 @@ export const TrendMetricCard: FC<TrendMetricCardProps> = ({
         }}
       >
         <Typography
-          variant="h5"
+          variant="h3"
           sx={{
-            color: muiTheme.palette.text.primary,
+            color: 'text.primary',
+            fontWeight: 600,
             fontVariantNumeric: "tabular-nums",
           }}
         >
@@ -66,14 +54,10 @@ export const TrendMetricCard: FC<TrendMetricCardProps> = ({
         </Typography>
         {!!trendValue && (
           <Typography
-            variant="captionBold"
+            variant="caption"
             sx={{
-              color: resolveTrendColor(
-                trend,
-                muiTheme.palette.success.main,
-                muiTheme.palette.error.main,
-                muiTheme.palette.text.secondary,
-              ),
+              color: trend === 'up' ? 'success.main' : trend === 'down' ? 'error.main' : 'text.secondary',
+              fontWeight: 600,
             }}
           >
             {trendValue}
