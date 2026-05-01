@@ -5,46 +5,48 @@ import type {
   TemplateRendererConfig,
   RenderTemplateOptions,
   RenderResult,
+  TemplateRendererService,
 } from "../types/template.types";
+import { bundledTemplates } from "../templates";
 
-let config: TemplateRendererConfig | null = null;
-
-export function configureTemplateRenderer(userConfig: TemplateRendererConfig): void {
-  config = userConfig;
+function isNode(): boolean {
+  return typeof process !== "undefined" && !!(process.versions && process.versions.node);
 }
 
-export async function renderTemplate(
-  options: RenderTemplateOptions,
-): Promise<RenderResult> {
-  if (!config) {
-    return {
-      success: false,
-      error: "Template renderer not configured. Call configureTemplateRenderer first.",
-    };
+export function createTemplateRenderer(cfg?: TemplateRendererConfig & { templates?: Record<string, string> }): TemplateRendererService {
+  const templates = cfg?.templates ?? bundledTemplates ?? null;
+  const basePath = cfg?.basePath;
+
+  async function render(options: RenderTemplateOptions): Promise<RenderResult> {
+    const { templateName, data } = options;
+
+    // Use in-memory/bundled templates when available (browser-friendly)
+    if (templates && templates[templateName]) {
+      try {
+        const compiled = handlebars.compile(templates[templateName]);
+        return { success: true, html: compiled(data) };
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : String(error) };
+      }
+    }
+
+    // Node runtime: attempt to read from filesystem if basePath provided
+    if (isNode() && basePath) {
+      const filePath = path.join(basePath, `${templateName}.hbs`);
+      try {
+        const source = await fs.readFile(filePath, "utf-8");
+        const compiled = handlebars.compile(source);
+        return { success: true, html: compiled(data) };
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : String(error) };
+      }
+    }
+
+    return { success: false, error: "Template not found: provide a templates map or a basePath (Node)." };
   }
 
-  const { templateName, data } = options;
-  const filePath = path.join(config.basePath, `${templateName}.hbs`);
-
-  try {
-    const source = await fs.readFile(filePath, "utf-8");
-    const compiled = handlebars.compile(source);
-    const html = compiled(data);
-
-    return {
-      success: true,
-      html,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : "Unknown error rendering template",
-    };
-  }
+  return { configure: () => {}, render };
 }
 
-export const templateRenderer = {
-  configure: configureTemplateRenderer,
-  render: renderTemplate,
-};
+// Convenience default renderer backed by bundled templates (browser-friendly).
+export const templateRenderer = createTemplateRenderer({ templates: bundledTemplates });

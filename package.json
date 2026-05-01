@@ -42,6 +42,17 @@
       "import": "./dist/astra.es.js",
       "require": "./dist/astra.umd.js"
     }
+    ,
+    "./services": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/astra.es.js",
+      "require": "./dist/astra.umd.js"
+    },
+    "./services/*": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/astra.es.js",
+      "require": "./dist/astra.umd.js"
+    }
   },
   "files": [
     "dist",

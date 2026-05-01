@@ -1,5 +1,5 @@
 export interface TemplateRendererConfig {
-    basePath: string;
+    basePath?: string;
 }
 export interface RenderTemplateOptions {
     templateName: string;

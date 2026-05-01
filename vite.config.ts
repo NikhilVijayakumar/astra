@@ -84,6 +84,7 @@ export default defineConfig({
         {
           format: "umd",
           name: "Astra",
+          interop: "default",
           globals: {
             react: "React",
             "react-dom": "ReactDOM",

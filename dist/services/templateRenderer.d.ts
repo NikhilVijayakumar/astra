@@ -1,7 +1,5 @@
-import { TemplateRendererConfig, RenderTemplateOptions, RenderResult } from '../types/template.types';
-export declare function configureTemplateRenderer(userConfig: TemplateRendererConfig): void;
-export declare function renderTemplate(options: RenderTemplateOptions): Promise<RenderResult>;
-export declare const templateRenderer: {
-    configure: typeof configureTemplateRenderer;
-    render: typeof renderTemplate;
-};
+import { TemplateRendererConfig, TemplateRendererService } from '../types/template.types';
+export declare function createTemplateRenderer(cfg?: TemplateRendererConfig & {
+    templates?: Record<string, string>;
+}): TemplateRendererService;
+export declare const templateRenderer: TemplateRendererService;
