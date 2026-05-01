@@ -3,55 +3,65 @@
   "private": false,
   "version": "1.0.9",
   "type": "module",
-  "main": "./dist/astra.umd.js",
+  "main": "./dist/astra.es.js",
   "module": "./dist/astra.es.js",
+  "browser": "./dist/astra.es.js",
   "types": "./dist/lib.d.ts",
   "exports": {
     ".": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     },
     "./common": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     },
     "./common/*": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     },
     "./components": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     },
     "./components/*": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     },
     "./theme": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     },
     "./theme/*": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     }
     ,
     "./services": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     },
     "./services/*": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js"
+      "require": "./dist/astra.es.js",
+      "default": "./dist/astra.es.js"
     }
   },
   "files": [

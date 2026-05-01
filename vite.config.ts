@@ -37,6 +37,8 @@ export default defineConfig({
         return (
           id === "react" ||
           id === "react-dom" ||
+          id === "react/jsx-runtime" ||
+          id === "react/jsx-dev-runtime" ||
           id.startsWith("@mui/") ||
           id.startsWith("@emotion/")
         );
@@ -47,6 +49,8 @@ export default defineConfig({
           globals: {
             react: "React",
             "react-dom": "ReactDOM",
+            "react/jsx-runtime": "ReactJsxRuntime",
+            "react/jsx-dev-runtime": "ReactJsxDevRuntime",
             "@mui/material": "MaterialUI",
             "@mui/material/Box": "Box",
             "@mui/material/Typography": "Typography",
@@ -88,6 +92,8 @@ export default defineConfig({
           globals: {
             react: "React",
             "react-dom": "ReactDOM",
+            "react/jsx-runtime": "ReactJsxRuntime",
+            "react/jsx-dev-runtime": "ReactJsxDevRuntime",
             "@mui/material": "MaterialUI",
             "@mui/material/Box": "Box",
             "@mui/material/Typography": "Typography",
