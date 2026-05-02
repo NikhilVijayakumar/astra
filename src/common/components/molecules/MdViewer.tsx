@@ -1,10 +1,9 @@
-import { FC } from "react";
+import { FC, lazy, Suspense } from "react";
 import {
   Box,
   Typography,
   Divider,
 } from "@mui/material";
-import Markdown from "react-markdown";
 import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
 
@@ -12,6 +11,12 @@ interface MdViewerProps {
   fileName: string;
   fileContent?: string;
 }
+
+const Markdown = lazy(() => import("react-markdown").then(module => ({ default: module.default })));
+
+const LoadingFallback = () => (
+  <Box sx={{ p: spacing.md, color: 'text.secondary' }}>Loading...</Box>
+);
 
 export const MdViewer: FC<MdViewerProps> = ({ fileName, fileContent }) => {
   const { literal } = useLanguage();
@@ -59,7 +64,9 @@ export const MdViewer: FC<MdViewerProps> = ({ fileName, fileContent }) => {
           "& hr": { my: spacing.lg, opacity: 0.1 },
         }}
       >
-        <Markdown>{content}</Markdown>
+        <Suspense fallback={<LoadingFallback />}>
+          <Markdown>{content}</Markdown>
+        </Suspense>
       </Box>
     </Box>
   );

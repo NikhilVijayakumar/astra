@@ -1,9 +1,13 @@
-import { FC } from "react";
+import { FC, lazy, Suspense, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
+
+const SyntaxHighlighter = lazy(() =>
+  import("react-syntax-highlighter").then((mod) => ({ default: mod.Prism }))
+);
+
+const vscDarkPlusPromise = import("react-syntax-highlighter/dist/esm/styles/prism").then((mod) => mod.vscDarkPlus);
 
 interface JsonViewerProps {
   fileName: string;
@@ -47,10 +51,20 @@ const normalizeJsonForDisplay = (
   }
 };
 
+const LoadingFallback = () => (
+  <Box sx={{ p: spacing.md, color: 'text.secondary' }}>Loading...</Box>
+);
+
 export const JsonViewer: FC<JsonViewerProps> = ({ fileName, fileContent }) => {
   const { literal } = useLanguage();
   const emptyMessage = literal["viewer.empty_json"] || "No JSON content available for preview.";
   const normalized = normalizeJsonForDisplay(fileName, fileContent, emptyMessage);
+  const [style, setStyle] = useState<Record<string, React.CSSProperties> | null>(null);
+
+  if (!style) {
+    vscDarkPlusPromise.then(setStyle);
+    return <LoadingFallback />;
+  }
 
   return (
     <Box
@@ -75,20 +89,22 @@ export const JsonViewer: FC<JsonViewerProps> = ({ fileName, fileContent }) => {
       </Box>
 
       <Box sx={{ flexGrow: 1, overflow: "auto", p: spacing.sm }}>
-        <SyntaxHighlighter
-          language="json"
-          style={vscDarkPlus}
-          customStyle={{
-            margin: 0,
-            padding: spacing.md,
-            borderRadius: 1,
-            fontSize: "0.75rem",
-            fontFamily: '"IBM Plex Mono", "Menlo", monospace',
-            backgroundColor: 'background.paper',
-          }}
-        >
-          {normalized}
-        </SyntaxHighlighter>
+        <Suspense fallback={<LoadingFallback />}>
+          <SyntaxHighlighter
+            language="json"
+            style={style}
+            customStyle={{
+              margin: 0,
+              padding: spacing.md,
+              borderRadius: 1,
+              fontSize: "0.75rem",
+              fontFamily: '"IBM Plex Mono", "Menlo", monospace',
+              backgroundColor: 'background.paper',
+            }}
+          >
+            {normalized}
+          </SyntaxHighlighter>
+        </Suspense>
       </Box>
     </Box>
   );
