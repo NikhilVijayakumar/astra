@@ -146,7 +146,12 @@ storybook-static/
 /docs/data/references/
 /docs/data/rules/
 /docs/reports/
-/docs/raw/data/design/
+/docs/raw/data/mockups/
 /docs/raw/data/references/
 /docs/raw/data/rules/
 /docs/raw/report/fix_plan.md
+/docs/raw/design/mockups/
+/docs/raw/design/references/
+
+/docs/raw/design/logo/
+/skills-lock.json

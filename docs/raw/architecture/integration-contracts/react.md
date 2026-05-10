@@ -474,19 +474,19 @@ When building a feature:
 3. **Check organisms** for complex UI (DataTable for data display)
 4. **Use templates** for page structure (PageHeader for standard page layout)
 
-Explore the full component library: [Component Documentation](../feature/components/README.md)
+Explore the full component library: [Component Documentation](../../feature/components/README.md)
 
 For tier-specific guidance, see:
 
-- [Atoms Guide](../feature/components/atomic-design/atoms.md)
-- [Molecules Guide](../feature/components/atomic-design/molecules.md)
-- [Organisms Guide](../feature/components/atomic-design/organisms.md)
-- [Templates Guide](../feature/components/atomic-design/templates.md)
+- [Atoms Guide](../../feature/components/atomic-design/atoms.md)
+- [Molecules Guide](../../feature/components/atomic-design/molecules.md)
+- [Organisms Guide](../../feature/components/atomic-design/organisms.md)
+- [Templates Guide](../../feature/components/atomic-design/templates.md)
 
 ## Next Steps
 
-- [Component Documentation](../feature/components/README.md) - Browse the full component library
-- [Getting Started Guide](./getting-started.md) - Basic installation
-- [Electron Integration Guide](./electron.md) - Desktop app integration
+- [Component Documentation](../../feature/components/README.md) - Browse the full component library
+- [Getting Started Guide](getting-started.md) - Basic installation
+- [Electron Integration Guide](electron.md) - Desktop app integration
 - [MVVM Architecture](../MVVM_Clean_Architecture.md) - Architecture deep dive
 - [Repository Layer](../Repository_Layer.md) - API patterns

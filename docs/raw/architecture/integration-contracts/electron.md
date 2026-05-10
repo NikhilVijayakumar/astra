@@ -347,5 +347,5 @@ npm run electron:build
 
 ## See Also
 
-- [Getting Started Guide](./getting-started.md) - Basic Astra setup
-- [React Integration Guide](./react.md) - React-specific patterns
+- [Getting Started Guide](getting-started.md) - Basic Astra setup
+- [React Integration Guide](react.md) - React-specific patterns

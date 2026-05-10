@@ -227,7 +227,7 @@ Astra includes 30+ ready-to-use components organized by Atomic Design tiers:
 - **Templates** (Page layouts): `PageHeader`, `SummaryPanel`, `HeroSection`
 - **File Viewers**: `CsvViewer`, `JsonViewer`, `ImageViewer`, `MdViewer`, `FileViewerRouter`
 
-See [Component Documentation](../feature/components/README.md) for the full library.
+See [Component Documentation](../../feature/components/README.md) for the full library.
 
 ### Import Styles
 
@@ -259,17 +259,17 @@ This structure provides:
 - **Maintainability**: Clear boundaries make updates localized
 - **Reusability**: Lower-tier components can be recombined in many ways
 
-For detailed methodology and classification guidelines, see [Atomic Design Methodology](../feature/components/atomic-design/README.md).
+For detailed methodology and classification guidelines, see [Atomic Design Methodology](../../feature/components/atomic-design/README.md).
 
 ### Finding Components
 
-Browse the full component library at [Component Documentation](../feature/components/README.md).
+Browse the full component library at [Component Documentation](../../feature/components/README.md).
 
 ## Next Steps
 
-- [Component Documentation](../feature/components/README.md) - Browse the full component library
-- [React Integration Guide](./react.md) - Framework-specific setup
-- [Electron Integration Guide](./electron.md) - Desktop app integration
+- [Component Documentation](../../feature/components/README.md) - Browse the full component library
+- [React Integration Guide](react.md) - Framework-specific setup
+- [Electron Integration Guide](electron.md) - Desktop app integration
 - [MVVM Architecture](../MVVM_Clean_Architecture.md) - Architecture patterns
 - [Theming](../Theming.md) - Custom theming guide
 - [Localization](../Localization.md) - Advanced i18n patterns
