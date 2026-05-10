@@ -18,10 +18,10 @@ Following the MUI `surfaceOverrides`, the Agent must treat different layers of t
 
 | Surface Type | Light Mode Value | Dark Mode Value | MUI Mapping |
 | --- | --- | --- | --- |
-| **Default BG** | `colors.neutral` | `colors.background.dark.default` | `palette.background.default` |
-| **Paper/Card** | `#FFFFFF` | `colors.background.dark.paper` | `palette.background.paper` |
-| **AppBar** | `colors.primary` | `colors.background.dark.default` | `MuiAppBar` Overrides |
-| **Navigation** | `#FFFFFF` | `colors.background.dark.default` | `MuiDrawer` Overrides |
+| **Default BG** | `palette.background.default` (`#F5F5F7`) | `palette.background.default` (`#0e1015`) | `palette.background.default` |
+| **Paper/Card** | `palette.background.paper` (`#FFFFFF`) | `palette.background.paper` (`#16181D`) | `palette.background.paper` |
+| **AppBar** | `palette.background.default` (`#F5F5F7`) | `palette.background.default` (`#0e1015`) | `MuiAppBar` Overrides |
+| **Navigation** | `palette.background.paper` (`#FFFFFF`) | `palette.background.paper` (`#16181D`) | `MuiDrawer` Overrides |
 
 > **Note:** In Dark Mode, `backgroundImage: 'none'` is mandatory for Paper and AppBar to prevent MUI's default elevation overlays from interfering with your custom palette.
 

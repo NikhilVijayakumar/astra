@@ -34,8 +34,8 @@ Based on the `mui-tokens.md`, the Agent must ensure all text-to-background combi
 To support users with motor impairments (and mobile viewports), the following rules apply:
 
 * **Touch Targets:** All interactive elements (Buttons, Menu Items, Icons) must have a minimum hit area of **44x44px**.
-* **Focus Indicators:** The Agent must include a visible `:focus` state for all interactive atoms.
-* *Rule:* Use `outline: 2px solid var(--mui-primary-main)` with an `outline-offset` of 2px.
+* **Focus Indicators:** The Agent must include a visible `:focus-visible` state for all interactive atoms. Use `:focus-visible` (not `:focus`) to suppress the outline on mouse clicks while preserving it for keyboard navigation.
+* *Rule:* Use `outline: 2px solid var(--mui-primary-main)` with an `outline-offset` of 2px and `border-radius: inherit`.
 
 
 * **State Labeling:** If an element is expanded or selected, the Agent must inject `aria-expanded="true"` or `aria-selected="true"`.

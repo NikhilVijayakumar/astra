@@ -55,6 +55,30 @@ Information should feel effortless to scan.
 
 The design should feel premium without appearing extravagant.
 
+### 5 — White Space is a Feature
+
+Whitespace is a structural element, not empty space. Generous breathing room between sections improves comprehension and signals premium quality.
+
+### 6 — Depth Must Be Subtle
+
+Visual depth comes from soft shadows, layered surfaces, and contrast — never from heavy drop shadows or aggressive gradients.
+
+### 7 — Motion Must Be Purposeful
+
+Animation serves functional goals: indicating state change, guiding attention, confirming interaction. Never decorative. Never slow.
+
+### 8 — Consistency Builds Trust
+
+Every element behaves predictably across every screen. Inconsistent design creates cognitive friction and erodes trust.
+
+### 9 — Detail Reflects Craftsmanship
+
+Premium products are defined by attention to micro-spacing, text balance, corner radius consistency, and component proportions. Small inconsistencies reduce perceived quality.
+
+### 10 — Restraint Defines Premium
+
+The most premium designs are defined by what they choose **not** to include. Avoid trends that sacrifice longevity for novelty.
+
 ---
 
 # 3. Color Philosophy

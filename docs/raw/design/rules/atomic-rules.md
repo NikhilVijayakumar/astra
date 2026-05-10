@@ -11,13 +11,14 @@ When the Agent reads your feature documentation, it must use these rules to "fil
 
 ## 1. The Atomic Hierarchy
 
-All UI elements generated in the `markup.html` must belong to one of these three layers. Mixing layers within a single file is prohibited.
+All UI elements must belong to their appropriate layer. Each component file should operate at one layer — a file should not mix the concerns of an Atom with the layout responsibilities of an Organism. A page template will naturally contain Organisms, Molecules, and Atoms, but each of those elements must be authored and maintained at its own layer boundary.
 
 | Layer | Definition | MUI Mapping |
 | --- | --- | --- |
 | **Atoms** | Smallest functional units (Icons, Typography, Buttons). | `MuiButton`, `MuiTypography`, `MuiIcon` |
 | **Molecules** | Groups of Atoms functioning together (Search Bar, Agent Status Chip). | `MuiBox` (with children), `MuiCardHeader` |
 | **Organisms** | Complex UI sections (Navigation Sidebar, Table Header with Filters). | `MuiAppBar`, `MuiDrawer`, `MuiDataGrid` |
+| **Templates** | Full page structures that assemble Organisms into layout shells. | `Container`, `PageHeader`, `SummaryPanel`, `HeroSection` |
 
 ---
 
@@ -51,8 +52,8 @@ The Agent must map all text to the predefined typography variants in `foundation
 The Agent is forbidden from using hex codes (`#FFFFFF`) or literal colors (`red`).
 
 * **Logic:** Every color must be a theme variable.
-* **Primary Action:** `var(--mui-palette-primary-main)`
-* **Surface:** `var(--mui-background-paper)`
+* **Primary Action:** `var(--mui-primary-main)`
+* **Surface:** `var(--mui-bg-paper)`
 * **Text:** `var(--mui-text-primary)` or `var(--mui-text-secondary)`
 * **Status Colors:** Use semantic variables: `--mui-success-main`, `--mui-error-main`, `--mui-warning-main`.
 

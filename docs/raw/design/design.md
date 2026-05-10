@@ -1312,7 +1312,7 @@ HTML mockups must remain stateless blueprints:
 ## Related Documentation
 
 | Document | Purpose |
-|---|---|---|
+|---|---|
 | `docs/raw/design/brand/` | Brand identity and vision (BAVANS) |
 | `docs/raw/design/references/` | Design references and inspiration |
 | `docs/raw/design/rules/Core Design Rules.md` | The 10 core design rules |

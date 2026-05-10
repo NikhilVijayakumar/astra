@@ -212,6 +212,23 @@ Premium design often emerges through **careful removal**.
 
 ---
 
+# 15. Huashu Anti-AI-Slop Check
+
+Astra designs must be intentional, non-generic, and crafted. Before release, confirm:
+
+• No decorative empty states — every element has a clear purpose
+• No MUI default theme overrides passing as finished design
+• No placeholder data (`lorem ipsum`) masquerading as real content
+• Visual hierarchy driven by content structure, not decoration
+• No stock or generic icons used without functional purpose
+• No unused component variants or props left in the implementation
+• Color palette uses only tokens from the design system — no invented colors
+• Typography uses only scale variants — no inline `font-size` declarations
+• All three non-success states are handled: LOADING, ERROR, EMPTY (not just SUCCESS)
+• Components present 2–3 visual variants before locking direction
+
+---
+
 # Final Approval Standard
 
 Before shipping a design, confirm:

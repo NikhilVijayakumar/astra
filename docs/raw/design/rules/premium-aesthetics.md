@@ -38,7 +38,7 @@ Astra draws inspiration from advanced visual movements. While the specific movem
 Our typographic scale (defined in `brand-identity.yaml`) relies on drastic contrast rather than subtle steps.
 
 - **Headers (H1/H2):** Monumental form. Deep negative tracking (`-0.02em`) for tight, cohesive visual blocks.
-- **Body Text:** Designed for maximum legibility (`line-height: 1.6`).
+- **Body Text:** Designed for maximum legibility (`line-height: 1.5` — canonical minimum; 1.6 for Indic scripts only).
 - **Labels (Caption):** Clinical, small, uppercase with wide tracking (`0.02em`) to provide quiet context without fighting the headers.
 
 ### 2.2 Whitespace as Structure
@@ -49,7 +49,7 @@ Do not crowd elements. Use padding and margins deliberately to group related inf
 ### 2.3 Material Honesty & Glassmorphism
 If the `target_platform` permits glassmorphism (typically webapps or desktop shells), apply it with deliberate constraint:
 - Backgrounds must have adequate opacity to ensure text contrast.
-- Require an inset border (e.g., `1px solid rgba(255, 255, 255, 0.4)`) to simulate physical glass edges.
+- Require an inset border (e.g., `1px solid rgba(255, 255, 255, 0.15)`) to simulate physical glass edges — higher opacity reads as paint, not glass.
 - Strong drop shadows are necessary to lift the material off the background canvas.
 
 ---

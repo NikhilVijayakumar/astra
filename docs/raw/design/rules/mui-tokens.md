@@ -55,7 +55,7 @@ The layout engine is built on an $8px$ multiplier. Hardcoded pixel values are st
 The Agent must use the `typography` foundation variables. Never declare a `font-size` directly in a component style.
 
 * **Header Intent:** `h1` through `h6`.
-* **Action Intent:** Use `button` variant (mapped to `fontWeight: 600` and `textTransform: none`).
+* **Action Intent:** Use `button` variant (mapped to `fontWeight: 500` and `textTransform: none`).
 * **Status Intent:** Use `caption` or `overline` for small metadata.
 * **Fluid Logic:** All variants must inherit the `clamp()` values defined in `foundations/typography.css`.
 
