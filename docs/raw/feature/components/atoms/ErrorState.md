@@ -40,3 +40,43 @@ Displays an error message with appropriate visual treatment for error states. Ac
 ## Error Conditions
 
 - Missing message and missing localization key — Alert renders with no visible content
+
+## User Journey
+
+### Entry Conditions
+An async operation fails and the parent component switches from loading state to error state.
+
+### Primary Flow
+The user sees a centered error message — if a custom message was provided it shows that, otherwise a localized default error text appears.
+
+### Alternate Flows
+No message is provided and the localization key is missing — the component renders no visible content.
+
+### Failure Flows
+The operation fails but no error state component is rendered — the user sees a broken or blank UI.
+
+### Recovery Flows
+The user retries the operation through a mechanism outside this component (retry button in parent).
+
+### Exit Conditions
+The user acknowledges the error and either retries or navigates away.
+
+## Workflow
+
+### Trigger
+An application operation fails and the parent component enters error state.
+
+### Preconditions
+The parent component detects a failure and renders this component with an optional custom error message.
+
+### Steps
+The component displays the custom message or falls back to the localized default error text.
+
+### Outcomes
+The user is informed that an error occurred.
+
+### Exceptions
+No message and no localization key — the component renders invisibly.
+
+### Completion Criteria
+The error message is displayed and the user is aware of the failure.

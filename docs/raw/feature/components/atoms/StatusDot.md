@@ -46,3 +46,43 @@ Displays a small colored dot representing one of several predefined states (ok, 
 
 - Invalid status value — Falls back to neutral default appearance
 - Negative or zero size — Dot becomes invisible
+
+## User Journey
+
+### Entry Conditions
+A developer places this indicator next to a component or row that has a status (online, offline, error, etc.).
+
+### Primary Flow
+The user sees a small colored dot that communicates the status at a glance without needing to read text.
+
+### Alternate Flows
+An unknown status value is provided — the dot renders in a neutral default color.
+
+### Failure Flows
+No status value is provided — the dot may not render or renders with no meaningful color.
+
+### Recovery Flows
+The developer provides a valid status value from the supported set.
+
+### Exit Conditions
+The user interprets the status from the dot color and takes appropriate action.
+
+## Workflow
+
+### Trigger
+A developer renders this dot with a status value and optional size.
+
+### Preconditions
+A status value is provided (ok, warning, error, executing, waiting).
+
+### Steps
+The component maps the status to a theme color and renders a colored dot at the specified size.
+
+### Outcomes
+A color-coded status indicator is displayed to the user.
+
+### Exceptions
+An unknown status falls back to a neutral default color.
+
+### Completion Criteria
+The status dot renders with the correct color and size.

@@ -47,6 +47,46 @@ Renders structured data in a table format with a header that stays visible durin
 - Duplicate keys — Console warning; may cause rendering issues
 - Component error in render function — No error boundary; propagates to parent
 
+## User Journey
+
+### Entry Conditions
+A developer needs to display structured data in a table format with a sticky header and custom cell content.
+
+### Primary Flow
+The developer provides column definitions and data rows — the table renders with a sticky header and custom cell renderers.
+
+### Alternate Flows
+The data array is empty — the table renders with only the sticky header and no body rows.
+
+### Failure Flows
+A custom cell renderer throws an error — there is no error boundary and the error propagates to the parent.
+
+### Recovery Flows
+The parent component wraps the table in an error boundary or fixes the render function.
+
+### Exit Conditions
+The user reads the tabular data — sorting, filtering, and pagination are managed by the parent or not provided.
+
+## Workflow
+
+### Trigger
+A developer provides column definitions and data rows to this table component.
+
+### Preconditions
+Column definitions are provided with at least a label and key.
+
+### Steps
+The component renders the sticky header from column definitions and maps data rows to body cells using optional custom render functions.
+
+### Outcomes
+Structured tabular data is displayed with a visible header row.
+
+### Exceptions
+A cell render function throws — the error propagates to the parent without a local boundary.
+
+### Completion Criteria
+The table renders the header and all data rows.
+
 ## Future Enhancements
 
 - Built-in pagination with configurable page size

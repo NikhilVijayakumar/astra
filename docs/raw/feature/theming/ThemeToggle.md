@@ -39,6 +39,46 @@ Place the toggle in a toolbar, navigation, or settings area. It receives the cur
 - **Missing theme context** — Component cannot function without theme state
 - **Null/undefined context** — Runtime error when accessing theme state
 
+## User Journey
+
+### Entry Conditions
+A user sees a sun or moon icon in the toolbar and wants to switch the visual theme.
+
+### Primary Flow
+The user clicks the icon — it toggles from sun to moon (or vice versa) and all themed components update immediately.
+
+### Alternate Flows
+A keyboard-bound power user expects a shortcut to toggle themes without reaching for the mouse.
+
+### Failure Flows
+The theme context is missing — the component cannot render and throws an error.
+
+### Recovery Flows
+The developer ensures the toggle is rendered inside a theme provider; no recovery flow exists for the end user.
+
+### Exit Conditions
+The user's theme preference is applied; the icon now shows the opposite state for future toggling.
+
+## Workflow
+
+### Trigger
+A click event on the theme toggle icon button.
+
+### Preconditions
+The theme context is available and provides the current mode and a toggle function.
+
+### Steps
+The user clicks the button, the component calls the toggle function from context, and the icon switches to represent the new mode.
+
+### Outcomes
+The theme mode toggles and the application palette updates accordingly.
+
+### Exceptions
+The context is undefined — the component throws a runtime error.
+
+### Completion Criteria
+The icon updates to reflect the new theme mode and the toggle is ready for the next interaction.
+
 ## Future Enhancements
 
 - Animated icon transition between sun and moon

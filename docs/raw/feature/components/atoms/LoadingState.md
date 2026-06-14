@@ -37,3 +37,43 @@ A simple full-width loading indicator consisting of a spinning animation and a l
 ## Error Conditions
 
 - Missing localization key — Spinner renders without visible text
+
+## User Journey
+
+### Entry Conditions
+An async operation starts and the parent component replaces content with a loading indicator.
+
+### Primary Flow
+The user sees a centered spinner with a "Loading..." text — the UI clearly signals that work is in progress.
+
+### Alternate Flows
+The localization key is missing — the spinner appears without text but still signals activity.
+
+### Failure Flows
+The operation completes so quickly that the loading state flashes briefly before content replaces it.
+
+### Recovery Flows
+No recovery needed — the loading state resolves automatically when the operation completes.
+
+### Exit Conditions
+The operation finishes and the parent swaps the loading state for success content or an error display.
+
+## Workflow
+
+### Trigger
+An async operation is initiated and the parent component enters loading state.
+
+### Preconditions
+The parent component renders this component while the operation is in progress.
+
+### Steps
+The component renders a centered spinner and localized loading text.
+
+### Outcomes
+The user sees a loading indicator and understands the application is processing.
+
+### Exceptions
+The localization key is missing — the spinner renders without text.
+
+### Completion Criteria
+The loading indicator is displayed until the operation completes and the parent replaces it.

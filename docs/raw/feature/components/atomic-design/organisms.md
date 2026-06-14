@@ -112,6 +112,46 @@ Before creating an organism, verify:
 - **Performance degradation** — Large datasets cause slow renders; memoization may be needed
 - **Over-composition** — Too many responsibilities makes organism unmaintainable; should be split
 
+## User Journey
+
+### Entry Conditions
+A developer is building a complex UI section that composes multiple molecules with significant state or data interactions.
+
+### Primary Flow
+The developer classifies the component as an organism using the rules — 3+ molecules or multiple atom types, significant state, data interactions — and places it in organisms/.
+
+### Alternate Flows
+A component that defines page layout structure is classified as a template instead.
+
+### Failure Flows
+An organism tries to do too much (multiple disparate responsibilities), becoming unmaintainable and violating single-purpose design.
+
+### Recovery Flows
+The developer splits the organism into smaller organisms, each with a single responsibility.
+
+### Exit Conditions
+The organism is classified, placed in organisms/, and composes molecules into a discrete UI section.
+
+## Workflow
+
+### Trigger
+A developer needs to build a complex, data-driven UI section with multiple sub-components.
+
+### Preconditions
+The component assembles multiple molecules and atoms, manages state, and may perform data operations.
+
+### Steps
+The developer verifies against the design checklist, assigns the organism tier, places it in organisms/, and ensures it handles loading, error, and empty states.
+
+### Outcomes
+A self-contained complex UI section is ready for use within a template or page.
+
+### Exceptions
+The organism is actually a page layout — it is reclassified as a template.
+
+### Completion Criteria
+The organism passes the design checklist, is placed in the correct directory, and handles all data states.
+
 ## Future Enhancements
 
 - Performance monitoring dashboard for organism render times

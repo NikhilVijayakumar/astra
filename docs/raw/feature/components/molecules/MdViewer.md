@@ -46,3 +46,43 @@ Converts raw Markdown content into styled HTML for reading. Displays the file na
 
 - Missing required value (file name) — Required value must be provided
 - Invalid Markdown — Renders as plain text; no crash
+
+## User Journey
+
+### Entry Conditions
+A user opens a Markdown or text file in a file viewer — this component renders the content as styled HTML.
+
+### Primary Flow
+The user sees the file name as a heading, then the Markdown content rendered as styled HTML underneath.
+
+### Alternate Flows
+No content is provided — an empty-state message is shown instead of the Markdown output.
+
+### Failure Flows
+Invalid Markdown syntax — the component renders the content as plain text without crashing.
+
+### Recovery Flows
+The user edits the Markdown source and reloads the file.
+
+### Exit Conditions
+The user finishes reading the Markdown content and navigates away.
+
+## Workflow
+
+### Trigger
+A user opens a Markdown or text file or a developer provides Markdown string content.
+
+### Preconditions
+Content is provided as a string and a file name is given.
+
+### Steps
+The component displays the file name heading, lazily loads the Markdown parser, converts the content to styled HTML, and renders it.
+
+### Outcomes
+The user can read formatted Markdown content with theme-aware styling.
+
+### Exceptions
+Invalid Markdown — renders as plain text without crashing.
+
+### Completion Criteria
+The Markdown content is rendered as styled HTML beneath the file name heading.

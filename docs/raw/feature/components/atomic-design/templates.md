@@ -137,6 +137,46 @@ Primitives Functional  Complex    Layout
 - **Responsive breakpoint mismatch** — Template defines breakpoints inconsistent with organism content requirements
 - **Business logic leak** — Data fetching or state management accidentally added to template
 
+## User Journey
+
+### Entry Conditions
+A developer needs a reusable page-level layout structure for organizing organisms.
+
+### Primary Flow
+The developer defines a template with layout structure, content slots for organisms, and no business logic, then places it in templates/.
+
+### Alternate Flows
+A template that becomes page-specific or gains business logic is reclassified as an organism.
+
+### Failure Flows
+A template contains hardcoded content or data fetching, violating its role as a pure layout definition.
+
+### Recovery Flows
+The developer removes business logic and content, converting it to proper slot-based composition, or downgrades it to an organism.
+
+### Exit Conditions
+The template is classified, placed in templates/, and used by multiple pages with different content.
+
+## Workflow
+
+### Trigger
+A developer identifies a page layout pattern that recurs across multiple pages.
+
+### Preconditions
+The component defines layout structure, arranges organisms, and uses slot-based composition.
+
+### Steps
+The developer verifies against the design checklist, confirms no business logic or data fetching, places it in templates/, and documents the slot API.
+
+### Outcomes
+A reusable layout template is available for consistent page composition.
+
+### Exceptions
+The template is designed for a single page — the developer evaluates whether it should be an organism instead.
+
+### Completion Criteria
+The template passes the design checklist, is placed in the correct directory, and is usable by multiple pages.
+
 ## Future Enhancements
 
 - Template composition API — named slot components for stricter layout contracts

@@ -50,6 +50,46 @@ Parses CSV content into a sortable table with configurable pagination. Auto-dete
 - Mixed-delimiter CSV — Delimiter detection on first line only; may parse subsequent lines incorrectly
 - Very large datasets — Pagination without virtualization; performance degrades beyond typical sizes
 
+## User Journey
+
+### Entry Conditions
+A user opens a CSV file in a file viewer — this component parses and displays the content as a paginated table.
+
+### Primary Flow
+The user sees the CSV data in a table format with sticky headers and pagination controls (10, 25, or 50 rows per page).
+
+### Alternate Flows
+The CSV uses semicolons instead of commas — the auto-detection detects the delimiter from the first line and parses correctly.
+
+### Failure Flows
+A mixed-delimiter CSV causes incorrect parsing — some rows may display with wrong column alignment.
+
+### Recovery Flows
+The developer pre-processes the CSV to use a consistent delimiter before passing it to the viewer.
+
+### Exit Conditions
+The user navigates through the paginated data or switches to a different file.
+
+## Workflow
+
+### Trigger
+A user opens a CSV file or a developer provides CSV string content.
+
+### Preconditions
+Content is provided as a string with comma or semicolon delimiters.
+
+### Steps
+The component auto-detects the delimiter, parses headers and rows, renders the paginated table with sticky headers.
+
+### Outcomes
+The user can browse CSV data in a structured table with pagination.
+
+### Exceptions
+Mixed delimiters — first-line detection may produce incorrect parsing for subsequent lines.
+
+### Completion Criteria
+The CSV content is parsed and displayed in a paginated table.
+
 ## Future Enhancements
 
 - Column sorting by clicking header cells

@@ -51,6 +51,46 @@ The application can display content in multiple languages. Users switch language
 - **Provider nesting** — Inner provider shadows outer; consumers lose outer translations
 - **Empty translations map** — UI renders without localized text
 
+## User Journey
+
+### Entry Conditions
+A user wants to view the application in a different language.
+
+### Primary Flow
+The user opens a language selector, picks a new language, and all translatable text updates instantly without a page reload.
+
+### Alternate Flows
+A developer integrates the localization provider into a new feature by wrapping it with the language context and using translation keys.
+
+### Failure Flows
+A translation key is missing in the active language — the UI shows no text or falls back to the key itself.
+
+### Recovery Flows
+The developer adds the missing key to the translation dictionary for the active language.
+
+### Exit Conditions
+The user sees all interface text in their selected language and continues using the application.
+
+## Workflow
+
+### Trigger
+A user selects a new language from the language selector, or a developer initializes the localization provider.
+
+### Preconditions
+At least one translation dictionary is registered with the provider.
+
+### Steps
+The language is switched, the provider propagates the new dictionary to all consumers, and every component using translation keys re-renders with the new text.
+
+### Outcomes
+All localized text in the application displays in the selected language.
+
+### Exceptions
+The selected language has an empty dictionary — the UI renders without text, requiring the developer to populate translations.
+
+### Completion Criteria
+The selected language is active and all translatable content displays in that language.
+
 ## Future Enhancements
 
 - Lazy-loaded translation chunks loaded on-demand per feature

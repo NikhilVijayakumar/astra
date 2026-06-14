@@ -99,6 +99,46 @@ Before creating a molecule, verify:
 - **Missing composed atom** — Required atom is not rendered or receives invalid props
 - **Invalid content type** — Molecule designed for specific data shape receives incompatible input
 
+## User Journey
+
+### Entry Conditions
+A developer has a component that composes multiple atoms into a single functional unit.
+
+### Primary Flow
+The developer checks the molecule characteristics — composed of 2+ atoms, single purpose, self-contained, no data fetching — and places it in the molecules directory.
+
+### Alternate Flows
+A component wraps a single atom with no added behavior — it remains an atom instead.
+
+### Failure Flows
+A molecule fetches data or manages complex state, blurring the boundary with organisms and creating maintenance confusion.
+
+### Recovery Flows
+The developer promotes the component to an organism, moving data-fetching logic out of the presentation layer.
+
+### Exit Conditions
+The molecule is classified, placed in molecules/, and consumed by organisms as needed.
+
+## Workflow
+
+### Trigger
+A developer combines atoms into a cohesive functional unit (card, notification, viewer).
+
+### Preconditions
+The component composes 2+ atoms and has a single clear purpose.
+
+### Steps
+The developer verifies the component meets molecule criteria, confirms it does not fetch data, places it in molecules/, and documents it.
+
+### Outcomes
+A self-contained reusable unit is available for organisms to compose into sections.
+
+### Exceptions
+The component has complex state or data fetching — it is promoted to organism tier.
+
+### Completion Criteria
+The molecule passes the design checklist and is placed in the correct directory.
+
 ## Future Enhancements
 
 - Compound component pattern for molecules with multiple composition slots

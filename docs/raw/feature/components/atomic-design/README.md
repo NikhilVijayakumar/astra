@@ -181,6 +181,46 @@ Before adding a component:
 - **Missing classification** — Component added without tier review, bypassing design checklist
 - **Migration failure** — Tier upgrade/downgrade causes import breakage across dependent components
 
+## User Journey
+
+### Entry Conditions
+A developer needs to classify a new UI component or understand how existing components are organized.
+
+### Primary Flow
+The developer consults the tier definitions, follows the decision flowchart, and assigns the component to atoms, molecules, organisms, or templates.
+
+### Alternate Flows
+A developer reviews the anti-patterns section to avoid common classification mistakes before creating a new component.
+
+### Failure Flows
+A component is placed in the wrong tier, causing composition issues or import violations downstream.
+
+### Recovery Flows
+The developer re-evaluates using the flowchart, moves the component to the correct tier, and updates imports.
+
+### Exit Conditions
+The component is correctly classified and placed in the appropriate tier directory.
+
+## Workflow
+
+### Trigger
+A new UI component is proposed or an existing component needs classification.
+
+### Preconditions
+The component has a defined purpose, props, composition structure, and state requirements.
+
+### Steps
+The developer evaluates the component against tier definitions, follows the decision flowchart, assigns a tier, and places it in the corresponding directory.
+
+### Outcomes
+The component is consistently classified and composable with other components at the appropriate tier level.
+
+### Exceptions
+The component straddles tier boundaries — the developer consults the ambiguous classification guidance and uses the simpler tier as a default.
+
+### Completion Criteria
+The component is assigned to a tier, placed in the correct directory, and its classification is documented.
+
 ## Future Enhancements
 
 - Automated tier validation in CI — lint rule that verifies component classification

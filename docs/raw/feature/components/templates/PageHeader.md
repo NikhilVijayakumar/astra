@@ -49,6 +49,46 @@ Provides a comprehensive header for page-level content. Supports primary and sec
 - Empty string inputs — Renders empty text elements; no crash
 - Action config missing click handler — Button renders but does nothing on click
 
+## User Journey
+
+### Entry Conditions
+A developer renders this header at the top of a page to display the page title, actions, and metadata.
+
+### Primary Flow
+The user sees the page title with optional subtitle, action buttons (primary and secondary), and leading/trailing meta content — all organized in a consistent header layout.
+
+### Alternate Flows
+On a narrow viewport — the action buttons wrap below the title instead of overflowing or clipping.
+
+### Failure Flows
+An action config is missing a click handler — the button renders but does nothing when clicked.
+
+### Recovery Flows
+The developer ensures action configs include a click handler.
+
+### Exit Conditions
+The user reads the page context from the header and clicks an action button or scrolls down.
+
+## Workflow
+
+### Trigger
+A developer renders this header with a title and optional subtitle, actions, and meta content.
+
+### Preconditions
+At least a title string is provided.
+
+### Steps
+The component renders the leading meta (if provided), title, subtitle (if provided), action buttons (if provided), and trailing meta (if provided) in a responsive layout.
+
+### Outcomes
+A standardized page header is displayed with the page title and available actions.
+
+### Exceptions
+An action has no click handler — the button renders without functionality.
+
+### Completion Criteria
+The page header renders with all provided slots in the correct layout.
+
 ## Future Enhancements
 
 - Breadcrumb slot between the top of the page and the title

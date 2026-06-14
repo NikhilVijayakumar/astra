@@ -42,3 +42,43 @@ A fixed-position top bar that displays a mobile menu toggle button, a page title
 ## Error Conditions
 
 - Missing theme context — Invariant error; must be wrapped in a theme provider
+
+## User Journey
+
+### Entry Conditions
+The application loads and the toolbar renders at the top of the viewport with a title, navigation toggle, and theme switch.
+
+### Primary Flow
+A user sees the page title in the toolbar, taps the menu icon (mobile) to open navigation, or taps the theme toggle to switch light/dark mode.
+
+### Alternate Flows
+On a desktop screen — the menu icon is hidden and only the title and theme toggle are visible.
+
+### Failure Flows
+The theme context is missing — the component throws an invariant error.
+
+### Recovery Flows
+The developer ensures the toolbar is wrapped in a theme provider.
+
+### Exit Conditions
+The user navigates to a different page (title updates) or switches theme mode.
+
+## Workflow
+
+### Trigger
+The application renders this toolbar with a page title and a drawer toggle callback.
+
+### Preconditions
+The theme provider is mounted in the component tree.
+
+### Steps
+The component renders a fixed-position bar with the title, mobile menu toggle (conditional), and theme toggle bound to theme context.
+
+### Outcomes
+The user sees the page title and can interact with navigation and theme controls.
+
+### Exceptions
+Missing theme context — the component throws and breaks rendering.
+
+### Completion Criteria
+The toolbar is rendered with title and controls, ready for user interaction.

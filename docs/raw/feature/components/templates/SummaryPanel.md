@@ -47,6 +47,46 @@ Renders a panel with a title header and an array of text lines, each configurabl
 - Missing variant on line — Defaults gracefully to body
 - Long text — Wraps within panel width; no overflow
 
+## User Journey
+
+### Entry Conditions
+A developer needs a panel that displays a title and a list of styled text lines for summary information.
+
+### Primary Flow
+The developer provides a title and an array of line objects with text and optional variant — the panel renders with the title header and formatted text lines.
+
+### Alternate Flows
+The lines array is empty — the panel renders with only the title header and no body content.
+
+### Failure Flows
+A line has a missing variant — it defaults gracefully to body style without crashing.
+
+### Recovery Flows
+No recovery needed — missing variant defaults are handled gracefully.
+
+### Exit Conditions
+The user reads the summary information in the panel.
+
+## Workflow
+
+### Trigger
+A developer renders this panel with a title and an array of text line objects.
+
+### Preconditions
+A title string is provided.
+
+### Steps
+The component renders the title header and iterates over the lines array, rendering each line with the specified variant (body inline or caption block).
+
+### Outcomes
+A bordered summary panel with title and styled text lines is displayed.
+
+### Exceptions
+Empty lines array — the panel renders with only the title.
+
+### Completion Criteria
+The summary panel renders with title and all text lines.
+
 ## Future Enhancements
 
 - Collapsible/expandable toggle for the panel content

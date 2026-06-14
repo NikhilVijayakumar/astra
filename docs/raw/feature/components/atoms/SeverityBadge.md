@@ -42,3 +42,43 @@ Renders a compact label indicating severity (CRITICAL, WARNING, URGENT, INFO, SU
 - Unknown level value — Falls back to default styling, no error thrown
 - Case mismatch — Lowercase input falls back to default (keys are uppercase)
 - Missing level — Required value not provided
+
+## User Journey
+
+### Entry Conditions
+A developer adds this badge to a component that needs a severity level indicator (critical, warning, info, success).
+
+### Primary Flow
+The user sees a color-coded label indicating severity — the color maps consistently to the severity level for quick visual scanning.
+
+### Alternate Flows
+An unknown severity value is provided — the badge renders with a default/info color instead of crashing.
+
+### Failure Flows
+No severity value is provided — the component requires this value and may not render correctly.
+
+### Recovery Flows
+The developer ensures the severity value maps to a known level or accepts the fallback styling.
+
+### Exit Conditions
+The user reads the severity level at a glance and proceeds with context-appropriate action.
+
+## Workflow
+
+### Trigger
+A developer renders this badge with a severity level value.
+
+### Preconditions
+The severity value is provided as a string.
+
+### Steps
+The component maps the severity to a theme color and renders a labeled badge with color-coded styling.
+
+### Outcomes
+A color-coded severity badge is displayed to the user.
+
+### Exceptions
+An unknown severity value falls back to default styling.
+
+### Completion Criteria
+The badge renders with the correct severity color and label.

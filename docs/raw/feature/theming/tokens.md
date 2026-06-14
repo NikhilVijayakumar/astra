@@ -109,6 +109,46 @@ Base unit: 4px
 - **Token collision** — Duplicate semantic names across categories cause silent override
 - **Missing dark variant** — Color categories missing dark-mode values render incorrect colors in dark mode
 
+## User Journey
+
+### Entry Conditions
+A developer needs a color, spacing, or typography value while building a component.
+
+### Primary Flow
+The developer looks up the token name from this document, uses it in their component code, and the correct value is applied.
+
+### Alternate Flows
+A developer adds a new component and consults the token reference to ensure visual consistency with existing components.
+
+### Failure Flows
+A developer uses a token name that does not exist — the value resolves to undefined and no style is applied.
+
+### Recovery Flows
+The developer checks this document for the correct token name and fixes the reference.
+
+### Exit Conditions
+The component renders with the correct spacing, color, or typography value.
+
+## Workflow
+
+### Trigger
+A developer needs to apply a spacing, color, or typography value while styling a component.
+
+### Preconditions
+The token set is defined and the theme object is configured with the mapped values.
+
+### Steps
+The developer selects a semantic token (e.g., md for spacing), applies it in the component, and the value resolves from the token definition.
+
+### Outcomes
+The component renders with the correct visual value consistent with the design system.
+
+### Exceptions
+The token name is misspelled or does not exist — no value is applied and the consumer must fall back to a hardcoded value.
+
+### Completion Criteria
+The component uses the correct token value and renders consistently with the rest of the application.
+
 ## Future Enhancements
 
 - Automated WCAG contrast ratio verification for all color token pairings

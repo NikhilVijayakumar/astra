@@ -45,3 +45,43 @@ A toast-style notification that displays a message with a configurable severity 
 
 - Missing required inputs (open state, message, close callback) — Required values must be provided
 - Close callback throws — Error propagates to parent
+
+## User Journey
+
+### Entry Conditions
+An application event (success, error, info) triggers a notification that needs to be shown to the user.
+
+### Primary Flow
+A toast notification slides in at the bottom-center of the viewport with the message and severity styling — it auto-dismisses after the configured duration.
+
+### Alternate Flows
+Auto-dismiss is disabled — the notification stays visible until manually closed.
+
+### Failure Flows
+A required input (message or close callback) is missing — the notification cannot function as intended.
+
+### Recovery Flows
+The developer ensures all required props are provided or the parent manages the error.
+
+### Exit Conditions
+The notification auto-dismisses or the user sees it and it closes — the parent receives the close callback.
+
+## Workflow
+
+### Trigger
+The parent component renders this notification with a message, severity, and close callback.
+
+### Preconditions
+The parent owns the open/close visibility state and provides the required message and close callback.
+
+### Steps
+The notification renders at bottom-center with severity styling, starts the auto-dismiss timer (if configured), and fires the close callback when dismissed.
+
+### Outcomes
+The user sees a temporary notification with appropriate severity styling.
+
+### Exceptions
+Auto-dismiss is null — the notification persists until manually closed.
+
+### Completion Criteria
+The notification is displayed and dismissed either automatically or manually.

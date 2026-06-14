@@ -47,6 +47,46 @@ A smart routing component that inspects the file extension and delegates renderi
 - Missing content — Delegated to sub-viewer
 - Sub-viewer crash — No error boundary; error propagates to parent
 
+## User Journey
+
+### Entry Conditions
+A file is loaded into a file viewer panel and this component inspects its extension to route to the correct viewer.
+
+### Primary Flow
+The component detects the file extension, routes to the appropriate sub-viewer (CSV, Markdown, image, JSON), and the sub-viewer renders the content.
+
+### Alternate Flows
+The file has no extension or an unknown extension — the component renders an "unsupported file" message.
+
+### Failure Flows
+A sub-viewer crashes — there is no error boundary and the error propagates to the parent.
+
+### Recovery Flows
+The parent provides valid content or the user opens a supported file type.
+
+### Exit Conditions
+The user views the file through the routed sub-viewer or sees the unsupported message.
+
+## Workflow
+
+### Trigger
+A developer provides file content, file name, and optional metadata to this router component.
+
+### Preconditions
+File content and a file name with an identifiable extension are provided.
+
+### Steps
+The component extracts the extension, matches it against supported types, and delegates rendering to the appropriate sub-viewer with relevant props.
+
+### Outcomes
+The file content is displayed through the correct specialized viewer.
+
+### Exceptions
+Unsupported extension — an unsupported file fallback message is displayed.
+
+### Completion Criteria
+The file is routed to the correct sub-viewer and the content is displayed.
+
 ## Future Enhancements
 
 - Additional file types (PDF, XML, YAML, log files)

@@ -50,6 +50,46 @@ A high-impact landing-style component for displaying primary page content. Shows
 - Empty headline — Renders empty text element; typewriter variant blinks cursor with no characters
 - Missing required input (headline) — Required value must be provided
 
+## User Journey
+
+### Entry Conditions
+A user lands on a page that features a hero section with a headline, description, and call-to-action.
+
+### Primary Flow
+The user sees the headline animate in (fade-up, slide, or typewriter effect), followed by the description and action button — the entrance creates a polished first impression.
+
+### Alternate Flows
+Animations are disabled — the content renders statically without motion.
+
+### Failure Flows
+The headline is empty — the typewriter variant shows only a blinking cursor with no characters.
+
+### Recovery Flows
+The developer provides a non-empty headline string.
+
+### Exit Conditions
+The user reads the hero content and clicks the call-to-action or scrolls down.
+
+## Workflow
+
+### Trigger
+A developer renders this section with a headline, and optionally a description, action config, and children.
+
+### Preconditions
+At least a headline string is provided.
+
+### Steps
+The component renders the headline, optional description, optional action button, and optional children — each element animates sequentially based on the selected variant.
+
+### Outcomes
+A visually engaging hero section is displayed with staggered entrance animations.
+
+### Exceptions
+Empty headline — renders an empty text element; typewriter shows a blinking cursor.
+
+### Completion Criteria
+The hero section renders with all provided content and entrance animations play.
+
 ## Future Enhancements
 
 - Secondary action button slot for multi-CTA hero sections

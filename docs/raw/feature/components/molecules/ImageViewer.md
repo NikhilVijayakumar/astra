@@ -51,3 +51,43 @@ Renders base64-encoded image data with a toolbar for zoom (0.5x to 3x) and rotat
 - Missing required value (file name) — Required value must be provided
 - Invalid encoding — Falls to empty state
 - Image load failure — Browser broken image icon; no custom error handler
+
+## User Journey
+
+### Entry Conditions
+A user opens an image file in a file viewer — this component renders the image with zoom and rotation controls.
+
+### Primary Flow
+The user sees the image displayed with a toolbar — they can zoom in/out (0.5x–3x) or rotate in 90-degree increments.
+
+### Alternate Flows
+No image content is provided — the component shows a placeholder message instead.
+
+### Failure Flows
+The image data is corrupted — the browser shows a broken image icon with no custom error handling.
+
+### Recovery Flows
+The user closes the viewer or the parent component provides valid image data.
+
+### Exit Conditions
+The user finishes viewing the image and navigates away or switches to a different file.
+
+## Workflow
+
+### Trigger
+A user opens an image file or a developer provides base64-encoded image content.
+
+### Preconditions
+Content is provided with a valid encoding and MIME type.
+
+### Steps
+The component constructs the image source, renders the image with toolbar controls, and responds to zoom/rotation interactions.
+
+### Outcomes
+The user can view and inspect the image with interactive controls.
+
+### Exceptions
+Corrupted image data — the browser shows a broken image icon.
+
+### Completion Criteria
+The image is displayed and toolbar controls are responsive.

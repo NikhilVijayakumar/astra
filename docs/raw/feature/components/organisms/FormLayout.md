@@ -45,3 +45,43 @@ Provides consistent vertical layout for form pages. Includes an optional title h
 ## Error Conditions
 
 - Missing required input (children content) — Required value must be provided
+
+## User Journey
+
+### Entry Conditions
+A developer needs a consistent page-level layout for a form with a title header and action footer.
+
+### Primary Flow
+The developer provides title, form fields as children, and action buttons — the layout renders with title at top, form content in the middle, and actions at the bottom, all within a readable max-width.
+
+### Alternate Flows
+No title is provided — the header section is omitted and only the form body and actions render.
+
+### Failure Flows
+No children are provided — the layout renders an empty body section with just header and footer.
+
+### Recovery Flows
+The developer provides the form content as children.
+
+### Exit Conditions
+The user fills and submits the form, or navigates away using the action buttons.
+
+## Workflow
+
+### Trigger
+A developer provides title, form content as children, and optional action buttons to this layout component.
+
+### Preconditions
+At least children content is provided.
+
+### Steps
+The component renders the title header (if provided), the form body children, and the action footer (if provided) in a vertical stack with max-width constraint.
+
+### Outcomes
+A consistently structured form page is displayed.
+
+### Exceptions
+No children — an empty layout is rendered with only header/footer.
+
+### Completion Criteria
+The form layout renders with available header, body, and footer sections.

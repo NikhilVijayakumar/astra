@@ -50,6 +50,46 @@ The user can switch between light and dark mode. Their preference is remembered 
 - **Invalid theme configuration** — Malformed theme values may cause rendering errors
 - **Nested providers** — Multiple providers cause conflicting context; only root should manage state
 
+## User Journey
+
+### Entry Conditions
+A user encounters a theme toggle in the toolbar or settings area of the application.
+
+### Primary Flow
+The user clicks the toggle to switch between light and dark mode — all components update instantly, and the preference is saved for the next session.
+
+### Alternate Flows
+The application renders in light mode by default on first visit or when persistence is unavailable (e.g., server-side rendering).
+
+### Failure Flows
+The persistence mechanism throws an error — the application falls back to light mode without crashing.
+
+### Recovery Flows
+On the next successful load, persistence is re-attempted; the system defaults to light mode until a manual toggle restores the preference.
+
+### Exit Conditions
+The user closes the session or navigates away; their theme preference persists automatically.
+
+## Workflow
+
+### Trigger
+A user clicks the theme toggle button or the application loads and reads the persisted preference.
+
+### Preconditions
+The theme provider is mounted and wrapping the application tree.
+
+### Steps
+The toggle fires a synchronous state change, the theme context propagates the new mode to all consumers, and the preference is persisted to storage.
+
+### Outcomes
+All themed components re-render with the new palette colors instantly.
+
+### Exceptions
+Storage is unavailable — the toggle still switches the mode but the preference is not persisted.
+
+### Completion Criteria
+The active theme matches the user's selection and all components display the correct palette.
+
 ## Future Enhancements
 
 - System `prefers-color-scheme` detection with opt-in auto mode

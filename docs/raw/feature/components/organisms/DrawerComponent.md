@@ -48,3 +48,43 @@ Renders a side navigation menu that adapts to screen size: temporary overlay dra
 
 - Empty feature list — Guard clause returns empty list
 - No matching features — All items filtered out; renders empty list
+
+## User Journey
+
+### Entry Conditions
+A user opens the application on a mobile device or small screen and wants to access the navigation menu.
+
+### Primary Flow
+The user taps the menu icon — a temporary overlay drawer slides in from the side with filtered navigation items; tapping a menu item navigates or triggers an action.
+
+### Alternate Flows
+On a desktop screen — the drawer appears as a permanent sidebar without an overlay, always visible alongside the main content.
+
+### Failure Flows
+All features are filtered out by the feature list — the drawer renders with an empty list, offering no navigation options.
+
+### Recovery Flows
+The developer ensures the feature list includes all valid navigation items.
+
+### Exit Conditions
+The user selects a menu item and is navigated to the corresponding page or section.
+
+## Workflow
+
+### Trigger
+The parent component renders this drawer with menu items, a feature list, and open/close state.
+
+### Preconditions
+Menu items and a feature list are provided; the parent controls visibility state.
+
+### Steps
+The component filters items by matching feature names, renders the filtered list in a temporary overlay (mobile) or permanent sidebar (desktop), and fires click handlers on item selection.
+
+### Outcomes
+The user sees available navigation options and can navigate by tapping an item.
+
+### Exceptions
+The feature list is empty — all items are filtered out and the drawer shows an empty list.
+
+### Completion Criteria
+The drawer renders with filtered navigation items and responds to selection.

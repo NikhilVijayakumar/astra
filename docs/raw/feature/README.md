@@ -25,6 +25,15 @@ Context-based i18n with runtime language switching, translation dictionaries, an
 
 Light/dark mode with persistent theme preference, design tokens, and theme toggle.
 
+### [Concepts](./concepts/)
+
+Cross-cutting specifications that apply to all features:
+
+- **Authorization** - Visibility rules, permissions, ownership, and delegation
+- **Dependency Contracts** - Formal contracts between features
+- **Lifecycle** - Initialization ordering and failure cascading
+- **Glossary** - Concept-to-feature ownership mapping
+
 ## Quick Links
 
 | Feature          | Module                       |
@@ -57,6 +66,46 @@ Light/dark mode with persistent theme preference, design tokens, and theme toggl
 - **Missing module** — Feature exists in codebase but has no documentation entry
 - **Broken cross-reference** — Link to related module points to non-existent or moved document
 - **Orphaned module** — Documentation exists for a feature that has been removed from codebase
+
+## User Journey
+
+### Entry Conditions
+A developer navigates to the feature documentation to understand what modules are available.
+
+### Primary Flow
+The developer browses module listings and follows links to detailed docs for state, theming, localization, or components.
+
+### Alternate Flows
+A developer uses the quick-links table to jump directly to a specific module.
+
+### Failure Flows
+A module link points to a missing or moved file; the developer sees a broken page.
+
+### Recovery Flows
+The developer returns to the index and uses the directory structure or search to find the correct module.
+
+### Exit Conditions
+The developer finds the information needed and navigates away, or opens a specific module doc.
+
+## Workflow
+
+### Trigger
+A developer opens the feature documentation index.
+
+### Preconditions
+The documentation directory exists and has content.
+
+### Steps
+The developer scans the module listing, identifies a relevant module, and opens its README or component doc.
+
+### Outcomes
+The developer understands what features are available and where to find their documentation.
+
+### Exceptions
+A module is marked deprecated or in-progress; the developer considers alternatives.
+
+### Completion Criteria
+The developer locates the documentation for the feature they need.
 
 ## Future Enhancements
 

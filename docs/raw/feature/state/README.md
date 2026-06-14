@@ -47,6 +47,46 @@ Every async operation progresses through these phases:
 - **Rapid state transitions**: Multiple consecutive operations may cause rapid loading → completed cycling
 - **Mixed error flags**: Error and success flags are not mutually exclusive in all states — consumers should use the state value for authoritative status
 
+## User Journey
+
+### Entry Conditions
+A developer encounters an async operation (API call, form submission) and needs a consistent way to track its state.
+
+### Primary Flow
+The developer adopts the three-phase lifecycle pattern — the component shows a loader during loading, renders content on success, or displays an error message on failure.
+
+### Alternate Flows
+A developer uses derived status flags (isLoading, isError, isSuccess) for conditional rendering without checking the raw state value.
+
+### Failure Flows
+A component unmounts during a pending request — state updates fire for an unmounted component, causing a warning.
+
+### Recovery Flows
+The developer adds cleanup logic to guard state updates after unmount, or uses the state value for authoritative status instead of derived flags.
+
+### Exit Conditions
+The async operation completes and the UI reaches its final state (success content or error display).
+
+## Workflow
+
+### Trigger
+An async operation such as an API call or form submission is initiated.
+
+### Preconditions
+The component is mounted and the async operation has not yet started (uninitialized state).
+
+### Steps
+The state transitions from uninitialized to loading, the UI shows a spinner, then the operation completes transitioning to either a success or error state.
+
+### Outcomes
+The UI reflects the operation outcome — data is displayed on success or an error message on failure.
+
+### Exceptions
+Rapid state transitions occur from multiple consecutive operations causing loading-to-completed cycling.
+
+### Completion Criteria
+The state reaches completed (success or error) and the UI renders the appropriate content.
+
 ## Future Enhancements
 
 - Devtools for debugging state transitions across all components

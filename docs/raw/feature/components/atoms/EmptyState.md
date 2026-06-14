@@ -39,3 +39,43 @@ A simple text indicator displaying a localized "No data found" message when no c
 ## Error Conditions
 
 - Missing localization key — Typography renders with no visible text
+
+## User Journey
+
+### Entry Conditions
+A dataset returns zero results and the parent component renders this indicator in place of the content area.
+
+### Primary Flow
+The user sees a centered "No data found" message filling the content area — the UI clearly communicates the empty state without confusion.
+
+### Alternate Flows
+The localization key is missing — the user sees an empty area with no text.
+
+### Failure Flows
+The parent component fails to check for empty data and renders nothing or a broken layout.
+
+### Recovery Flows
+The developer wraps the data display with an empty-state check that conditionally renders this component.
+
+### Exit Conditions
+The user understands there is no data to display and moves on, or the data refreshes and the parent swaps this component for the content.
+
+## Workflow
+
+### Trigger
+A data-fetching operation completes with zero results.
+
+### Preconditions
+The parent component detects the dataset is empty and renders this component instead of the content view.
+
+### Steps
+The component renders the localized empty message centered in the container.
+
+### Outcomes
+The user is informed that no data is available.
+
+### Exceptions
+The localization key is missing — the component renders with no visible text.
+
+### Completion Criteria
+The empty-state message is displayed in place of the content area.

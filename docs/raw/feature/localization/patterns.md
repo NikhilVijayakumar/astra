@@ -90,6 +90,46 @@ es: {
 - **Non-string values** — Objects or numbers in translation values cause rendering errors
 - **Partial language coverage** — Languages with subset of keys render missing text as empty values
 
+## User Journey
+
+### Entry Conditions
+A developer needs to add translations for a new feature or a new language.
+
+### Primary Flow
+The developer follows the key-naming conventions (category.key or component.key), adds entries to the language dictionary, and the translations become available through the localization provider.
+
+### Alternate Flows
+A developer adds a new language by creating a new dictionary with the same key structure and registering it with the provider.
+
+### Failure Flows
+A developer creates a key that collides with an existing key at a different depth, causing ambiguous lookups.
+
+### Recovery Flows
+The developer reviews the key-naming conventions, removes the collision by using consistent depth, and re-tests.
+
+### Exit Conditions
+The new translations render correctly in the UI across all supported languages.
+
+## Workflow
+
+### Trigger
+A developer needs to display a new string in the UI that must be translated across supported languages.
+
+### Preconditions
+The localization system is set up with at least one language provider and translation dictionaries.
+
+### Steps
+The developer adds a new key-value pair following dot-notation conventions, adds it to each language dictionary, and uses the key in the component code.
+
+### Outcomes
+The string renders in the user's active language.
+
+### Exceptions
+A key is added to only some languages — missing languages show no text at runtime.
+
+### Completion Criteria
+The new translation key exists in all language dictionaries and renders the correct text in the UI.
+
 ## Future Enhancements
 
 - Automated key-coverage reporting in CI to flag missing translations

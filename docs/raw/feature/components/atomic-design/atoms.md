@@ -97,6 +97,46 @@ Before creating an atom, verify:
 - **Missing required prop** — Atom renders incorrectly or not at all if required props are omitted
 - **Wrong value** — Incorrect value renders incorrect visual state
 
+## User Journey
+
+### Entry Conditions
+A developer has a simple UI primitive (status dot, badge, indicator) that needs to be classified.
+
+### Primary Flow
+The developer checks the atom characteristics and classification rules — single responsibility, no child components, minimal props, no state — and places it in the atoms directory.
+
+### Alternate Flows
+A component has 4+ props or minimal composition — the developer re-evaluates whether it should be a molecule instead.
+
+### Failure Flows
+An atom contains internal state or business logic, violating the single-responsibility principle and causing maintenance issues.
+
+### Recovery Flows
+The developer extracts state and logic into a parent molecule or organism, leaving the atom presentational.
+
+### Exit Conditions
+The atom is classified, placed in atoms/, and used by at least one molecule or organism.
+
+## Workflow
+
+### Trigger
+A developer creates or classifies a new fundamental UI primitive.
+
+### Preconditions
+The component meets the criteria — single visual primitive, no child components, minimal props, no state.
+
+### Steps
+The developer verifies against the design checklist, confirms it is an atom, places it in atoms/, and documents it.
+
+### Outcomes
+A reusable primitive is available for molecules and organisms to compose.
+
+### Exceptions
+The component has more than 3 props — the developer considers if it should be a molecule.
+
+### Completion Criteria
+The atom passes the design checklist and is placed in the correct directory.
+
 ## Future Enhancements
 
 - Atom component generator CLI for scaffolding new primitives

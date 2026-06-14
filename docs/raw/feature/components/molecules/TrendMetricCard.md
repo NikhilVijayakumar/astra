@@ -45,3 +45,43 @@ Shows a metric label and value in a compact card format, with an optional trend 
 
 - Missing required inputs (label, value) — Required values must be provided
 - Unknown trend direction — Renders with neutral fallback color
+
+## User Journey
+
+### Entry Conditions
+A developer needs to display a key metric with an optional trend indicator in a dashboard or summary panel.
+
+### Primary Flow
+The developer provides a label, value, and optional trend direction with percentage — the card renders with color-coded trend indication.
+
+### Alternate Flows
+No trend value is provided — the card displays just the label and value without the trend indicator.
+
+### Failure Flows
+Required inputs (label, value) are missing — the component cannot render meaningfully.
+
+### Recovery Flows
+The developer provides the required props.
+
+### Exit Conditions
+The user reads the metric and trend at a glance and moves on to the next metric.
+
+## Workflow
+
+### Trigger
+A developer renders this card with a metric label and value, optionally with a trend direction and value.
+
+### Preconditions
+A label and value are provided.
+
+### Steps
+The component renders the label and value in a compact card; if a trend value is provided, it renders a color-coded direction indicator.
+
+### Outcomes
+A compact metric card with optional trend indication is displayed.
+
+### Exceptions
+Unknown trend direction — renders with neutral fallback color.
+
+### Completion Criteria
+The metric card renders with label, value, and optional trend indicator.

@@ -51,3 +51,43 @@ A specialized viewer for JSON and JSONL files. Parses JSON content and renders i
 - Invalid JSON — Structured error object rendered with raw content fallback
 - JSONL parse failures — Failed lines produce error objects in output
 - Very large JSON — Performance may degrade; no virtualization
+
+## User Journey
+
+### Entry Conditions
+A user opens a JSON or JSONL file in a file viewer — this component renders the data with syntax highlighting.
+
+### Primary Flow
+The user sees formatted JSON with syntax highlighting in a dark code theme — valid content is easy to read and navigate.
+
+### Alternate Flows
+The file is JSONL — each line is parsed independently; malformed lines show error objects while valid lines render normally.
+
+### Failure Flows
+The JSON is invalid — a structured error object is displayed alongside the raw content for debugging.
+
+### Recovery Flows
+The user fixes the JSON source and reloads the file.
+
+### Exit Conditions
+The user finishes inspecting the JSON data and navigates away.
+
+## Workflow
+
+### Trigger
+A user opens a JSON or JSONL file or a developer provides JSON string content.
+
+### Preconditions
+Content is provided as a string.
+
+### Steps
+The component parses the JSON, lazily loads the syntax highlighter, and renders formatted output with syntax highlighting.
+
+### Outcomes
+The user can read and inspect structured JSON data.
+
+### Exceptions
+Invalid JSON — a structured error object with raw content fallback is displayed.
+
+### Completion Criteria
+The JSON data is parsed and rendered with syntax highlighting.
