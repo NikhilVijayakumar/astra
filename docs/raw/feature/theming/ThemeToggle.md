@@ -1,51 +1,21 @@
-<!-- generated-by: gsd-doc-writer -->
-
 # ThemeToggle Component
 
-A Material UI icon button that toggles between light and dark themes.
+A button that switches between light and dark mode.
 
 ## Overview
 
-Renders an `IconButton` that switches between `DarkModeRoundedIcon` and `LightModeRoundedIcon` based on current theme state. Receives the theme context via a `themeContext` prop and calls `toggleDarkMode()` on click. Accessible with `aria-label="Toggle theme"`.
+Renders a clickable icon button. When dark mode is active, shows a sun icon (switch to light). When light mode is active, shows a moon icon (switch to dark). Accessible with a descriptive label.
 
 ## Usage
 
-```tsx
-import { ThemeToggle } from "./common/theme/ThemeToggle";
-import { useTheme } from "./common/theme/themeContext";
-
-function Toolbar() {
-  const themeContext = useTheme();
-
-  return <ThemeToggle themeContext={themeContext} />;
-}
-```
-
-## Props
-
-| Prop           | Type                | Required | Description                     |
-| -------------- | ------------------- | -------- | ------------------------------- |
-| `themeContext` | `ThemeContextValue` | Yes      | Theme context from `useTheme()` |
-
-## Behavior
-
-- Shows `DarkModeRoundedIcon` when dark mode is active
-- Shows `LightModeRoundedIcon` when light mode is active
-- Calls `toggleDarkMode()` on click
-- Accessible with `aria-label="Toggle theme"`
-
-## Dependencies
-
-- `@mui/material/IconButton`
-- `@mui/icons-material/DarkModeRounded`
-- `@mui/icons-material/LightModeRounded`
+Place the toggle in a toolbar, navigation, or settings area. It receives the current theme state and toggle function from the theme context.
 
 ## Responsibilities
 
-- Render an accessible icon button for theme switching
-- Display the correct icon based on current `darkMode` state
-- Call `toggleDarkMode()` on user click
-- Provide appropriate `aria-label` for screen readers
+- Render a clickable button for theme switching
+- Display the correct icon based on current mode
+- Toggle the theme on user click
+- Provide accessible label for screen readers
 
 ## Non-Responsibilities
 
@@ -54,51 +24,28 @@ function Toolbar() {
 - Does not render tooltips or labels for theme state
 - Does not animate icon transitions
 
-## Core Concepts
+## States
 
-| Concept | Description |
-| ------- | ----------- |
-| IconButton | MUI's `IconButton` component for a circular, icon-only button |
-| DarkModeRoundedIcon | MUI icon displayed in dark mode |
-| LightModeRoundedIcon | MUI icon displayed in light mode |
-| themeContext prop | Injected theme context with `darkMode` and `toggleDarkMode` |
+- **Light icon** — Light mode active; renders moon icon (switch to dark)
+- **Dark icon** — Dark mode active; renders sun icon (switch to light)
 
 ## Edge Cases
 
-- **Missing themeContext**: Component will throw — `themeContext` is a required prop
-- **Rapid clicks**: `toggleDarkMode` is synchronous; no race condition
-- **SSR**: Component renders on client only; no SSR hydration mismatch
-- **Null/undefined context**: TypeScript catches missing prop at compile time
-
-## States
-
-- **Light icon** — `darkMode = false`; renders `LightModeRoundedIcon`
-- **Dark icon** — `darkMode = true`; renders `DarkModeRoundedIcon`
-
-## Inputs/Outputs
-
-- **Inputs:** `themeContext: ThemeContextValue` (required) — provides `darkMode` and `toggleDarkMode`
-- **Outputs:** Rendered `IconButton` with appropriate icon; `toggleDarkMode()` called on click
+- **Missing context**: Component requires theme context — will error if rendered outside theme provider
+- **Rapid clicks**: Toggle is synchronous; no race condition
 
 ## Error Conditions
 
-- **Missing `themeContext` prop** — Component throws; TypeScript catches missing required prop at compile time
-- **Null/undefined `themeContext`** — Runtime error when accessing `themeContext.darkMode` or `themeContext.toggleDarkMode`
-- **SSR rendering** — Component renders on client only; no SSR hydration mismatch expected
+- **Missing theme context** — Component cannot function without theme state
+- **Null/undefined context** — Runtime error when accessing theme state
 
 ## Future Enhancements
 
-- Animated icon transition (rotate/fade) between sun and moon icons
-- Keyboard shortcut (`Ctrl+Shift+T`) for power users
+- Animated icon transition between sun and moon
+- Keyboard shortcut for power users
 - Tooltip showing current mode and next mode on hover
-- Dropdown variant with multiple theme options (light, dark, system)
 
 ## Open Questions
 
-- Should the toggle accept a `size` prop, or remain fixed-size for consistency?
-- Should the aria-label be localized via the i18n system?
-- Is a separate `ThemeMenu` component warranted for multi-theme support?
-
-## Source
-
-`src/common/theme/ThemeToggle.tsx`
+- Should the toggle accept a size option, or remain fixed-size?
+- Should the accessible label be localized?

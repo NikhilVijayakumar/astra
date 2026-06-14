@@ -20,104 +20,44 @@ Molecules are self-contained components composed of 2+ atoms. They represent sin
 
 ## Molecule Components in Astra
 
-| Component         | Purpose                             | Composition               | File                                                  |
-| ----------------- | ----------------------------------- | ------------------------- | ----------------------------------------------------- |
-| `Card`            | Container with consistent styling   | Box, Typography atoms     | `src/common/components/molecules/Card.tsx`            |
-| `Notification`    | Alert/message display               | SeverityBadge, Typography | `src/common/components/molecules/Notification.tsx`    |
-| `TrendMetricCard` | Metric display with trend indicator | StatusDot, Typography     | `src/common/components/molecules/TrendMetricCard.tsx` |
-| `ImageViewer`     | Image file display                  | Box, img atoms            | `src/common/components/molecules/ImageViewer.tsx`     |
-| `MdViewer`        | Markdown file display               | Box, Typography atoms     | `src/common/components/molecules/MdViewer.tsx`        |
-| `JsonViewer`      | JSON file display                   | Box, Typography atoms     | `src/common/components/molecules/JsonViewer.tsx`      |
+| Component         | Purpose                             | Composition               |
+| ----------------- | ----------------------------------- | ------------------------- |
+| `Card`            | Container with consistent styling   | Container, text elements  |
+| `Notification`    | Alert/message display               | Status badge, text        |
+| `TrendMetricCard` | Metric display with trend indicator | Status dot, text elements |
+| `ImageViewer`     | Image file display                  | Container, image element  |
+| `MdViewer`        | Markdown file display               | Container, text elements  |
+| `JsonViewer`      | JSON file display                   | Container, text elements  |
 
 ## Classification Rules
 
 A component qualifies as a **molecule** if it:
 
-1. Composes 2+ atoms OR 1 atom + MUI primitives
+1. Composes 2+ atoms
 2. Has a single, clear functional purpose
 3. Contains no significant data fetching
 4. Manages only local UI state (if any)
 5. Is self-contained (no external context dependencies)
 
-## Usage Patterns
-
-### Direct Import
-
-```typescript
-import { Card } from '@/common/components/molecules/Card';
-import { Notification } from '@/common/components/molecules/Notification';
-import { TrendMetricCard } from '@/common/components/molecules/TrendMetricCard';
-
-<Card>{content}</Card>
-<Notification severity={SeverityLevel.WARNING} message="Alert" />
-<TrendMetricCard value={42} trend={MetricTrend.UP} />
-```
-
-### Composition Patterns
-
-#### Container + Content Pattern
-
-```typescript
-// Card wraps content
-const Card = ({ children, title, actions }) => (
-  <Box sx={cardStyles}>
-    {title && <Typography variant="h6">{title}</Typography>}
-    <Box>{children}</Box>
-    {actions && <Box>{actions}</Box>}
-  </Box>
-);
-```
-
-#### Wrapper Pattern
-
-```typescript
-// Notification wraps severity display
-const Notification = ({ message, severity }) => (
-  <Alert severity={severity}>
-    <SeverityBadge severity={severity} />
-    {message}
-  </Alert>
-);
-```
-
 ## Anti-Patterns
 
 ### ❌ Data Fetching in Molecules
 
-```typescript
-// ✗ BAD: Molecules should not fetch data
-const MetricCard = ({ metricId }) => {
-  const { data } = useQuery(["metric", metricId], fetchMetric);
-  // Data fetching belongs in organisms
-};
-```
+Molecules should not fetch data. Data fetching belongs in organisms.
 
 ### ❌ Complex State Management
 
-```typescript
-// ✗ BAD: Complex state belongs in organisms
-const Card = () => {
-  const [expanded, setExpanded] = useState(false);
-  const [selected, setSelected] = useState([]);
-  const [filter, setFilter] = useState({});
-  // This is organism-level complexity
-};
-```
+Complex state belongs in organisms. A component managing expanded/selected/filter state is organism-level complexity.
 
 ### ❌ Side Effects
 
-```typescript
-// ✗ BAD: Side effects belong in hooks or organisms
-useEffect(() => {
-  trackEvent("card_viewed");
-}, []);
-```
+Side effects like analytics tracking belong in hooks or organisms, not molecules.
 
 ## Design Checklist
 
 Before creating a molecule, verify:
 
-- [ ] Does it compose 2+ atoms or 1 atom + MUI primitives?
+- [ ] Does it compose 2+ atoms?
 - [ ] Does it have a single, clear functional purpose?
 - [ ] Does it contain no data fetching?
 - [ ] Does it manage only local UI state (if any)?
@@ -128,16 +68,11 @@ Before creating a molecule, verify:
 - **Composed from:** [Atoms](./atoms.md)
 - **Composes into:** [Organisms](./organisms.md)
 
-## Next: Organisms
-
-Organisms assemble molecules into complex UI sections with significant logic and state.
-
 ## Edge Cases
 
 - **Molecule-vs-Organism boundary:** A component that performs data fetching or manages significant state is an organism, not a molecule
 - **Single-atom molecules:** A component wrapping a single atom with no added behavior should remain an atom
 - **Minimal state:** Local UI state (e.g. open/closed toggle) is acceptable in molecules; async state or external data is not
-- **Context consumers:** A molecule reading from React Context shifts it toward organism territory — evaluate case by case
 
 ## Responsibilities
 
@@ -159,26 +94,18 @@ Organisms assemble molecules into complex UI sections with significant logic and
 - **Borderline** — Wraps single atom with minimal added behavior; consider keeping as atom
 - **Degraded** — Contains data fetching, complex state, or side effects; should be promoted to organism
 
-## Inputs/Outputs
-
-- **Inputs:** Props for configuration (content, severity, value, trend, file source)
-- **Outputs:** Rendered functional UI unit composed of atoms; no return values or side effects
-
 ## Error Conditions
 
 - **Missing composed atom** — Required atom is not rendered or receives invalid props
 - **Invalid content type** — Molecule designed for specific data shape receives incompatible input
-- **Context dependency creep** — Reading React Context shifts molecule toward organism; may cause unexpected re-renders
 
 ## Future Enhancements
 
 - Compound component pattern for molecules with multiple composition slots
 - Accessibility audit checklist specific to molecule-level interactions
 - Responsive variants for molecules that adapt layout at breakpoints
-- Automated dependency check to ensure molecules only import from atoms, not organisms
 
 ## Open Questions
 
 - Should molecules with 3+ atom compositions be automatically promoted to organisms?
-- How should molecule-level error boundaries work without becoming organisms?
 - Is there a performance budget (lines of code, prop count) enforced for molecules?

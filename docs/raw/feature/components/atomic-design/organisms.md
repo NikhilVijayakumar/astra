@@ -20,7 +20,7 @@ Organisms are complex UI sections composed of multiple molecules and atoms. They
 
 ## Organism Components in Astra
 
-The organism tier contains 34 complex components including:
+The organism tier contains complex components including:
 
 | Component              | Purpose                                     | Complexity |
 | ---------------------- | ------------------------------------------- | ---------- |
@@ -42,81 +42,19 @@ A component qualifies as an **organism** if it:
 4. Represents a discrete UI section
 5. Is self-contained within a page context
 
-## Usage Patterns
-
-### In Page Components
-
-```typescript
-import { DataTable } from '@/common/components/organisms/DataTable';
-import { TimelineNode } from '@/common/components/organisms/TimelineNode';
-
-// Organisms used in page-level components
-const DashboardPage = () => (
-  <Box>
-    <SummaryPanel />
-    <DataTable data={metrics} />
-    <TimelineNode events={history} />
-  </Box>
-);
-```
-
-### Composition Structure
-
-```mermaid
-graph TD
-    subgraph Organism[DataTable Organism]
-        M1[Card Molecule]
-        M2[Notification Molecule]
-        A1[StatusDot Atom]
-        A2[SeverityBadge Atom]
-
-        M1 --> A1
-        M2 --> A2
-    end
-```
-
 ## Anti-Patterns
 
 ### ❌ Organisms Doing Too Much
 
-```typescript
-// ✗ BAD: Too many responsibilities
-const Dashboard = () => {
-  // User management
-  // Settings
-  // Notifications
-  // File uploads
-  // Analytics
-  // This should be multiple organisms
-};
-```
+An organism managing user management, settings, notifications, file uploads, and analytics has too many responsibilities and should be split into multiple organisms.
 
 ### ❌ Organisms Should Be Molecules
 
-```typescript
-// ✗ BAD: This is just a card with a badge
-const SimpleMetricCard = ({ value, label }) => (
-  <Card>
-    <Typography>{value}</Typography>
-    <Typography>{label}</Typography>
-  </Card>
-);
-// This is a molecule, not an organism
-```
+A simple card with a value and label is a molecule, not an organism.
 
 ### ❌ Organisms With Layout
 
-```typescript
-// ✗ BAD: Layout belongs in templates
-const FullPageSection = ({ children }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-    <PageHeader />
-    {children}
-    <Footer />
-  </Box>
-);
-// This is a template, not an organism
-```
+A component rendering a full page section with header and footer is a template, not an organism.
 
 ## Design Checklist
 
@@ -131,25 +69,20 @@ Before creating an organism, verify:
 
 ## Performance Considerations
 
-- Organisms may be memoized to prevent unnecessary re-renders
-- Data fetching should use React Query or similar patterns
-- Complex interactions may need debouncing/throttling
+- Organisms may use memoization to prevent unnecessary re-renders
+- Complex interactions may need debouncing or throttling
 
 ## Related Tiers
 
 - **Composed from:** [Molecules](./molecules.md) + [Atoms](./atoms.md)
 - **Composed into:** [Templates](./templates.md)
 
-## Next: Templates
-
-Templates arrange organisms into page-level layouts with defined composition rules.
-
 ## Edge Cases
 
 - **Organism-vs-Template boundary:** An organism that defines page layout structure should be a template instead
-- **Single-use organisms:** Organisms designed for exactly one page context should be evaluated for refactoring or documentation as page-specific
-- **Performance-sensitive organisms:** Organisms with expensive renders or frequent data updates should consider memoization or virtualization
-- **Empty data state:** Organisms that fetch data must handle loading, error, and empty states via AppStateHandler
+- **Single-use organisms:** Organisms designed for exactly one page context should be evaluated for refactoring
+- **Performance-sensitive organisms:** Organisms with expensive renders or frequent data updates should consider memoization
+- **Empty data state:** Organisms that fetch data must handle loading, error, and empty states
 
 ## Responsibilities
 
@@ -167,32 +100,26 @@ Templates arrange organisms into page-level layouts with defined composition rul
 ## States
 
 - **Idle** — Mounted, awaiting user interaction or data trigger
-- **Loading** — Data fetching in progress via ViewModel hooks
-- **Error** — Fetch failed; error state displayed via `AppStateHandler`
+- **Loading** — Data fetching in progress
+- **Error** — Fetch failed; error state displayed
 - **Success** — Data loaded; full organism rendered
 - **Empty** — Success with no data; empty state shown
 
-## Inputs/Outputs
-
-- **Inputs:** Props (data, callbacks, configuration), external data dependencies (API, context)
-- **Outputs:** Complex UI section (table, tree, panel, form); side effects (data fetching, analytics, logging)
-
 ## Error Conditions
 
-- **Data fetch failure** — Network error or API rejection; organism must handle via `AppStateHandler`
-- **Missing required data** — Prop or context dependency is undefined/null at render time
-- **Performance degradation** — Large datasets cause slow renders; memoization/virtualization may be needed
+- **Data fetch failure** — Network error or API rejection; organism must handle via error state
+- **Missing required data** — Prop or context dependency is undefined at render time
+- **Performance degradation** — Large datasets cause slow renders; memoization may be needed
 - **Over-composition** — Too many responsibilities makes organism unmaintainable; should be split
 
 ## Future Enhancements
 
-- Performance monitoring dashboard for organism render times and re-render frequency
-- Lazy-loading pattern documentation for organisms that are below-the-fold
+- Performance monitoring dashboard for organism render times
+- Lazy-loading pattern documentation for below-the-fold organisms
 - Organism-level error boundary integration with standardized fallback UI
-- Composition inspector tool showing which molecules/atoms an organism comprises at runtime
 
 ## Open Questions
 
-- Should organisms own their data-fetching ViewModel, or receive data via props?
+- Should organisms own their data-fetching logic or receive data via props?
 - How should organisms communicate sibling state changes without a shared parent?
 - Is there a maximum composition depth before an organism should be split?

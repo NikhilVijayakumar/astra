@@ -20,13 +20,13 @@ Templates define the structure and composition rules for page-level layouts. The
 
 ## Template Components in Astra
 
-| Component      | Purpose                 | Layout Pattern   | File                                               |
-| -------------- | ----------------------- | ---------------- | -------------------------------------------------- |
-| `PageHeader`   | Page title and actions  | Vertical stack   | `src/common/components/templates/PageHeader.tsx`   |
-| `SummaryPanel` | Summary metrics display | Grid layout      | `src/common/components/templates/SummaryPanel.tsx` |
-| `HeroSection`  | Hero/intro section      | Centered content | `src/common/components/templates/HeroSection.tsx`  |
+| Component      | Purpose                 | Layout Pattern   |
+| -------------- | ----------------------- | ---------------- |
+| `PageHeader`   | Page title and actions  | Vertical stack   |
+| `SummaryPanel` | Summary metrics display | Grid layout      |
+| `HeroSection`  | Hero/intro section      | Centered content |
 
-**Note:** File viewers (FileViewerRouter, CsvViewer, JsonViewer, ImageViewer, MdViewer) are organisms/molecules, not templates. See [organisms](./organisms.md) and [molecules](./molecules.md) documentation.
+**Note:** File viewers (FileViewerRouter, CsvViewer, JsonViewer, ImageViewer, MdViewer) are organisms/molecules, not templates.
 
 ## Classification Rules
 
@@ -38,87 +38,21 @@ A component qualifies as a **template** if it:
 4. Uses children prop or slots for content
 5. Is reusable across multiple pages
 
-## Usage Patterns
-
-### Basic Composition
-
-```typescript
-import { PageHeader } from '@/common/components/templates/PageHeader';
-import { SummaryPanel } from '@/common/components/templates/SummaryPanel';
-
-// Templates define structure, pages provide content
-const MyPage = () => (
-  <Box>
-    <PageHeader title="Dashboard" actions={<ActionButtons />} />
-    <SummaryPanel metrics={data} />
-    <DataTable data={records} />
-  </Box>
-);
-```
-
-### Layout Composition Pattern
-
-```typescript
-// PageHeader defines layout structure
-const PageHeader = ({ title, subtitle, actions, breadcrumb }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-    {breadcrumb && <Breadcrumbs>{breadcrumb}</Breadcrumbs>}
-    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-      <Box>
-        <Typography variant="h4">{title}</Typography>
-        {subtitle && <Typography>{subtitle}</Typography>}
-      </Box>
-      {actions && <Box>{actions}</Box>}
-    </Box>
-  </Box>
-);
-```
-
 ## Anti-Patterns
 
 ### ❌ Templates With Content
 
-```typescript
-// ✗ BAD: Templates should not have content
-const PageLayout = () => (
-  <Box>
-    <PageHeader title="Users" />  // Hard-coded content
-    <DataTable data={users} />     // Data-specific
-    <Footer copyright="2024" />    // Page-specific
-  </Box>
-);
-// This is a page, not a template
-```
+A template with hard-coded content or data-specific references is a page, not a template.
 
 ### ❌ Templates With Business Logic
 
-```typescript
-// ✗ BAD: Business logic belongs in pages or organisms
-const DashboardTemplate = () => {
-  const { data } = useQuery(...);  // Data fetching
-  const user = useUser();          // Context dependency
-  const dispatch = useDispatch();   // State management
-  // This belongs in an organism or page
-};
-```
+Data fetching, context dependencies, and state management belong in pages or organisms, not templates.
 
 ### ❌ Page-Specific Templates
 
-```typescript
-// ✗ BAD: Single-page specific templates
-const UserProfilePageTemplate = () => (
-  <Box>
-    <Avatar userId={42} />           // Page-specific
-    <UserDetails userId={42} />     // Page-specific
-    <UserPosts userId={42} />        // Page-specific
-  </Box>
-);
-// Make organisms, then compose in pages
-```
+A template designed for a single page should be re-evaluated. Make organisms, then compose in pages.
 
 ## Template vs Organism Decision
-
-Use this checklist to decide:
 
 | Question                            | Template | Organism |
 | ----------------------------------- | -------- | -------- |
@@ -142,29 +76,15 @@ Before creating a template, verify:
 
 ### Vertical Stack
 
-```typescript
-<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-  {children}
-</Box>
-```
+Content stacked vertically with consistent spacing.
 
 ### Grid Layout
 
-```typescript
-<Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2 }}>
-  {children}
-</Box>
-```
+Content arranged in a responsive grid with auto-fit columns.
 
 ### Conditional Layout
 
-```typescript
-const FileViewerRouter = ({ fileType, content }) => {
-  if (fileType === 'json') return <JsonViewer content={content} />;
-  if (fileType === 'csv') return <CsvViewer content={content} />;
-  return <TextViewer content={content} />;
-};
-```
+Routes to different content renderers based on input type (e.g., file extension).
 
 ## Related Tiers
 
@@ -179,15 +99,15 @@ Templates complete the Atomic Design hierarchy:
 Atoms → Molecules → Organisms → Templates
   ↓        ↓          ↓           ↓
 Primitives Functional  Complex    Layout
-            Units                   Sections       
+            Units       Sections
 ```
- 
+
 ## Edge Cases
 
 - **Template-vs-Organism boundary:** A template with specific content or business logic should be downgraded to an organism
 - **Single-page templates:** A template used by only one page component should be evaluated — consider merging into the page
 - **Nested templates:** Templates should not render other templates; compose organisms only
-- **Empty slot states:** Templates with optional children slots should handle missing children gracefully (no-throw)
+- **Empty slot states:** Templates with optional children slots should handle missing children gracefully
 - **Responsive breakpoints:** Templates should define layout breakpoints; organisms and molecules should not
 
 ## Responsibilities
@@ -210,14 +130,9 @@ Primitives Functional  Complex    Layout
 - **Populated** — Template rendered with organisms/molecules in content slots
 - **Responsive** — Layout adapts to viewport breakpoints defined in the template
 
-## Inputs/Outputs
-
-- **Inputs:** `children` prop, named slots (`title`, `subtitle`, `actions`, `breadcrumb`), layout configuration
-- **Outputs:** Rendered page/section layout structure; no business logic, no data, no side effects
-
 ## Error Conditions
 
-- **Missing children** — Template with all optional slots renders empty layout; may confuse consumers
+- **Missing children** — Template with all optional slots renders empty layout
 - **Invalid slot arrangement** — Organisms placed in wrong slots cause layout breakage
 - **Responsive breakpoint mismatch** — Template defines breakpoints inconsistent with organism content requirements
 - **Business logic leak** — Data fetching or state management accidentally added to template
@@ -226,12 +141,10 @@ Primitives Functional  Complex    Layout
 
 - Template composition API — named slot components for stricter layout contracts
 - Responsive template variants for mobile, tablet, and desktop viewports
-- Template playground in Storybook with resizable containers
 - Layout testing utilities to verify template slot placement across breakpoints
 
 ## Open Questions
 
-- Should templates support SSR-specific layout variants for hydration optimization?
+- Should templates support different layout variants for hydration optimization?
 - How should nested templates (template within a template) be classified?
 - Is there value in a template registry that maps routes to template components?
-```
