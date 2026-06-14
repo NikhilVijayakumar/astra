@@ -42,6 +42,21 @@ export type StatusDotTone =
 | `executing` | `info.main`      |
 | `default`   | `text.secondary` |
 
+## Non-Responsibilities
+
+- Does not display text, labels, or tooltips
+- Does not handle click events or user interaction
+- Does not animate state transitions or pulse on changes
+- Does not manage or persist state
+
+## Edge Cases
+
+- `tone` is required — omitting it triggers a TypeScript error
+- Unknown tone value: falls back to `default` (`text.secondary`) via `toneColorMap[tone] || toneColorMap.default`
+- `size` defaults to 10 pixels when not provided
+- Size of 0: renders a dot with no dimensions (invisible but still in DOM)
+- Large size values: dot scales accordingly with no upper bound
+
 ## Usage Example
 
 ```tsx

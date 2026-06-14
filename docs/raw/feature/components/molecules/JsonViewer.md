@@ -49,10 +49,26 @@ Default fallback: `"No JSON content available for preview."`
 - Border radius: 1 (8px)
 - Uses spacing tokens
 
-## Usage Example
+## Non-Responsibilities
 
-```tsx
-import { JsonViewer } from "@/common/components/molecules/JsonViewer";
+- Does not load file content from disk or network
+- Does not validate JSON schema or structure
+- Does not provide search, filter, or tree-view navigation
+- Does not support editing or saving JSON content
+- Does not handle binary or non-UTF-8 encoded content
+
+## Edge Cases
+
+- No `fileContent` provided or content is empty: displays a JSON object `{ "message": "No JSON content available for preview." }` instead of raw text
+- Invalid JSON (`JSON.parse` throws): renders a JSON object `{ "parseError": true, "raw": "original text" }` showing the raw content
+- `.jsonl` files: parsed line-by-line, each line `JSON.parse`'d individually; parse failures produce `{ "line": N, "parseError": true, "raw": "..." }` objects
+- Missing localization key `viewer.empty_json`: uses hardcoded fallback string
+- `react-syntax-highlighter` is lazily loaded: initial render shows a "Loading..." fallback while the Prism component loads
+- vscDarkPlus style is fetched asynchronously: first render always shows LoadingFallback until style is loaded
+- Very large JSON: syntax highlighting may be slow; the component does not virtualize or paginate content
+- Non-object JSON values: `JSON.stringify` handles strings, numbers, arrays, and booleans normally
+
+## Usage Example
 import { useLanguage } from "@/common/localization/LanguageContext";
 
 const JsonPreview = () => {

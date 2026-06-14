@@ -45,6 +45,21 @@ export type SeverityLevel =
 - Padding: `px: spacing.sm`, `py: spacing.internal`
 - Border radius: `spacing.internal` (inherits from theme tokens)
 
+## Non-Responsibilities
+
+- Does not display icons, emojis, or visual indicators alongside text
+- Does not handle click events or user interaction
+- Does not manage or persist state
+- Does not transform or format the level value — text is displayed as provided
+
+## Edge Cases
+
+- Unknown `level` value: falls back to `info.main` styling via `colorMap[level] || 'info.main'`
+- Case-sensitive matching: the color map keys are uppercase (`"CRITICAL"`, `"WARNING"`); lowercase input like `"critical"` falls back to info styling
+- The `level` prop accepts `SeverityLevel | string` — any string value is valid, but only known values get color-coded styling
+- Very long level text: text wraps but `nowrap` is not set, so long text may break the badge layout
+- `level` accepts `"ERROR"` as an alias for `"CRITICAL"` in the color map (displayed text remains as provided)
+
 ## Usage Example
 
 ```tsx

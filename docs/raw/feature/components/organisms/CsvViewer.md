@@ -58,6 +58,25 @@ Follows premium-ui-patterns skill:
 - Uses spacing tokens (spacing.md, spacing.sm)
 - Typography: h4 for title, body2 for content
 
+## Non-Responsibilities
+
+- Does not load file content from disk or network
+- Does not support write-back, editing, or saving CSV data
+- Does not validate CSV structure or column types
+- Does not provide column sorting, filtering, or search
+- Does not handle non-CSV file formats
+
+## Edge Cases
+
+- No `fileContent` provided or empty: `parseCsv("")` returns `{ headers: [], rows: [] }`; renders the file name title and an empty message
+- Empty CSV content (headers only, no data rows): renders the header row with an empty table body and pagination showing 0 rows
+- Delimiter auto-detection: checks only the first line for semicolons; mixed-delimiter files may parse incorrectly
+- CSV with only newlines/whitespace: lines are trimmed and empty lines filtered; if all lines are empty, headers and rows are empty arrays
+- Missing localization key `viewer.empty_csv`: uses hardcoded fallback "No CSV content available"
+- Single-cell CSV: renders a one-column table with a single cell
+- Very large CSV: rows are paginated (10/25/50 per page); no virtualization for large datasets
+- Page changes reset to 0 when changing rows-per-page
+
 ## Usage Example
 
 ```tsx

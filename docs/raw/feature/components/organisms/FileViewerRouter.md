@@ -56,6 +56,17 @@ For unsupported file types, displays:
 - Does not validate file integrity or encoding
 - Does not handle streaming or partial content
 
+## Edge Cases
+
+- No file extension: `ext` is `undefined` (empty string after the dot); falls through to the `default` case (unsupported file)
+- File name without extension (e.g., `"Makefile"`): no dot present, `ext` is the full file name (`"makefile"`); falls through to `default`
+- Unknown or unsupported extension: renders the unsupported file fallback with the extension displayed
+- No `fileContent` provided: delegates to the sub-viewer (CsvViewer, MdViewer, ImageViewer, JsonViewer), each handles missing content independently
+- `.txt` extension: routed to MdViewer (same as `.md`)
+- `.jsonl` extension: routed to JsonViewer (same as `.json`)
+- Missing localization keys (`viewer.unsupported`, `viewer.extension`): uses hardcoded fallback strings
+- `fileEncoding` and `mimeType` are only passed through to ImageViewer; other viewers ignore them
+
 ## Usage Example
 
 ```tsx
