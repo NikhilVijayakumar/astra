@@ -661,13 +661,25 @@ All findings.
 
 ## 12. Score Improvement Summary
 
-Iteration history if available.
-
-Otherwise:
+Compare against the previous report from `docs/raw/report/architecture/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
 
 ```text
-Baseline audit — no iteration history.
+Previous Report: {filename}
+Previous Score: X/10
+Current Score: Y/10
+Change: +N / -N / No change
 ```
+
+| Dimension                   | Previous | Current | Change |
+| --------------------------- | -------- | ------- | ------ |
+| Invariant Integrity         | X        | Y       | +N     |
+| Guidance Completeness       | X        | Y       | +N     |
+| Cross-Document Consistency  | X        | Y       | +N     |
+| Consumer Onboarding Clarity | X        | Y       | +N     |
+| Boundary Integrity          | X        | Y       | +N     |
+| Architecture Traceability   | X        | Y       | +N     |
+
+If score improved, highlight the categories that drove the improvement and what fixes were applied since the prior audit. If score declined, flag regressions with specific category breakdowns.
 
 ---
 
@@ -690,6 +702,18 @@ Provide a concise architectural health summary.
 | Runtime Maps          | docs/raw/architecture/runtime-maps/**                                 |
 | Integration Contracts | docs/raw/architecture/integration-contracts/**                        |
 | Audit Report          | docs/raw/report/architecture/latest/architecture-audit-{timestamp}.md |
+| Previous Report       | docs/raw/report/architecture/archive/{previous-filename}              |
+
+---
+
+# Report Rotation
+
+Before writing the new report, rotate the previous report:
+
+```text
+mv docs/raw/report/architecture/latest/* docs/raw/report/architecture/archive/
+mkdir -p docs/raw/report/architecture/latest
+```
 
 ---
 

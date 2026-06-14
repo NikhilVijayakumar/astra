@@ -1,30 +1,4 @@
-I would not simply patch the existing prompt. I would redesign it around the governance model:
-
-```text
-Architecture Audit
-    ↓
-Audits docs/raw/architecture/**
-
-Feature Audit
-    ↓
-Audits docs/raw/feature/**
-
-Feature Technical Audit
-    ↓
-Audits docs/raw/feature-technical/**
-```
-
-For the **Feature Audit**, the governing principle should be:
-
-> Feature documentation defines WHAT the system does.
->
-> It must not define HOW the system is implemented.
-
-That becomes the foundation of the entire audit.
-
----
-
-# Feature Audit & Validation System — Prompt Engine v2.0
+# Feature Audit & Validation System — Prompt Engine
 
 ## Purpose
 
@@ -854,6 +828,127 @@ FEATURE-PURITY-{nnn}
 | 5.0–6.9     | Needs Improvement       |
 | 3.0–4.9     | Major Revision Required |
 | 0.0–2.9     | Not Feature Ready       |
+
+---
+
+# Required Report Structure
+
+## 1. Executive Summary
+
+```text
+# Feature Audit Report — {timestamp}
+
+Overall Assessment:
+Final Score:
+Critical Findings:
+Major Findings:
+Minor Findings:
+Documents Audited:
+```
+
+## 2. Feature Inventory
+
+Feature inventory from Phase 1.
+
+## 3. Functional Completeness Report
+
+Findings from Phase 2.
+
+## 4. User Journey Report
+
+Findings from Phase 3.
+
+## 5. Workflow Coverage Report
+
+Findings from Phase 4.
+
+## 6. State Coverage Report
+
+Findings from Phase 5.
+
+## 7. Permission Coverage Report
+
+Findings from Phase 6.
+
+## 8. Edge Case Report
+
+Findings from Phase 7.
+
+## 9. Failure Scenario Report
+
+Findings from Phase 8.
+
+## 10. Cross-Feature Interaction Report
+
+Findings from Phase 9.
+
+## 11. Functional Ownership Report
+
+Findings from Phase 10.
+
+## 12. Feature Traceability Report
+
+Findings from Phase 11.
+
+## 13. Functional Purity Report
+
+Findings from Phase 12.
+
+## 14. Required Matrices
+
+Functional Purity Matrix, Workflow Coverage Matrix, State Coverage Matrix, Permission Coverage Matrix, Cross-Feature Interaction Matrix, Functional Ownership Matrix, Traceability Matrix.
+
+## 15. Scoring Breakdown
+
+Per-dimension scores and audit score.
+
+## 16. Score Improvement Summary
+
+Compare against the previous report from `docs/raw/report/feature/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
+
+```text
+Previous Report: {filename}
+Previous Score: X/10
+Current Score: Y/10
+Change: +N / -N / No change
+```
+
+| Dimension                 | Previous | Current | Change |
+| ------------------------- | -------- | ------- | ------ |
+| Functional Completeness   | X        | Y       | +N     |
+| Workflow Coverage         | X        | Y       | +N     |
+| Edge & Failure Coverage   | X        | Y       | +N     |
+| Cross-Feature Consistency | X        | Y       | +N     |
+| User Journey Coverage     | X        | Y       | +N     |
+| Feature Traceability      | X        | Y       | +N     |
+| Functional Purity         | X        | Y       | +N     |
+
+If score improved, highlight the categories that drove the improvement and what fixes were applied since the prior audit. If score declined, flag regressions with specific category breakdowns.
+
+## 17. Final Verdict
+
+```text
+{Assessment} ({Score}/10)
+```
+
+## 18. Audit Traceability
+
+| Reference             | Location                                                            |
+| --------------------- | ------------------------------------------------------------------- |
+| Feature Docs          | docs/raw/feature/**                                                 |
+| Audit Report          | docs/raw/report/feature/latest/feature-audit-{timestamp}.md         |
+| Previous Report       | docs/raw/report/feature/archive/{previous-filename}                 |
+
+---
+
+# Report Rotation
+
+Before writing the new report, rotate the previous report:
+
+```text
+mv docs/raw/report/feature/latest/* docs/raw/report/feature/archive/
+mkdir -p docs/raw/report/feature/latest
+```
 
 ---
 
