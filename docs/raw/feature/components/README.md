@@ -18,7 +18,7 @@ The component library is organized into four tiers following atomic design metho
 | ------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **Atoms**     | StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState                    | Small, reusable primitives representing basic states            |
 | **Molecules** | Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer            | Composed components that combine atoms for specific UI patterns |
-| **Organisms** | 33 complex components (DataTable, TimelineNode, FileTree, FileViewerRouter, etc.) | Complex UI sections composed of molecules and atoms             |
+| **Organisms** | DataTable, FormLayout, DrawerComponent, ToolbarComponent, FileViewerRouter, CsvViewer | Complex UI sections composed of molecules and atoms             |
 | **Templates** | PageHeader, SummaryPanel, HeroSection                                             | Page structure components                                       |
 
 ## Directory Structure
@@ -38,13 +38,17 @@ src/common/components/
 │   ├── ImageViewer.tsx
 │   ├── MdViewer.tsx
 │   └── JsonViewer.tsx
-├── organisms/            # Complex UI sections (33 components)
+├── organisms/            # Complex UI sections
 │   ├── DataTable.tsx
-│   ├── TimelineNode.tsx
-│   ├── FileTree.tsx
+│   ├── FormLayout.tsx
+│   ├── DrawerComponent.tsx
+│   ├── ToolbarComponent.tsx
 │   ├── FileViewerRouter.tsx
 │   ├── CsvViewer.tsx
-│   └── ... (28 more)
+│   ├── AppStateHandler.tsx
+│   ├── TimelineNode.tsx
+│   ├── FileTree.tsx
+│   └── ...
 └── templates/            # Page structure components (3 components)
     ├── PageHeader.tsx
     ├── SummaryPanel.tsx
@@ -86,6 +90,11 @@ import {
 
 // Organisms
 import { DataTable } from "@/common/components/organisms/DataTable";
+import { FormLayout } from "@/common/components/organisms/FormLayout";
+import { DrawerComponent } from "@/common/components/organisms/DrawerComponent";
+import { ToolbarComponent } from "@/common/components/organisms/ToolbarComponent";
+import { FileViewerRouter } from "@/common/components/organisms/FileViewerRouter";
+import { CsvViewer } from "@/common/components/organisms/CsvViewer";
 import { TimelineNode } from "@/common/components/organisms/TimelineNode";
 
 // Templates

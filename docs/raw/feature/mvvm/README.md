@@ -20,7 +20,7 @@ Astra implements the **Model-View-ViewModel** pattern to separate UI from busine
 | Component         | Location                         | Purpose                  |
 | ----------------- | -------------------------------- | ------------------------ |
 | `useDataState`    | `src/common/hooks/`              | State + async execution  |
-| `AppStateHandler` | `src/common/components/wrapper/` | Conditional UI rendering |
+| `AppStateHandler` | `src/common/components/organisms/` | Conditional UI rendering |
 | `AppState`        | `src/common/state/`              | State type definitions   |
 
 ## Usage Flow

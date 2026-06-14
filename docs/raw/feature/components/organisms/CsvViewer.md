@@ -1,5 +1,5 @@
 ---
-tier: template
+tier: organism
 ---
 
 # CsvViewer
@@ -84,7 +84,7 @@ const CsvPreviewLocalized = () => {
     />
   );
 };
-```
+
 const LargeCsvViewer = ({ fileData }) => (
   <div style={{ height: "500px" }}>
     <CsvViewer fileName={fileData.name} fileContent={fileData.content} />
@@ -94,10 +94,10 @@ const LargeCsvViewer = ({ fileData }) => (
 
 ## Design Principles
 
-This component is a template — a page-level layout component.
+This component is an organism — a complex UI section composed of molecules and atoms.
 
-See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
+See [Organisms](../atomic-design/organisms.md) for classification guidelines and usage patterns.
 
 ## Source
 
-`src/common/components/file-viewers/CsvViewer.tsx`
+`src/common/components/organisms/CsvViewer.tsx`

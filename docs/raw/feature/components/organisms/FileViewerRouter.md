@@ -1,5 +1,5 @@
 ---
-tier: template
+tier: organism
 ---
 
 # FileViewerRouter
@@ -49,10 +49,17 @@ For unsupported file types, displays:
 - Title: "Binary / Unsupported File"
 - Subtitle showing the file extension
 
+## Non-Responsibilities
+
+- Does not load file content from disk or network
+- Does not transform or convert file formats
+- Does not validate file integrity or encoding
+- Does not handle streaming or partial content
+
 ## Usage Example
 
 ```tsx
-import { FileViewerRouter } from "@/common/components/file-viewers/FileViewerRouter";
+import { FileViewerRouter } from "@/common/components/organisms/FileViewerRouter";
 
 const FilePreview = ({ file }) => (
   <FileViewerRouter
@@ -83,10 +90,10 @@ const ImagePreview = () => (
 
 ## Design Principles
 
-This component is a template — a page-level layout component.
+This component is an organism — a complex UI section composed of molecules and atoms.
 
-See [Templates](../atomic-design/templates.md) for classification guidelines and usage patterns.
+See [Organisms](../atomic-design/organisms.md) for classification guidelines and usage patterns.
 
 ## Source
 
-`src/common/components/file-viewers/FileViewerRouter.tsx`
+`src/common/components/organisms/FileViewerRouter.tsx`

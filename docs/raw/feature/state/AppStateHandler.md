@@ -14,15 +14,19 @@ A conditional UI router that renders Loading, Error, Empty, or Success states.
 
 ## State Flow
 
-```
-appState.state === LOADING  → <LoadingState />
-isError || status === INTERNET_ERROR → <ErrorState />
-isSuccess && data !== null && emptyCondition(data) → <EmptyState />
-isSuccess && data !== null → SuccessComponent || children
-else → <EmptyState />
-```
+AppStateHandler evaluates `appState` in this order:
+
+1. `state === LOADING` → renders `<LoadingState />`
+2. `isError || status === INTERNET_ERROR` → renders `<ErrorState />`
+3. `isSuccess && data !== null`:
+   - if `emptyCondition(data)` is true → renders `<EmptyState />`
+   - else if `children` provided → renders children
+   - else if `SuccessComponent` provided → renders SuccessComponent
+4. fallback → renders `<EmptyState />`
 
 ## Usage
+
+### Children Pattern (Recommended)
 
 ```tsx
 const [userState, loadUsers] = useDataState<User[]>();
@@ -30,13 +34,39 @@ const [userState, loadUsers] = useDataState<User[]>();
 return (
   <AppStateHandler
     appState={userState}
-    SuccessComponent={UserList}
     emptyCondition={(data) => data.length === 0}
     errorMessage="Failed to load users"
-  />
+  >
+    <UserList users={userState.data ?? []} onReload={loadUsers} />
+  </AppStateHandler>
 );
 ```
 
+### Alternate SuccessComponent Pattern
+
+```tsx
+<AppStateHandler
+  appState={userState}
+  SuccessComponent={({ appState }) => (
+    <UserList users={appState.data ?? []} onReload={loadUsers} />
+  )}
+/>
+```
+
+## Non-Responsibilities
+
+- Does not fetch or manage data — state must be provided via `appState` prop
+- Does not handle business logic or side effects
+- Does not persist state across sessions
+- Does not handle routing or navigation
+
+## Standards
+
+1. Use AppStateHandler at feature container boundaries.
+2. Keep emptyCondition feature-specific and explicit.
+3. Prefer children pattern for readability.
+4. Do not duplicate loading/error/empty conditional trees in each container.
+
 ## Source
 
-`src/common/components/wrapper/AppStateHandler.tsx`
+`src/common/components/organisms/AppStateHandler.tsx`

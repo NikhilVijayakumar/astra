@@ -14,25 +14,56 @@ A high-impact landing-style component for displaying primary page content with h
 
 ### Props
 
-| Prop                 | Type         | Default   | Description                      |
-| -------------------- | ------------ | --------- | -------------------------------- |
-| `headline`           | `string`     | Required  | Main heading text                |
-| `description`        | `string`     | undefined | Supporting description text      |
-| `primaryActionLabel` | `string`     | undefined | Button text for primary action   |
-| `onPrimaryAction`    | `() => void` | undefined | Click handler for primary action |
-| `children`           | `ReactNode`  | undefined | Additional content below actions |
+| Prop                 | Type              | Default    | Description                             |
+| -------------------- | ----------------- | ---------- | --------------------------------------- |
+| `headline`           | `string`          | Required   | Main heading text                       |
+| `description`        | `string`          | `undefined`| Supporting description text             |
+| `primaryActionLabel` | `string`          | `undefined`| Button text for primary action          |
+| `onPrimaryAction`    | `() => void`      | `undefined`| Click handler for primary action        |
+| `children`           | `ReactNode`       | `undefined`| Additional content below actions        |
+| `enableAnimation`    | `boolean`         | `true`     | Enable entrance animations              |
+| `animationVariant`   | `AnimationVariant`| `'fade-up'`| Animation preset                        |
+| `animationDuration`  | `number`          | `600`      | Animation duration in milliseconds      |
+| `animationDelay`     | `number`          | `0`        | Delay before animation starts (ms)      |
+| `animationStagger`   | `number`          | `100`      | Stagger delay between elements (ms)     |
 
-### Interface
+### Interfaces
 
 ```typescript
+export type AnimationVariant =
+  | "fade-up"
+  | "fade-in"
+  | "slide-left"
+  | "slide-right"
+  | "scale-up"
+  | "stagger-fade"
+  | "typewriter";
+
 export interface HeroSectionProps {
   headline: string;
   description?: string;
   primaryActionLabel?: string;
   onPrimaryAction?: () => void;
   children?: ReactNode;
+  enableAnimation?: boolean;
+  animationVariant?: AnimationVariant;
+  animationDuration?: number;
+  animationDelay?: number;
+  animationStagger?: number;
 }
 ```
+
+### Animation Behaviors
+
+- `fade-up`: Opacity 0→1, translateY 20→0
+- `fade-in`: Opacity 0→1 only
+- `slide-left`: TranslateX 20→0
+- `slide-right`: TranslateX -20→0
+- `scale-up`: Scale 0.95→1
+- `stagger-fade`: Fade with staggered timing
+- `typewriter`: Headline revealed character by character with blinking cursor
+
+Description and action button are sequentially delayed: description at `delay + duration`, action at `delay + duration * 1.5`, children at `delay + duration * 2`.
 
 ### Styling Details
 
