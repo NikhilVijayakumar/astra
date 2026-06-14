@@ -1,5 +1,5 @@
 import { motion, useSpring, useTransform, MotionValue } from 'framer-motion';
-import { useTheme, Box } from '@mui/material';
+import { useTheme, Box, Typography } from '@mui/material';
 
 interface Props {
     char: string;
@@ -97,16 +97,14 @@ export const AnimatedHeroCharacter = ({ char, title, subtitle, mouseX, mouseY, i
                 }}
             >
                 {title && (
-                    <Box sx={{
-                        fontSize: '1.2rem',
-                        fontWeight: 600,
+                    <Typography variant="h4" sx={{
                         letterSpacing: '0.1em',
-                        color: theme.palette.text.secondary,
+                        color: 'text.secondary',
                         textTransform: 'uppercase',
                         whiteSpace: 'nowrap'
                     }}>
                         {t(title)}
-                    </Box>
+                    </Typography>
                 )}
             </motion.div>
 
@@ -131,16 +129,14 @@ export const AnimatedHeroCharacter = ({ char, title, subtitle, mouseX, mouseY, i
                 }}
             >
                 {subtitle && (
-                    <Box sx={{
-                        fontSize: '1.5rem',
-                        fontWeight: 500,
+                    <Typography variant="h2" sx={{
                         letterSpacing: '0.2em',
-                        color: theme.palette.primary.main,
+                        color: 'primary.main',
                         textTransform: 'uppercase',
                         whiteSpace: 'nowrap'
                     }}>
                         {t(subtitle)}
-                    </Box>
+                    </Typography>
                 )}
             </motion.div>
         </motion.div>

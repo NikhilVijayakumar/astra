@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { Box, Typography, IconButton, Slider, useTheme } from "@mui/material";
+import { alpha, Box, Typography, IconButton, Slider, useTheme } from "@mui/material";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { spacing } from "../../../theme/tokens/spacing";
@@ -54,10 +54,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
         bottom: 0,
         left: 0,
         right: 0,
-        bgcolor:
-          theme.palette.mode === "dark"
-            ? "rgba(10, 10, 20, 0.95)"
-            : "rgba(255, 255, 255, 0.95)",
+        bgcolor: alpha(theme.palette.background.paper, 0.95),
         backdropFilter: "blur(20px)",
         borderTop: `1px solid ${theme.palette.divider}`,
         p: spacing.md,
@@ -74,7 +71,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
         sx={{
           display: "flex",
           alignItems: "center",
-          gap: 4,
+            gap: spacing.xl,
           maxWidth: "1200px",
           width: "100%",
         }}
@@ -84,7 +81,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 2,
+            gap: spacing.md,
             minWidth: "200px",
           }}
         >
@@ -103,8 +100,6 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
               variant="subtitle1"
               sx={{
                 color: theme.palette.text.primary,
-                fontWeight: 600,
-                lineHeight: 1.2,
               }}
             >
               {title}
@@ -123,7 +118,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 2,
+            gap: spacing.md,
             flex: 1,
             justifyItems: "center",
             justifyContent: "center",
@@ -139,8 +134,8 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
               bgcolor: theme.palette.primary.main,
               color: theme.palette.primary.contrastText,
               "&:hover": { bgcolor: theme.palette.primary.light },
-              width: 48,
-              height: 48,
+              width: spacing.xxl,
+              height: spacing.xxl,
             }}
           >
             {isPlaying ? (
@@ -160,7 +155,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 2,
+            gap: spacing.md,
             minWidth: "150px",
           }}
         >
@@ -168,7 +163,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           <Slider
             size="small"
             defaultValue={70}
-            sx={{ color: "rgba(255,255,255,0.3)", width: 100 }}
+            sx={{ color: 'action.disabled', width: 100 }}
           />
         </Box>
       </Box>

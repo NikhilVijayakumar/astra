@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Paper, Typography } from "@mui/material";
 import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
+import { fonts } from "../../../theme/tokens/typography";
 
 export interface LogEntry {
   id: string | number;
@@ -39,8 +40,7 @@ export const TerminalViewer: React.FC<TerminalViewerProps> = ({
         color: 'text.primary',
         p: spacing.md,
         overflow: "auto",
-        fontFamily: '"IBM Plex Mono", "Menlo", monospace',
-        fontSize: "0.8125rem",
+        fontFamily: fonts.mono,
         border: `1px solid`,
         borderColor: 'divider',
         borderRadius: 1,

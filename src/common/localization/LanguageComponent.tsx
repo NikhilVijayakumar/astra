@@ -23,7 +23,7 @@ export const LanguageSelector: React.FC = () => {
   };
 
   const currentLanguageLabel =
-    availableLanguages.find((lang) => lang.code === currentLanguage)?.label || 'Language';
+    availableLanguages.find((lang) => lang.code === currentLanguage)?.label ?? '';
 
   return (
      <Box>

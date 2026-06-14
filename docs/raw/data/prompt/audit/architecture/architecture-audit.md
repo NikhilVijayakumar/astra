@@ -107,6 +107,21 @@ Check whether either track has drifted into:
 
 ---
 
+## Score Model
+
+Each dimension is scored **0–10** and mapped to a P-level:
+
+| Score | P-Level | Label | Meaning |
+|-------|---------|-------|---------|
+| 10 | P3 | Compliant | All modules pass, no violations |
+| 8-9 | P2 | Transitional | Isolated violations with documented plan |
+| 5-7 | P1 | Needs Migration | Recurring pattern needing next-release fix |
+| 0-4 | P0 | Critical | Systemic failure, must restructure |
+
+The score represents **how much of the codebase/docs is compliant**, not how many violations exist. 10 = fully compliant; 0 = completely non-compliant.
+
+---
+
 ## Audit Scope
 
 For Track A (Library Compliance), audit `src/` source code and build configuration.
@@ -133,99 +148,71 @@ For Guidance Clarity audit, additionally ignore:
 
 ## Required Audit Dimensions
 
-Analyze ALL of the following:
+Analyze ALL of the following. Each dimension must be scored **0–10** using the Score Model table above.
 
 ---
 
 ### 1a. Library Invariant Compliance (Track A)
 
-Apply to `src/` source code only. Audit against the invariants that govern library code:
+Score: **{score}/10**
 
-| Invariant | Scope | Applies To |
-|-----------|-------|------------|
-| Stateless UI | All components in `src/components/` | Components must be pure rendering units |
-| Atomic Hierarchy | All components in `src/components/` | Each component belongs to exactly one tier |
-| Theme Sovereignty | All components in `src/components/` | All styling via theme tokens |
-| Localization | All components in `src/components/` | All user-facing text via translation system |
-| Dependency Safety | `package.json`, `src/` imports | Dependencies pinned, auditable, minimal |
-| Public API Stability | `src/lib.ts`, `package.json` exports | Only declared exports are public API |
-| Deterministic Build | Build config, `src/` build output | Build produces identical output for identical inputs |
-| Platform Neutrality | `src/` module scope | No Electron/Node/browser lock-in at module scope |
-| MVVM Separation | `src/` source | Verify no accidental ViewModel/View mixing in library utilities |
-| Repository Isolation | `src/` source | Verify no accidental repository access outside abstraction |
+Apply to `src/` source code only. Group the 10 invariants into **6 dimensions**, each scored 0–10:
 
-Detect:
+| Dimension | Invariants Grouped | Weight |
+|-----------|--------------------|--------|
+| **Component Purity** | Stateless UI, Atomic Hierarchy | 20% |
+| **Theme Sovereignty** | Theme token usage in all components | 15% |
+| **Localization Compliance** | Translation keys, hardcoded strings | 15% |
+| **Data Architecture** | MVVM Separation, Repository Isolation | 20% |
+| **Library Governance** | Dependency Safety, Public API, Deterministic Build | 15% |
+| **Platform Neutrality** | Cross-runtime compatibility | 15% |
 
-- modules with multiple invariant violations (P0 or P1)
+For each dimension, produce a row in the Scoring Breakdown table:
+
+| Dimension | Score /10 | P-Level | Key Violations | Notes |
+|-----------|-----------|---------|----------------|-------|
+
+**Detect:**
+- modules with multiple invariant violations
 - patterns of the same violation recurring across different modules
-- invariants that are systematically violated across the codebase
-- modules that have drifted furthest from their architectural contract
+- invariants systematically violated across the codebase
+- modules drifted furthest from their architectural contract
 
-For each module reviewed, determine:
+**Allowed:**
+- P3 or N/A for all invariants per module
+- Isolated P2 violations with documented migration plans
+- MVVM Separation and Repository Isolation marked N/A for library-only modules
 
-| Invariant | Count of Violations | Severity Distribution |
-|-----------|--------------------|-----------------------|
-| Stateless UI | {n} | P0:{n} P1:{n} P2:{n} |
-| Atomic Hierarchy | {n} | P0:{n} P1:{n} P2:{n} |
-| Theme Sovereignty | {n} | P0:{n} P1:{n} P2:{n} |
-| Localization | {n} | P0:{n} P1:{n} P2:{n} |
-| Dependency Safety | {n} | P0:{n} P1:{n} P2:{n} |
-| Public API Stability | {n} | P0:{n} P1:{n} P2:{n} |
-| Deterministic Build | {n} | P0:{n} P1:{n} P2:{n} |
-| Platform Neutrality | {n} | P0:{n} P1:{n} P2:{n} |
-| MVVM Separation (library) | {n} | P0:{n} P1:{n} P2:{n} |
-| Repository Isolation (library) | {n} | P0:{n} P1:{n} P2:{n} |
-
-Allowed:
-- [ ] P3 or N/A for all invariants per module
-- [ ] Isolated P2 violations with documented migration plans
-- [ ] MVVM Separation and Repository Isolation marked N/A for library-only modules (e.g., pure atoms)
-
-Forbidden:
-- [ ] No P0 violations anywhere
-- [ ] No recurring P1 patterns across modules
-- [ ] No invariant systematically violated across the codebase
-
-Severity mapping:
-- P0: systematic P0 violations across multiple modules, invariant completely ignored
-- P1: recurring P1 patterns across modules, same violation in 3+ locations
-- P2: isolated violations with migration plans in place
-- P3: all modules compliant or with only P2 documented debt
+**Forbidden:**
+- No P0 violations anywhere
+- No recurring P1 patterns across modules
+- No invariant systematically violated across the codebase
 
 ---
 
 ### 1b. Guidance Completeness (Track B)
 
-Apply to architecture guidance documents only. Evaluate whether docs provide complete, implementation-agnostic guidance for:
+Score: **{score}/10**
 
-| Guidance Area | Key Documents | What to Check |
-|---------------|--------------|---------------|
-| Feature Structure | `core/feature-structure.md` | Canonical dir layout, layer responsibilities, rules |
-| MVVM Pattern | `core/mvvm-pattern.md` | Conceptual MVVM, mapping to canonical structure |
-| ViewModel Hooks | `core/hooks.md` | useDataState wrapping, ViewModel pattern |
-| Repository Pattern | `core/repository.md` | ApiService usage, data source abstraction |
-| Integration | `integration-contracts/react.md`, `electron.md`, `getting-started.md` | Framework-specific feature setup |
+Evaluate whether architecture guidance docs provide complete, implementation-agnostic guidance. Score each guidance area 0–10, then average:
 
-Detect:
+| Guidance Area | Score /10 | P-Level | Gaps Found |
+|---------------|-----------|---------|------------|
+| Feature Structure (`core/feature-structure.md`) | {score} | {P} | {gaps} |
+| MVVM Pattern (`core/mvvm-pattern.md`) | {score} | {P} | {gaps} |
+| ViewModel Hooks (`core/hooks.md`) | {score} | {P} | {gaps} |
+| Repository Pattern (`core/repository.md`) | {score} | {P} | {gaps} |
+| Integration Contracts (`react.md`, `electron.md`, `getting-started.md`) | {score} | {P} | {gaps} |
 
-- missing guidance for consumer-applicable invariants (MVVM Separation, Repository Isolation)
-- guidance that references consumer-feature directories or patterns that don't exist in the canonical structure
-- inconsistencies between guidance documents (different directory layouts, naming conventions)
-- code examples that contradict the canonical feature structure
-- guidance that assumes a specific consumer app domain or feature set
-- consumer guidance that is mixed into library-level invariants without clear separation
+**Detect:**
+- missing guidance for consumer-applicable invariants
+- references to consumer-feature directories not in canonical structure
+- inconsistencies between docs (different layouts, naming)
+- code examples contradicting canonical feature structure
+- assumptions about specific consumer app domain
+- consumer guidance mixed into library invariants
 
-Allowed:
-- [ ] All consumer-applicable invariants have corresponding guidance in architecture docs
-- [ ] Canonical feature structure is consistently referenced across all docs
-- [ ] Code examples use feature-agnostic naming (e.g., `User`, `Item`)
-- [ ] Guidance clearly separates library primitives from consumer responsibilities
-
-Forbidden:
-- [ ] No guidance covering consumer MVVM or Repository pattern
-- [ ] Guidance documents referencing different or conflicting directory structures
-- [ ] Code examples tied to a specific consumer feature domain
-- [ ] Consumer responsibilities mixed into library invariant docs
+**Score guide:** 10 = all guidance complete, consistent, feature-agnostic; 7 = minor gaps or inconsistencies; 5 = major gaps; 0 = no consumer guidance exists
 
 ---
 
@@ -333,50 +320,52 @@ Forbidden:
 
 ### 5. Architecture Guidance Clarity (Track B — Guidance)
 
-Audit whether the architecture guidance documents clearly define the split between library primitives and consumer responsibilities, without depending on any specific feature or implementation.
+Score: **{score}/10**
 
-Detect:
+Audit whether the architecture guidance docs clearly define the library/consumer split, without depending on any specific feature or implementation.
 
-- guidance that references specific consumer app features or domain names
-- guidance documents that define conflicting directory structures or naming conventions
-- missing distinction between "what Astra provides" and "what consumers build"
-- consumer-applicable invariants (MVVM Separation, Repository Isolation) with no corresponding how-to guidance in core docs
-- code examples that are inconsistent with the canonical feature structure in `core/feature-structure.md`
-- integration contracts that assume specific app frameworks or tools (beyond React, Electron)
-- loose references to "application state" or "business logic" without clarifying where those live (consumer feature modules, not Astra)
-- guidance documents without cross-references to `core/feature-structure.md`
+For each guidance document, evaluate across 4 criteria (each scored 0–10), then average per document:
 
-For each guidance document, evaluate:
+| Criterion | What It Measures | 10 = | 0 = |
+|-----------|-----------------|------|-----|
+| **Clarity** | Is the doc's purpose and guidance easy to understand? | Crystal clear | Confusing or missing |
+| **Feature-Agnostic** | Does it avoid consumer domain references? | Fully generic | Tied to specific features |
+| **Consistency** | Does it align with canonical feature-structure.md? | Fully aligned | Contradicts other docs |
+| **Consumer Boundary** | Does it clearly separate library vs consumer? | Explicit boundary | Blurred or missing |
 
-| Document | Clarity | Feature-Agnostic | Consistent | Consumer Boundary |
-|----------|---------|-----------------|------------|-------------------|
-| `core/feature-structure.md` | {P/F} | {P/F} | {P/F} | {P/F} |
-| `core/mvvm-pattern.md` | {P/F} | {P/F} | {P/F} | {P/F} |
-| `core/hooks.md` | {P/F} | {P/F} | {P/F} | {P/F} |
-| `core/repository.md` | {P/F} | {P/F} | {P/F} | {P/F} |
-| `core/state-management.md` | {P/F} | {P/F} | {P/F} | {P/F} |
-| `integration-contracts/react.md` | {P/F} | {P/F} | {P/F} | {P/F} |
-| `integration-contracts/electron.md` | {P/F} | {P/F} | {P/F} | {P/F} |
-| `integration-contracts/getting-started.md` | {P/F} | {P/F} | {P/F} | {P/F} |
+**Document Scores:**
 
-Allowed:
-- [ ] All guidance documents clearly separate library primitives vs consumer responsibilities
-- [ ] All code examples use feature-agnostic naming
-- [ ] All docs consistently reference the canonical feature structure
-- [ ] Consumer-applicable invariants have corresponding how-to guidance
-- [ ] Integration contracts avoid framework-specific assumptions beyond stated scope
+| Document | Clarity /10 | Feature-Agnostic /10 | Consistency /10 | Consumer Boundary /10 | Average /10 | P-Level |
+|----------|-------------|---------------------|----------------|----------------------|-------------|---------|
+| `core/feature-structure.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
+| `core/mvvm-pattern.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
+| `core/hooks.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
+| `core/repository.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
+| `core/state-management.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
+| `integration-contracts/react.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
+| `integration-contracts/electron.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
+| `integration-contracts/getting-started.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
 
-Forbidden:
-- [ ] No guidance document referencing specific consumer features or domains
-- [ ] No conflicting directory structures between documents
-- [ ] No consumer guidance missing for MVVM Separation or Repository Isolation
-- [ ] No assumption about what consumer app features look like
+**Track B Score = average of all 8 document averages.**
 
-Severity mapping:
-- P0: guidance documents reference specific consumer app features, no consumer guidance for MVVM/Repository
-- P1: conflicting directory structures across documents, inconsistent naming
-- P2: isolated inconsistency or missing cross-reference — documented gap
-- P3: all guidance docs are feature-agnostic, implementation-agnostic, and consistent
+**Detect:**
+- guidance referencing specific consumer features or domain names
+- conflicting directory structures or naming between docs
+- missing library-vs-consumer boundary
+- consumer-applicable invariants (MVVM, Repository) without how-to guidance
+- code examples inconsistent with canonical feature structure
+- loose references to "app state" / "business logic" without clarifying consumer owns those
+
+**Allowed:**
+- All docs clearly separate library vs consumer
+- All code examples use feature-agnostic naming
+- All docs consistently reference canonical feature structure
+- Consumer-applicable invariants have corresponding how-to guidance
+
+**Forbidden:**
+- Any doc referencing specific consumer features or domains
+- Conflicting directory structures between documents
+- Missing consumer guidance for MVVM Separation or Repository Isolation
 
 ---
 
@@ -427,33 +416,184 @@ P0 / P1 / P2 / P3
 
 ## Severity Classification
 
-| Severity | Meaning | Action |
-|----------|---------|--------|
-| P0 | Critical — systemic architecture failure | Must restructure before release |
-| P1 | High — recurring architectural debt | Must plan migration next release |
-| P2 | Transitional — isolated exception with plan | Allowed temporarily |
-| P3 | Compliant — architecture intact | No action required |
+| Severity | Score Range | Meaning | Action |
+|----------|-------------|---------|--------|
+| P0 | 0–4 | Critical — systemic architecture failure | Must restructure before release |
+| P1 | 5–7 | High — recurring architectural debt | Must plan migration next release |
+| P2 | 8–9 | Transitional — isolated exception with plan | Allowed temporarily |
+| P3 | 10 | Compliant — architecture intact | No action required |
+
+---
+
+## Score Calculation
+
+### Track A — Library Compliance (weighted average)
+
+```
+Track A Score = Σ(dimension_score × weight) / Σ(weights)
+```
+
+| Dimension | Weight | Scoring Guidance |
+|-----------|--------|-----------------|
+| Component Purity | 20% | All components stateless & in correct tier → 10. Any data-fetching or cross-tier import → penalize per P-level |
+| Theme Sovereignty | 15% | All styling via theme tokens → 10. Each hardcoded value cluster → -1, recurring pattern → -2 |
+| Localization Compliance | 15% | All text via translation keys → 10. Each hardcoded string → -2 |
+| Data Architecture | 20% | No MVVM/repo boundary leaks in library → 10. Accidental repo import in component → -3 |
+| Library Governance | 15% | Deps pinned, public API clean, build deterministic → 10. Each gap → -2 |
+| Platform Neutrality | 15% | No platform-specific APIs → 10. Each violation → -3 |
+
+### Track B — Guidance Clarity (simple average)
+
+```
+Track B Score = average score across all 8 guidance documents
+```
+
+Each document score = average of its 4 criteria (Clarity, Feature-Agnostic, Consistency, Consumer Boundary).
+
+### Combined Score (simple average of tracks)
+
+```
+Combined Score = (Track A Score + Track B Score) / 2
+```
+
+### Final Assessment Label
+
+| Score Range | Label |
+|-------------|-------|
+| 9.0–10.0 | Excellent |
+| 7.0–8.9 | Good |
+| 5.0–6.9 | Needs Improvement |
+| 3.0–4.9 | Major Revision Required |
+| 0.0–2.9 | Not Implementation Ready |
 
 ---
 
 ## Output Specification
 
-The audit report MUST include:
+The audit report MUST use the following structure:
 
-1. **Audit Metadata** — timestamp, commit, suite, invariant references, track(s) audited
-2. **Modules/Documents Audited** — numbered list of modules (source) and documents (guidance) reviewed
-3. **Summary** — count per severity (P0-P3) per track, violation density heatmap
-4. **Overall Score** — per-dimension score out of 100, separate scores for Library Compliance and Guidance Clarity
-5. **Findings** — detailed per-finding using the Finding Format above, grouped by track
-6. **Cross-Suite Overlap** — findings shared with component-architecture, component-purity, and library-governance suites; deduplication guidance for fix plan
-7. **Transitional Violations** — known documented architecture debt
-8. **Guidance Gaps** — summary of missing consumer-facing guidance with suggested additions
-9. **Audit Traceability** — reference to the audit suite and report location
+---
+
+### 1. Executive Summary
+
+```
+# Architecture Audit Report — {timestamp}
+
+## Executive Summary
+
+- **Overall Assessment:** {Excellent / Good / Needs Improvement / Major Revision Required}
+- **Combined Score:** {score}/10
+- **Track A (Library Compliance):** {score}/10
+- **Track B (Guidance Clarity):** {score}/10
+- **Critical Findings (P0):** {n}
+- **Major Findings (P1):** {n}
+- **Minor Findings (P2):** {n}
+- **Modules Audited:** {n} source files | {n} guidance documents
+```
+
+---
+
+### 2. Modules & Documents Audited
+
+Numbered list of all source modules and guidance documents reviewed.
+
+---
+
+### 3. Scoring Breakdown
+
+#### Track A — Library Compliance
+
+| Dimension | Score /10 | P-Level | Weight | Weighted Score | Key Violations |
+|-----------|-----------|---------|--------|----------------|----------------|
+| Component Purity | {score} | {P} | 20% | {w_score} | {summary} |
+| Theme Sovereignty | {score} | {P} | 15% | {w_score} | {summary} |
+| Localization Compliance | {score} | {P} | 15% | {w_score} | {summary} |
+| Data Architecture | {score} | {P} | 20% | {w_score} | {summary} |
+| Library Governance | {score} | {P} | 15% | {w_score} | {summary} |
+| Platform Neutrality | {score} | {P} | 15% | {w_score} | {summary} |
+
+```
+Track A Score = Σ(weighted_scores) = {score}/10
+```
+
+#### Track B — Guidance Clarity
+
+| Document | Clarity /10 | Feature-Agnostic /10 | Consistency /10 | Consumer Boundary /10 | Average /10 | P-Level |
+|----------|-------------|---------------------|----------------|----------------------|-------------|---------|
+| `core/feature-structure.md` | {score} | {score} | {score} | {score} | {avg} | {P} |
+| ... | ... | ... | ... | ... | ... | ... |
+
+```
+Track B Score = average of all document averages = {score}/10
+```
+
+#### Combined
+
+```
+Combined Score = (Track A + Track B) / 2 = {score}/10
+```
+
+---
+
+### 4. Findings
+
+Each finding MUST follow the Finding Format defined above. Findings are grouped by track:
+
+#### Track A — Library Compliance Findings
+
+ARCH-001, ARCH-002, ...
+
+#### Track B — Guidance Clarity Findings
+
+ARCH-GUIDE-001, ARCH-GUIDE-002, ...
+
+---
+
+### 5. Cross-Suite Overlap
+
+Table of findings shared with component-architecture, component-purity, and library-governance suites, with deduplication guidance for the fix plan.
+
+---
+
+### 6. Score Improvement Summary
+
+If this is not the first audit, include an iteration history:
+
+| Iteration | Date | Combined | Track A | Track B | Change | Key Changes |
+|-----------|------|----------|---------|---------|--------|-------------|
+| 1 (baseline) | {date} | {score} | {score} | {score} | — | — |
+| 2 | {date} | {score} | {score} | {score} | +{n} | {what changed} |
+
+Otherwise, note: "Baseline audit — no iteration history."
+
+---
+
+### 7. Final Verdict
+
+```
+{Excellent / Good / Needs Improvement / Major Revision Required} ({score}/10)
+```
+
+One-paragraph summary of the most critical action items and whether the architecture is healthy.
+
+---
+
+### 8. Audit Traceability
+
+| Reference | Location |
+|-----------|----------|
+| Audit Suite | `docs/raw/data/prompt/audit/architecture/architecture-audit.md` |
+| Invariant Docs | `docs/raw/architecture/invariants/*.md` |
+| Architecture Docs | `docs/raw/architecture/core/*.md` |
+| Integration Contracts | `docs/raw/architecture/integration-contracts/*.md` |
+| This Report | `docs/raw/report/architecture/latest/architecture-{module}-{timestamp}.md` |
+
+---
 
 The report MUST be written to:
 
 ```
-docs/raw/report/architecture/latest/architecture-{module}-{timestamp}.md
+docs/raw/report/architecture/latest/architecture-audit-{timestamp}.md
 ```
 
 ---

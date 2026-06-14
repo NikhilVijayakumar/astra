@@ -12,6 +12,7 @@ import {
   useTheme as useMuiTheme,
 } from "@mui/material";
 import { spacing } from "../../../theme/tokens/spacing";
+import { fonts } from "../../../theme/tokens/typography";
 
 export type ReviewDecisionMode = "idle" | "approve" | "reject";
 
@@ -121,7 +122,7 @@ export const ReviewDecisionDialog = ({
           <Box>
             <Typography
               variant="subtitle2"
-              sx={{ fontWeight: 600, mb: spacing.xs }}
+              sx={{ mb: spacing.xs }}
             >
               {entityType}
             </Typography>
@@ -137,7 +138,7 @@ export const ReviewDecisionDialog = ({
                   p: spacing.xs,
                   backgroundColor: "background.default",
                   borderRadius: 1,
-                  fontFamily: "monospace",
+                  fontFamily: fonts.mono,
                   fontSize: muiTheme.typography.caption.fontSize,
                   maxHeight: 200,
                   overflowY: "auto",

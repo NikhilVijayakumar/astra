@@ -26,17 +26,13 @@ export const SeverityBadge: FC<SeverityBadgeProps> = ({ level }) => {
 
   return (
     <Typography
-      variant="caption"
+      variant="micro"
       sx={{
         px: spacing.sm,
         py: spacing.internal,
         borderRadius: 1,
         backgroundColor: `${tone}15`,
         color: tone,
-        fontWeight: 600,
-        fontSize: '0.6875rem',
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
       }}
     >
       {level}

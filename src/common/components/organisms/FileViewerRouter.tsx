@@ -23,8 +23,8 @@ export const FileViewerRouter: FC<FileViewerRouterProps> = ({
   const { literal } = useLanguage();
   const ext = fileName.split(".").pop()?.toLowerCase();
 
-  const fallbackTitle = literal["viewer.unsupported"] || "Unsupported File";
-  const fallbackExt = literal["viewer.extension"] || "Extension";
+  const fallbackTitle = literal["viewer.unsupported"] ?? "⚠️";
+  const fallbackExt = literal["viewer.extension"] ?? "📄";
 
   switch (ext) {
     case "csv":
@@ -53,7 +53,7 @@ export const FileViewerRouter: FC<FileViewerRouterProps> = ({
     default:
       return (
         <Box sx={{ p: spacing.lg, textAlign: "center" }}>
-          <Typography variant="h4" sx={{ fontWeight: 600 }}>
+          <Typography variant="h4">
             {fallbackTitle}
           </Typography>
           <Typography variant="body2" color="text.secondary">
