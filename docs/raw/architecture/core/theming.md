@@ -1,20 +1,20 @@
 # Architecture: Theming
 
-Rita follows **Astra's theming system** based on Material UI with custom tokens.
+Astra provides a **MUI-based theming system** with light/dark mode support and custom design tokens.
 
 ## Theme Structure
 
 ```
 Theme System
 ├── ThemeProvider      # MUI theme wrapper
-├── Light Theme      # Light mode tokens
-├── Dark Theme      # Dark mode tokens
-└── ThemeTokens    # Custom design tokens
+├── Light Theme        # Light mode tokens
+├── Dark Theme         # Dark mode tokens
+└── ThemeTokens        # Custom design tokens
 ```
 
 ## ThemeProvider Setup
 
-Wrap Rita with `ThemeProvider` at app root:
+Wrap your application with `ThemeProvider` at app root:
 
 ```typescript
 import { ThemeProvider, ThemeToggle } from 'astra';
@@ -22,25 +22,16 @@ import { createTheme } from '@mui/material/styles';
 
 const lightTheme = createTheme({
   palette: { mode: 'light' },
-  // Custom tokens
-  tokens: {
-    primary: { main: '#1976d2' },
-    secondary: { main: '#9c27b0' },
-  },
 });
 
 const darkTheme = createTheme({
   palette: { mode: 'dark' },
-  tokens: {
-    primary: { main: '#90caf9' },
-    secondary: { main: '#ce93d8' },
-  },
 });
 
-export function RitaApp() {
+function App() {
   return (
     <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
-      <ThemeToggle /> {/* Light/Dark toggle button */}
+      <ThemeToggle />
       <MainContent />
     </ThemeProvider>
   );
@@ -49,7 +40,7 @@ export function RitaApp() {
 
 ## Design Tokens
 
-Rita uses **Astra's design tokens** from `src/theme/tokens/`:
+Astra provides design tokens from `src/theme/tokens/`:
 
 | Token | Usage | Source |
 |-------|-------|--------|
@@ -62,7 +53,7 @@ Rita uses **Astra's design tokens** from `src/theme/tokens/`:
 Never hardcode colors — always import from `astra`:
 
 ```typescript
-import { colors, spacing, typography } from 'astra';
+import { spacing, typography } from 'astra';
 ```
 
 ### Using Theme in Components
@@ -71,7 +62,7 @@ import { colors, spacing, typography } from 'astra';
 import { useTheme } from 'astra';
 
 function MyComponent() {
-  const theme = useTheme(); // Returns MUI theme object
+  const theme = useTheme();
 
   return (
     <Box
@@ -80,7 +71,7 @@ function MyComponent() {
         color: theme.palette.text.primary,
       }}
     >
-      Hello
+      Content
     </Box>
   );
 }
@@ -93,14 +84,13 @@ Use `ThemeToggle` component for light/dark switching:
 ```typescript
 import { ThemeToggle } from 'astra';
 
-// In any Rita screen:
 function AppHeader() {
   return (
     <AppBar>
       <Toolbar>
-        <Typography>Rita</Typography>
+        <Typography>Application</Typography>
         <Box sx={{ flexGrow: 1 }} />
-        <ThemeToggle /> {/* Automatic light/dark toggle */}
+        <ThemeToggle />
       </Toolbar>
     </AppBar>
   );
@@ -109,48 +99,28 @@ function AppHeader() {
 
 ## Custom Theme Extensions
 
-Rita extends Astra theme with Rita-specific tokens:
+Extend Astra theme with application-specific tokens:
 
 ```typescript
 import { createTheme } from '@mui/material/styles';
-import { colors, spacing, typography } from 'astra';
+import { spacing, typography } from 'astra';
 
-const ritaTheme = createTheme({
+const appTheme = createTheme({
   ...baseTheme,
   palette: {
-    primary: { main: colors.primary },
+    primary: { main: '#1976d2' },
     background: {
-      default: colors.background.light,
-      paper: colors.paperLight,
+      default: '#F5F5F7',
+      paper: '#FFFFFF',
     },
   },
 });
 ```
 
-## Rita Theme Structure
-
-Rita's theme uses Astra tokens:
-
-```
-src/
-├── common/
-│   └── theme/
-│       ├── lightTheme.ts     # Uses Astra tokens
-│       ├── darkTheme.ts    # Uses Astra tokens
-│       └── index.ts      # Theme exports
-├── theme/
-│   └── tokens/          # Astra design tokens
-│       ├── colors.ts
-│       ├── spacing.ts
-│       └── typography.ts
-└── main.tsx              # ThemeProvider wrapper
-```
-
-## Using Tokens in Rita Components
+## Using Tokens in Components
 
 ### DO: Use Theme Tokens
 ```typescript
-// ✅ Correct - use theme tokens
 <Box sx={{ backgroundColor: 'primary.main' }}>
   Content
 </Box>
@@ -158,7 +128,6 @@ src/
 
 ### DON'T: Hardcode Colors
 ```typescript
-// ❌ Wrong - hardcoded color
 <Box sx={{ backgroundColor: '#1976d2' }}>
   Content
 </Box>

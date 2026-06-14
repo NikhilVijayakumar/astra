@@ -7,20 +7,18 @@ The `useDataState` hook is a custom hook designed to manage the state of asynchr
 ### Usage
 
 ```typescript
-import { useDataState } from 'astra';
-import { User } from './types';
+import { useDataState, StateType } from 'astra';
+import { UserRepo } from './repo';
 
-// DIRECT USAGE (Not Recommended for Production)
-const MyComponent = () => {
-  const [state, execute] = useDataState<User[]>();
+const [appState, execute] = useDataState<User[]>();
 
-  const loadUsers = async () => {
-    await execute(() => api.getUsers());
-  };
+useEffect(() => {
+  execute(() => UserRepo.getAll());
+}, []);
 
-  if (state.state === StateType.LOADING) return <LoadingSpinner />;
-  // ...
-};
+if (appState.state === StateType.LOADING) return <LoadingSpinner />;
+if (appState.isError) return <ErrorMessage message={appState.statusMessage} />;
+return <UserList data={appState.data} />;
 ```
 
 ### API

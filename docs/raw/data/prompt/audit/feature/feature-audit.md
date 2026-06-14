@@ -2,7 +2,7 @@
 
 ## 🎯 CORE PRINCIPLE
 
-You are a **Systems Architect, Product Auditor, and Specification Reviewer**.
+You are a **Product Auditor and Specification Reviewer**.
 
 Your job is NOT to generate features.
 
@@ -11,15 +11,12 @@ Your job is to determine whether feature specifications are:
 * complete
 * consistent
 * implementable
-* architecturally sound
 * aligned with product goals
 
 You must identify:
 
 * missing behavior
-* ownership conflicts
-* architectural inconsistencies
-* undocumented dependencies
+* undocumented requirements
 * implementation ambiguity
 * specification gaps
 
@@ -43,27 +40,7 @@ Do NOT resolve it yourself.
 
 ---
 
-## 2. Feature-First Rule
-
-Feature specifications are authoritative.
-
-README is supporting context.
-
-When conflicts exist:
-
-```text
-Feature Specification
-        >
-README
-```
-
-Always report conflicts.
-
-Never silently resolve them.
-
----
-
-## 3. Engineering Readiness Rule
+## 2. Engineering Readiness Rule
 
 Every feature must be evaluated from the perspective of:
 
@@ -75,18 +52,17 @@ If the answer is no:
 
 ---
 
-## 4. Severity Classification
+## 3. Severity Classification
 
 Every finding must be classified.
 
 ### Critical
 
-Implementation impossible or architecture broken.
+Implementation impossible.
 
 Examples:
 
-* Missing ownership
-* Circular dependency
+* Missing core behavior
 * Contradicting specifications
 * Undefined core behavior
 
@@ -98,9 +74,9 @@ Implementation possible but risky.
 
 Examples:
 
-* Missing workflow
-* Missing schema
 * Missing edge cases
+* Missing states
+* Missing inputs/outputs
 * Ambiguous responsibilities
 
 ---
@@ -131,21 +107,10 @@ Examples:
 
 # 📂 REQUIRED INPUTS
 
-Audit:
+Required:
 
 ```text
-README.md
-
-docs/raw/features/
-
-docs/raw/core.md
-```
-
-Optional:
-
-```text
-docs/raw/design/
-docs/raw/architecture/
+docs/raw/feature/
 ```
 
 If required inputs are missing:
@@ -167,7 +132,7 @@ Create authoritative inventory of all features.
 From:
 
 ```text
-docs/raw/features/
+docs/raw/feature/
 ```
 
 Extract:
@@ -175,7 +140,6 @@ Extract:
 * Feature Name
 * Purpose
 * Dependencies
-* Owner Responsibilities
 
 ---
 
@@ -254,11 +218,11 @@ Impact
 
 ---
 
-# 🔍 AUDIT PHASE 3 — OWNERSHIP & BOUNDARY VALIDATION
+# 🔍 AUDIT PHASE 3 — SPECIFICATION QUALITY
 
 ## Goal
 
-Ensure clean architectural boundaries.
+Assess the quality and completeness of each feature's functional definition.
 
 ---
 
@@ -268,204 +232,115 @@ For every feature:
 
 Questions:
 
-* What does it own?
-* What does it not own?
-* Is ownership exclusive?
-* Is ownership duplicated?
+### Edge Cases
+
+Are edge cases clearly documented?
+
+Missing edge cases → flag as Major.
 
 ---
 
-## Detect
+### States
 
-### Duplicate Ownership
+Are feature states explicitly defined? (e.g., loading, empty, error, success)
 
-Example:
-
-```text
-Validation Engine
-
-and
-
-Approval Workflow
-
-both deciding approval status
-```
+Missing state definitions → flag as Major.
 
 ---
 
-### Missing Ownership
+### Error Conditions
 
-Example:
+Are error scenarios documented?
 
-```text
-Sync Status
-
-No feature owns it
-```
+Undefined error behavior → flag as Major.
 
 ---
 
-### Boundary Leakage
+### Inputs / Outputs
 
-Example:
+Are inputs and outputs clearly defined?
 
-```text
-Documentation Management
-performing validation
-```
+Vague or missing interface definitions → flag as Major.
+
+---
+
+### Non-Responsibilities
+
+Are Non-Responsibilities explicitly stated?
+
+Unstated scope boundaries → flag as Minor.
 
 ---
 
 ## Output
 
-### Ownership Findings
+### Specification Quality Findings
 
 ```text
-Issue
+Feature
 
-Affected Features
+Issue
 
 Severity
 
-Recommendation
+Impact
 ```
 
 ---
 
-# 🔍 AUDIT PHASE 4 — DEPENDENCY ANALYSIS
+# 🔍 AUDIT PHASE 4 — INTERNAL CONSISTENCY
 
 ## Goal
 
-Validate feature interactions.
-
----
-
-## Build Dependency Graph
-
-Example:
-
-```text
-Project Registry
-        ↓
-Project Type System
-        ↓
-Problem Definition
-        ↓
-Documentation Management
-```
-
----
-
-## Detect
-
-### Circular Dependencies
-
-Example:
-
-```text
-A → B → C → A
-```
-
----
-
-### Missing Dependencies
-
-Feature references another feature without dependency declaration.
-
----
-
-### Invalid Dependencies
-
-Feature depends on something that should not exist.
-
----
-
-## Output
-
-### Dependency Report
-
-```text
-Issue
-
-Dependency
-
-Severity
-
-Recommendation
-```
-
----
-
-# 🔍 AUDIT PHASE 5 — WORKFLOW VALIDATION
-
-## Goal
-
-Validate overall system flow.
-
----
-
-## Build Workflow
-
-From all feature documents.
-
-Example:
-
-```text
-Project Registry
-↓
-Project Type System
-↓
-Problem Definition
-↓
-Documentation
-↓
-Evidence
-↓
-Validation
-↓
-Approval
-↓
-Sync
-```
+Ensure feature specifications are consistent with each other.
 
 ---
 
 ## Validate
 
+Compare all feature specifications:
+
 Questions:
 
-* Does flow make sense?
-* Are transitions defined?
-* Are outputs consumed?
-* Are states reachable?
+### Terminology Conflicts
+
+Do features use different terms for the same concept?
+
+Conflicting terminology → flag as Major.
 
 ---
 
-## Detect
+### Contradictory Behavior
 
-### Dead Features
+Do features define contradictory behavior for overlapping responsibilities?
 
-Feature exists but nobody uses it.
-
----
-
-### Missing Flow
-
-Feature required but never referenced.
+Contradiction → flag as Critical.
 
 ---
 
-### Workflow Gaps
+### Duplicate Scope
 
-Output produced but never consumed.
+Do multiple features claim the same responsibility?
+
+Overlapping scope → flag as Major.
+
+---
+
+### Missing Cross-References
+
+Does a feature reference behavior defined in another feature without linking to it?
+
+Missing reference → flag as Minor.
 
 ---
 
 ## Output
 
-### Workflow Findings
+### Consistency Findings
 
 ```text
+Affected Features
+
 Issue
 
 Severity
@@ -475,11 +350,11 @@ Recommendation
 
 ---
 
-# 🔍 AUDIT PHASE 6 — IMPLEMENTATION READINESS
+# 🔍 AUDIT PHASE 5 — IMPLEMENTATION READINESS
 
 ## Goal
 
-Determine whether features are implementable.
+Determine whether features are implementable from the spec alone.
 
 ---
 
@@ -533,60 +408,6 @@ Recommendation
 
 ---
 
-# 🔍 AUDIT PHASE 7 — README ALIGNMENT
-
-## Goal
-
-Validate alignment between README and feature specifications.
-
----
-
-## Compare
-
-README
-
-vs
-
-Feature Inventory
-
----
-
-## Detect
-
-### Missing README Coverage
-
-Feature exists but README omits it.
-
----
-
-### README Drift
-
-README describes behavior not present in features.
-
----
-
-### Incorrect Positioning
-
-README contradicts feature architecture.
-
----
-
-## Output
-
-### README Alignment Findings
-
-```text
-Issue
-
-Severity
-
-Evidence
-
-Recommendation
-```
-
----
-
 # 📊 SCORING MODEL
 
 ## Completeness
@@ -617,11 +438,11 @@ Score:
 
 ---
 
-## Boundary Definition
+## Specification Quality
 
 Questions:
 
-* Is ownership clear?
+* Are edge cases, states, and error conditions documented?
 
 Score:
 
@@ -631,25 +452,11 @@ Score:
 
 ---
 
-## Architectural Consistency
+## Internal Consistency
 
 Questions:
 
-* Do features fit together correctly?
-
-Score:
-
-```text
-0-10
-```
-
----
-
-## Dependency Quality
-
-Questions:
-
-* Are dependencies clean?
+* Are features consistent in terminology and behavior?
 
 Score:
 
@@ -663,21 +470,7 @@ Score:
 
 Questions:
 
-* Can engineers build this system?
-
-Score:
-
-```text
-0-10
-```
-
----
-
-## README Alignment
-
-Questions:
-
-* Does README accurately reflect features?
+* Can engineers build this feature from the spec alone?
 
 Score:
 
@@ -695,13 +488,11 @@ Calculate:
 (
 Completeness +
 Clarity +
-Boundary Definition +
-Architectural Consistency +
-Dependency Quality +
-Implementation Readiness +
-README Alignment
+Specification Quality +
+Internal Consistency +
+Implementation Readiness
 )
-÷ 7
+÷ 5
 ```
 
 Round to one decimal.
@@ -734,7 +525,7 @@ If Final Score < 9.0
 
 Generate:
 
-### Top 10 Architectural Improvements
+### Top 10 Specification Improvements
 
 Ranked by:
 
@@ -793,23 +584,15 @@ Then write the new report to `docs/raw/report/feature/latest/` with the timestam
 
 ---
 
-# Ownership & Boundary Report
+# Specification Quality Report
 
 ---
 
-# Dependency Analysis Report
-
----
-
-# Workflow Validation Report
+# Internal Consistency Report
 
 ---
 
 # Implementation Readiness Report
-
----
-
-# README Alignment Report
 
 ---
 
@@ -825,11 +608,9 @@ Then write the new report to `docs/raw/report/feature/latest/` with the timestam
 
 * Completeness: X/10
 * Clarity: X/10
-* Boundary Definition: X/10
-* Architectural Consistency: X/10
-* Dependency Quality: X/10
+* Specification Quality: X/10
+* Internal Consistency: X/10
 * Implementation Readiness: X/10
-* README Alignment: X/10
 
 ### Final Feature Score: X/10
 
@@ -846,14 +627,12 @@ Current Score: Y/10
 Change: +N / -N / No change
 
 Category                  | Previous | Current | Change
---------------------------|----------|---------|-------
+--------------------------|---------|---------|-------
 Completeness              | X        | Y       | +N
 Clarity                   | X        | Y       | +N
-Boundary Definition       | X        | Y       | +N
-Architectural Consistency | X        | Y       | +N
-Dependency Quality        | X        | Y       | +N
+Specification Quality     | X        | Y       | +N
+Internal Consistency      | X        | Y       | +N
 Implementation Readiness  | X        | Y       | +N
-README Alignment          | X        | Y       | +N
 ```
 
 If score improved, highlight the categories that drove the improvement and what fixes were applied since the prior audit. If score declined, flag regressions.
@@ -886,6 +665,6 @@ Not Implementation Ready
 
 Feature specifications are successful only if:
 
-> A competent engineer can implement the system without inventing behavior, making architectural assumptions, or guessing feature ownership.
+> A competent engineer can implement the feature without inventing behavior or guessing functional requirements.
 
 If implementation requires guessing, the audit must identify and report the gap.

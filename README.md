@@ -1,6 +1,6 @@
 # Astra
 
-A robust React library designed to serve as a comprehensive boilerplate for building scalable applications. It implements **MVVM (Model-View-ViewModel)** patterns, handles **localization**, manages **state**, and provides a solid foundation for **theming** and **API interactions**.
+A robust **React + Electron** library serving as a comprehensive boilerplate for building scalable web and desktop applications. It implements **MVVM (Model-View-ViewModel)** patterns, handles **localization**, manages **state** (stateless — transient only), and provides a solid foundation for **theming** and **API interactions**.
 
 This library abstracts away the repetitive setup code so you can focus on your application's business logic.
 
@@ -9,11 +9,20 @@ This library abstracts away the repetitive setup code so you can focus on your a
 ## 🚀 Features
 
 - **MVVM Architecture**: Built-in hooks to manage data fetching and state transitions cleanly.
-- **State Management**: Structured application state handling (`INIT`, `LOADING`, `COMPLETED`, `ERROR`).
+- **State Management**: Structured application state handling (`INIT`, `LOADING`, `COMPLETED`, `ERROR`) — **stateless**, persistence delegated to consumer.
 - **Localization (i18n)**: Ready-to-use `LanguageProvider` and context for multi-language support.
 - **Theming**: Integrated Material UI (MUI) theme management with Light/Dark mode interaction.
 - **API Repository**: A type-safe Axios wrapper for standardized API requests and error handling.
+- **Electron Support**: First-class integration with Electron 28+ via context bridge pattern.
+- **Atomic Design**: 47 UI components organized by Atomic Design tiers (Atoms, Molecules, Organisms, Templates).
 - **Type Safety**: Fully written in TypeScript.
+
+### What Astra Is Not
+
+- **Not a UI framework** — Astra provides infrastructure; bring your own UI layer or use the included components
+- **Not a state persistence library** — Astra is stateless; persistence (localStorage, SQLite, IndexedDB) is the consumer's responsibility
+- **Not a design system** — Astra provides theming infrastructure but no branded design language
+- **Not a backend** — Astra is purely client-side; it consumes APIs but does not provide server-side functionality
 
 ## 📦 Installation
 
@@ -41,7 +50,31 @@ Or if you are developing locally and linking it:
 }
 ```
 
-## 🛠 Usage
+> **Note:** `astra` is open-source (`"private": false`) but currently GitHub-hosted. npm registry publishing is planned. In the meantime, use the git or file install methods above.
+
+## 🚀 Quick Start
+
+### 1. Install
+
+```bash
+npm install git+https://github.com/NikhilVijayakumar/astra.git
+```
+
+### 2. Wrap Providers
+
+```tsx
+import { ThemeProvider, LanguageProvider } from "astra";
+```
+
+See [Integration Guides](#integration-guides) for complete setup per framework.
+
+### 3. Build Features
+
+```tsx
+import { useDataState, AppStateHandler } from "astra";
+```
+
+See the [MVVM Pattern](#3-consuming-data-mvvm-pattern) section below for a full example.
 
 ## 📜 Consumption Contract
 
@@ -72,31 +105,29 @@ Migration guidance for older consumers:
 **Core:**
 
 - `ApiService` - Type-safe Axios wrapper
-- `useDataState` - MVVM state management hook
-- `StateType` - State type enum (`INIT`, `LOADING`, `COMPLETED`, `ERROR`)
-- `AppState<T>` - State container type
-- `AppStateHandler` - UI state handler component
+- `ServerResponse<T>` - Typed API response wrapper (`isSuccess`, `isError`, `data`, `status`, `statusMessage`)
+- `HttpStatusCode` - HTTP status enum (`SUCCESS`, `CREATED`, `BAD_REQUEST`, `UNAUTHORIZED`, `NOT_FOUND`, `INTERNAL_SERVER_ERROR`, `INTERNET_ERROR`, `IDLE`)
+- `getStatusMessage` - Localized status message helper
+- `useDataState` - MVVM state management hook — returns `[appState, execute, setAppState]`
+- `StateType` - State type enum (`INIT`, `LOADING`, `COMPLETED`)
+- `AppState<T>` - State container type (`state`, `isError`, `isSuccess`, `status`, `statusMessage`, `data`)
+- `AppStateHandler` - UI state handler component (props: `appState`, `SuccessComponent`, `emptyCondition`, `errorMessage`, `children`)
 - `ThemeProvider` - MUI theming provider
 - `ThemeToggle` - Theme mode toggle
+- `useTheme` - Theme context hook (`darkMode`, `toggleDarkMode`)
 - `LanguageProvider` - i18n provider
 - `useLanguage` - i18n hook
+- `LanguageSelector` - Language switch dropdown component
 
-**UI Components:**
+**UI Components** (47 components — see [detailed docs](docs/raw/feature/components/) for full API per component):
 
-- `HeroSection`, `Card`, `DataTable`, `FormLayout`, `Notification`
-- `StatusDot`, `SeverityBadge`, `TrendMetricCard`, `PageHeader`, `SummaryPanel`
-- `StatusListRow`, `EntityConfidenceRow`, `AlertListItem`, `SummaryListItem`
-- `DecisionActionCard`, `WeeklyReportCard`, `ReviewDecisionDialog`
-- `MultiStepProgressIndicator`, `EntryLayoutFrame`, `OperationHealthPanel`
-- `VerticalStepIndicator`, `InteractiveStepNode`, `AnimatedHeroCharacter`
-- `FeatureSegmentCard`, `PlayableMediaCard`, `IconDescriptionListItem`
-- `ProfileRevealCard`, `TimelineNode`, `AudioPlayerBar`
-- `MultiPhaseWorkflowDiagram`, `CanvasNote`, `CanvasGroup`
-- `StatusActionCard`, `VersionHistorySelector`, `FileTree`, `TerminalViewer`
+**Atoms** ([docs](docs/raw/feature/components/atoms/)): `StatusDot`, `SeverityBadge`, `LoadingState`, `ErrorState`, `EmptyState`
 
-**File Viewers:**
+**Molecules** ([docs](docs/raw/feature/components/molecules/)): `Card`, `Notification`, `TrendMetricCard`, `ImageViewer`, `JsonViewer`, `MdViewer`
 
-- `FileViewerRouter`, `CsvViewer`, `ImageViewer`, `JsonViewer`, `MdViewer`
+**Organisms** ([docs](docs/raw/feature/components/organisms/)): `DataTable`, `TimelineNode`, `FileTree`, `TerminalViewer`, `AudioPlayerBar`, `AnimatedHeroCharacter`, `CanvasNote`, `CanvasGroup`, `StatusActionCard`, `VersionHistorySelector`, `MultiPhaseWorkflowDiagram`, `FileViewerRouter`, `CsvViewer`, `EntryLayoutFrame`, `OperationHealthPanel`, `VerticalStepIndicator`, `InteractiveStepNode`, `FeatureSegmentCard`, `PlayableMediaCard`, `IconDescriptionListItem`, `ProfileRevealCard`, `StatusListRow`, `EntityConfidenceRow`, `AlertListItem`, `SummaryListItem`, `DecisionActionCard`, `WeeklyReportCard`, `ReviewDecisionDialog`, `MultiStepProgressIndicator`, `FormLayout`, `DrawerComponent`, `ToolbarComponent`
+
+**Templates** ([docs](docs/raw/feature/components/templates/)): `PageHeader`, `SummaryPanel`, `HeroSection`
 
 **Theme Utilities:**
 
@@ -233,6 +264,78 @@ function UserList() {
 }
 ```
 
+### 5. Electron Usage
+
+For Electron 28+ desktop apps, access native APIs via the context bridge pattern:
+
+```tsx
+// preload.js — expose APIs to renderer
+// contextBridge.exposeInMainWorld('electronAPI', {
+//   getSettings: () => ipcRenderer.invoke('settings:get'),
+//   saveSettings: (data) => ipcRenderer.invoke('settings:set', data),
+// });
+
+import { useDataState } from "astra";
+import { useEffect } from "react";
+
+function SettingsPage() {
+  const [settings, loadSettings] = useDataState();
+
+  useEffect(() => {
+    loadSettings(() => window.electronAPI.getSettings());
+  }, []);
+
+  if (settings.isError) return <div>Failed to load settings</div>;
+  return <pre>{JSON.stringify(settings.data, null, 2)}</pre>;
+}
+```
+
+See [Electron integration guide](docs/raw/architecture/integration-contracts/electron.md) for complete setup.
+
+## 🏗 Architecture
+
+Astra follows **MVVM (Model-View-ViewModel)** with a **stateless** design.
+
+### Layer Architecture
+
+```mermaid
+graph TD
+    subgraph MVVM["MVVM Data Flow"]
+        View["View (React Component)"] --> VM["ViewModel (useDataState hook)"]
+        VM --> Model["Model (ApiService / Repository)"]
+        Model --> SR["ServerResponse&lt;T&gt;"]
+        SR --> AS["AppState&lt;T&gt;"]
+        AS --> View
+    end
+
+    subgraph Providers["Provider Hierarchy"]
+        TP["ThemeProvider (MUI theming)"] --> LP["LanguageProvider (i18n)"]
+        LP --> App["Your Application"]
+    end
+
+    subgraph StateMachine["State Machine"]
+        INIT --> LOADING
+        LOADING -->|isSuccess| COMPLETED
+        LOADING -->|isError| COMPLETED
+    end
+```
+
+### State Flow
+
+```
+INIT → LOADING → COMPLETED | ERROR
+```
+
+Astra manages transient state only. Persistent state (localStorage, SQLite, IndexedDB) is the consumer's responsibility.
+
+### Import Architecture
+
+- **Root imports** (`import { X } from "astra"`) — primary and recommended
+- **Subpath imports** (`astra/theme`, `astra/components`, `astra/common`) — supported
+- **Internal/deep imports** (`astra/dist/...`) — unsupported, may break
+
+See [docs/raw/architecture/core/](docs/raw/architecture/core/) for detailed architecture docs and [docs/raw/architecture/invariants/](docs/raw/architecture/invariants/) for architectural rules and compliance guidelines.
+
 ## 📁 Project Structure
 
 The core logic resides in `src/common`:
@@ -244,18 +347,30 @@ The core logic resides in `src/common`:
 - **`state/`**: `AppState` type definitions (`INIT`, `LOADING`, `COMPLETED`).
 - **`theme/`**: `ThemeProvider` and theming logic.
 
-## 📚 Client Documentation
+## 📚 Documentation
 
-For production integrations, follow these docs in order:
+### Feature Documentation
 
-1. `docs/MVVM_Clean_Architecture.md` for architecture boundaries and composition.
-2. `docs/Repository_Layer.md` for API and data access conventions.
-3. `docs/state.md` for app-state usage patterns and transitions.
-4. `docs/Localization.md` for language setup and translation contracts.
-5. `docs/Theming.md` for Astra token standards, theming architecture, and override strategy.
-6. `docs/Platform_Compatibility.md` for browser/platform behavior notes.
+- `docs/raw/feature/mvvm/` — MVVM architecture, pattern, and best practices
+- `docs/raw/feature/repository/` — ApiService, ServerResponse, HttpStatusCode
+- `docs/raw/feature/state/` — useDataState hook, AppStateHandler, state transitions
+- `docs/raw/feature/localization/` — LanguageProvider, useLanguage, translation patterns
+- `docs/raw/feature/theming/` — ThemeProvider, design tokens, theme customization
+- `docs/raw/feature/components/` — Full component catalog by Atomic Design tier
 
-Recommended onboarding path for client apps:
+### Architecture
+
+- `docs/raw/architecture/core/` — Core architecture patterns (MVVM, state, hooks, repository, localization, theming)
+- `docs/raw/architecture/invariants/` — Architectural rules and compliance guidelines
+- `docs/raw/architecture/integration-contracts/` — Framework-specific integration guides
+
+### Integration Guides
+
+- `docs/raw/architecture/integration-contracts/getting-started.md` — Basic installation and setup
+- `docs/raw/architecture/integration-contracts/react.md` — React (Vite / Next.js / CRA) integration
+- `docs/raw/architecture/integration-contracts/electron.md` — Electron 28+ desktop integration
+
+### Onboarding Recommendations
 
 - Start with root imports from `astra`.
 - Introduce `ThemeProvider` and `LanguageProvider` at app root.
@@ -287,3 +402,11 @@ npm run build
 ```bash
 npm run lint
 ```
+
+### Run Tests
+
+```bash
+npm test
+```
+
+Components include unit tests with Vitest + Testing Library. Test files follow `*.test.tsx` naming alongside source files.

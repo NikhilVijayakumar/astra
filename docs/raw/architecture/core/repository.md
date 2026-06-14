@@ -1,28 +1,27 @@
 # Architecture: Repository Pattern
 
-Chakra follows **Astra's Repository pattern** for API and data access.
+Astra provides a **Repository pattern** for API and data access, built on `ApiService` (Axios wrapper) with typed response contracts.
 
 ## Repository Structure
 
 ```
 Repository Pattern
 ├── ApiService        # HTTP client wrapper
-├── ServerResponse  # Response wrapper
-├── HttpStatusCode # Status enum
-└── Repository   # Feature-specific repos
+├── ServerResponse    # Response wrapper
+├── HttpStatusCode    # Status enum
+└── Repository        # Feature-specific repos
 ```
 
 ## ApiService Setup
 
-Chakra uses `ApiService` from Astra:
+Astra's `ApiService` wraps Axios with error handling and localization:
 
 ```typescript
 import { ApiService, ServerResponse, HttpStatusCode } from 'astra';
 
-// For external APIs (e.g., Google Sheets)
-const googleSheetsApi = new ApiService('https://sheets.googleapis.com/v4', {
-  internal_server_error: 'Failed to fetch from Google Sheets.',
-  unauthorized: 'Please sign in to Google.',
+const api = new ApiService('https://api.example.com', {
+  internal_server_error: 'Something went wrong.',
+  unauthorized: 'Please sign in.',
 });
 ```
 
@@ -40,83 +39,39 @@ interface ServerResponse<T> {
 }
 
 // Success:
-ServerResponse.success({ status: 200, statusMessage: 'OK', data: apps });
+ServerResponse.success({ status: 200, statusMessage: 'OK', data: items });
 
 // Error:
-ServerResponse.error({ status: 500, statusMessage: 'Failed to load apps' });
+ServerResponse.error({ status: 500, statusMessage: 'Failed to load' });
 ```
 
-## Repository Pattern in Chakra
+## Repository Pattern
 
 ### Structure
 
 ```
-src/renderer/
-├── common/
-│   └── repo/           # Repository modules
-│       ├── api.ts      # API client
-│       └── index.ts    # Export
+src/
 └── features/
     └── [feature]/
         └── repo/       # Feature-specific repos
-            ├── appRepo.ts
-            ├── configRepo.ts
+            ├── modelRepo.ts
             └── index.ts
 ```
 
-### App Repository Example
+### Repository Example
 
 ```typescript
-// src/renderer/features/installation/repo/appRepo.ts
-import { ApiService, ServerResponse } from 'astra';
+import { ApiService, ServerResponse, HttpStatusCode } from 'astra';
 
-const ipcService = window.electronAPI; // Prana preload bridge
-
-export const AppRepo = {
-  getApps: async (): Promise<ServerResponse<App[]>> => {
+export const ModelRepo = {
+  getAll: async (): Promise<ServerResponse<Model[]>> => {
     try {
-      const data = await ipcService.invoke('app:list');
-      return ServerResponse.success({
-        status: 200,
-        statusMessage: 'OK',
-        data,
-      });
+      const response = await api.get<Model[]>('/models');
+      return response;
     } catch (error) {
       return ServerResponse.error({
-        status: 500,
-        statusMessage: error instanceof Error ? error.message : 'Failed to load apps',
-      });
-    }
-  },
-
-  installApp: async (repoUrl: string): Promise<ServerResponse<App>> => {
-    try {
-      const data = await ipcService.invoke('app:install', { repoUrl });
-      return ServerResponse.success({
-        status: 201,
-        statusMessage: 'App installed successfully',
-        data,
-      });
-    } catch (error) {
-      return ServerResponse.error({
-        status: 500,
-        statusMessage: error instanceof Error ? error.message : 'Installation failed',
-      });
-    }
-  },
-
-  uninstallApp: async (appId: string): Promise<ServerResponse<void>> => {
-    try {
-      await ipcService.invoke('app:uninstall', { appId });
-      return ServerResponse.success({
-        status: 200,
-        statusMessage: 'App uninstalled',
-        data: undefined,
-      });
-    } catch (error) {
-      return ServerResponse.error({
-        status: 500,
-        statusMessage: error instanceof Error ? error.message : 'Uninstallation failed',
+        status: HttpStatusCode.INTERNAL_SERVER_ERROR,
+        statusMessage: error instanceof Error ? error.message : 'Failed to load',
       });
     }
   },
@@ -127,13 +82,13 @@ export const AppRepo = {
 
 ```typescript
 import { useDataState, StateType } from 'astra';
-import { AppRepo } from '../repo/appRepo';
+import { ModelRepo } from '../repo/modelRepo';
 
-function AppListContainer() {
-  const [appState, execute] = useDataState<App[]>();
+function ListContainer() {
+  const [appState, execute] = useDataState<Model[]>();
 
   useEffect(() => {
-    execute(() => AppRepo.getApps());
+    execute(() => ModelRepo.getAll());
   }, []);
 
   if (appState.state === StateType.LOADING) {
@@ -144,56 +99,47 @@ function AppListContainer() {
     return <Alert severity="error">{appState.statusMessage}</Alert>;
   }
 
-  return <AppGrid apps={appState.data || []} />;
+  return <Grid items={appState.data || []} />;
 }
 ```
 
-## IPC vs External API
+## Data Source Abstraction
 
-Chakra uses two types of repositories:
+Astra's Repository pattern supports multiple data source strategies:
 
-### 1. Prana IPC (Internal)
-```typescript
-import { ipcService } from 'prana';
-
-// For Chakra's internal services
-const AppRepo = {
-  list: () => ipcService.invoke('app:list'),
-  install: (url) => ipcService.invoke('app:install', { repoUrl: url }),
-  uninstall: (id) => ipcService.invoke('app:uninstall', { appId: id }),
-};
-```
-
-### 2. External API (Google Sheets)
+### 1. HTTP API (Browser/Node)
 ```typescript
 import { ApiService } from 'astra';
 
-// For Google Sheets API
-const sheetsApi = new ApiService(SHEETS_API_URL, {
-  internal_server_error: 'Failed to fetch sheets.',
-});
+const api = new ApiService(API_BASE_URL, literals);
 
-const SheetsRepo = {
-  getSpreadsheet: (id) => sheetsApi.get(`/spreadsheets/${id}`),
-  getSheetData: (spreadsheetId, sheetId) =>
-    sheetsApi.get(`/spreadsheets/${spreadsheetId}/values/${sheetId}`),
+const ModelRepo = {
+  list: () => api.get<Model[]>('/models'),
+  get: (id) => api.get<Model>(`/models/${id}`),
+};
+```
+
+### 2. Electron IPC (Desktop)
+```typescript
+// Consumer-managed IPC abstraction
+const ModelRepo = {
+  list: () => window.electronAPI.invoke('resource:list'),
+  get: (id) => window.electronAPI.invoke('resource:get', id),
 };
 ```
 
 ## HttpStatusCode
 
-Chakra uses Astra's HTTP status codes:
-
 ```typescript
 enum HttpStatusCode {
-  IDLE = 0,
-  OK = 200,
+  SUCCESS = 200,
   CREATED = 201,
   BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
-  FORBIDDEN = 403,
   NOT_FOUND = 404,
   INTERNAL_SERVER_ERROR = 500,
+  INTERNET_ERROR = 0,
+  IDLE = 1000,
 }
 ```
 
@@ -201,15 +147,15 @@ enum HttpStatusCode {
 
 ### Repository Error Pattern
 ```typescript
-export const AppRepo = {
-  getApps: async () => {
+export const ModelRepo = {
+  getAll: async () => {
     try {
-      const data = await ipcService.invoke('app:list');
-      return ServerResponse.success({ status: 200, statusMessage: 'OK', data });
+      const data = await api.get<Model[]>('/models');
+      return data;
     } catch (error) {
       return ServerResponse.error({
         status: HttpStatusCode.INTERNAL_SERVER_ERROR,
-        statusMessage: 'Failed to load apps',
+        statusMessage: 'Failed to load',
       });
     }
   },
@@ -218,9 +164,8 @@ export const AppRepo = {
 
 ### UI Error Display
 ```typescript
-const [appState, execute] = useDataState<App[]>();
+const [appState, execute] = useDataState<Model[]>();
 
-// Display error from repository
 if (appState.isError) {
   return (
     <Alert severity="error">
@@ -233,8 +178,8 @@ if (appState.isError) {
 ## Rules
 
 - **Always use ServerResponse** for API returns
-- **Use ipcService** for internal Chakra operations
-- **Use ApiService** for external APIs
+- **Use ApiService** for HTTP calls
+- **Use IPC abstractions** for Electron calls (consumer-managed)
 - **Handle errors** in repository layer
 - **Return proper status codes** for all operations
 

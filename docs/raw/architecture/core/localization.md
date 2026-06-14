@@ -1,47 +1,41 @@
 # Architecture: Localization (i18n)
 
-Rita follows **Astra's localization system** for internationalization.
+Astra provides a **React Context-based localization system** with runtime language switching and dictionary-based translations.
 
 ## Localization Structure
 
 ```
 Localization System
 ├── LanguageProvider    # i18n context wrapper
-├── useLanguage Hook     # Access translations
-├── Translation Files   # Per-language files
+├── useLanguage Hook    # Access translations
+├── Translation Files  # Per-language files
 └── Available Languages # Language config
 ```
 
 ## LanguageProvider Setup
 
-Wrap Rita with `LanguageProvider` at app root:
+Wrap your application with `LanguageProvider` at app root:
 
 ```typescript
 import { LanguageProvider, useLanguage } from 'astra';
 
 const translations = {
   en: {
-    'app.title': 'Rita',
-    'app.install': 'Install App',
-    'app.uninstall': 'Uninstall',
-    'app.list': 'Installed Apps',
-    'app.noApps': 'No apps installed',
+    'app.title': 'My Application',
+    'app.welcome': 'Welcome',
   },
   es: {
-    'app.title': 'Rita',
-    'app.install': 'Instalar App',
-    'app.uninstall': 'Desinstalar',
-    'app.list': 'Apps Instaladas',
-    'app.noApps': 'No hay apps instaladas',
+    'app.title': 'Mi Aplicación',
+    'app.welcome': 'Bienvenido',
   },
 };
 
 const availableLanguages = [
   { code: 'en', label: 'English' },
-  { code: 'en', label: 'Español' },
+  { code: 'es', label: 'Español' },
 ];
 
-export function RitaApp() {
+function App() {
   return (
     <LanguageProvider
       translations={translations}
@@ -61,16 +55,15 @@ Use `useLanguage` hook to access translations:
 ```typescript
 import { useLanguage } from 'astra';
 
-function AppList() {
-  const { t, language, setLanguage, availableLanguages } = useLanguage();
+function PageHeader() {
+  const { currentLanguage, setCurrentLanguage, literal, availableLanguages } = useLanguage();
 
   return (
     <div>
-      <h1>{t('app.title')}</h1>
-      <button onClick={() => setLanguage('es')}>
-        {availableLanguages.find(l => l.code === language)?.label}
+      <h1>{literal['app.title']}</h1>
+      <button onClick={() => setCurrentLanguage('es')}>
+        {availableLanguages.find(l => l.code === currentLanguage)?.label}
       </button>
-      <AppGrid apps={apps} />
     </div>
   );
 }
@@ -83,43 +76,30 @@ function AppList() {
 ```
 {domain}.{page}.{element}
 
-app.list.title        → 'Installed Apps'
-app.install.button  → 'Install App'
-app.settings.save   → 'Save Settings'
-error.notFound     → 'Not Found'
+app.list.title        → 'Item List'
+app.install.button    → 'Install'
+app.settings.save     → 'Save Settings'
+error.notFound        → 'Not Found'
 ```
 
 ### Translation Files Structure
 
 ```
-src/renderer/
-├── common/
-│   └── localization/
-│       ├── en.json     # English translations
-│       ├── es.json     # Spanish translations
-│       ├── ta.json     # Tamil translations
-│       └── index.ts   # Translation exports
+src/
+└── common/
+    └── localization/
+        ├── en.json     # English translations
+        ├── es.json     # Spanish translations
+        └── index.ts    # Translation exports
 ```
 
-## Translation JSON Format
+### Translation JSON Format
 
 ```json
-// en.json
 {
   "app": {
-    "title": "Rita",
-    "install": "Install App",
-    "uninstall": "Uninstall",
-    "list": "Installed Apps",
-    "noApps": "No apps installed",
-    "update": "Update Available",
-    "settings": "Settings"
-  },
-  "auth": {
-    "login": "Login",
-    "logout": "Logout",
-    "username": "Username",
-    "password": "Password"
+    "title": "My Application",
+    "welcome": "Welcome"
   },
   "common": {
     "save": "Save",
@@ -135,14 +115,13 @@ src/renderer/
 
 ### DO: Use Translation Keys
 ```typescript
-// ✅ Correct - use translation key
-function AppListHeader() {
-  const { t } = useLanguage();
+function AppHeader() {
+  const { literal } = useLanguage();
 
   return (
     <Box>
-      <Typography variant="h4">{t('app.list.title')}</Typography>
-      <Button>{t('app.install.button')}</Button>
+      <Typography variant="h4">{literal['app.title']}</Typography>
+      <Button>{literal['common.save']}</Button>
     </Box>
   );
 }
@@ -150,12 +129,11 @@ function AppListHeader() {
 
 ### DON'T: Hardcode Strings
 ```typescript
-// ❌ Wrong - hardcoded string
-function AppListHeader() {
+function AppHeader() {
   return (
     <Box>
-      <Typography variant="h4">Installed Apps</Typography>
-      <Button>Install App</Button>
+      <Typography variant="h4">My Application</Typography>
+      <Button>Save</Button>
     </Box>
   );
 }
@@ -166,13 +144,10 @@ function AppListHeader() {
 ### Per-Component Language
 ```typescript
 function LanguageSelector() {
-  const { language, setLanguage, availableLanguages } = useLanguage();
+  const { currentLanguage, setCurrentLanguage, availableLanguages } = useLanguage();
 
   return (
-    <Select
-      value={language}
-      onChange={(e) => setLanguage(e.target.value)}
-    >
+    <Select value={currentLanguage} onChange={(e) => setCurrentLanguage(e.target.value)}>
       {availableLanguages.map(lang => (
         <MenuItem key={lang.code} value={lang.code}>
           {lang.label}
@@ -180,58 +155,6 @@ function LanguageSelector() {
       ))}
     </Select>
   );
-}
-```
-
-### Global Language (persist to cache)
-```typescript
-function LanguageSelector() {
-  const { language, setLanguage } = useLanguage();
-
-  const handleChange = async (newLang: string) => {
-    setLanguage(newLang);
-    // Persist to cache
-    await ipcService.invoke('config:setLanguage', newLang);
-  };
-
-  return <Select value={language} onChange={e => handleChange(e.target.value)} />;
-}
-```
-
-## Rita Translations
-
-### Core Translations (en.json)
-
-```json
-{
-  "attendance": {
-    "title": "Attendance",
-    "mark": "Mark Attendance",
-    "legend": "Key Legend",
-    "summary": "Summary",
-    "present": "Present",
-    "absent": "Absent",
-    "leave": "Leave"
-  },
-  "sync": {
-    "title": "Sync",
-    "lastSync": "Last Sync",
-    "syncNow": "Sync Now",
-    "offline": "Offline",
-    "online": "Online"
-  },
-  "year": {
-    "initialize": "Initialize Year",
-    "select": "Select Year",
-    "created": "Year Created"
-  },
-  "common": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "loading": "Loading...",
-    "error": "Error"
-  }
 }
 ```
 

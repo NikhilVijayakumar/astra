@@ -1,6 +1,6 @@
 # Architecture: MVVM Pattern
 
-Chakra follows **Astra's MVVM (Model-View-ViewModel)** pattern for all UI implementations.
+Astra implements **MVVM (Model-View-ViewModel)** pattern for all UI implementations. It provides the hooks, types, and components needed to build feature modules with clean separation of concerns.
 
 ## State Flow
 
@@ -17,23 +17,20 @@ INIT → LOADING → COMPLETED (or ERROR)
 
 ## useDataState Pattern
 
-Chakra uses the same `useDataState` hook from Astra for async data handling:
+Astra's `useDataState` hook centralizes async data handling:
 
 ```typescript
 import { useDataState, StateType, AppState } from 'astra';
 
-// In any Chakra component:
-const [appState, execute] = useDataState<App[]>();
+const [appState, execute] = useDataState<Model[]>();
 
-// Execute async operation:
 useEffect(() => {
-  execute(() => AppRepo.getApps());
+  execute(() => Repo.getAll());
 }, []);
 
-// Render based on state:
 if (appState.state === StateType.LOADING) return <Loading />;
 if (appState.isError) return <Error message={appState.statusMessage} />;
-return <AppList data={appState.data} />;
+return <List data={appState.data} />;
 ```
 
 ## AppState Interface
@@ -49,39 +46,34 @@ interface AppState<T> {
 }
 ```
 
-## MVVM Structure in Chakra
+## MVVM Structure
 
-Chakra follows this directory structure:
+Recommended project layout for consumers:
 
 ```
-src/renderer/
-├── main.tsx                      # React entry point
-├── common/
-│   └── components/             # UI components (from Astra)
-├── features/
-│   └── [feature-name]/
-│       ├── components/        # Feature-specific components
-│       │   ├── Container.tsx # MVVM Container (data fetching)
-│       │   ├── ViewModel.ts # ViewModel (state logic)
-│       │   └── View.tsx    # View (presentation)
-│       ├── domain/          # Business logic
-│       ├── repo/            # Repository/API calls
-│       └── hooks/          # Custom hooks
+src/
+└── features/
+    └── [feature-name]/
+        ├── components/
+        │   ├── Container.tsx   # MVVM Container (data fetching + state orchestration)
+        │   ├── ViewModel.ts    # ViewModel (state logic)
+        │   └── View.tsx        # View (presentation)
+        ├── domain/             # Business logic
+        └── repo/               # Repository/API calls
 ```
 
 ## Container → ViewModel → View Pattern
 
 ### Container
 ```typescript
-// src/renderer/features/[feature]/components/Container.tsx
 import { ViewModel } from './ViewModel';
 import { View } from './View';
 
-export function AppListContainer() {
-  const [appState, execute] = useDataState<App[]>();
+export function ListContainer() {
+  const [appState, execute] = useDataState<Model[]>();
 
   useEffect(() => {
-    execute(() => AppRepo.getApps());
+    execute(() => Repo.getAll());
   }, []);
 
   return <ViewModel appState={appState} />;
@@ -90,11 +82,10 @@ export function AppListContainer() {
 
 ### ViewModel
 ```typescript
-// src/renderer/features/[feature]/components/ViewModel.tsx
 import { AppState } from 'astra';
 
 interface Props {
-  appState: AppState<App[]>;
+  appState: AppState<Model[]>;
 }
 
 export function ViewModel({ appState }: Props) {
@@ -104,10 +95,9 @@ export function ViewModel({ appState }: Props) {
 
 ### View
 ```typescript
-// src/renderer/features/[feature]/components/View.tsx
 import { StateType } from 'astra';
 
-interface Props extends AppState<App[]> {}
+interface Props extends AppState<Model[]> {}
 
 export function View({ state, data, isError, statusMessage }: Props) {
   if (state === StateType.LOADING) return <LoadingSpinner />;
@@ -115,24 +105,22 @@ export function View({ state, data, isError, statusMessage }: Props) {
 
   return (
     <ul>
-      {data?.map(app => <AppCard key={app.id} app={app} />)}
+      {data?.map(item => <ItemCard key={item.id} item={item} />)}
     </ul>
   );
 }
 ```
 
-## Integration with Prana
+## Integration with Electron
 
-Chakra combines Astra MVVM with Prana's IPC services:
+Astra's MVVM pattern works with any data source. For Electron apps, repositories typically use IPC calls instead of HTTP:
 
 ```typescript
-// Container uses Prana IPC:
-import { ipcService } from 'prana';
-
-const [appState, execute] = useDataState<App[]>();
+// Container uses Electron IPC:
+const [appState, execute] = useDataState<Model[]>();
 
 execute(async () => {
-  const response = await ipcService.invoke('app:list');
+  const response = await window.electronAPI.invoke('resource:list');
   return response;
 });
 ```
