@@ -158,6 +158,67 @@ function LanguageSelector() {
 }
 ```
 
+## Interpolation Pattern
+
+When translation strings contain dynamic values (counts, names, dates), use the `{{placeholder}}` syntax in translation files. Astra's `literal[key]` returns the raw string — interpolation is resolved by a consumer-managed template function.
+
+### Translation File
+
+```json
+{
+  "common.itemsSelected": "{{count}} items selected",
+  "common.welcome": "Welcome, {{name}}",
+  "error.loadFailed": "Failed to load {{resource}}"
+}
+```
+
+### Consumer Template Helper
+
+Define a single interpolation utility in your app (not inside components):
+
+```typescript
+// src/common/i18n/interpolate.ts
+export function interpolate(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => String(values[key] ?? ''));
+}
+```
+
+### Usage in ViewModel Hook
+
+Resolve interpolated strings in the ViewModel hook, not in components:
+
+```typescript
+import { useLanguage } from 'astra';
+import { interpolate } from '../../common/i18n/interpolate';
+
+export const useItemsViewModel = () => {
+  const { literal } = useLanguage();
+
+  const getSelectionLabel = (count: number) =>
+    interpolate(literal['common.itemsSelected'], { count });
+
+  return { getSelectionLabel };
+};
+```
+
+### Component Usage
+
+```typescript
+function ItemList({ selectedCount }: { selectedCount: number }) {
+  const { getSelectionLabel } = useItemsViewModel();
+  return <span>{getSelectionLabel(selectedCount)}</span>;
+}
+```
+
+### Rules
+
+- Placeholder syntax is `{{name}}` — double curly braces, camelCase key
+- Interpolation is always resolved in the ViewModel hook layer, not in components
+- `literal[key]` must never be concatenated directly — use the interpolation helper
+- The helper lives in `common/i18n/` and is consumer-owned, not an Astra internal
+
+---
+
 ## Rules
 
 - **Never hardcode strings** — always use translation keys

@@ -20,7 +20,7 @@ App Root
 | Provider | Context Shape | Consumer Hook |
 |----------|--------------|---------------|
 | ThemeProvider | `{ darkMode, toggleDarkMode }` | `useTheme()` |
-| LanguageProvider | `{ literal, currentLanguage, setLanguage }` | `useLanguage()` |
+| LanguageProvider | `{ literal, currentLanguage, setCurrentLanguage }` | `useLanguage()` |
 | AuthProvider | consumer-defined | consumer-defined |
 
 ## Rules

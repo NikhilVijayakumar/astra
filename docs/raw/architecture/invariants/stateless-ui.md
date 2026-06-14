@@ -37,6 +37,38 @@ A component may NOT:
 
 ---
 
+## Documented Exception: Provider Persistence
+
+The following is a **single documented exception** to the stateless rule. It is not a general pattern and must not be generalised.
+
+### ThemeProvider Dark Mode Persistence
+
+Astra's `ThemeProvider` may persist the `darkMode` preference via `localStorage` as a UX convenience. This prevents theme flash on page reload without requiring consumers to manage persistence themselves.
+
+Requirements for this exception:
+
+- Must be guarded with an SSR check: `if (typeof localStorage !== 'undefined')`
+- Must be limited to UX preference state (not domain or business data)
+- Must be documented with a `@stateless-exception` JSDoc tag in the implementation
+
+```tsx
+/**
+ * @stateless-exception
+ * Reason: Dark mode preference persistence — UX convenience for ThemeProvider only.
+ * Scope: ThemeProvider exclusively. Not a general pattern.
+ * SSR guard required: typeof localStorage !== 'undefined'
+ */
+useEffect(() => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }
+}, [darkMode]);
+```
+
+This exception applies exclusively to `ThemeProvider`. No other Astra library component may use `localStorage`. See [Platform Neutrality Invariant](platform-neutrality.md) for the SSR guard requirement.
+
+---
+
 ## Allowed Patterns
 
 ### UI Interaction State

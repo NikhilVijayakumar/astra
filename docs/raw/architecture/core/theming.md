@@ -110,22 +110,34 @@ function AppHeader() {
 
 ## Custom Theme Extensions
 
-Extend Astra theme with application-specific tokens:
+Extend Astra's theme with application-specific tokens by deriving from your design system:
+
+> **Architectural Boundary Note:** `createTheme` palette configuration is the one consumer-controlled boundary where custom brand color values are acceptable. This is the entry point where consumers inject their brand identity into the MUI theme pipeline. Once set here, those colors propagate through the theme and must be referenced as tokens in all component code. Component code must **never** hardcode raw color values — always reference `theme.palette.*` or `sx` token paths.
 
 ```typescript
 import { createTheme } from '@mui/material/styles';
 import { spacing, typography } from 'astra';
 
-const appTheme = createTheme({
+// Brand colors are defined ONCE at the theme entry point — not in components.
+// After this point, all components reference theme.palette.primary.main,
+// theme.palette.background.default, etc. — never raw hex values.
+const appLightTheme = createTheme({
   ...baseTheme,
   palette: {
-    primary: { main: '#1976d2' },
+    primary: { main: brandColors.primary },   // from your brand config, not inline hex
     background: {
-      default: '#F5F5F7',
-      paper: '#FFFFFF',
+      default: brandColors.backgroundLight,
+      paper: brandColors.surface,
     },
   },
+  spacing: spacing.unit,
+  typography: {
+    fontFamily: typography.fontFamily,
+  },
 });
+```
+
+If no brand config exists yet, define a central `src/theme/brand.ts` that owns all raw values — never scatter hex strings across multiple files.
 ```
 
 ## Using Tokens in Components

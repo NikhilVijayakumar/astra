@@ -46,7 +46,7 @@ Molecules may NOT: import from organism or template tiers, access repositories, 
 
 ### Organism
 
-An Organism composes molecules and atoms into a complex section. It may orchestrate multiple sub-components but must remain stateless (data comes from props).
+An Organism composes molecules and atoms into a complex section. It may use ViewModel hooks (`useDataState`) for state orchestration — this is the primary mechanism by which organisms manage async data without violating stateless principles. See [Atomic Hierarchy Invariant](../invariants/atomic-hierarchy.md) for the authoritative rules.
 
 ```typescript
 // Organism example: DataTable
@@ -57,7 +57,7 @@ interface DataTableProps<T> {
 }
 ```
 
-Organisms may NOT: use `useDataState`, access repositories, manage application state. Data must be passed via props.
+Organisms may NOT: import from template tiers, access repositories directly (must use ViewModel hooks), define page-level layout.
 
 ### Template
 
@@ -107,6 +107,7 @@ A component should be demoted when it:
 | Atom imports Molecule | `Atom.tsx` imports `Card` | Move logic to caller |
 | Molecule uses data state | `Card.tsx` calls `useDataState` | Pass data via props |
 | Organism imports Template | `DataTable.tsx` imports `PageHeader` | Restructure composition |
+| Organism accesses repository directly | `DataTable.tsx` imports `ApiService` directly | Use a ViewModel hook |
 | Template accesses repo | `PageHeader.tsx` imports `ApiService` | Move to Page container |
 
 ## Related

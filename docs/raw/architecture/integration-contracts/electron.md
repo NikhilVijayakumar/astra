@@ -1,6 +1,6 @@
 # Electron Integration Guide
 
-Astra works seamlessly in Electron desktop applications. This guide covers integration patterns specific to Electron.
+Astra works in Electron desktop applications. This guide covers integration patterns specific to Astra in an Electron renderer process. For Electron main process setup, IPC handler definitions, and application menus, refer to the [Electron documentation](https://www.electronjs.org/docs).
 
 ## Prerequisites
 
@@ -12,8 +12,6 @@ Astra works seamlessly in Electron desktop applications. This guide covers integ
 
 ### 1. Initialize Electron with Vite
 
-Create a project structure with both main and renderer processes:
-
 ```bash
 npm create vite@latest my-electron-app -- --template react-ts
 cd my-electron-app
@@ -21,8 +19,6 @@ npm install astra electron electron-builder vite-plugin-electron vite-plugin-ele
 ```
 
 ### 2. Configure Vite for Electron
-
-Update `vite.config.ts` to handle both processes:
 
 ```ts
 import { defineConfig } from "vite";
@@ -49,235 +45,12 @@ export default defineConfig({
 });
 ```
 
-## Electron Main Process
+## Provider Setup
 
-### Basic Main Process Setup
-
-```ts
-// electron/main.ts
-import { app, BrowserWindow } from "electron";
-import path from "path";
-
-let mainWindow: BrowserWindow | null = null;
-
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      preload: path.join(__dirname, "preload.js"),
-    },
-  });
-
-  // Load the app
-  if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-    mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
-  }
-
-  mainWindow.on("closed", () => {
-    mainWindow = null;
-  });
-}
-
-app.whenReady().then(createWindow);
-
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
-```
-
-## Context Bridge Integration
-
-For secure IPC communication, use a preload script with context bridge:
-
-### 1. Create Preload Script
-
-```ts
-// electron/preload.ts
-import { contextBridge, ipcRenderer } from "electron";
-
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
-contextBridge.exposeInMainWorld("electronAPI", {
-  // Window controls
-  minimizeWindow: () => ipcRenderer.send("window-minimize"),
-  maximizeWindow: () => ipcRenderer.send("window-maximize"),
-  closeWindow: () => ipcRenderer.send("window-close"),
-
-  // App info
-  getAppVersion: () => ipcRenderer.invoke("app-version"),
-  getPlatform: () => process.platform,
-
-  // IPC listeners
-  onMenuAction: (callback: (action: string) => void) => {
-    ipcRenderer.on("menu-action", (_event, action) => callback(action));
-  },
-});
-```
-
-### 2. Update Main Process IPC Handlers
-
-```ts
-// electron/main.ts
-import { app, BrowserWindow, ipcMain, Menu } from "electron";
-
-// Add IPC handlers
-ipcMain.handle("app-version", () => app.getVersion());
-
-ipcMain.on("window-minimize", () => {
-  mainWindow?.minimize();
-});
-
-ipcMain.on("window-maximize", () => {
-  if (mainWindow?.isMaximized()) {
-    mainWindow.unmaximize();
-  } else {
-    mainWindow?.maximize();
-  }
-});
-
-ipcMain.on("window-close", () => {
-  mainWindow?.close();
-});
-
-// Create application menu
-const template: Electron.MenuItemConstructorOptions[] = [
-  {
-    label: "File",
-    submenu: [
-      {
-        label: "New",
-        accelerator: "CmdOrCtrl+N",
-        click: () => {
-          mainWindow?.webContents.send("menu-action", "new");
-        },
-      },
-      { type: "separator" },
-      { role: "quit" },
-    ],
-  },
-  {
-    label: "View",
-    submenu: [
-      { role: "reload" },
-      { role: "forceReload" },
-      { role: "toggleDevTools" },
-    ],
-  },
-];
-
-const menu = Menu.buildFromTemplate(template);
-Menu.setApplicationMenu(menu);
-```
-
-### 3. Use in Renderer (React)
+Wrap your renderer root with Astra's providers exactly as in a browser app. Provider order is identical — `ThemeProvider` outermost, then `LanguageProvider`. See [Provider Hierarchy](../runtime-maps/provider-hierarchy.md) for the nesting rules.
 
 ```tsx
-// In your React component
-declare global {
-  interface Window {
-    electronAPI: {
-      minimizeWindow: () => void;
-      maximizeWindow: () => void;
-      closeWindow: () => void;
-      getAppVersion: () => Promise<string>;
-      getPlatform: () => string;
-      onMenuAction: (callback: (action: string) => void) => void;
-    };
-  }
-}
-
-function TitleBar() {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
-      <span>My Electron App</span>
-      <div>
-        <button onClick={() => window.electronAPI?.minimizeWindow()}>−</button>
-        <button onClick={() => window.electronAPI?.maximizeWindow()}>□</button>
-        <button onClick={() => window.electronAPI?.closeWindow()}>×</button>
-      </div>
-    </div>
-  );
-}
-```
-
-## IPC Communication Patterns
-
-### Pattern 1: Renderer to Main (Invoke)
-
-```tsx
-// Renderer process - async call
-const version = await window.electronAPI.getAppVersion();
-```
-
-### Pattern 2: Main to Renderer (Send)
-
-```tsx
-// Main process
-mainWindow.webContents.send("menu-action", "new");
-
-// Renderer process - listen
-window.electronAPI.onMenuAction((action) => {
-  console.log("Menu action:", action);
-});
-```
-
-### Pattern 3: Bidirectional Communication
-
-```tsx
-// Main process - handle request
-ipcMain.handle("fetch-user-data", async () => {
-  const result = await fetchFromExternalAPI();
-  return result;
-});
-
-// Renderer process
-const userData = await window.electronAPI.fetchUserData();
-```
-
-## Full Example App Structure
-
-```
-my-electron-app/
-├── electron/
-│   ├── main.ts          # Main process entry
-│   └── preload.ts       # Context bridge setup
-├── src/
-│   ├── App.tsx          # Root component with Astra providers
-│   ├── main.tsx         # React entry
-│   ├── common/
-│   │   └── repo/
-│   │       └── ApiClient.ts   # API client hook
-│   ├── features/
-│   │   └── users/
-│   │       ├── model/
-│   │       │   └── users.types.ts
-│   │       ├── repo/
-│   │       │   └── usersApi.ts
-│   │       ├── hooks/
-│   │       │   └── useUsers.ts
-│   │       └── view/
-│   │           ├── components/
-│   │           │   └── UserCard.tsx
-│   │           └── pages/
-│   │               └── UsersPage.tsx
-│   └── layout/
-│       └── MainLayout.tsx
-├── package.json
-├── vite.config.ts
-└── electron-builder.yml
-```
-
-### App.tsx with Providers
-
-```tsx
+// src/App.tsx
 import { ThemeProvider, LanguageProvider } from "astra";
 import { createTheme } from "@mui/material";
 import { MainLayout } from "./layout/MainLayout";
@@ -285,11 +58,11 @@ import enTranslations from "./localization/en.json";
 import esTranslations from "./localization/es.json";
 
 const lightTheme = createTheme({
-  palette: { mode: "light", primary: { main: "#1976d2" } },
+  palette: { mode: "light", primary: { main: brandColors.primary } },
 });
 
 const darkTheme = createTheme({
-  palette: { mode: "dark", primary: { main: "#90caf9" } },
+  palette: { mode: "dark", primary: { main: brandColors.primaryDark } },
 });
 
 function App() {
@@ -312,45 +85,169 @@ function App() {
 export default App;
 ```
 
-## Running the App
+## IPC Repository Pattern
 
-### Development Mode
+In Electron, the repository layer uses `window.electronAPI` (exposed via a preload context bridge) instead of HTTP. The ViewModel and View layers are unchanged — only the repository's data source differs.
 
-```bash
-npm run dev
+```typescript
+// src/features/resources/repo/resourcesApi.ts
+import { ServerResponse } from "astra";
+import { Resource } from "../model/resource.types";
+
+// Consumer-managed IPC adapter — aligns with Astra's ServerResponse contract.
+// window.electronAPI is exposed by the preload context bridge (see Electron docs).
+export const resourcesApi = {
+  list: async (): Promise<ServerResponse<Resource[]>> => {
+    return window.electronAPI.invoke("resource:list");
+  },
+  get: async (id: string): Promise<ServerResponse<Resource>> => {
+    return window.electronAPI.invoke("resource:get", id);
+  },
+};
 ```
 
-With Vite + electron-plugin, this automatically starts both the dev server and Electron.
+The IPC response must return a `ServerResponse<T>` shape so that `useDataState` can process it correctly:
 
-### Production Build
+```typescript
+// electron/ipc/resource.handlers.ts (main process — consumer-owned)
+import { ipcMain } from "electron";
+import { ServerResponse } from "astra";
 
-```bash
-npm run build
-npm run electron:build
+ipcMain.handle("resource:list", async (): Promise<ServerResponse<Resource[]>> => {
+  const resources = await db.resources.findAll();
+  return { isError: false, isSuccess: true, status: 200, statusMessage: "OK", data: resources };
+});
 ```
 
-### Package.json Scripts
+## MVVM with IPC
+
+The ViewModel hook is identical to the browser pattern — it wraps the repository with `useDataState`:
+
+```typescript
+// src/features/resources/hooks/useResources.ts
+import { useDataState } from "astra";
+import { resourcesApi } from "../repo/resourcesApi";
+
+export const useResources = () => {
+  const [state, execute] = useDataState<Resource[]>();
+  const load = () => execute(() => resourcesApi.list());
+  return { state, load };
+};
+```
+
+## Localization Compliance
+
+All user-facing strings must use `useLanguage` and `literal['key']`. This applies to every component in the renderer, including titles, buttons, and window chrome text.
+
+```tsx
+// src/features/shell/view/components/TitleBar.tsx
+import { useLanguage } from "astra";
+
+export function TitleBar() {
+  const { literal } = useLanguage();
+
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <span>{literal["app.title"]}</span>
+      <div>
+        <button
+          aria-label={literal["window.minimize"]}
+          onClick={() => window.electronAPI?.minimizeWindow()}
+        >
+          {literal["window.minimizeIcon"]}
+        </button>
+        <button
+          aria-label={literal["window.maximize"]}
+          onClick={() => window.electronAPI?.maximizeWindow()}
+        >
+          {literal["window.maximizeIcon"]}
+        </button>
+        <button
+          aria-label={literal["window.close"]}
+          onClick={() => window.electronAPI?.closeWindow()}
+        >
+          {literal["window.closeIcon"]}
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+Translation file:
 
 ```json
 {
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:build": "vite build && electron-builder"
+  "app": { "title": "My Application" },
+  "window": {
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "close": "Close",
+    "minimizeIcon": "−",
+    "maximizeIcon": "□",
+    "closeIcon": "×"
   }
 }
 ```
 
+## Platform Neutrality
+
+Astra's core library never imports Electron or Node.js APIs. IPC adapters live exclusively in consumer-managed files and are never re-exported from the public API. See [Platform Neutrality Invariant](../invariants/platform-neutrality.md) for the full rules.
+
+```typescript
+// ❌ Never in Astra core library
+import { ipcRenderer } from "electron";
+
+// ✅ Always in consumer-managed adapter (not exported from lib.ts)
+const resourcesApi = {
+  list: () => window.electronAPI.invoke("resource:list"),
+};
+```
+
+## Full Consumer Structure
+
+```
+my-electron-app/
+├── electron/                    # Electron main process (consumer-owned)
+│   ├── main.ts
+│   └── preload.ts
+├── src/
+│   ├── App.tsx                  # Providers setup
+│   ├── main.tsx
+│   ├── localization/
+│   │   ├── en.json
+│   │   └── es.json
+│   ├── features/
+│   │   └── resources/
+│   │       ├── model/
+│   │       │   └── resource.types.ts
+│   │       ├── repo/
+│   │       │   └── resourcesApi.ts      # IPC adapter
+│   │       ├── hooks/
+│   │       │   └── useResources.ts      # ViewModel
+│   │       └── view/
+│   │           ├── components/
+│   │           └── pages/
+│   └── features/shell/
+│       └── view/components/
+│           └── TitleBar.tsx             # Localized chrome
+├── package.json
+└── vite.config.ts
+```
+
 ## Best Practices
 
-1. **Enable Context Isolation** - Always use `contextIsolation: true` for security
-2. **Use Preload Scripts** - Expose only necessary APIs via context bridge
-3. **Handle Both Modes** - Support both development server URL and production file loading
-4. **Match Node Integration** - Set `nodeIntegration: false` when using context isolation
-5. **Use Astra MVVM** - Clean separation between UI and business logic works well in Electron
+1. **Enable Context Isolation** — Always use `contextIsolation: true` in `BrowserWindow.webPreferences`
+2. **Use Preload Scripts** — Expose only necessary APIs via the context bridge
+3. **Return `ServerResponse<T>` from IPC** — Ensures `useDataState` processes results correctly
+4. **Never import Electron in renderer components** — Use `window.electronAPI` only
+5. **Localize all strings** — Including window controls, tooltips, and menu labels
 
 ## See Also
 
-- [Getting Started Guide](getting-started.md) - Basic Astra setup
-- [React Integration Guide](react.md) - React-specific patterns
+- [Getting Started Guide](getting-started.md) — Basic Astra setup
+- [React Integration Guide](react.md) — React-specific patterns
+- [Platform Neutrality Invariant](../invariants/platform-neutrality.md) — Core/platform isolation rules
+- [Repository Pattern](../core/repository.md) — Data access patterns
+- [Localization](../core/localization.md) — Translation key patterns
+- [Electron documentation](https://www.electronjs.org/docs) — Main process, IPC handlers, menus

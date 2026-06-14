@@ -314,11 +314,12 @@ export const useUsers = () => {
 ```tsx
 // src/features/users/view/pages/UsersPage.tsx
 import { useUsers } from "../../hooks/useUsers";
-import { AppStateHandler } from "astra";
+import { AppStateHandler, useLanguage } from "astra";
 import { UserCard } from "../components/UserCard";
 
 export const UsersPage = () => {
   const { state, load } = useUsers();
+  const { literal } = useLanguage();
 
   return (
     <AppStateHandler
@@ -331,7 +332,7 @@ export const UsersPage = () => {
         </div>
       )}
       emptyCondition={(data) => data.length === 0}
-      errorMessage="Failed to load users"
+      errorMessage={literal["users.loadError"]}
     />
   );
 };
@@ -394,21 +395,25 @@ if (response.isSuccess && response.data) {
 
 ### 4. Handle Loading States Consistently
 
-Use `AppStateHandler` for automatic state handling:
+Use `AppStateHandler` for automatic state handling. Always source `errorMessage` from localization:
 
 ```tsx
+import { useLanguage } from "astra";
+
+const { literal } = useLanguage();
+
 <AppStateHandler
   appState={userState}
   SuccessComponent={({ appState }) => <Content data={appState.data} />}
   emptyCondition={(data) => data.length === 0}
-  errorMessage="Failed to load users"
+  errorMessage={literal["users.loadError"]}
 />
 ```
 
 ### 5. Separate UI from Logic
 
 ```tsx
-// hooks/useUser.ts - ViewModel (business logic only)
+// hooks/useUser.ts - ViewModel (business logic + localization)
 export const useUser = () => {
   const [state, execute] = useDataState<User>();
   const { literal } = useLanguage();
@@ -426,7 +431,7 @@ export const UserProfilePage = () => {
     <AppStateHandler
       appState={state}
       SuccessComponent={({ appState }) => <div>{appState.data?.name}</div>}
-      errorMessage={literal['error.user_load_error']}
+      errorMessage={literal["error.userLoadError"]}
     />
   );
 };

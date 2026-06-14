@@ -131,20 +131,36 @@ function App() {
 
 ### Using a UI Component
 
-Astra provides ready-to-use UI components. Here's how to use `HeroSection`:
+Astra provides ready-to-use UI components. All user-facing strings must use localization keys — never hardcoded literals. Here's how to use `HeroSection` with the localization system:
 
 ```tsx
-import { HeroSection } from "astra";
+import { HeroSection, useLanguage } from "astra";
 
 function HomePage() {
+  const { literal } = useLanguage();
+
   return (
     <HeroSection
-      headline="Welcome to Our App"
-      description="Get started with Astra"
-      primaryActionLabel="Get Started"
+      headline={literal["home.hero.headline"]}
+      description={literal["home.hero.description"]}
+      primaryActionLabel={literal["home.hero.cta"]}
       onPrimaryAction={() => {}}
     />
   );
+}
+```
+
+Translation file:
+
+```json
+{
+  "home": {
+    "hero": {
+      "headline": "Welcome to Our App",
+      "description": "Get started with Astra",
+      "cta": "Get Started"
+    }
+  }
 }
 ```
 
@@ -205,11 +221,12 @@ function ProductsPage() {
 For automatic loading/error/empty state handling with a ViewModel:
 
 ```tsx
-import { AppStateHandler } from "astra";
+import { AppStateHandler, useLanguage } from "astra";
 import { useUsers } from "../hooks/useUsers";
 
 function UserList() {
   const { usersState, loadUsers } = useUsers();
+  const { literal } = useLanguage();
 
   useEffect(() => { loadUsers(); }, []);
 
@@ -224,7 +241,7 @@ function UserList() {
         </ul>
       )}
       emptyCondition={(data) => data.length === 0}
-      errorMessage="Failed to load users"
+      errorMessage={literal["users.loadError"]}
     />
   );
 }
@@ -250,13 +267,16 @@ function UserList() {
 
 Astra includes 30+ ready-to-use components organized by Atomic Design tiers:
 
-- **Atoms** (Fundamental primitives): `StatusDot`, `SeverityBadge`
-- **Molecules** (Composed units): `Card`, `Notification`, `TrendMetricCard`
-- **Organisms** (Complex sections): `DataTable`, `FormLayout`, `TimelineNode`, `FileTree`
-- **Templates** (Page layouts): `PageHeader`, `SummaryPanel`, `HeroSection`
-- **File Viewers**: `CsvViewer`, `JsonViewer`, `ImageViewer`, `MdViewer`, `FileViewerRouter`
+| Tier | Description | Examples |
+|------|-------------|----------|
+| **Atoms** | Fundamental UI primitives | `StatusDot`, `SeverityBadge`, `ErrorState`, `EmptyState` |
+| **Molecules** | Composed functional units | `Card`, `Notification`, `TrendMetricCard` |
+| **Organisms** | Complex UI sections | `DataTable`, `FormLayout`, `TimelineNode`, `FileTree` |
+| **Templates** | Page-level layouts | `PageHeader`, `SummaryPanel`, `HeroSection` |
 
-See [Component Documentation](../../feature/components/README.md) for the full library.
+For tier rules and classification guidance, see [Atomic Hierarchy Invariant](../invariants/atomic-hierarchy.md) and [Component Tiers](../core/component-tiers.md).
+
+> A full component catalogue with props, screenshots, and interactive examples is maintained separately from the architecture corpus. Consult your project's component documentation for the complete library listing.
 
 ### Import Styles
 
@@ -287,18 +307,15 @@ This structure provides:
 - **Maintainability**: Clear boundaries make updates localized
 - **Reusability**: Lower-tier components can be recombined in many ways
 
-For detailed methodology and classification guidelines, see [Atomic Design Methodology](../../feature/components/atomic-design/README.md).
-
-### Finding Components
-
-Browse the full component library at [Component Documentation](../../feature/components/README.md).
+For tier rules and import direction constraints, see [Atomic Hierarchy Invariant](../invariants/atomic-hierarchy.md) and the [Component Tiers Runtime Map](../runtime-maps/component-tiers.md).
 
 ## Next Steps
 
-- [Component Documentation](../../feature/components/README.md) - Browse the full component library
 - [React Integration Guide](react.md) - Framework-specific setup
 - [Electron Integration Guide](electron.md) - Desktop app integration
 - [Feature Structure](../core/feature-structure.md) - Canonical feature folder layout
 - [MVVM Architecture](../core/mvvm-pattern.md) - Architecture patterns
 - [Theming](../core/theming.md) - Custom theming guide
-- [Localization](../core/localization.md) - Advanced i18n patterns
+- [Localization](../core/localization.md) - i18n patterns including interpolation
+- [Atomic Hierarchy Invariant](../invariants/atomic-hierarchy.md) - Component tier rules
+- [Component Tiers Runtime Map](../runtime-maps/component-tiers.md) - Visual tier hierarchy

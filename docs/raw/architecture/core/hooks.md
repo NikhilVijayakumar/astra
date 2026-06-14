@@ -1,8 +1,8 @@
-# Hooks Documentation
+# Architecture: Hooks
 
 ## useDataState
 
-The `useDataState` hook is a custom hook designed to manage the state of asynchronous data operations, typically API calls. It simplifies the process of handling different states like loading, success, error, and idle.
+The `useDataState` hook manages the state of asynchronous data operations (typically API calls). It centralizes INIT → LOADING → COMPLETED/ERROR transitions and is the canonical mechanism for async data in Astra's MVVM architecture.
 
 ### Usage
 
@@ -31,9 +31,73 @@ return <UserList data={appState.data} />;
 
 The hook returns a tuple `[appState, execute, setAppState]`:
 
-1.  **`appState`**: `AppState<T>` - The current state object (INIT, LOADING, COMPLETED, data, error, etc.).
-2.  **`execute`**: `(apiCall: () => Promise<ServerResponse<T>>) => Promise<void>` - Helper to auto-manage state transitions.
-3.  **`setAppState`**: `React.Dispatch<React.SetStateAction<AppState<T>>>` - Manual state setter.
+1. **`appState`**: `AppState<T>` - The current state object (INIT, LOADING, COMPLETED, data, error, etc.).
+2. **`execute`**: `(apiCall: () => Promise<ServerResponse<T>>) => Promise<void>` - Helper to auto-manage state transitions. Use this for all normal data fetching.
+3. **`setAppState`**: `React.Dispatch<React.SetStateAction<AppState<T>>>` - Manual state setter. See below for when to use this.
+
+---
+
+## setAppState — Manual State Control
+
+`setAppState` provides direct access to the state setter. It exists for advanced scenarios where `execute` is not sufficient.
+
+### When to use `setAppState`
+
+| Scenario | Recommended |
+|----------|-------------|
+| Loading data from an API | `execute()` |
+| Refreshing data after a mutation | `execute()` |
+| Optimistic UI update (apply before API confirms) | `setAppState()` |
+| Manual state reset (e.g., clearing a form result) | `setAppState()` |
+| Injecting state from a parent (e.g., SSR hydration) | `setAppState()` |
+
+### Optimistic Update Pattern
+
+```typescript
+export const useItems = () => {
+  const [listState, executeList] = useDataState<Item[]>();
+  const [deleteState, executeDelete] = useDataState<boolean>();
+
+  const deleteItem = async (id: string) => {
+    // 1. Optimistically remove from UI immediately
+    setListState((prev) => ({
+      ...prev,
+      data: prev.data?.filter((item) => item.id !== id) ?? null,
+    }));
+
+    // 2. Confirm with the API
+    await executeDelete(() => itemsApi.delete(id));
+
+    // 3. If it failed, re-fetch to restore correct state
+    if (deleteState.isError) {
+      executeList(() => itemsApi.list());
+    }
+  };
+
+  return { listState, deleteItem };
+};
+```
+
+### Manual Reset Pattern
+
+```typescript
+const [state, execute, setState] = useDataState<User>();
+
+const reset = () => {
+  setState({
+    state: StateType.INIT,
+    isError: false,
+    isSuccess: false,
+    status: HttpStatusCode.IDLE,
+    statusMessage: '',
+    data: null,
+  });
+};
+```
+
+### Rule
+
+> **Never use `setAppState` for normal data fetching.** Always use `execute()` for API calls — it manages LOADING → COMPLETED/ERROR transitions automatically. Reserve `setAppState` for optimistic updates, manual resets, and state hydration.
 
 ---
 
@@ -41,17 +105,17 @@ The hook returns a tuple `[appState, execute, setAppState]`:
 
 While `useDataState` can be used directly in components, **Astra strongly recommends always wrapping it in a ViewModel (Custom Hook)**.
 
+See [Feature Structure](feature-structure.md) for the canonical ViewModel placement in `hooks/use<Feature>.ts`.
+
 ### Why Use a ViewModel?
 
-1.  **Separation of Concerns**: Keeps UI logic (Components) separate from Business logic (ViewModels).
-2.  **Composition**: Allows managing multiple simultaneous API states (e.g., a list loading while a delete action is pending).
-3.  **Consistency**: Provides a uniform interface for components, regardless of complexity.
+1. **Separation of Concerns**: Keeps UI logic (Components) separate from Business logic (ViewModels).
+2. **Composition**: Allows managing multiple simultaneous API states (e.g., a list loading while a delete action is pending).
+3. **Consistency**: Provides a uniform interface for components, regardless of complexity.
 
 ### Pattern: ViewModel as Orchestrator
 
-For features needing multiple API calls (CRUD), do not try to reuse a single `useDataState` hook. Instead, compose multiple hooks within one ViewModel. See [Feature Structure](feature-structure.md) for the canonical ViewModel placement in `hooks/use<Feature>.ts`.
-
-#### Example: Complex User ViewModel
+For features needing multiple API calls (CRUD), compose multiple hooks within one ViewModel:
 
 ```typescript
 import { useEffect } from 'react';
@@ -96,5 +160,12 @@ export const useUsers = () => {
     selectUser,
     deleteUser,
   };
-}
+};
 ```
+
+## Related
+
+- [Feature Structure](feature-structure.md) — Canonical ViewModel placement
+- [MVVM Pattern](mvvm-pattern.md) — Architecture overview
+- [State Management](state-management.md) — AppState and StateType reference
+- [Repository](repository.md) — Data access layer

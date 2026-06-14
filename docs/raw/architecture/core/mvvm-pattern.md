@@ -17,7 +17,7 @@ INIT → LOADING → COMPLETED (or ERROR)
 
 ## useDataState Pattern
 
-Astra's `useDataState` hook centralizes async data handling:
+Astra's `useDataState` hook centralizes async data handling. It returns a `[appState, execute, setAppState]` tuple. In most ViewModel code only `appState` and `execute` are needed. See [Hooks](hooks.md) for the full API including when to use `setAppState`.
 
 ```typescript
 import { useDataState, StateType, AppState } from 'astra';
