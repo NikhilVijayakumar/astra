@@ -1,8 +1,5 @@
 # Deterministic Build Invariant
 
-```md
-# Deterministic Build Invariant
-
 ## Purpose
 
 Astra's build process must produce reproducible artifacts.

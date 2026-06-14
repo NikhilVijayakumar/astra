@@ -35,7 +35,7 @@ interface ServerResponse<T> {
   isSuccess: boolean;
   status: HttpStatusCode;
   statusMessage: string;
-  data: T | null;
+  data?: T;
 }
 
 // Success:
@@ -64,19 +64,13 @@ src/
 ### Repository Example
 
 ```typescript
-import { ApiService, ServerResponse, HttpStatusCode } from 'astra';
+import { ApiService, ServerResponse } from 'astra';
 
-export const ModelRepo = {
+const api = new ApiService('https://api.example.com', {});
+
+export const modelApi = {
   getAll: async (): Promise<ServerResponse<Model[]>> => {
-    try {
-      const response = await api.get<Model[]>('/models');
-      return response;
-    } catch (error) {
-      return ServerResponse.error({
-        status: HttpStatusCode.INTERNAL_SERVER_ERROR,
-        statusMessage: error instanceof Error ? error.message : 'Failed to load',
-      });
-    }
+    return api.get<Model[]>('/models');
   },
 };
 ```
@@ -85,13 +79,13 @@ export const ModelRepo = {
 
 ```typescript
 import { useDataState, StateType } from 'astra';
-import { ModelRepo } from '../repo/modelRepo';
+import { modelApi } from '../repo/modelApi';
 
 function ListContainer() {
   const [appState, execute] = useDataState<Model[]>();
 
   useEffect(() => {
-    execute(() => ModelRepo.getAll());
+    execute(() => modelApi.getAll());
   }, []);
 
   if (appState.state === StateType.LOADING) {
@@ -114,9 +108,9 @@ Astra's Repository pattern supports multiple data source strategies:
 ```typescript
 import { ApiService } from 'astra';
 
-const api = new ApiService(API_BASE_URL, literals);
+const api = new ApiService('https://api.example.com', { internal_server_error: 'Server unavailable' });
 
-const ModelRepo = {
+const modelApi = {
   list: () => api.get<Model[]>('/models'),
   get: (id) => api.get<Model>(`/models/${id}`),
 };
@@ -125,7 +119,7 @@ const ModelRepo = {
 ### 2. Electron IPC (Desktop)
 ```typescript
 // Consumer-managed IPC abstraction
-const ModelRepo = {
+const modelApi = {
   list: () => window.electronAPI.invoke('resource:list'),
   get: (id) => window.electronAPI.invoke('resource:get', id),
 };
@@ -150,20 +144,15 @@ enum HttpStatusCode {
 
 ### Repository Error Pattern
 ```typescript
-export const ModelRepo = {
+export const modelApi = {
   getAll: async () => {
-    try {
-      const data = await api.get<Model[]>('/models');
-      return data;
-    } catch (error) {
-      return ServerResponse.error({
-        status: HttpStatusCode.INTERNAL_SERVER_ERROR,
-        statusMessage: 'Failed to load',
-      });
-    }
+    const data = await api.get<Model[]>('/models');
+    return data;
   },
 };
 ```
+
+ApiService already handles errors internally — repositories should not add redundant try/catch wrapping.
 
 ### UI Error Display
 ```typescript
@@ -183,7 +172,7 @@ if (appState.isError) {
 - **Always use ServerResponse** for API returns
 - **Use ApiService** for HTTP calls
 - **Use IPC abstractions** for Electron calls (consumer-managed)
-- **Handle errors** in repository layer
+- **Return errors via ServerResponse** — do not use try/catch (ApiService handles that)
 - **Return proper status codes** for all operations
 
 ## Related

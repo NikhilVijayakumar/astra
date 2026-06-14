@@ -1,8 +1,5 @@
 # Platform Neutrality Invariant
 
-```md
-# Platform Neutrality Invariant
-
 ## Purpose
 
 Astra is a runtime-agnostic UI library.

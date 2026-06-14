@@ -1,8 +1,5 @@
 # Stateless UI Invariant
 
-```md
-# Stateless UI Invariant
-
 ## Purpose
 
 Astra is a presentation-oriented UI component library.
@@ -502,9 +499,9 @@ GOOD:
 ```tsx
 // Consumer app handles persistence
 function App() {
-  const { theme, setTheme } = useTheme();
-  useEffect(() => { localStorage.setItem('theme', theme); }, [theme]);
-  return <ThemeToggle />;
+  const themeContext = useTheme();
+  useEffect(() => { localStorage.setItem('theme', themeContext.darkMode ? 'dark' : 'light'); }, [themeContext.darkMode]);
+  return <ThemeToggle themeContext={themeContext} />;
 }
 ```
 

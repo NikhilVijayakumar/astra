@@ -1,8 +1,5 @@
 # Theme Sovereignty Invariant
 
-```md
-# Theme Sovereignty Invariant
-
 ## Purpose
 
 Astra is a theme-driven UI component library.
@@ -67,9 +64,9 @@ All values derive from theme context.
 Allowed:
 
 ```tsx
-import { spacing } from 'astra/theme';
+import { spacing } from 'astra';
 
-const gap = spacing(3);
+const gap = spacing.lg;
 ```
 
 Reason:

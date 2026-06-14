@@ -31,7 +31,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({
       ? `data:${mimeType || "image/png"};base64,${fileContent}`
       : null;
 
-  const emptyMessage = literal["viewer.empty_image"] || "No image content available for preview.";
+  const emptyMessage = literal["viewer.empty_image"];
 
   return (
     <Box

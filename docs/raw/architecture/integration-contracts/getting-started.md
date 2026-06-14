@@ -74,8 +74,8 @@ Add localization support with `LanguageProvider`:
 import { LanguageProvider } from "astra";
 
 const translations = {
-  en: { greeting: "Hello", welcome: "Welcome to our app" },
-  es: { greeting: "Hola", welcome: "Bienvenido a nuestra app" },
+  en: { "app.greeting": "Hello", "app.welcome": "Welcome to our app" },
+  es: { "app.greeting": "Hola", "app.welcome": "Bienvenido a nuestra app" },
 };
 
 const availableLanguages = [
@@ -108,21 +108,21 @@ const lightTheme = createTheme({ palette: { mode: "light" } });
 const darkTheme = createTheme({ palette: { mode: "dark" } });
 
 const translations = {
-  en: { greeting: "Hello" },
-  es: { greeting: "Hola" },
+  en: { "app.greeting": "Hello" },
+  es: { "app.greeting": "Hola" },
 };
 
 function App() {
   return (
-    <LanguageProvider
-      translations={translations}
-      availableLanguages={[{ code: "en", label: "English" }]}
-      defaultLanguage="en"
-    >
-      <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+    <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+      <LanguageProvider
+        translations={translations}
+        availableLanguages={[{ code: "en", label: "English" }]}
+        defaultLanguage="en"
+      >
         <YourMainComponent />
-      </ThemeProvider>
-    </LanguageProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 ```
@@ -139,9 +139,10 @@ import { HeroSection } from "astra";
 function HomePage() {
   return (
     <HeroSection
-      title="Welcome to Our App"
-      subtitle="Get started with Astra"
-      primaryAction={{ label: "Get Started", onClick: () => {} }}
+      headline="Welcome to Our App"
+      description="Get started with Astra"
+      primaryActionLabel="Get Started"
+      onPrimaryAction={() => {}}
     />
   );
 }
@@ -149,44 +150,72 @@ function HomePage() {
 
 ### Using the MVVM Pattern
 
-The recommended pattern for data-driven features:
+The recommended pattern for data-driven features separates concerns into three layers:
 
+**Repository** — handles data access:
 ```tsx
-import { useDataState, StateType } from "astra";
+// src/features/products/repo/productsApi.ts
+import { ApiService, ServerResponse } from "astra";
 
-// Create a repository
-const api = new ApiService("https://api.example.com");
+const api = new ApiService("https://api.example.com", {
+  internal_server_error: "Server unavailable",
+});
 
-// In your component
-const [dataState, execute] = useDataState<MyData>();
+export const productsApi = {
+  list: (): Promise<ServerResponse<Product[]>> => api.get("/products"),
+};
+```
 
-execute(() => api.get<MyData>("endpoint"));
+**ViewModel** — orchestrates business logic:
+```tsx
+// src/features/products/hooks/useProducts.ts
+import { useDataState } from "astra";
+import { productsApi } from "../repo/productsApi";
 
-// Handle states
-if (dataState.state === StateType.LOADING) return <Spinner />;
-if (dataState.isError)
-  return <ErrorMessage message={dataState.statusMessage} />;
+export const useProducts = () => {
+  const [productsState, execute] = useDataState<Product[]>();
 
-return <DataDisplay data={dataState.data} />;
+  const loadProducts = () => execute(() => productsApi.list());
+
+  return { productsState, loadProducts };
+};
+```
+
+**View** — renders UI, delegates logic to ViewModel:
+```tsx
+import { useEffect } from "react";
+import { StateType } from "astra";
+import { useProducts } from "../hooks/useProducts";
+
+function ProductsPage() {
+  const { productsState, loadProducts } = useProducts();
+
+  useEffect(() => { loadProducts(); }, []);
+
+  if (productsState.state === StateType.LOADING) return <Spinner />;
+  if (productsState.isError)
+    return <ErrorMessage message={productsState.statusMessage} />;
+
+  return <DataDisplay data={productsState.data} />;
+}
 ```
 
 ### Using AppStateHandler
 
-For automatic loading/error/empty state handling:
+For automatic loading/error/empty state handling with a ViewModel:
 
 ```tsx
 import { AppStateHandler } from "astra";
+import { useUsers } from "../hooks/useUsers";
 
 function UserList() {
-  const [userState, fetchUsers] = useDataState<User[]>();
+  const { usersState, loadUsers } = useUsers();
 
-  useEffect(() => {
-    fetchUsers(() => api.get<User[]>("users"));
-  }, []);
+  useEffect(() => { loadUsers(); }, []);
 
   return (
     <AppStateHandler
-      appState={userState}
+      appState={usersState}
       SuccessComponent={({ appState }) => (
         <ul>
           {appState.data?.map((user) => (
@@ -215,7 +244,7 @@ function UserList() {
 | `useDataState`     | MVVM state management hook                         |
 | `ApiService`       | Type-safe Axios wrapper for API calls              |
 | `AppStateHandler`  | Automatic state UI handler component               |
-| `StateType`        | Enum: `INIT`, `LOADING`, `COMPLETED`, `ERROR`      |
+| `StateType`        | Enum: `INIT`, `LOADING`, `COMPLETED`               |
 
 ### UI Components (Atomic Design)
 
@@ -233,10 +262,9 @@ See [Component Documentation](../../feature/components/README.md) for the full l
 
 ```ts
 // Root import (recommended)
-import { ThemeProvider, useDataState, HeroSection } from "astra";
+import { ThemeProvider, useDataState, HeroSection, spacing, typography } from "astra";
 
 // Subpath imports
-import { spacing, typography } from "astra/theme";
 import { HeroSection, Card } from "astra/components";
 ```
 

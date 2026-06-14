@@ -56,9 +56,9 @@ export const StatusActionCard: React.FC<StatusActionCardProps> = ({
   const [isChecking, setIsChecking] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  const labelLastChecked = literal["time.last_checked"] || lastCheckedLabel || "Last checked";
-  const labelConnect = literal["ui.connect"] || connectLabel || "Connect";
-  const labelLoading = literal["msg.loading"] || loadingLabel || "Loading...";
+  const labelLastChecked = literal["time.last_checked"] || lastCheckedLabel;
+  const labelConnect = literal["ui.connect"] || connectLabel;
+  const labelLoading = literal["msg.loading"] || loadingLabel;
 
   const handleCheckStatus = async () => {
     if (!onCheckStatus) return;

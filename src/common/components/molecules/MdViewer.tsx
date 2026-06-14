@@ -14,13 +14,13 @@ interface MdViewerProps {
 
 const Markdown = lazy(() => import("react-markdown").then(module => ({ default: module.default })));
 
-const LoadingFallback = () => (
-  <Box sx={{ p: spacing.md, color: 'text.secondary' }}>Loading...</Box>
-);
-
 export const MdViewer: FC<MdViewerProps> = ({ fileName, fileContent }) => {
   const { literal } = useLanguage();
-  const emptyMessage = literal["viewer.empty_markdown"] || "No markdown content available for preview.";
+
+  const LoadingFallback = () => (
+    <Box sx={{ p: spacing.md, color: 'text.secondary' }}>{literal["msg.loading"]}</Box>
+  );
+  const emptyMessage = literal["viewer.empty_markdown"];
   const content =
     fileContent && fileContent.trim().length > 0
       ? fileContent

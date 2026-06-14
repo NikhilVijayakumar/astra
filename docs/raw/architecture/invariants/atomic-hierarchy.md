@@ -1,8 +1,5 @@
 # Atomic Hierarchy Invariant
 
-```md
-# Atomic Hierarchy Invariant
-
 ## Purpose
 
 Astra is organized by Atomic Design methodology.

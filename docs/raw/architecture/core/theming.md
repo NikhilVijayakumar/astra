@@ -17,7 +17,7 @@ Theme System
 Wrap your application with `ThemeProvider` at app root:
 
 ```typescript
-import { ThemeProvider, ThemeToggle } from 'astra';
+import { ThemeProvider, useTheme, ThemeToggle } from 'astra';
 import { createTheme } from '@mui/material/styles';
 
 const lightTheme = createTheme({
@@ -31,9 +31,18 @@ const darkTheme = createTheme({
 function App() {
   return (
     <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
-      <ThemeToggle />
-      <MainContent />
+      <AppContent />
     </ThemeProvider>
+  );
+}
+
+function AppContent() {
+  const themeContext = useTheme();
+  return (
+    <>
+      <ThemeToggle themeContext={themeContext} />
+      <MainContent />
+    </>
   );
 }
 ```
@@ -82,15 +91,17 @@ function MyComponent() {
 Use `ThemeToggle` component for light/dark switching:
 
 ```typescript
-import { ThemeToggle } from 'astra';
+import { useTheme, ThemeToggle } from 'astra';
 
 function AppHeader() {
+  const themeContext = useTheme();
+
   return (
     <AppBar>
       <Toolbar>
         <Typography>Application</Typography>
         <Box sx={{ flexGrow: 1 }} />
-        <ThemeToggle />
+        <ThemeToggle themeContext={themeContext} />
       </Toolbar>
     </AppBar>
   );

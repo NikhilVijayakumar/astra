@@ -25,7 +25,7 @@ import { useDataState, StateType, AppState } from 'astra';
 const [appState, execute] = useDataState<Model[]>();
 
 useEffect(() => {
-  execute(() => Repo.getAll());
+  execute(() => modelApi.getAll());
 }, []);
 
 if (appState.state === StateType.LOADING) return <Loading />;
@@ -67,15 +67,13 @@ The following examples illustrate the MVVM layers conceptually. In practice, the
 ### Container (maps to `view/pages/<Feature>Page.tsx`)
 
 ```typescript
-import { useDataState } from 'astra';
-import { ModelRepo } from '../repo/modelRepo';
+import { useEffect } from 'react';
+import { useFeature } from '../hooks/useFeature';
 
 export function ListContainer() {
-  const [appState, execute] = useDataState<Model[]>();
+  const { appState, load } = useFeature();
 
-  useEffect(() => {
-    execute(() => ModelRepo.getAll());
-  }, []);
+  useEffect(() => { load(); }, []);
 
   // Uses AppStateHandler for standardized state UI
   return <AppStateHandler appState={appState} ... />;
@@ -87,10 +85,10 @@ export function ListContainer() {
 ```typescript
 import { useDataState, AppState, StateType } from 'astra';
 
-export const useFeatureViewModel = () => {
+export const useFeature = () => {
   const [appState, execute] = useDataState<Model[]>();
 
-  const load = () => execute(() => Repo.getAll());
+  const load = () => execute(() => modelApi.getAll());
 
   return { appState, load };
 };
@@ -119,16 +117,23 @@ export function ListView({ state }: Props) {
 
 ## Integration with Electron
 
-Astra's MVVM pattern works with any data source. For Electron apps, repositories typically use IPC calls instead of HTTP:
+Astra's MVVM pattern works with any data source. For Electron apps, repositories use IPC calls instead of HTTP:
 
 ```typescript
-// Container uses Electron IPC:
-const [appState, execute] = useDataState<Model[]>();
+// repo/resourceApi.ts — Electron repository using IPC
+export const resourceApi = {
+  list: async (): Promise<ServerResponse<Resource[]>> => {
+    const response = await window.electronAPI.invoke('resource:list');
+    return response;
+  },
+};
 
-execute(async () => {
-  const response = await window.electronAPI.invoke('resource:list');
-  return response;
-});
+// hooks/useResources.ts — ViewModel wraps the IPC repository
+export const useResources = () => {
+  const [state, execute] = useDataState<Resource[]>();
+  const load = () => execute(() => resourceApi.list());
+  return { state, load };
+};
 ```
 
 ## Rules

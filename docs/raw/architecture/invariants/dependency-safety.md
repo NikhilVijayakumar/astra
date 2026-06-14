@@ -1,8 +1,5 @@
 # Dependency Safety Invariant
 
-```md
-# Dependency Safety Invariant
-
 ## Purpose
 
 Astra is a production UI library with a controlled dependency surface.

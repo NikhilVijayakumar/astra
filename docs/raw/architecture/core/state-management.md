@@ -57,7 +57,6 @@ import { AppStateHandler, StateType } from 'astra';
   appState={appState}
   SuccessComponent={({ appState }) => <List data={appState.data} />}
   emptyCondition={(data) => data?.length === 0}
-  loadingMessage="Loading..."
   errorMessage="Failed to load"
 />
 ```
@@ -101,7 +100,7 @@ enum HttpStatusCode {
 - **Always use useDataState** for async API calls
 - **Use useState** only for UI state (selections, dialogs)
 - **Never store sensitive data** in volatile state
-- **Astra is stateless** — persistence is the consumer's responsibility
+- **Astra is stateless** — persistence is the consumer's responsibility (exception: ThemeProvider persists darkMode preference via localStorage as a UX convenience)
 
 ## Related
 

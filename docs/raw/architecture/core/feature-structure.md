@@ -73,7 +73,7 @@ Handles all external communication (HTTP APIs, Electron IPC). Built on Astra's `
 import { ApiService, ServerResponse } from 'astra';
 import { User } from '../model/user.types';
 
-const api = new ApiService(API_BASE_URL, literals);
+const api = new ApiService('https://api.example.com', { internal_server_error: 'Server unavailable' });
 
 export const usersApi = {
   list: (): Promise<ServerResponse<User[]>> => api.get('/users'),
@@ -121,7 +121,7 @@ export const UserCard = ({ user, onSelect }: Props) => (
 
 ### `view/pages/` — Stateful Page Containers
 
-Page-level components that serve as route entry points. They call ViewModel hooks, compose the UI from Astra primitives and feature components, and use `AppStateHandler` or `PageStateWrapper` for conditional rendering. This is the only layer that combines state management with presentation.
+Page-level components that serve as route entry points. They call ViewModel hooks, compose the UI from Astra primitives and feature components, and use `AppStateHandler` for conditional rendering. This is the only layer that combines state management with presentation.
 
 ```typescript
 // src/features/users/view/pages/UsersPage.tsx

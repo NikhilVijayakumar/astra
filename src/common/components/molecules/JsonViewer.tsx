@@ -21,7 +21,7 @@ const normalizeJsonForDisplay = (
 ): string => {
   if (!fileContent || fileContent.trim().length === 0) {
     return JSON.stringify(
-      { message: emptyMessage || "No JSON content available for preview." },
+      { message: emptyMessage },
       null,
       2,
     );
@@ -51,13 +51,14 @@ const normalizeJsonForDisplay = (
   }
 };
 
-const LoadingFallback = () => (
-  <Box sx={{ p: spacing.md, color: 'text.secondary' }}>Loading...</Box>
-);
-
 export const JsonViewer: FC<JsonViewerProps> = ({ fileName, fileContent }) => {
   const { literal } = useLanguage();
-  const emptyMessage = literal["viewer.empty_json"] || "No JSON content available for preview.";
+
+  const LoadingFallback = () => (
+    <Box sx={{ p: spacing.md, color: 'text.secondary' }}>{literal["msg.loading"]}</Box>
+  );
+
+  const emptyMessage = literal["viewer.empty_json"];
   const normalized = normalizeJsonForDisplay(fileName, fileContent, emptyMessage);
   const [style, setStyle] = useState<Record<string, React.CSSProperties> | null>(null);
 

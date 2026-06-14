@@ -43,8 +43,8 @@ const darkTheme = createTheme({
 
 // Translations
 const translations = {
-  en: { welcome: "Welcome", greeting: "Hello" },
-  es: { welcome: "Bienvenido", greeting: "Hola" },
+  en: { "app.welcome": "Welcome", "app.greeting": "Hello" },
+  es: { "app.welcome": "Bienvenido", "app.greeting": "Hola" },
 };
 
 const availableLanguages = [
@@ -54,16 +54,16 @@ const availableLanguages = [
 
 function App() {
   return (
-    <LanguageProvider
-      translations={translations}
-      availableLanguages={availableLanguages}
-      defaultLanguage="en"
-    >
-      <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+    <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+      <LanguageProvider
+        translations={translations}
+        availableLanguages={availableLanguages}
+        defaultLanguage="en"
+      >
         <CssBaseline />
         <YourApp />
-      </ThemeProvider>
-    </LanguageProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 
@@ -112,24 +112,24 @@ const lightTheme = createTheme({ palette: { mode: "light" } });
 const darkTheme = createTheme({ palette: { mode: "dark" } });
 
 const translations = {
-  en: { welcome: "Welcome" },
-  es: { welcome: "Bienvenido" },
+  en: { "app.welcome": "Welcome" },
+  es: { "app.welcome": "Bienvenido" },
 };
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <LanguageProvider
-      translations={translations}
-      availableLanguages={[
-        { code: "en", label: "English" },
-        { code: "es", label: "Español" },
-      ]}
-      defaultLanguage="en"
-    >
-      <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+    <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+      <LanguageProvider
+        translations={translations}
+        availableLanguages={[
+          { code: "en", label: "English" },
+          { code: "es", label: "Español" },
+        ]}
+        defaultLanguage="en"
+      >
         {children}
-      </ThemeProvider>
-    </LanguageProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 ```
@@ -180,11 +180,11 @@ Providers can be nested and combined in various ways:
 function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
-      <LanguageProvider {...i18nConfig}>
-        <ThemeProvider {...themeConfig}>
+      <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+        <LanguageProvider>
           <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
-      </LanguageProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
@@ -201,7 +201,7 @@ function MyComponent() {
 
   return (
     <div>
-      <h1>{literal.welcome}</h1>
+      <h1>{literal['app.welcome']}</h1>
       <select
         value={currentLanguage}
         onChange={(e) => setCurrentLanguage(e.target.value)}
@@ -279,10 +279,12 @@ src/
 // src/features/users/repo/usersApi.ts
 import { ApiService, ServerResponse } from "astra";
 
+const api = new ApiService('https://api.example.com', { internal_server_error: 'Server unavailable' });
+
 export const usersApi = {
-  list: (api: ApiService) => api.get<User[]>("/users"),
-  get: (api: ApiService, id: number) => api.get<User>(`/users/${id}`),
-  create: (api: ApiService, data: CreateUserDto) => api.post<User>("/users", data),
+  list: (): Promise<ServerResponse<User[]>> => api.get("/users"),
+  get: (id: number): Promise<ServerResponse<User>> => api.get(`/users/${id}`),
+  create: (data: CreateUserDto): Promise<ServerResponse<User>> => api.post("/users", data),
 };
 ```
 
@@ -291,16 +293,13 @@ export const usersApi = {
 ```tsx
 // src/features/users/hooks/useUsers.ts
 import { useDataState } from "astra";
-import { useApiClient } from "../../../common/repo/ApiClient";
 import { usersApi } from "../repo/usersApi";
 
 export const useUsers = () => {
-  const apiClient = useApiClient();
-
   const [state, execute] = useDataState<User[]>();
 
   const load = () => {
-    execute(() => usersApi.list(apiClient));
+    execute(() => usersApi.list());
   };
 
   return {
@@ -401,8 +400,7 @@ Use `AppStateHandler` for automatic state handling:
 <AppStateHandler
   appState={userState}
   SuccessComponent={({ appState }) => <Content data={appState.data} />}
-  emptyCondition={(data) => !data || data.length === 0}
-  emptyMessage="No users found"
+  emptyCondition={(data) => data.length === 0}
   errorMessage="Failed to load users"
 />
 ```
@@ -417,18 +415,18 @@ export const useUser = () => {
 
   const loadUser = (id: number) => execute(() => api.getUser(id));
 
-  return { state, loadUser, t: literal };
+  return { state, loadUser, literal };
 };
 
 // view/pages/UserProfilePage.tsx - Container (composes hook + UI)
 export const UserProfilePage = () => {
-  const { state, loadUser, t } = useUser();
+  const { state, loadUser, literal } = useUser();
 
   return (
     <AppStateHandler
       appState={state}
       SuccessComponent={({ appState }) => <div>{appState.data?.name}</div>}
-      errorMessage={t.user_load_error}
+      errorMessage={literal['error.user_load_error']}
     />
   );
 };

@@ -1,8 +1,5 @@
 # Repository Isolation Invariant
 
-```md
-# Repository Isolation Invariant
-
 ## Purpose
 
 Astra enforces a strict Repository pattern for all external communication.
@@ -137,7 +134,7 @@ export function useUserListViewModel() {
     execute(() => UserRepo.getAll());
   }, []);
 
-  return { users: state.data, isLoading: state.isLoading };
+  return { users: state.data, isLoading: state.state === StateType.LOADING };
 }
 ```
 

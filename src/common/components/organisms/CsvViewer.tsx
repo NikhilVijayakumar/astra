@@ -46,7 +46,7 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
   const headers = parsed.headers;
   const rows = parsed.rows;
 
-  const emptyMessage = literal["viewer.empty_csv"] || "No CSV content available";
+  const emptyMessage = literal["viewer.empty_csv"];
 
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
   const handleChangeRowsPerPage = (

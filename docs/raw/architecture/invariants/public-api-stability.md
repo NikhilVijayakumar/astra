@@ -1,8 +1,5 @@
 # Public API Stability Invariant
 
-```md
-# Public API Stability Invariant
-
 ## Purpose
 
 Astra is a library with a defined public API contract.

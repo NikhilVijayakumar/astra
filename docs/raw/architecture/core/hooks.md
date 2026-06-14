@@ -8,12 +8,12 @@ The `useDataState` hook is a custom hook designed to manage the state of asynchr
 
 ```typescript
 import { useDataState, StateType } from 'astra';
-import { UserRepo } from './repo';
+import { usersApi } from '../repo/usersApi';
 
 const [appState, execute] = useDataState<User[]>();
 
 useEffect(() => {
-  execute(() => UserRepo.getAll());
+  execute(() => usersApi.list());
 }, []);
 
 if (appState.state === StateType.LOADING) return <LoadingSpinner />;
@@ -54,32 +54,32 @@ For features needing multiple API calls (CRUD), do not try to reuse a single `us
 #### Example: Complex User ViewModel
 
 ```typescript
-export const useUsersViewModel = () => {
+import { useEffect } from 'react';
+
+export const useUsers = () => {
   // 1. State for the Main List (GET /users)
-  const [listState, executeList] = useDataState<User[]>()
+  const [listState, executeList] = useDataState<User[]>();
 
   // 2. State for a Specific User Detail (GET /users/:id)
-  const [detailState, executeDetail] = useDataState<User>()
+  const [detailState, executeDetail] = useDataState<User>();
 
   // 3. State for an Action (DELETE /users/:id)
-  // Use 'boolean' or 'void' since we only care about success/failure status
-  const [deleteState, executeDelete] = useDataState<boolean>()
+  const [deleteState, executeDelete] = useDataState<boolean>();
 
   // --- Actions ---
 
-  const loadUsers = () => executeList(() => api.getUsers())
+  const loadUsers = () => executeList(() => usersApi.list());
 
-  const selectUser = (id: string) => executeDetail(() => api.getUser(id))
+  const selectUser = (id: string) => executeDetail(() => usersApi.get(id));
 
-  const deleteUser = async (id: string) => {
-    // Run the delete operation
-    await executeDelete(() => api.deleteUser(id))
+  const deleteUser = (id: string) => executeDelete(() => usersApi.remove(id));
 
-    // ORCHESTRATION: If delete succeeded, reload the list
+  // ORCHESTRATION: React side-effect watches state, not stale closures
+  useEffect(() => {
     if (deleteState.isSuccess) {
-      await loadUsers()
+      loadUsers();
     }
-  }
+  }, [deleteState.isSuccess]);
 
   // --- Public Interface for the View ---
   return {
@@ -94,7 +94,7 @@ export const useUsersViewModel = () => {
     // Actions
     loadUsers,
     selectUser,
-    deleteUser
-  }
+    deleteUser,
+  };
 }
 ```

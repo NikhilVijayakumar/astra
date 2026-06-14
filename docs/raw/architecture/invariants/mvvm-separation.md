@@ -1,8 +1,5 @@
 # MVVM Separation Invariant
 
-```md
-# MVVM Separation Invariant
-
 ## Purpose
 
 Astra implements MVVM (Model-View-ViewModel) architecture.
@@ -463,7 +460,7 @@ BAD:
 
 ```tsx
 function UserList() {
-  const [state, execute] = useDataState();
+  const [state, execute] = useDataState<User[]>();
   useEffect(() => { execute(fetchUsers); }, []);
   return <div>{state.data}</div>;
 }
@@ -474,9 +471,9 @@ GOOD:
 ```tsx
 // ViewModel (useUserListViewModel.ts)
 export function useUserListViewModel() {
-  const [state, execute] = useDataState();
+  const [state, execute] = useDataState<User[]>();
   useEffect(() => { execute(fetchUsers); }, []);
-  return { users: state.data, isLoading: state.isLoading, isError: state.isError };
+  return { users: state.data, isLoading: state.state === StateType.LOADING, isError: state.isError };
 }
 
 // View (UserList.tsx)

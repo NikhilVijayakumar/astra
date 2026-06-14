@@ -1,8 +1,5 @@
 # Localization Invariant
 
-```md
-# Localization Invariant
-
 ## Purpose
 
 Astra is a locale-aware UI component library.
@@ -25,8 +22,8 @@ Localization guarantees:
 Components must reference translation keys exclusively for all user-facing text.
 
 A component may:
-- use the `useLanguage` hook to access translation function
-- reference translation key strings as `t('domain.element.key')`
+- use the `useLanguage` hook to access translated strings
+- reference translation keys as `literal['domain.element.key']`
 - pass translated strings as props from parent (already-translated)
 - render dynamic content that is not user-facing text (data values, numbers)
 
@@ -48,15 +45,14 @@ Allowed:
 
 ```tsx
 function PageHeader() {
-  const { t } = useLanguage();
+  const { literal } = useLanguage();
 
   return (
     <Typography variant="h4">
-      {t('page.header.title')}
+      {literal['page.header.title']}
     </Typography>
   );
 }
-```
 
 Reason:
 Text is resolved through the localization context.
@@ -89,7 +85,7 @@ Allowed:
 
 ```tsx
 function DataCount({ count }: { count: number }) {
-  return <span>{count} records</span>; // "records" must be from t()
+  return <span>{count} records</span>; // "records" must be from literal
 }
 ```
 
@@ -97,8 +93,8 @@ Wait — "records" is user-facing text. Correct pattern:
 
 ```tsx
 function DataCount({ count }: { count: number }) {
-  const { t } = useLanguage();
-  return <span>{t('data.recordCount', { count })}</span>;
+  const { literal } = useLanguage();
+  return <span>{literal['data.recordCount']}</span>;
 }
 ```
 
@@ -120,13 +116,13 @@ interface ConfirmDialogProps {
 }
 
 function ConfirmDialog({ titleKey, messageKey, confirmKey, cancelKey }: ConfirmDialogProps) {
-  const { t } = useLanguage();
+  const { literal } = useLanguage();
   return (
     <Dialog>
-      <DialogTitle>{t(titleKey)}</DialogTitle>
-      <DialogContent>{t(messageKey)}</DialogContent>
-      <Button>{t(confirmKey)}</Button>
-      <Button>{t(cancelKey)}</Button>
+      <DialogTitle>{literal[titleKey]}</DialogTitle>
+      <DialogContent>{literal[messageKey]}</DialogContent>
+      <Button>{literal[confirmKey]}</Button>
+      <Button>{literal[cancelKey]}</Button>
     </Dialog>
   );
 }
@@ -159,8 +155,8 @@ String is not localizable — blocks translation.
 Forbidden:
 
 ```tsx
-const { t } = useLanguage();
-const message = t('greeting.hello') + ' ' + userName + ' ' + t('greeting.welcome');
+const { literal } = useLanguage();
+const message = literal['greeting.hello'] + ' ' + userName + ' ' + literal['greeting.welcome'];
 ```
 
 Reason:
@@ -203,7 +199,7 @@ Locale is hardcoded — should use the active language from context.
 Forbidden:
 
 ```tsx
-<span>{t('key.name') || 'Default Name'}</span>
+<span>{literal['key.name'] || 'Default Name'}</span>
 ```
 
 Reason:
@@ -253,7 +249,7 @@ Detect:
 <Button>some text</Button>
 ```
 
-where the text content is a string literal (not a variable, prop, or t() call).
+where the text content is a string literal (not a variable, prop, or literal access).
 
 ---
 
@@ -392,7 +388,7 @@ BAD:
 GOOD:
 
 ```tsx
-<Button>{t('common.save')}</Button>
+<Button>{literal['common.save']}</Button>
 ```
 
 ---
@@ -408,18 +404,18 @@ BAD:
 GOOD:
 
 ```tsx
-<span>{t('common.itemsSelected', { count })}</span>
+<span>{literal['common.itemsSelected']}</span>
 ```
 
 Translation file:
 
 ```json
 {
-  "common": {
-    "itemsSelected": "{count} items selected"
-  }
+  "common.itemsSelected": "{{count}} items selected"
 }
 ```
+
+Note: The current `literal[key]` API returns the raw string. Use the consumer's preferred interpolation method for dynamic values.
 
 ---
 
@@ -435,8 +431,8 @@ const LABELS = { save: 'Save', cancel: 'Cancel' };
 GOOD:
 
 ```tsx
-<Button>{t('common.save')}</Button>
-<Button>{t('common.cancel')}</Button>
+<Button>{literal['common.save']}</Button>
+<Button>{literal['common.cancel']}</Button>
 ```
 
 ---
@@ -452,8 +448,8 @@ date.toLocaleDateString('en-US')
 GOOD:
 
 ```tsx
-const { language } = useLanguage();
-date.toLocaleDateString(language)
+const { currentLanguage } = useLanguage();
+date.toLocaleDateString(currentLanguage)
 ```
 
 ---
@@ -469,7 +465,7 @@ BAD:
 GOOD:
 
 ```tsx
-{t('common.itemCount', { count })}
+{literal['common.itemCount']}
 ```
 
 ---
@@ -512,7 +508,7 @@ instead of a globally usable UI library.
 
 1. Identify all hardcoded user-facing strings in components
 2. Define translation keys in the component's documentation
-3. Replace string literals with `t('key')` calls
+3. Replace string literals with `literal['key']` access
 4. Remove local message maps
 5. Update component props to accept keys where appropriate
 6. Verify language switching works for all occurrences
@@ -524,7 +520,7 @@ instead of a globally usable UI library.
 A component is compliant only if:
 
 - no hardcoded user-facing strings exist
-- all text content flows through `useLanguage` t() function
+- all text content flows through `useLanguage` literal object
 - no locale-specific formatting is hardcoded
 - no pluralization logic exists in component
 - no string concatenation for display exists
