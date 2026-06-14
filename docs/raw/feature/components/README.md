@@ -134,6 +134,63 @@ npm test -- --run
 
 Test files follow the pattern `*.test.tsx` and use Vitest + Testing Library.
 
+## Core Concepts
+
+- **Atomic Design:** Components organized into Atoms → Molecules → Organisms → Templates hierarchy
+- **Barrel Exports:** Each tier directory has an `index.ts` re-exporting all components for clean imports
+- **MUI Theme Integration:** All components consume theme via `useTheme()` for consistent styling
+- **Test Coverage:** Every component requires a corresponding `*.test.tsx` file with Vitest + Testing Library
+
 ## Atomic Design Methodology
 
 For detailed methodology on component classification and design principles, see [Atomic Design](./atomic-design/README.md).
+
+## Responsibilities
+
+- **Component Housing:** Organize all UI components by atomic design tier
+- **Import Management:** Maintain barrel exports and consistent import patterns
+- **Theme Integration:** Ensure all components integrate with the MUI theme system
+- **Test Coverage:** Maintain comprehensive test coverage for all components
+
+## Non-Responsibilities
+
+- **Application Layout:** Does not define application-level routing or page composition
+- **Global State:** Does not manage global application state or context
+- **Business Logic:** Does not implement domain-specific business logic
+
+## Edge Cases
+
+- **Cross-Tier Components:** Components that could logically fit multiple tiers (see [Atomic Design](./atomic-design/README.md) for classification)
+- **Third-Party Wrappers:** External component wrappers that need custom tier assignment
+- **Shared Utilities:** Helper or utility components used across multiple tiers
+
+## States
+
+- **Organized** — All components correctly filed by atomic tier with barrel exports
+- **Unclassified** — New component exists in codebase but not yet assigned to a tier
+- **Deprecated** — Component superseded by newer version; still exported but marked for removal
+
+## Inputs/Outputs
+
+- **Inputs:** Import path (tier barrel or direct file), component name
+- **Outputs:** Rendered component integrated with MUI theme; test coverage via `*.test.tsx` files
+
+## Error Conditions
+
+- **Incorrect import path** — Importing from wrong tier directory causes build failure
+- **Missing barrel export** — Component exists in directory but not re-exported from `index.ts`
+- **Cross-tier dependency violation** — Atom imports from molecule/organism creates circular dependency
+- **Missing test coverage** — Component added without corresponding `*.test.tsx` file
+
+## Future Enhancements
+
+- Component library published as a standalone npm package for external consumption
+- Interactive component explorer with live prop-editing (Storybook 8)
+- Automated bundle size reporting per component tier
+- Visual snapshot testing integrated into CI pipeline
+
+## Open Questions
+
+- Should the component library remain internal or be open-sourced?
+- How should cross-cutting concerns (analytics, theming) be injected without coupling components?
+- Is a CSS-in-JS migration (e.g., Pigment CSS, Panda) worth considering over MUI's styled API?

@@ -2,6 +2,10 @@
 
 **Tier:** Atoms — Fundamental UI Primitives
 
+## Overview
+
+Atoms are the smallest, most fundamental UI elements in the Atomic Design system. They represent single visual primitives — such as status indicators, badges, and state displays — that serve as the foundational building blocks for all higher-tier components.
+
 ## Definition
 
 Atoms are the smallest, most fundamental building blocks in the Atomic Design system. They represent single UI primitives that cannot be broken down further without losing meaning.
@@ -115,3 +119,54 @@ Before creating an atom, verify:
 ## Next: Molecules
 
 Molecules compose atoms into functional units with single purposes.
+
+## Edge Cases
+
+- **Atom-vs-Molecule boundary:** A component with 4+ props or that composes one other component may be a molecule, not an atom
+- **MUI imports:** MUI primitives (Box, Typography) are permitted in atoms; any other component import disqualifies the atom classification
+- **Style-only logic:** Minimal style computation (e.g. determining color from a tone prop) is acceptable; business logic or data transformation is not
+- **Ref forwarding:** Atoms that require `ref` forwarding remain atoms if they meet all other criteria
+
+## Responsibilities
+
+- **Primitive Rendering:** Render a single visual primitive with consistent presentation
+- **Configuration Surface:** Expose minimal, focused props for visual configuration
+- **Reusability:** Serve as drop-in building blocks across molecules and organisms
+- **Consistency:** Maintain uniform visual language across all atom instances
+
+## Non-Responsibilities
+
+- **Composition:** Atoms must not contain or render child components
+- **Business Logic:** Atoms must not contain business logic or application state
+- **Data Fetching:** Atoms must not perform API calls or data retrieval
+- **Side Effects:** Atoms must not produce side effects outside rendering
+
+## States
+
+- **Compliant** — Meets all atom criteria (1-3 props, no children, no state, no side effects)
+- **Borderline** — 4+ props or uses MUI-only child; should be evaluated as potential molecule
+- **Degraded** — Contains internal state, business logic, or non-MUI component imports
+
+## Inputs/Outputs
+
+- **Inputs:** Props (1-3), typically tone/severity/color/size/label configuration
+- **Outputs:** Rendered primitive UI element (dot, badge, text, icon); no side effects or return values
+
+## Error Conditions
+
+- **Invalid prop combination** — Mutually exclusive or contradictory props (e.g. error + success simultaneously)
+- **Missing required prop** — Atom renders incorrectly or not at all if required props are omitted
+- **Wrong tone/severity value** — Enum mismatch passes TypeScript but renders incorrect visual state
+
+## Future Enhancements
+
+- Atom component generator CLI for scaffolding new primitives with tests
+- Visual regression tests for each atom in light and dark mode
+- Polymorphic `as` prop support on atoms that render different base elements
+- Atom-specific design token playground in Storybook
+
+## Open Questions
+
+- Should atoms support `sx`-like override props, or would that violate the minimal-props principle?
+- How should atoms expose refs — forwardRef on every atom or only when needed?
+- Is a `size` scale (sm/md/lg) acceptable on atoms, or does that invite scope creep?

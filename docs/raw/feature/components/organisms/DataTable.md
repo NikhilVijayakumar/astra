@@ -52,6 +52,21 @@ interface DataTableProps<T> {
   - Uses `column.render(row)` when a render function is provided
   - Otherwise reads `row[column.id]` directly
 
+## Validation Rules
+
+- `columns`, `data`, `keyField` are all required — TypeScript compilation fails if any are omitted
+- `columns` array must have at least one entry for meaningful rendering
+- `keyField` must be a valid key of the generic data type `T`
+- Generic type `T` ensures type safety between `columns[].accessor` and `data` items
+
+## Error Handling
+
+- Empty `data` array: renders the sticky header with no body rows
+- Empty `columns` array: renders an empty table (no columns or data cells)
+- Null/undefined `keyField` value at runtime: row key becomes `"null"` or `"undefined"` — potential React key collision if multiple rows share this value
+- Duplicate key values: React renders a console warning but no functional error occurs
+- No error boundary is provided — errors propagate to the parent
+
 ## Non-Responsibilities
 
 - Does not paginate, sort, or filter data — rows render in the order provided
@@ -88,6 +103,45 @@ const UserTable = () => (
   />
 );
 ```
+
+## States
+
+- **Idle**: Data loaded — renders sticky header with body rows
+- **Empty data**: `data` is an empty array — renders header with no body rows
+- **Empty columns**: `columns` is an empty array — renders an empty table
+
+## Inputs/Outputs
+
+- **Inputs**: `columns` (required array of `Column<T>`), `data` (required array of `T`), `keyField` (required key of `T`)
+- **Outputs**: Renders an MUI Table with sticky header, body rows, and custom cell content via `column.render()`
+- **Side effects**: None — purely presentational
+
+## Error Conditions
+
+- **Null/undefined key value**: Row key becomes `"null"` or `"undefined"` — potential React key collision
+- **Duplicate keys**: React console warning; duplicate keys may cause rendering issues
+- **Missing render function**: Falls back to `String(row[column.id])` — no crash
+- **Component error in render function**: No error boundary — propagates to parent
+
+## Future Enhancements
+
+- Add built-in pagination with configurable page size
+- Implement column sorting with ascending/descending toggle
+- Support row selection with checkbox column and select-all header
+- Virtualize rows for smooth scrolling through large datasets
+
+## Open Questions
+
+- Should filtering be built in or delegated entirely to the parent via data pre-processing?
+- What accessibility pattern should row selection follow — checkboxes or row click with aria-selected?
+- Should column resizing and reordering be supported, and if so, should the state be persisted?
+
+## Core Concepts
+
+- **Generic typed component pattern**: Uses React generics (`<T>`) to ensure type safety between `columns` and `data` — `columns[].id` must match keys of `T`, and `keyField` must be a valid `keyof T`.
+- **Column definition-driven rendering**: The `columns` array is the schema — each column's `id`, `label`, `align`, `minWidth`, and optional `render` function fully drives table output. Data is transformed into UI purely through column definitions.
+- **Render prop pattern per cell**: `column.render(row)` provides custom cell rendering without coupling the table to specific data shapes — enables buttons, badges, or any ReactNode per cell while keeping the table generic.
+- **MUI Table composition**: Built on MUI `Table`, `TableHead`, `TableBody`, `TableRow`, `TableCell` — leverages MUI's table semantics (sticky headers, hover rows) without re-implementing table layout.
 
 ## Design Principles
 

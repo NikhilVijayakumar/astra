@@ -48,6 +48,47 @@ export type StatusDotTone =
 | `executing` | `info.main`      |
 | `default`   | `text.secondary` |
 
+## Validation Rules
+
+- `tone` is required — TypeScript compilation fails if omitted
+- `tone` must be a valid `StatusDotTone` value at runtime; unknown values fall back to `default`
+- `size` defaults to `10` when not provided or `undefined`
+- No runtime validation on `size` — any number is accepted; values ≤ 0 render an invisible dot
+
+## Error Handling
+
+- Unknown `tone` values are silently mapped to `default` (`text.secondary`) — no error is thrown
+- The component does not throw or surface errors for any prop combination
+- No error boundary is provided — unhandled errors propagate to the parent
+
+## States
+
+- **Idle**: Default rendering state — dot is displayed with the mapped tone color
+- **Active**: The dot is always "active" since it is a static indicator — no interactive states
+- **Disabled**: Not applicable — no user interaction
+
+## Inputs/Outputs
+
+- **Inputs**: `tone` (StatusDotTone, required), `size` (number, optional, default 10)
+- **Outputs**: Renders a `<Box>` element with a circular colored dot via `sx` styling; no callbacks or side effects
+
+## Error Conditions
+
+- **Unknown tone value**: Silently falls back to `default` (`text.secondary`) — no warning logged
+- **Size ≤ 0**: Dot renders with zero dimensions — invisible but present in DOM
+- **Missing tone**: TypeScript compile error; runtime behavior is undefined
+
+## Future Enhancements
+
+- Pulse animation variant for the `executing` tone to indicate active processing
+- Tooltip support to display human-readable status labels on hover
+- Accessibility improvements via `aria-label` mapping per tone
+
+## Open Questions
+
+- Should pulse animation be configurable or always-on for the `executing` tone?
+- What minimum `size` ensures visibility across all supported display densities and themes?
+
 ## Non-Responsibilities
 
 - Does not display text, labels, or tooltips
@@ -79,6 +120,13 @@ const StatusIndicator = ({ status }) => {
   return <StatusDot tone={toneMap[status]} size={12} />;
 };
 ```
+
+## Core Concepts
+
+- **Color mapping via lookup table**: The `toneColorMap` object maps each `StatusDotTone` to a MUI theme color key — no conditional logic, no branching. Adding a new tone means adding one entry to the map.
+- **MUI theme token integration**: Colors are resolved through MUI's theme system (`theme.palette.success.main`, etc.), ensuring automatic dark/light mode adaptation without component-level awareness.
+- **Fallback chain pattern**: Unknown `tone` values silently cascade to `default` via `toneColorMap[tone] || toneColorMap.default`, never throwing.
+- **Static indicator pattern**: The component is a pure function of its props — no internal state, no side effects, no interaction. It emits a single DOM node.
 
 ## Design Principles
 

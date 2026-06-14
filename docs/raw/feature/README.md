@@ -2,7 +2,13 @@
 
 Modular documentation for Astra library features. Each module contains focused, atomic documents.
 
-## Modules
+## Overview
+
+Feature Documentation provides a structured index of all Astra library features organized by domain. Each module contains focused, atomic documentation for its specific feature area, enabling independent reference and maintenance.
+
+## Interfaces
+
+### Modules
 
 ### [Components](./components/)
 
@@ -72,5 +78,60 @@ src/
 │   └── tokens/
 │       ├── spacing.ts
 │       ├── typography.ts
-│       └── colors.ts
+│   └── colors.ts
+
+## Responsibilities
+
+- **Feature Indexing:** Catalog all library features by domain for easy discovery
+- **Navigation Structure:** Provide quick links and cross-references between modules
+- **Module Organization:** Maintain consistent structure across all feature modules
+
+## Non-Responsibilities
+
+- **API Reference:** Does not replace detailed API or usage documentation
+- **Implementation Guides:** Does not provide step-by-step implementation tutorials
+- **Cross-Feature Integration:** Does not document patterns combining multiple features
+
+## Edge Cases
+
+- **Multi-Module Features:** Features whose implementation spans multiple documentation modules
+- **Shared Concerns:** Documentation topics relevant to multiple features
+- **Deprecated Features:** Features in transition that exist across module boundaries
+
+## Core Concepts
+
+- **Modularity:** Each feature is documented in an independent, self-contained module
+- **Discoverability:** Navigation aids and quick links enable fast feature location
+- **Consistency:** All modules follow the same structural conventions for predictability
+
+## States
+
+- **Documented** — Feature has complete, up-to-date documentation module
+- **In-progress** — Documentation partially written or under active development
+- **Deprecated** — Feature still documented but marked for removal or replacement
+
+## Inputs/Outputs
+
+- **Inputs:** Feature name or domain (components, state, theming, mvvm, localization, repository)
+- **Outputs:** Module documentation with component listings, usage patterns, edge cases, and cross-references
+
+## Error Conditions
+
+- **Missing module** — Feature exists in codebase but has no documentation entry
+- **Broken cross-reference** — Link to related module points to non-existent or moved document
+- **Outdated documentation** — Module describes behavior that no longer matches implementation
+- **Orphaned module** — Documentation exists for a feature that has been removed from codebase
+
+## Future Enhancements
+
+- Auto-generated documentation from TypeScript source annotations
+- Searchable documentation portal with cross-module full-text search
+- Versioned documentation that tracks feature changes across releases
+- Integration diagram showing how all feature modules compose together
+
+## Open Questions
+
+- Should each feature doc include a changelog or version history section?
+- How should experimental / beta features be marked in the documentation?
+- Is there a need for a contributing guide specific to documentation updates?
 ```

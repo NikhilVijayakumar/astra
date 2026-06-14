@@ -44,6 +44,20 @@ interface FormLayoutProps {
 - Renders actions row at the bottom (typically submit/cancel buttons)
 - Maintains consistent spacing and alignment for all forms
 
+## Validation Rules
+
+- `children` is required — TypeScript compilation fails if omitted
+- `title` and `actions` are optional
+- No runtime validation is performed
+
+## Error Handling
+
+- No `title`: the header section is omitted entirely
+- No `actions`: the footer row is omitted entirely
+- Empty `children`: renders an empty Box with flex column layout — invisible to the user
+- No error state — purely a presentational layout wrapper
+- No error boundary is provided
+
 ## Non-Responsibilities
 
 - Does not manage form state, field values, or submission handling
@@ -77,6 +91,44 @@ const CreateUserForm = () => (
   </FormLayout>
 );
 ```
+
+## States
+
+- **Idle**: Default rendered state — title, children, and actions displayed
+- **No title**: Header section omitted
+- **No actions**: Footer section omitted
+- **Empty children**: Empty flex column rendered (invisible to user)
+
+## Inputs/Outputs
+
+- **Inputs**: `title` (optional string), `children` (required ReactNode), `actions` (optional ReactNode)
+- **Outputs**: Renders a flex-column layout with optional header, children body, and optional actions footer
+- **Side effects**: None — purely presentational wrapper
+
+## Error Conditions
+
+- **Missing `children`**: TypeScript compilation error (required prop)
+- **No error recovery**: Component does not catch or handle errors — purely structural
+
+## Future Enhancements
+
+- Add a `maxWidth` prop to allow layout width customization per form
+- Support a sticky actions footer that pins to the viewport on scroll
+- Provide a loading/skeleton variant for forms that fetch initial data
+- Add a `title`-adjacent slot for breadcrumbs or back navigation
+
+## Open Questions
+
+- Should the component handle form-level validation summaries or keep that concern separate?
+- Is the 600px max-width appropriate for all form types, or should it be configurable?
+- What is the expected behavior when `children` contains a very tall element — should the layout scroll internally?
+
+## Core Concepts
+
+- **Layout slot pattern**: Defines three vertical slots — header (`title`), body (`children`), and footer (`actions`) — each slot renders independently and can be omitted without affecting the others.
+- **Max-width constraint for readability**: Wraps content with a `maxWidth: 600px` constraint — a deliberate readability boundary for form content, preventing line lengths from exceeding comfortable reading width.
+- **Flex column composition**: Uses `flexDirection: 'column'` with `gap` spacing between slots — a simple stacking layout that scales vertically with content height.
+- **Optional section rendering**: `title` and `actions` slots are conditionally rendered — when omitted, they produce no DOM, keeping the rendered tree minimal when sections aren't needed.
 
 ## Design Principles
 

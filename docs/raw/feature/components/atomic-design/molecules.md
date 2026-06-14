@@ -2,6 +2,10 @@
 
 **Tier:** Molecules — Composed Functional Units
 
+## Overview
+
+Molecules are self-contained components that compose two or more atoms into meaningful, reusable functional units. They bridge the gap between primitive elements and complex UI sections, each serving a single clear purpose.
+
 ## Definition
 
 Molecules are self-contained components composed of 2+ atoms. They represent single functional units with a clear purpose, combining primitives into meaningful UI elements.
@@ -127,3 +131,54 @@ Before creating a molecule, verify:
 ## Next: Organisms
 
 Organisms assemble molecules into complex UI sections with significant logic and state.
+
+## Edge Cases
+
+- **Molecule-vs-Organism boundary:** A component that performs data fetching or manages significant state is an organism, not a molecule
+- **Single-atom molecules:** A component wrapping a single atom with no added behavior should remain an atom
+- **Minimal state:** Local UI state (e.g. open/closed toggle) is acceptable in molecules; async state or external data is not
+- **Context consumers:** A molecule reading from React Context shifts it toward organism territory — evaluate case by case
+
+## Responsibilities
+
+- **Composition:** Compose atoms into cohesive, purpose-driven functional units
+- **Single Purpose:** Maintain one clear use case per molecule component
+- **Props-Driven Interface:** Expose configuration through props rather than internal logic
+- **Self-Containment:** Operate without external data or context dependencies
+
+## Non-Responsibilities
+
+- **Data Fetching:** Molecules must not fetch or manage external data
+- **Complex State:** Molecules must not manage complex state beyond minimal local UI state
+- **Side Effects:** Molecules must not produce side effects such as analytics tracking or logging
+- **Page Layout:** Molecules must not define page-level layout or structure
+
+## States
+
+- **Compliant** — Composes 2+ atoms, single purpose, no data fetching, self-contained
+- **Borderline** — Wraps single atom with minimal added behavior; consider keeping as atom
+- **Degraded** — Contains data fetching, complex state, or side effects; should be promoted to organism
+
+## Inputs/Outputs
+
+- **Inputs:** Props for configuration (content, severity, value, trend, file source)
+- **Outputs:** Rendered functional UI unit composed of atoms; no return values or side effects
+
+## Error Conditions
+
+- **Missing composed atom** — Required atom is not rendered or receives invalid props
+- **Invalid content type** — Molecule designed for specific data shape receives incompatible input
+- **Context dependency creep** — Reading React Context shifts molecule toward organism; may cause unexpected re-renders
+
+## Future Enhancements
+
+- Compound component pattern for molecules with multiple composition slots
+- Accessibility audit checklist specific to molecule-level interactions
+- Responsive variants for molecules that adapt layout at breakpoints
+- Automated dependency check to ensure molecules only import from atoms, not organisms
+
+## Open Questions
+
+- Should molecules with 3+ atom compositions be automatically promoted to organisms?
+- How should molecule-level error boundaries work without becoming organisms?
+- Is there a performance budget (lines of code, prop count) enforced for molecules?

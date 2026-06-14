@@ -270,6 +270,7 @@ Browse the full component library at [Component Documentation](../../feature/com
 - [Component Documentation](../../feature/components/README.md) - Browse the full component library
 - [React Integration Guide](react.md) - Framework-specific setup
 - [Electron Integration Guide](electron.md) - Desktop app integration
-- [MVVM Architecture](../MVVM_Clean_Architecture.md) - Architecture patterns
-- [Theming](../Theming.md) - Custom theming guide
-- [Localization](../Localization.md) - Advanced i18n patterns
+- [Feature Structure](../core/feature-structure.md) - Canonical feature folder layout
+- [MVVM Architecture](../core/mvvm-pattern.md) - Architecture patterns
+- [Theming](../core/theming.md) - Custom theming guide
+- [Localization](../core/localization.md) - Advanced i18n patterns

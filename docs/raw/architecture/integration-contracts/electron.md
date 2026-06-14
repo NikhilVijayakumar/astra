@@ -257,12 +257,17 @@ my-electron-app/
 │   │       └── ApiClient.ts   # API client hook
 │   ├── features/
 │   │   └── users/
+│   │       ├── model/
+│   │       │   └── users.types.ts
 │   │       ├── repo/
-│   │       │   └── UsersRepo.ts
-│   │       ├── viewmodel/
-│   │       │   └── useUsersViewModel.ts
+│   │       │   └── usersApi.ts
+│   │       ├── hooks/
+│   │       │   └── useUsers.ts
 │   │       └── view/
-│   │           └── UsersContainer.tsx
+│   │           ├── components/
+│   │           │   └── UserCard.tsx
+│   │           └── pages/
+│   │               └── UsersPage.tsx
 │   └── layout/
 │       └── MainLayout.tsx
 ├── package.json

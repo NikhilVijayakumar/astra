@@ -49,7 +49,7 @@ While `useDataState` can be used directly in components, **Astra strongly recomm
 
 ### Pattern: ViewModel as Orchestrator
 
-For features needing multiple API calls (CRUD), do not try to reuse a single `useDataState` hook. Instead, compose multiple hooks within one ViewModel.
+For features needing multiple API calls (CRUD), do not try to reuse a single `useDataState` hook. Instead, compose multiple hooks within one ViewModel. See [Feature Structure](feature-structure.md) for the canonical ViewModel placement in `hooks/use<Feature>.ts`.
 
 #### Example: Complex User ViewModel
 

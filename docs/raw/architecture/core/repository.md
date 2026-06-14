@@ -49,13 +49,16 @@ ServerResponse.error({ status: 500, statusMessage: 'Failed to load' });
 
 ### Structure
 
+Within the canonical feature structure (see [Feature Structure](feature-structure.md)):
+
 ```
 src/
 └── features/
     └── [feature]/
-        └── repo/       # Feature-specific repos
-            ├── modelRepo.ts
-            └── index.ts
+        ├── model/       # Domain types
+        │   └── <feature>.types.ts
+        └── repo/        # Feature-specific repos
+            └── <feature>Api.ts
 ```
 
 ### Repository Example
@@ -185,6 +188,7 @@ if (appState.isError) {
 
 ## Related
 
+- [Feature Structure](feature-structure.md) — Canonical feature folder layout
 - [MVVM Pattern](mvvm-pattern.md)
 - [State Management](state-management.md)
 - [Theming](theming.md)

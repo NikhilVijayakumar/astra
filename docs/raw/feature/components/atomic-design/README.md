@@ -141,3 +141,55 @@ Before adding a component:
 
 - [Atomic Design by Brad Frost](https://atomicdesign.bradfrost.com/)
 - [Component Composition in React](https://react.dev/learn/composition)
+
+## Responsibilities
+
+- **Tier Classification:** Defining and enforcing classification rules for atoms, molecules, organisms, and templates
+- **Composition Guidance:** Providing decision frameworks (flowchart, rules) for component placement
+- **Pattern Documentation:** Maintaining composition patterns, anti-patterns, and design principles
+- **Cross-Tier Boundaries:** Establishing clear boundaries between tiers and migration paths
+
+## Non-Responsibilities
+
+- **Code Enforcement:** Does not replace linting rules or automated tier validation
+- **Visual Design:** Does not dictate aesthetic or visual styling decisions
+- **API Contracts:** Does not replace component-level API documentation
+- **Architecture:** Does not define page routing, state management, or application architecture
+
+## Edge Cases
+
+- **Multi-Tier Components:** Components that may belong to different tiers depending on context
+- **Tier Migration:** Components that evolve from one tier to another over time
+- **Shared Utilities:** Utility components that don't map to any specific tier
+- **Wrapper Components:** External library wrappers that need custom classification
+
+## States
+
+- **Classified** — Component assigned to a tier (atom/molecule/organism/template) with clear placement
+- **Ambiguous** — Component could fit multiple tiers; requires flowchart evaluation or discussion
+- **Unclassified** — New component awaiting tier assignment; may be placed in wrong directory
+
+## Inputs/Outputs
+
+- **Inputs:** New or existing component to classify; component purpose, props, composition, and state requirements
+- **Outputs:** Tier assignment (atom/molecule/organism/template); placement directory; composition rules and constraints
+
+## Error Conditions
+
+- **Wrong tier assignment** — Component placed in incorrect tier, causing composition or import issues
+- **Boundary ambiguity** — Component straddling tier boundaries with no clear classification path
+- **Missing classification** — Component added without tier review, bypassing design checklist
+- **Migration failure** — Tier upgrade/downgrade causes import breakage across dependent components
+
+## Future Enhancements
+
+- Automated tier validation in CI — lint rule that verifies component classification
+- Tier-migration codemod that automatically updates imports when a component moves
+- Visual dependency graph showing tier composition relationships
+- Storybook integration per tier for isolated development and documentation
+
+## Open Questions
+
+- How should headless / render-prop components be classified in the atomic hierarchy?
+- Is a fifth tier needed for page-specific compositions that sit above templates?
+- Should the classification flowchart be encoded as an interactive CLI tool or in-editor hint?

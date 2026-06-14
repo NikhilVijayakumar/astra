@@ -2,6 +2,10 @@
 
 **Tier:** Templates — Page-Level Layouts
 
+## Overview
+
+Templates define page-level layout structures and composition rules. They arrange organisms into cohesive page layouts without containing page-specific content, business logic, or data dependencies.
+
 ## Definition
 
 Templates define the structure and composition rules for page-level layouts. They arrange organisms into cohesive pages, establishing how UI sections fit together without containing page-specific content.
@@ -175,5 +179,59 @@ Templates complete the Atomic Design hierarchy:
 Atoms → Molecules → Organisms → Templates
   ↓        ↓          ↓           ↓
 Primitives Functional  Complex    Layout
-           Units       Sections
+            Units                   Sections       
+```
+ 
+## Edge Cases
+
+- **Template-vs-Organism boundary:** A template with specific content or business logic should be downgraded to an organism
+- **Single-page templates:** A template used by only one page component should be evaluated — consider merging into the page
+- **Nested templates:** Templates should not render other templates; compose organisms only
+- **Empty slot states:** Templates with optional children slots should handle missing children gracefully (no-throw)
+- **Responsive breakpoints:** Templates should define layout breakpoints; organisms and molecules should not
+
+## Responsibilities
+
+- **Layout Definition:** Define reusable page and section layout structures
+- **Organism Arrangement:** Arrange organisms into cohesive, structured compositions
+- **Content Slots:** Provide composition slots via children props or named slots
+- **Reusability:** Support multiple pages sharing the same layout template
+
+## Non-Responsibilities
+
+- **Content:** Templates must not contain page-specific content or hard-coded data
+- **Business Logic:** Templates must not contain business logic or application state
+- **Data Fetching:** Templates must not perform data fetching or API calls
+- **Page Specificity:** Templates must not be designed for a single page only
+
+## States
+
+- **Empty** — Template rendered with no children or empty slots; renders layout shell only
+- **Populated** — Template rendered with organisms/molecules in content slots
+- **Responsive** — Layout adapts to viewport breakpoints defined in the template
+
+## Inputs/Outputs
+
+- **Inputs:** `children` prop, named slots (`title`, `subtitle`, `actions`, `breadcrumb`), layout configuration
+- **Outputs:** Rendered page/section layout structure; no business logic, no data, no side effects
+
+## Error Conditions
+
+- **Missing children** — Template with all optional slots renders empty layout; may confuse consumers
+- **Invalid slot arrangement** — Organisms placed in wrong slots cause layout breakage
+- **Responsive breakpoint mismatch** — Template defines breakpoints inconsistent with organism content requirements
+- **Business logic leak** — Data fetching or state management accidentally added to template
+
+## Future Enhancements
+
+- Template composition API — named slot components for stricter layout contracts
+- Responsive template variants for mobile, tablet, and desktop viewports
+- Template playground in Storybook with resizable containers
+- Layout testing utilities to verify template slot placement across breakpoints
+
+## Open Questions
+
+- Should templates support SSR-specific layout variants for hydration optimization?
+- How should nested templates (template within a template) be classified?
+- Is there value in a template registry that maps routes to template components?
 ```

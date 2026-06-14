@@ -56,6 +56,20 @@ For unsupported file types, displays:
 - Title: "Binary / Unsupported File"
 - Subtitle showing the file extension
 
+## Validation Rules
+
+- `fileName` is required — TypeScript compilation fails if omitted
+- `fileContent`, `fileEncoding`, `mimeType` are optional
+- File extension is extracted via `split('.').pop()` — files without an extension result in `undefined`
+- Route mapping uses a `switch-case` with fallthrough to known type handlers
+
+## Error Handling
+
+- No match in the route map: renders an unsupported-file fallback (title + extension label)
+- No `fileContent`: delegated to each sub-viewer — each viewer handles missing content independently
+- Missing localization keys: uses hardcoded fallback strings
+- No error boundary is provided — errors in sub-viewers propagate to the parent
+
 ## Non-Responsibilities
 
 - Does not load file content from disk or network
@@ -105,6 +119,45 @@ const ImagePreview = () => (
   />
 );
 ```
+
+## States
+
+- **Idle**: Component rendered with a recognized file extension and `fileContent` — delegates to the appropriate sub-viewer
+- **Unsupported**: File extension does not match any known viewer — renders the unsupported file fallback
+- **Empty**: No `fileContent` provided — passes `undefined` to the sub-viewer (each handles it independently)
+
+## Inputs/Outputs
+
+- **Inputs**: `fileName` (required), `fileContent` (optional), `fileEncoding` (optional), `mimeType` (optional)
+- **Outputs**: Renders the matched sub-viewer component (CsvViewer, MdViewer, ImageViewer, JsonViewer) or an unsupported-file fallback UI
+- **Side effects**: None — purely a routing/presentational component
+
+## Error Conditions
+
+- **Unknown extension**: Falls through to `default` case — renders fallback ("Binary / Unsupported File")
+- **Missing `fileContent`**: Delegated to sub-viewer — no error is thrown by the router itself
+- **Missing localization keys**: Hardcoded fallback strings used — no crash
+- **Sub-viewer crash**: No error boundary — error propagates to the parent
+
+## Future Enhancements
+
+- Add support for additional file types (PDF, XML, YAML, log files)
+- Implement drag-and-drop file loading for inline previews
+- Provide a fallback text-viewer mode for unknown text-based files instead of a generic unsupported message
+- Allow custom viewer registration via a plugin or mapping prop
+
+## Open Questions
+
+- How should binary files larger than 50 MB be handled — streaming, chunked loading, or blocking?
+- Should accessibility announcements differ per sub-viewer (e.g., "table loaded" for CSV vs "image displayed" for image)?
+- What is the expected behavior when the route map has overlapping or ambiguous extensions?
+
+## Core Concepts
+
+- **Router/dispatcher pattern**: Uses a `switch-case` statement to map file extensions to sub-viewer components — a central decision point that coordinates which molecule renders based on file type metadata.
+- **Delegation to sub-viewers**: Each file type routes to a dedicated molecule (CsvViewer, MdViewer, ImageViewer, JsonViewer) — the router itself has no rendering logic beyond the fallback unsupported state.
+- **Extension-based routing logic**: The file extension is extracted via `fileName.split('.').pop()` — this is a metadata-level decision that doesn't require reading file content, enabling early routing.
+- **Metadata pass-through**: `fileEncoding` and `mimeType` props are forwarded only to `ImageViewer` — other sub-viewers ignore them, keeping the routing logic simple and per-viewer contracts clear.
 
 ## Design Principles
 

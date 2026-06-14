@@ -66,6 +66,21 @@ Follows premium-ui-patterns skill:
 - Uses spacing tokens (spacing.md, spacing.sm)
 - Typography: h4 for title, body2 for content
 
+## Validation Rules
+
+- `fileName` is required — TypeScript compilation fails if omitted
+- `fileContent` is optional
+- Delimiter is auto-detected from the first line: `,` or `;`
+- Pagination options: 10, 25, 50 rows per page
+
+## Error Handling
+
+- No `fileContent` or empty content: renders title + empty-state message
+- Empty CSV (headers only, no data rows): renders the header row with an empty table body
+- Delimiter detection on mixed-delimiter files: may parse incorrectly — no error is surfaced
+- Missing localization key: uses a hardcoded fallback string
+- Large CSV is paginated (no virtualization) — performance degrades beyond typical dataset sizes
+
 ## Non-Responsibilities
 
 - Does not load file content from disk or network
@@ -118,6 +133,45 @@ const LargeCsvViewer = ({ fileData }) => (
   </div>
 );
 ```
+
+## States
+
+- **Idle**: CSV content loaded and parsed — renders paginated table with headers and rows
+- **Empty**: No `fileContent` or empty CSV string — renders title + empty-state message
+- **Headers-only**: CSV has headers but zero data rows — renders header row with empty table body
+
+## Inputs/Outputs
+
+- **Inputs**: `fileName` (required), `fileContent` (optional string)
+- **Outputs**: Renders a paginated table with sticky headers, row count display, and page-size selector
+- **Side effects**: None — stateless parse-and-render component
+
+## Error Conditions
+
+- **No content / empty content**: Renders empty-state message (no crash)
+- **Mixed-delimiter CSV**: Delimiter detection on first line only — may parse subsequent lines incorrectly; no error surfaced
+- **Missing translation key**: Falls back to hardcoded "No CSV content available"
+- **Very large datasets**: Pagination without virtualization — performance degrades beyond typical sizes
+
+## Future Enhancements
+
+- Add column sorting by clicking header cells
+- Introduce column search/filter input for quick data filtering
+- Implement row selection with bulk action support (copy, export)
+- Virtualize large datasets to handle 100K+ rows without performance degradation
+
+## Open Questions
+
+- Should CSV export functionality be added, or is that outside the viewer's scope?
+- What is the expected behavior for malformed CSV rows — skip, highlight, or surface an error?
+- Should column type detection (number, date, string) be automatic to enable formatting?
+
+## Core Concepts
+
+- **Parse-and-render pipeline**: Raw CSV string → delimiter detection → `headers[]` + `rows[][]` → paginated MUI Table — parsing and rendering are sequential phases with no external data fetching.
+- **Auto-delimiter detection**: Scans only the first line for semicolons (`;`) to choose between comma and semicolon delimiters — a lightweight heuristic that avoids full-file scanning.
+- **Pagination state management**: Internal `useState` for `page` and `rowsPerPage` — pagination is a pure UI concern scoped to this organism, not lifted to a parent or global store.
+- **Sticky header + scrollable body**: Uses MUI Table's `stickyHeader` prop combined with a fixed-height container — ensures column labels remain visible while the user scrolls through data rows.
 
 ## Design Principles
 

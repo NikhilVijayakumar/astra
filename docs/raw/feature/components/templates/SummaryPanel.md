@@ -50,6 +50,21 @@ export interface SummaryPanelProps {
 - Border radius: `spacing.xs`
 - Background: `background.paper`
 
+## Validation Rules
+
+- `title` and `lines` are required — TypeScript compilation fails if either is omitted
+- `lines` must be an array of `SummaryLine` objects
+- Each line's `variant` defaults to `"body2"` when not provided
+- No runtime validation is performed on line contents
+
+## Error Handling
+
+- Empty `lines` array: renders the title with no body content below
+- All lines set to the same `variant`: renders consistently but with no visual hierarchy
+- Missing `variant` on a line: defaults to `body2` gracefully
+- Long text wraps within the panel width — no overflow errors
+- No error boundary is provided
+
 ## Non-Responsibilities
 
 - Does not manage state or fetch data
@@ -92,6 +107,44 @@ const ContactInfo = () => (
   />
 );
 ```
+
+## States
+
+- **Populated**: Title and one or more lines rendered
+- **Empty**: `lines` array is empty — renders title only with no body content
+- **Single variant**: All lines share same variant — consistent display with no hierarchy
+
+## Inputs/Outputs
+
+- **Inputs**: `title` (required string), `lines` (required array of `SummaryLine`)
+- **Outputs**: Renders a bordered panel with title header and styled text lines (body2 inline / caption block)
+- **Side effects**: None — purely presentational
+
+## Error Conditions
+
+- **Empty `lines` array**: Renders title only — no crash
+- **Missing `variant` on line**: Defaults gracefully to `body2` — no error
+- **Long text**: Wraps within panel width — no overflow
+
+## Future Enhancements
+
+- Add a collapsible/expandable toggle for the panel content
+- Support a "copy all" button to copy all line text to clipboard
+- Introduce an icon or label slot next to each line for visual categorization
+- Provide a loading skeleton variant for async content
+
+## Open Questions
+
+- Should the panel support a maximum height with internal scroll for very long line lists?
+- What is the right balance between the two variants — should more typography variants be added?
+- Should lines support rich content (links, badges) or remain plain text only?
+
+## Core Concepts
+
+- **Data-driven line rendering**: The `lines` array of `SummaryLine` objects drives all body content — the component is a map-renderer that iterates the array and renders each item as a Typography element with minimal logic.
+- **Variant-based typography hierarchy**: `SummaryLine.variant` controls whether text renders as `body2` (inline, `display: 'inline'`) or `caption` (block, `display: 'block'`) — a lightweight approach to visual hierarchy without multiple slot components.
+- **Border-based panel pattern**: Uses `1px solid divider` border with `borderRadius: spacing.xs` and `background.paper` — follows the premium UI pattern of subtle borders over elevation for panel surfaces.
+- **Structured data pattern**: The `SummaryLine` interface (`text: string; variant?: "body2" | "caption"`) is a deliberate constraint — keeping data as plain objects rather than React nodes ensures consistent styling and simple serialization.
 
 ## Design Principles
 

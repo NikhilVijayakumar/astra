@@ -47,6 +47,48 @@ export interface CardProps {
 - Gap between elements: `spacing.xs` (8px)
 - Border: 1px solid divider
 
+## Validation Rules
+
+- All props are optional (`title?`, `supportingText?`, `children?`, `action?`)
+- No runtime validation — all props are passed directly to rendering
+- TypeScript enforces prop types but no runtime checks are performed
+
+## Error Handling
+
+- All props optional — no error state for missing props; empty Card renders as a surface with no visible content
+- Empty `children`: renders a Box with no children (invisible surface)
+- Missing `action`: the actions section is omitted entirely
+- No error boundary is provided
+
+## States
+
+- **Idle**: Default rendering state — card displays with all provided content
+- **Empty**: No children and no header props — renders as empty Paper surface with padding and border
+- **Loaded**: Content is rendered normally — no loading state managed internally
+- **Disabled**: Not applicable — no interactive behavior
+
+## Inputs/Outputs
+
+- **Inputs**: `title` (string, optional), `supportingText` (string, optional), `children` (ReactNode, optional), `action` (ReactNode, optional)
+- **Outputs**: Renders a `<Paper>` container with optional header (title, supportingText, action) and children body; no callbacks or side effects
+
+## Error Conditions
+
+- **All props omitted**: Renders an empty Paper surface — visually present but contentless
+- **Action overflow**: Action slot content may overflow on narrow card widths
+- **Missing title with supportingText**: supportingText renders without a heading above it — may confuse visual hierarchy
+
+## Future Enhancements
+
+- Clickable card variant with hover elevation change for actionable surfaces
+- Collapsible card body for expandable content sections
+- Image or media area slot at the top of the card
+
+## Open Questions
+
+- Should click behavior be added directly or remain composed by consumers?
+- What elevation level should apply in dark mode for adequate surface distinction?
+
 ## Non-Responsibilities
 
 - Does not manage or persist state
@@ -117,6 +159,13 @@ const SimpleCard = () => (
   </Card>
 );
 ```
+
+## Core Concepts
+
+- **Slot-based composition pattern**: The Card exposes named slots (`title`, `supportingText`, `action`, `children`) rather than a single content prop — each section renders independently and can be omitted without affecting others.
+- **Paper as structural foundation**: Built on MUI `Paper` with `elevation={0}` and border-based styling (1px solid divider) — achieves premium surfaces without shadow overhead.
+- **Optional header pattern**: The header row (title + supportingText + action) only renders when at least one header prop is provided — empty props produce no header DOM.
+- **Flex column layout**: Card body is a `flexDirection: 'column'` stack with `gap: spacing.xs` — child components control their own sizing within the flow.
 
 ## Design Principles
 

@@ -43,7 +43,7 @@ A View may NOT:
 
 ### ViewModel (Hook/Orchestrator)
 
-The ViewModel orchestrates state between Model and View.
+The ViewModel orchestrates state between Model and View. In the canonical feature structure (see [Feature Structure](../core/feature-structure.md)), ViewModels are implemented as custom hooks in `hooks/use<Feature>.ts`.
 
 A ViewModel may:
 - use `useDataState` to manage async state
@@ -348,7 +348,7 @@ Detect:
 return <div>
 ```
 
-inside files named `use*ViewModel` or in `viewmodel/` directories.
+inside ViewModel files (canonical: `hooks/use<Feature>.ts`, also `viewmodel/` directories or files named `use*ViewModel`).
 
 ---
 

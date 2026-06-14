@@ -60,6 +60,21 @@ export interface PageHeaderProps {
 - Bottom margin: `spacing.xl`
 - Gap between elements: `spacing.md`
 
+## Validation Rules
+
+- `title` is required — TypeScript compilation fails if omitted
+- All other props are optional
+- `primaryAction` and `secondaryAction` use the `HeaderActionConfig` interface — both accept `{ label, onClick, icon?, variant? }`
+- No runtime validation is performed on action configs
+
+## Error Handling
+
+- No `subtitle`: the subtitle region is omitted entirely
+- No actions or `meta`: the respective sections are omitted
+- `secondaryAction` can render without `primaryAction` (reversed order in layout)
+- Long content wraps naturally — no overflow errors
+- No error boundary is provided
+
 ## Non-Responsibilities
 
 - Does not manage page-level state or data fetching
@@ -80,6 +95,8 @@ export interface PageHeaderProps {
 - Long title without subtitle: title occupies full width with no wrapping issues
 
 ## Usage Example
+
+```tsx
 import { StatusDot } from "@/common/components/atoms/StatusDot";
 import { SeverityBadge } from "@/common/components/atoms/SeverityBadge";
 
@@ -113,6 +130,44 @@ const UserManagementPage = () => (
   />
 );
 ```
+
+## States
+
+- **Full**: Title, subtitle, primary action, secondary action, leadingMeta, and trailingMeta all populated
+- **Minimal**: Only `title` provided — all optional sections omitted
+- **Partial**: Any combination of optional props present — each section independently renderable
+
+## Inputs/Outputs
+
+- **Inputs**: `title` (required), `subtitle`, `primaryAction`, `secondaryAction`, `leadingMeta`, `trailingMeta` (all optional)
+- **Outputs**: Renders a flex container with title, subtitle, action buttons, and meta slots in responsive layout
+- **Side effects**: None — purely presentational; action `onClick` callbacks are void functions
+
+## Error Conditions
+
+- **Missing `title`**: TypeScript compilation error
+- **Empty string props**: Renders empty Typography elements for string props — no crash
+- **Action config missing `onClick`**: Button renders but does nothing on click
+
+## Future Enhancements
+
+- Add a breadcrumb slot between the top of the page and the title
+- Support sticky behavior so the header remains visible during vertical scroll
+- Provide a responsive variant that collapses actions into a "More" menu on narrow viewports
+- Add an optional status indicator or badge slot adjacent to the title
+
+## Open Questions
+
+- Should action buttons support a loading/spinner state when async operations are in progress?
+- What is the expected wrapping behavior when both actions and trailingMeta overflow on small screens?
+- Should the subtitle support rich text (links, inline code) or remain plain string only?
+
+## Core Concepts
+
+- **Slot-based layout pattern**: Defines five content slots — `leadingMeta`, `title`, `subtitle`, action buttons (primary/secondary), and `trailingMeta` — each renders independently and can be omitted without affecting the layout structure.
+- **Responsive wrap pattern**: Uses `flexWrap: 'wrap'` with `justifyContent: 'space-between'` — on narrow viewports, action buttons wrap to the row below the title instead of overflowing or clipping.
+- **Action config objects**: `primaryAction` and `secondaryAction` use a `HeaderActionConfig` interface (`label`, `onClick`, `variant`, `size`) — a structured data pattern that avoids passing raw React nodes for simple button cases.
+- **Reverse order action rendering**: Action buttons render right-to-left (`trailingMeta` → `secondaryAction` → `primaryAction`) — visual order (primary rightmost) differs from DOM source order, a deliberate UX hierarchy choice.
 
 ## Design Principles
 

@@ -2,6 +2,10 @@
 
 **Tier:** Organisms — Complex UI Sections
 
+## Overview
+
+Organisms are complex UI sections composed of multiple molecules and atoms. They represent discrete, recognizable pieces of an interface with significant logic, state management, or data interactions.
+
 ## Definition
 
 Organisms are complex UI sections composed of multiple molecules and atoms. They represent discrete, recognizable pieces of an interface with significant logic, state, or data interactions.
@@ -139,3 +143,56 @@ Before creating an organism, verify:
 ## Next: Templates
 
 Templates arrange organisms into page-level layouts with defined composition rules.
+
+## Edge Cases
+
+- **Organism-vs-Template boundary:** An organism that defines page layout structure should be a template instead
+- **Single-use organisms:** Organisms designed for exactly one page context should be evaluated for refactoring or documentation as page-specific
+- **Performance-sensitive organisms:** Organisms with expensive renders or frequent data updates should consider memoization or virtualization
+- **Empty data state:** Organisms that fetch data must handle loading, error, and empty states via AppStateHandler
+
+## Responsibilities
+
+- **Complex Assembly:** Assemble molecules and atoms into feature-complete UI sections
+- **State Management:** Manage significant local state and data processing logic
+- **Data Interaction:** Perform data fetching, manipulation, and display as needed
+- **Section Completeness:** Form self-contained, discrete sections within a page layout
+
+## Non-Responsibilities
+
+- **Page Layout:** Organisms must not define overall page or section layout structure
+- **Page Specificity:** Organisms must not be written for a single page context
+- **Over-Simplification:** Organisms that compose only 1-2 atoms should be molecules
+
+## States
+
+- **Idle** — Mounted, awaiting user interaction or data trigger
+- **Loading** — Data fetching in progress via ViewModel hooks
+- **Error** — Fetch failed; error state displayed via `AppStateHandler`
+- **Success** — Data loaded; full organism rendered
+- **Empty** — Success with no data; empty state shown
+
+## Inputs/Outputs
+
+- **Inputs:** Props (data, callbacks, configuration), external data dependencies (API, context)
+- **Outputs:** Complex UI section (table, tree, panel, form); side effects (data fetching, analytics, logging)
+
+## Error Conditions
+
+- **Data fetch failure** — Network error or API rejection; organism must handle via `AppStateHandler`
+- **Missing required data** — Prop or context dependency is undefined/null at render time
+- **Performance degradation** — Large datasets cause slow renders; memoization/virtualization may be needed
+- **Over-composition** — Too many responsibilities makes organism unmaintainable; should be split
+
+## Future Enhancements
+
+- Performance monitoring dashboard for organism render times and re-render frequency
+- Lazy-loading pattern documentation for organisms that are below-the-fold
+- Organism-level error boundary integration with standardized fallback UI
+- Composition inspector tool showing which molecules/atoms an organism comprises at runtime
+
+## Open Questions
+
+- Should organisms own their data-fetching ViewModel, or receive data via props?
+- How should organisms communicate sibling state changes without a shared parent?
+- Is there a maximum composition depth before an organism should be split?

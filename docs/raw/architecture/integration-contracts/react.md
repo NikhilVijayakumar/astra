@@ -235,7 +235,7 @@ function ThemeToggleButton() {
 
 ## Feature Module Structure
 
-Astra follows MVVM (Model-View-ViewModel) architecture. Here's the recommended structure:
+Astra follows MVVM (Model-View-ViewModel) architecture. See [Feature Structure](../core/feature-structure.md) for the canonical feature folder layout.
 
 ### Directory Layout
 
@@ -243,15 +243,17 @@ Astra follows MVVM (Model-View-ViewModel) architecture. Here's the recommended s
 src/
 ├── features/
 │   └── users/
+│       ├── model/          # Domain types and DTOs
+│       │   └── users.types.ts
 │       ├── repo/           # Data access layer
-│       │   └── UsersRepo.ts
-│       ├── state/          # State types
-│       │   └── UsersState.ts
-│       ├── viewmodel/      # Business logic
-│       │   └── useUsersViewModel.ts
-│       └── view/           # UI components
-│           ├── UsersContainer.tsx
-│           └── UserCard.tsx
+│       │   └── usersApi.ts
+│       ├── hooks/          # ViewModel custom hooks
+│       │   └── useUsers.ts
+│       └── view/
+│           ├── components/ # Presentational leaf components
+│           │   └── UserCard.tsx
+│           └── pages/      # Stateful page containers
+│               └── UsersPage.tsx
 ├── common/
 │   └── repo/               # Shared API client
 │       └── ApiClient.ts
@@ -261,59 +263,49 @@ src/
 └── main.tsx
 ```
 
+### Layer Mapping
+
+| Directory | MVVM Role | Responsibility |
+|-----------|-----------|----------------|
+| `model/` | Model | TypeScript interfaces, DTOs, state types |
+| `repo/` | Repository | API calls via `ApiService` or IPC |
+| `hooks/` | ViewModel | Custom hooks wrapping `useDataState` |
+| `view/components/` | View | Pure presentational components (props only) |
+| `view/pages/` | Container | Stateful pages that compose hooks + components |
+
 ### Repository Pattern
 
 ```ts
-// src/features/users/repo/UsersRepo.ts
+// src/features/users/repo/usersApi.ts
 import { ApiService, ServerResponse } from "astra";
 
-export class UsersRepo {
-  private api: ApiService;
-
-  constructor(api: ApiService) {
-    this.api = api;
-  }
-
-  async getUsers(): Promise<ServerResponse<User[]>> {
-    return this.api.get<User[]>("/users");
-  }
-
-  async getUser(id: number): Promise<ServerResponse<User>> {
-    return this.api.get<User>(`/users/${id}`);
-  }
-
-  async createUser(data: CreateUserDto): Promise<ServerResponse<User>> {
-    return this.api.post<User>("/users", data);
-  }
-}
+export const usersApi = {
+  list: (api: ApiService) => api.get<User[]>("/users"),
+  get: (api: ApiService, id: number) => api.get<User>(`/users/${id}`),
+  create: (api: ApiService, data: CreateUserDto) => api.post<User>("/users", data),
+};
 ```
 
 ### ViewModel Hook
 
 ```tsx
-// src/features/users/viewmodel/useUsersViewModel.ts
+// src/features/users/hooks/useUsers.ts
 import { useDataState } from "astra";
 import { useApiClient } from "../../../common/repo/ApiClient";
-import { UsersRepo } from "../repo/UsersRepo";
+import { usersApi } from "../repo/usersApi";
 
-export const useUsersViewModel = () => {
+export const useUsers = () => {
   const apiClient = useApiClient();
-  const usersRepo = new UsersRepo(apiClient);
 
   const [state, execute] = useDataState<User[]>();
 
-  const loadUsers = () => {
-    execute(() => usersRepo.getUsers());
-  };
-
-  const createUser = (data: CreateUserDto) => {
-    execute(() => usersRepo.createUser(data));
+  const load = () => {
+    execute(() => usersApi.list(apiClient));
   };
 
   return {
     state,
-    loadUsers,
-    createUser,
+    load,
   };
 };
 ```
@@ -321,12 +313,13 @@ export const useUsersViewModel = () => {
 ### View Component
 
 ```tsx
-// src/features/users/view/UsersContainer.tsx
-import { useUsersViewModel } from "../viewmodel/useUsersViewModel";
+// src/features/users/view/pages/UsersPage.tsx
+import { useUsers } from "../../hooks/useUsers";
 import { AppStateHandler } from "astra";
+import { UserCard } from "../components/UserCard";
 
-export const UsersContainer = () => {
-  const { state, loadUsers } = useUsersViewModel();
+export const UsersPage = () => {
+  const { state, load } = useUsers();
 
   return (
     <AppStateHandler
@@ -357,9 +350,9 @@ import { ThemeProvider, useDataState, HeroSection } from "astra";
 import { something } from "astra/dist/internal";
 ```
 
-### 2. Create Feature-Focused ViewModels
+### 2. Create Feature-Focused ViewModels in hooks/
 
-Each feature should have its own ViewModel hook that encapsulates:
+Each feature should have its own ViewModel hook in `hooks/use<Feature>.ts` that encapsulates:
 
 - Data fetching logic
 - State management
@@ -367,7 +360,8 @@ Each feature should have its own ViewModel hook that encapsulates:
 - Translation helpers
 
 ```tsx
-export const useFeatureViewModel = () => {
+// src/features/<name>/hooks/use<Feature>.ts
+export const useFeature = () => {
   // 1. State
   const [dataState, execute] = useDataState<Data>();
 
@@ -381,7 +375,7 @@ export const useFeatureViewModel = () => {
   const isEmpty = dataState.isSuccess && dataState.data?.length === 0;
 
   return { state: dataState, actions: { loadData }, ui: { literal, isEmpty } };
-};
+ };
 ```
 
 ### 3. Use Type-Safe API Service
@@ -416,8 +410,8 @@ Use `AppStateHandler` for automatic state handling:
 ### 5. Separate UI from Logic
 
 ```tsx
-// ViewModel - business logic only
-export const useUserViewModel = () => {
+// hooks/useUser.ts - ViewModel (business logic only)
+export const useUser = () => {
   const [state, execute] = useDataState<User>();
   const { literal } = useLanguage();
 
@@ -426,9 +420,9 @@ export const useUserViewModel = () => {
   return { state, loadUser, t: literal };
 };
 
-// View - UI only
-export const UserProfile = () => {
-  const { state, loadUser, t } = useUserViewModel();
+// view/pages/UserProfilePage.tsx - Container (composes hook + UI)
+export const UserProfilePage = () => {
+  const { state, loadUser, t } = useUser();
 
   return (
     <AppStateHandler
@@ -488,5 +482,6 @@ For tier-specific guidance, see:
 - [Component Documentation](../../feature/components/README.md) - Browse the full component library
 - [Getting Started Guide](getting-started.md) - Basic installation
 - [Electron Integration Guide](electron.md) - Desktop app integration
-- [MVVM Architecture](../MVVM_Clean_Architecture.md) - Architecture deep dive
-- [Repository Layer](../Repository_Layer.md) - API patterns
+- [Feature Structure](../core/feature-structure.md) - Canonical feature folder layout
+- [MVVM Architecture](../core/mvvm-pattern.md) - Architecture deep dive
+- [Repository Layer](../core/repository.md) - API patterns

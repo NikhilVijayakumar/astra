@@ -46,66 +46,72 @@ interface AppState<T> {
 }
 ```
 
-## MVVM Structure
+## Feature Module Structure
 
-Recommended project layout for consumers:
+Astra defines a canonical feature folder structure for all consumers. See [Feature Structure](feature-structure.md) for the authoritative reference.
 
-```
-src/
-└── features/
-    └── [feature-name]/
-        ├── components/
-        │   ├── Container.tsx   # MVVM Container (data fetching + state orchestration)
-        │   ├── ViewModel.ts    # ViewModel (state logic)
-        │   └── View.tsx        # View (presentation)
-        ├── domain/             # Business logic
-        └── repo/               # Repository/API calls
-```
+The MVVM pattern maps to the canonical structure as follows:
 
-## Container → ViewModel → View Pattern
+| MVVM Layer | Canonical Location | Implementation |
+|------------|-------------------|----------------|
+| **Model** | `model/` | TypeScript interfaces and DTOs |
+| **Repository** | `repo/` | Data access via ApiService or IPC |
+| **ViewModel** | `hooks/` | Custom React hooks wrapping `useDataState` |
+| **View** | `view/components/` | Presentational components (props-only) |
+| **Container** | `view/pages/` | Stateful page components composing hooks + views |
 
-### Container
+## Conceptual Pattern
+
+The following examples illustrate the MVVM layers conceptually. In practice, the ViewModel is a custom hook in `hooks/`, the Container is the page component in `view/pages/`, and the View is a presentational component in `view/components/`.
+
+### Container (maps to `view/pages/<Feature>Page.tsx`)
+
 ```typescript
-import { ViewModel } from './ViewModel';
-import { View } from './View';
+import { useDataState } from 'astra';
+import { ModelRepo } from '../repo/modelRepo';
 
 export function ListContainer() {
   const [appState, execute] = useDataState<Model[]>();
 
   useEffect(() => {
-    execute(() => Repo.getAll());
+    execute(() => ModelRepo.getAll());
   }, []);
 
-  return <ViewModel appState={appState} />;
+  // Uses AppStateHandler for standardized state UI
+  return <AppStateHandler appState={appState} ... />;
 }
 ```
 
-### ViewModel
+### ViewModel (maps to `hooks/use<Feature>.ts`)
+
 ```typescript
-import { AppState } from 'astra';
+import { useDataState, AppState, StateType } from 'astra';
+
+export const useFeatureViewModel = () => {
+  const [appState, execute] = useDataState<Model[]>();
+
+  const load = () => execute(() => Repo.getAll());
+
+  return { appState, load };
+};
+```
+
+### View (maps to `view/components/<Name>Component.tsx`)
+
+```typescript
+import { AppState, StateType } from 'astra';
 
 interface Props {
-  appState: AppState<Model[]>;
+  state: AppState<Model[]>;
 }
 
-export function ViewModel({ appState }: Props) {
-  return <View {...appState} />;
-}
-```
-
-### View
-```typescript
-import { StateType } from 'astra';
-
-interface Props extends AppState<Model[]> {}
-
-export function View({ state, data, isError, statusMessage }: Props) {
-  if (state === StateType.LOADING) return <LoadingSpinner />;
-  if (isError) return <ErrorMessage message={statusMessage} />;
+export function ListView({ state }: Props) {
+  if (state.state === StateType.LOADING) return <LoadingSpinner />;
+  if (state.isError) return <ErrorMessage message={state.statusMessage} />;
 
   return (
     <ul>
-      {data?.map(item => <ItemCard key={item.id} item={item} />)}
+      {state.data?.map(item => <ItemCard key={item.id} item={item} />)}
     </ul>
   );
 }
@@ -129,12 +135,16 @@ execute(async () => {
 
 - **Always use useDataState** for async operations
 - **Never use useState directly** for data (use useDataState)
-- **Follow Container → ViewModel → View** structure
+- **Follow the canonical feature structure** in [Feature Structure](feature-structure.md)
+- **ViewModels are hooks** — implement in `hooks/use<Feature>.ts`, not as JSX components
+- **Pages are stateful** — `view/pages/` is the only layer that composes hooks with UI
+- **Components are stateless** — `view/components/` receives props only, no data fetching
 - **Never hardcode strings** — use localization
 - **Never hardcode colors** — use theme tokens
 
 ## Related
 
+- [Feature Structure](feature-structure.md) — Canonical feature folder layout
 - [State Management](state-management.md)
 - [Theming](theming.md)
 - [Repository](repository.md)

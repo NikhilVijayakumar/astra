@@ -26,6 +26,48 @@ No props. Uses localization internally.
 | --------------- | ---------------- |
 | `no_data_found` | No data found    |
 
+## Validation Rules
+
+- No props accepted — self-contained component with empty props interface
+- Relies on localization key `no_data_found` for display text
+- TypeScript enforces the empty props interface
+
+## Error Handling
+
+- Missing localization key `no_data_found`: renders empty Typography element with no visible text
+- No error is thrown for any condition — purely presentational
+- Parent layout may affect centering but no error is surfaced
+- No error boundary is provided
+
+## States
+
+- **Empty**: Always in empty state by definition — displays "No data found" text
+- **Loading**: Not applicable — parent manages loading state
+- **Error**: Not applicable — parent handles error state
+- **Populated**: Not applicable — component only renders when data is absent
+
+## Inputs/Outputs
+
+- **Inputs**: No props — self-contained component
+- **Outputs**: Renders a centered `<Box>` with a `<Typography>` containing localized "No data found" text; no callbacks
+
+## Error Conditions
+
+- **Missing localization key `no_data_found`**: Typography renders with no visible text
+- **Parent layout overrides centering**: Component still renders but may not appear centered
+- **Multiple instances**: No coordination — each renders independently
+
+## Future Enhancements
+
+- Action button slot for contextual empty-state actions (e.g., "Create new", "Refresh")
+- Illustration or icon slot for visual emphasis
+- Custom message prop to accept user-defined text beyond the localized default
+
+## Open Questions
+
+- Should the component accept an image or illustration slot?
+- What is the recommended min-height to prevent layout shift when populated content loads?
+
 ## Non-Responsibilities
 
 - Does not accept custom messages or content
@@ -47,6 +89,13 @@ import EmptyState from "@/common/components/atoms/EmptyState";
 
 {data.length === 0 && <EmptyState />}
 ```
+
+## Core Concepts
+
+- **Zero-prop interface pattern**: Accepts no props — a self-contained "no data" indicator that enforces consistent empty messaging across the entire app.
+- **Localization-driven text**: Message is resolved via `useLanguage` hook key `no_data_found`, enabling locale switching without prop changes or conditional rendering at call sites.
+- **Conditional visibility pattern**: The parent controls when this component renders (`{data.length === 0 && <EmptyState />}`) — the component itself has no visibility logic.
+- **Centering via flex container**: Uses the same flex centering pattern as `LoadingState` and `ErrorState` for visual consistency across all state atoms.
 
 ## Design Principles
 

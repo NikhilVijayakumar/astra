@@ -56,6 +56,54 @@ Default fallback: `"No JSON content available for preview."`
 - Border radius: 1 (8px)
 - Uses spacing tokens
 
+## Validation Rules
+
+- `fileName` is required — TypeScript compilation fails if omitted
+- `fileContent` is optional
+- Content is parsed via `JSON.parse` — invalid JSON at runtime triggers error-state rendering
+- JSONL format is supported: each line is parsed independently
+
+## Error Handling
+
+- No `fileContent`: renders a JSON object with a fallback message
+- Invalid JSON (`JSON.parse` throws): renders a structured error JSON object with `{ error, raw }` and `rawContent` fallback in the viewer
+- JSONL parsing: each line parsed independently; failed lines produce error objects within the output array
+- Missing localization key `viewer.empty_json`: uses a hardcoded fallback string
+- Lazy-loaded syntax highlighter: shows "Loading…" fallback on first render
+- Large JSON may be slow — no virtualization is implemented
+
+## States
+
+- **Loaded**: Valid JSON — syntax-highlighted formatted output displayed
+- **Empty**: No `fileContent` — fallback JSON object shown
+- **Error**: Invalid JSON — structured error object with `{ error, raw }` displayed
+- **Loading**: Syntax highlighter lazily loading — "Loading…" fallback shown
+- **JSONL parsing**: Lines parsed independently — each line may be in loaded or error state
+
+## Inputs/Outputs
+
+- **Inputs**: `fileName` (string, required), `fileContent` (string, optional)
+- **Outputs**: Renders a `<Box>` with lazily loaded `<SyntaxHighlighter>` displaying parsed JSON; no callbacks
+
+## Error Conditions
+
+- **Missing `fileName`**: TypeScript compile error
+- **Invalid JSON**: `JSON.parse` throws — error object rendered with raw content fallback
+- **JSONL parse failures**: Failed lines produce `{ line, parseError, raw }` objects in output
+- **Very large JSON**: Syntax highlighting may cause performance issues — no virtualization
+- **Missing localization key**: Uses hardcoded fallback string
+
+## Future Enhancements
+
+- Collapsible tree view for navigating deeply nested JSON structures
+- Search or filter functionality to locate keys or values
+- Copy path or copy value context actions for individual nodes
+
+## Open Questions
+
+- At what JSON size threshold should virtualization be introduced to maintain performance?
+- Should JSONL parsing validate the file extension or rely solely on content detection?
+
 ## Non-Responsibilities
 
 - Does not load file content from disk or network
@@ -85,6 +133,19 @@ const JsonPreview = () => {
   return <JsonViewer fileName="user.json" fileContent={jsonData} />;
 };
 ```
+
+## Core Concepts
+
+- **Parse-and-render pipeline**: Raw JSON string → `JSON.parse` → structured data → Prism syntax highlighting → styled HTML — errors in parsing produce a structured error object rather than crashing.
+- **Graceful error recovery via structured error objects**: Invalid JSON produces `{ parseError: true, raw: originalText }` instead of throwing — the component stays mounted and shows both the error context and the raw content.
+- **JSONL line-by-line parsing**: Each line of a `.jsonl` file is parsed independently via `JSON.parse` — a single malformed line produces an error object for that line only, preserving valid data from other lines.
+- **Lazy-loaded syntax highlighter**: `react-syntax-highlighter` with the `vscDarkPlus` theme is loaded asynchronously, showing a "Loading..." fallback on first render to keep initial bundle size small.
+
+## Design Principles
+
+This component is a molecule — a composed functional unit.
+
+See [Molecules](../atomic-design/molecules.md) for classification guidelines and usage patterns.
 
 ## Source
 
