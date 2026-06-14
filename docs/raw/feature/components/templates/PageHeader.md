@@ -53,10 +53,26 @@ export interface PageHeaderProps {
 - Bottom margin: `spacing.xl`
 - Gap between elements: `spacing.md`
 
-## Usage Example
+## Non-Responsibilities
 
-```tsx
-import { PageHeader } from "@/common/components/templates/PageHeader";
+- Does not manage page-level state or data fetching
+- Does not handle navigation routing — `onClick` on action configs are void callbacks
+- Does not render breadcrumbs, tabs, or other secondary navigation
+- Does not provide sticky or scroll-aware behavior
+- Does not manage responsive breakpoints beyond the `flexWrap: 'wrap'` behavior
+
+## Edge Cases
+
+- No `subtitle` provided: subtitle slot is omitted; title renders alone
+- No `primaryAction` or `secondaryAction` provided: action buttons section is omitted
+- No `leadingMeta` or `trailingMeta` provided: meta slots are omitted
+- Only `secondaryAction` without `primaryAction`: only the secondary button renders (primary is not required)
+- Action button defaults: `variant` defaults to `"outlined"`, `size` defaults to `"small"`
+- Actions render in reverse order: `trailingMeta` then `secondaryAction` then `primaryAction` (right to left)
+- Narrow viewport: container wraps via `flexWrap: 'wrap'`; actions move to the row below the title
+- Long title without subtitle: title occupies full width with no wrapping issues
+
+## Usage Example
 import { StatusDot } from "@/common/components/atoms/StatusDot";
 import { SeverityBadge } from "@/common/components/atoms/SeverityBadge";
 

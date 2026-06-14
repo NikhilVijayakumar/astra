@@ -39,11 +39,25 @@ export interface NotificationProps {
 - Anchor: `vertical: 'bottom', horizontal: 'center'`
 - Displays at bottom-center of viewport
 
-## Usage Example
+## Non-Responsibilities
 
-```tsx
-import { useState } from "react";
-import { Notification } from "@/common/components/molecules/Notification";
+- Does not manage app-wide notification queue or stacking
+- Does not persist notification history across sessions
+- Does not provide undo or action callbacks within the notification
+- Does not handle multiple simultaneous notifications — only one Snackbar instance
+- Does not support custom positioning — anchored at bottom-center by default
+
+## Edge Cases
+
+- `open` is `false`: Snackbar is hidden; no content renders
+- `message` is required — omitting it triggers a TypeScript error
+- `onClose` is required — the component will not compile without it
+- `severity` defaults to `"info"` when not provided
+- `autoHideDuration` defaults to `4000` ms (4 seconds) when not provided
+- Setting `autoHideDuration` to `null` keeps the notification open until manually dismissed
+- `severity="error"` with very short `autoHideDuration`: user may not have time to read the message before auto-dismiss
+
+## Usage Example
 
 const NotificationExample = () => {
   const [open, setOpen] = useState(false);

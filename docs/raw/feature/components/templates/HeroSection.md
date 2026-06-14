@@ -75,6 +75,25 @@ Description and action button are sequentially delayed: description at `delay + 
 - Flex column with `alignItems: 'flex-start'`
 - Gap between elements: `3`
 
+## Non-Responsibilities
+
+- Does not fetch data or manage server state
+- Does not handle navigation routing — `onPrimaryAction` is a void callback
+- Does not manage scroll behavior beyond its own content area
+- Does not render outside the hero section boundary
+- Does not support multiple action buttons — only one primary action
+
+## Edge Cases
+
+- `enableAnimation` set to `false`: all motion animations are disabled; content renders statically with no framer-motion wrappers
+- `animationVariant="typewriter"`: only the headline animates character-by-character; description, action button, and children render without animation
+- No `description` provided: description slot is omitted entirely
+- No `primaryActionLabel`/`onPrimaryAction` provided: action button is omitted
+- No `children` provided: children slot is omitted
+- Empty `headline`: headline renders as an empty Typography element (headline is required but could be an empty string)
+- Very long headline: text wraps within max-width 800px container
+- Typewriter variant with empty headline: TypewriterHeadline component renders with no characters and cursor only
+
 ## Usage Example
 
 ```tsx

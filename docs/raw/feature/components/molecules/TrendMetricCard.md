@@ -50,10 +50,25 @@ export interface TrendMetricCardProps {
 - Padding: `spacing.md`
 - Border: `1px solid divider`
 
-## Usage Example
+## Non-Responsibilities
 
-```tsx
-import { TrendMetricCard } from "@/common/components/molecules/TrendMetricCard";
+- Does not fetch or calculate metric data
+- Does not format values beyond rendering them as-is
+- Does not handle click events or user interaction
+- Does not animate trend changes or value transitions
+- Does not provide chart or sparkline visualization
+
+## Edge Cases
+
+- No `trendValue` provided: trend indicator element is not rendered (checked via `!!trendValue`)
+- `trendValue` provided but `trend` omitted: trend renders with `text.secondary` color (neutral gray)
+- `trendValue` is an empty string: trend indicator is not rendered (empty string is falsy)
+- `trend="up"` without `trendValue`: no trend renders; the `trend` prop is effectively ignored when `trendValue` is missing
+- Very long `label` or `value`: text wraps within the card
+- `value` of `0` or `"0"`: renders normally as a numeric value
+- Card width context: the component uses `flex: 1` and adapts to its container's width
+
+## Usage Example
 
 const MetricsDashboard = () => (
   <div style={{ display: "flex", gap: "16px" }}>

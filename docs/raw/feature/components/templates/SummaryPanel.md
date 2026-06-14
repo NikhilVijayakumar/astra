@@ -44,10 +44,24 @@ export interface SummaryPanelProps {
 - Border radius: `spacing.xs`
 - Background: `background.paper`
 
-## Usage Example
+## Non-Responsibilities
 
-```tsx
-import { SummaryPanel } from "@/common/components/templates/SummaryPanel";
+- Does not manage state or fetch data
+- Does not handle user interaction or click events
+- Does not format or transform text content — text is displayed as provided
+- Does not support collapsible sections or expand/collapse behavior
+- Does not provide scroll behavior for long content
+
+## Edge Cases
+
+- Empty `lines` array: renders the title only with no text lines
+- Single line: renders one Typography element — no spacing issues
+- All lines with the same variant: renders consistently with no hierarchy distinction
+- Very long text in a line: text wraps within the panel width
+- Missing `variant` on a line: defaults to `body2` (inline display)
+- Lines with `variant: "caption"` render as block elements (full width), while `body2` lines render as inline
+
+## Usage Example
 
 const SystemInfo = () => (
   <SummaryPanel

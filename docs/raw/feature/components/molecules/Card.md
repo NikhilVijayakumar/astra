@@ -41,9 +41,26 @@ export interface CardProps {
 - Gap between elements: `spacing.xs` (8px)
 - Border: 1px solid divider
 
-## Localization
+## Non-Responsibilities
 
-This component uses props for text. Ensure parent passes localized strings:
+- Does not manage or persist state
+- Does not fetch or load data
+- Does not handle click events or user interactions beyond the action slot
+- Does not enforce layout constraints beyond flex column
+- Does not provide scroll or overflow behavior
+- Does not manage focus or keyboard navigation
+
+## Edge Cases
+
+- All header props (title, supportingText, action) omitted: header row is not rendered; only children are displayed
+- All props omitted: renders an empty Paper container with padding and border
+- Empty children: renders an empty Box inside the Paper with no visible content
+- Missing supportingText: no subtitle rendered under the title; action still displays if provided
+- Missing title: supportingText renders without a title heading above it
+- Long supportingText: text wraps naturally within the card width
+- action slot overflow: action content is right-aligned and may overflow on narrow cards
+
+## Localization
 
 ```tsx
 // Parent component provides localized titles
