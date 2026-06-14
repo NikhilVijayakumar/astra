@@ -10,6 +10,12 @@ A molecular component that displays a metric value with an optional trend indica
 
 A compact card component for displaying key metrics with optional trend visualization. Shows a label, value, and trend percentage with color-coded direction.
 
+## Responsibilities
+
+- Display a metric label and value in a compact card
+- Show an optional trend indicator with color-coded direction (up/down/neutral)
+- Adapt to container width
+
 ## API
 
 ### Props

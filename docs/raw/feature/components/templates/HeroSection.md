@@ -10,6 +10,13 @@ A layout component that displays a prominent headline section with optional desc
 
 A high-impact landing-style component for displaying primary page content with headline, description, and call-to-action button.
 
+## Responsibilities
+
+- Render a prominent headline with optional description and call-to-action button
+- Support entrance animations with 7 animation variants (fade-up, fade-in, slide-left, slide-right, scale-up, stagger-fade, typewriter)
+- Sequentially stagger animation timing across headline, description, button, and children
+- Provide typewriter effect for headline text
+
 ## API
 
 ### Props

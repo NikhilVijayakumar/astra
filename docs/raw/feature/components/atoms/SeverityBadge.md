@@ -10,6 +10,12 @@ An atomic component that displays a severity label with color-coded background.
 
 A text badge component that displays severity levels (CRITICAL, WARNING, URGENT, INFO, SUCCESS) with appropriate styling. Uses semi-transparent backgrounds for visual hierarchy.
 
+## Responsibilities
+
+- Render a color-coded severity label badge
+- Map severity levels to semi-transparent background and matching text color
+- Accept any string level input with fallback to default info styling
+
 ## API
 
 ### Props

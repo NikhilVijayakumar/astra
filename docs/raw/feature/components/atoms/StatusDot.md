@@ -10,6 +10,12 @@ An atomic component that displays a colored dot representing a status indicator.
 
 A simple circular indicator that uses color to convey status information. Automatically adapts to MUI theme colors.
 
+## Responsibilities
+
+- Render a colored circular dot representing a status tone
+- Map status tones to MUI theme colors (ok, warning, error, executing, waiting, default)
+- Support configurable dot size
+
 ## API
 
 ### Props

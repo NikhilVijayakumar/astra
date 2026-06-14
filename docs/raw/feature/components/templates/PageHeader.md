@@ -10,6 +10,13 @@ A layout component that provides a standardized page-level header with title, su
 
 A comprehensive header component for page-level content. Supports primary and secondary actions, leading/trailing meta content, and responsive layout.
 
+## Responsibilities
+
+- Render a page-level header with title and optional subtitle
+- Render primary and secondary action buttons with configurable variant and size
+- Render leadingMeta and trailingMeta content slots
+- Wrap responsively on narrow viewports
+
 ## API
 
 ### Props

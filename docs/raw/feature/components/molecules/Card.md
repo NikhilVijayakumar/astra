@@ -10,6 +10,12 @@ A molecular component that provides a styled container with optional title, supp
 
 A versatile card component that wraps content in a Paper component with elevation. Supports header configuration with title, subtitle, and action slot.
 
+## Responsibilities
+
+- Render a styled Paper container with border-based premium styling
+- Display an optional header with title, supportingText, and action slot
+- Render children as the card body content
+
 ## API
 
 ### Props

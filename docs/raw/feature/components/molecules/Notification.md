@@ -10,6 +10,13 @@ A molecular component that displays a snackbar-style notification message.
 
 A toast notification component using MUI's Snackbar with Alert. Automatically dismisses after a configurable duration.
 
+## Responsibilities
+
+- Render a Snackbar-based toast notification at bottom-center of viewport
+- Display message with configurable Alert severity (success, info, warning, error)
+- Auto-dismiss after a configurable duration
+- Fire onClose callback when dismissed or auto-hidden
+
 ## API
 
 ### Props

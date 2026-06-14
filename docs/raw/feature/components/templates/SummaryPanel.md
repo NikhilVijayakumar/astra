@@ -10,6 +10,12 @@ A layout component that displays a titled collection of text lines.
 
 A panel component for displaying structured text content with a title header. Supports different text variants for visual hierarchy.
 
+## Responsibilities
+
+- Render a bordered panel with a title header
+- Display a collection of text lines with configurable variants (body2 inline, caption block)
+- Apply consistent spacing and border styling
+
 ## API
 
 ### Props

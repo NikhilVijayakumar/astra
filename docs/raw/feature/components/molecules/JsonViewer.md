@@ -10,6 +10,13 @@ A file viewer component that displays JSON data with syntax highlighting.
 
 A specialized viewer for JSON and JSONL files with Prism syntax highlighting. Displays formatted JSON with monospace font.
 
+## Responsibilities
+
+- Render JSON data with Prism syntax highlighting in vscDarkPlus theme
+- Format JSON with indentation and monospace font
+- Parse JSONL files line-by-line, handling each line independently
+- Show a structured error state for invalid JSON with raw content fallback
+
 ## API
 
 ### Props

@@ -10,6 +10,14 @@ A file viewer component that displays CSV data in a paginated table format.
 
 A specialized viewer for CSV files that renders data in a sortable table with pagination controls. Auto-detects the delimiter (comma or semicolon) based on the first line.
 
+## Responsibilities
+
+- Parse CSV content into headers and data rows
+- Auto-detect comma or semicolon delimiter from the first line
+- Render data in a paginated table with sticky headers
+- Provide configurable rows per page (10, 25, 50)
+- Show an empty state message when no CSV content is available
+
 ## API
 
 ### Props

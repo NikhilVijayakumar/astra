@@ -10,6 +10,13 @@ A file viewer component that routes to the appropriate viewer based on file exte
 
 A smart router component that automatically selects the correct viewer component based on the file extension. Supports CSV, Markdown, Images, JSON/JSONL, and displays an unsupported message for other file types.
 
+## Responsibilities
+
+- Route to the correct viewer component (CsvViewer, MdViewer, ImageViewer, JsonViewer) based on file extension
+- Support CSV (.csv), Markdown (.md, .markdown, .txt), Images (.jpg, .jpeg, .png, .gif, .svg, .webp), and JSON (.json, .jsonl) file types
+- Display an unsupported file message for unknown extensions
+- Pass encoding and MIME type metadata through to ImageViewer
+
 ## API
 
 ### Props
