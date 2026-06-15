@@ -1,173 +1,85 @@
-# SeverityBadge - Technical Specification
+# SeverityBadge: Feature Technical
 
-# Overview
+## 1. Technical Overview
 
-An atomic component that renders a severity label badge with color-coded background and text. The badge is a single `<Typography>` element with MUI `variant="micro"` and semi-transparent background derived from the theme palette. Unknown severity levels fall back to `info.main` styling.
+SeverityBadge is a primitive atomic component that renders a color-coded severity label. It maps a `level` prop (union of severity strings widened with `string`) to an MUI theme color via a static lookup table, renders a `<Typography variant="micro">` element with semi-transparent background. Zero internal state, zero side effects, zero data dependencies.
 
-# Feature Summary
+## 2. Architecture Realization
 
-Renders a `<Typography>` element with the `level` prop text as content. Background and text color are determined by a lookup table that maps level strings to MUI theme color tokens. Background uses hex alpha transparency (`${tone}15`). The component accepts any string at runtime via `SeverityLevel | string` — known keys get color-coded styling; unknown keys render as info-styled text.
+| Architecture Document | Realization |
+|--- |--- |
+| `core/component-tiers.md:18-30` — Atom rules | Renders single `<Typography>` element (one primitive). Accepts `level: SeverityLevel | string`. Uses theme tokens for colors and spacing. NO composition, NO business logic, NO data management. |
+| `invariants/atomic-hierarchy.md:22-37` — Atom boundary | Imports only `@mui/material` (`Typography`) and theme token constants (`spacing`). No imports from higher tiers. |
+| `invariants/stateless-ui.md:20-36` — Stateless UI | Pure render function — output determined solely by `level` prop. Zero state, zero effects. |
+| `invariants/theme-sovereignty.md:22-38` — Theme tokens | Colors via `sx` token strings (`'error.main'`, `'warning.main'`, etc.). Spacing via imported `spacing` token constants (`spacing.sm`, `spacing.internal`). No hardcoded values. |
+| `invariants/public-api-stability.md:18-36` — Public API | `SeverityBadge`, `SeverityLevel`, `SeverityBadgeProps` exported via barrel. `SeverityLevel | string` widening provides autocomplete for TypeScript consumers and runtime compatibility for dynamic data. |
+| `invariants/dependency-safety.md:18-36` — Dependency control | Only `react`, `@mui/material` (`Typography`), and theme token import. Minimal surface. |
 
-# Implementation Reference
+## 3. Data Flow
 
-## Status
-Implemented
-
-## Source Files
-
-| File | Path |
-|------|------|
-| Component source | `src/common/components/atoms/SeverityBadge.tsx` |
-| Component tests | `src/common/components/atoms/SeverityBadge.test.tsx` |
-| Barrel export | `src/common/components/atoms/index.ts` |
-
-Storybook stories file does not exist for this component.
-
-## Public API
-
-### Exported Symbols
-
-```typescript
-// File: src/common/components/atoms/SeverityBadge.tsx
-
-export type SeverityLevel =
-  | 'CRITICAL'
-  | 'WARNING'
-  | 'URGENT'
-  | 'INFO'
-  | 'SUCCESS';
-
-export interface SeverityBadgeProps {
-  level: SeverityLevel | string;
-}
-
-export const SeverityBadge: FC<SeverityBadgeProps>;
+```
+Parent Component
+  │
+  └── level: SeverityLevel | string ──→ colorMap lookup
+                                          │
+                                          ├── known key → mapped token (e.g., 'error.main')
+                                          └── unknown key → fallback 'info.main'
+                                              │
+                                              ▼
+<Typography variant="micro" sx={{ bgcolor: `${tone}15`, color: tone }} />
 ```
 
-### Barrel Re-export
+Data flows exclusively parent-to-child via the `level` prop. No callbacks, no events.
 
-```typescript
-// src/common/components/atoms/index.ts
-export * from './SeverityBadge';
-```
+## 4. State Management
 
-All named exports (`SeverityBadge`, `SeverityLevel`, `SeverityBadgeProps`) are re-exported via `export *`.
+No state. The component is a pure render function with zero internal state transitions.
 
-```typescript
-import { SeverityBadge, SeverityLevel } from '@/common/components/atoms';
-```
+## 5. Styling Implementation
 
----
+- **Color map**: Static `colorMap` object mapping uppercase level strings to MUI theme color tokens (`CRITICAL→'error.main'`, `WARNING→'warning.main'`, `URGENT→'info.main'`, `INFO→'info.main'`, `SUCCESS→'success.main'`, `ERROR→'error.main'` alias).
+- **Background**: Semi-transparent via hex alpha suffix (`${tone}15` = ~8% opacity).
+- **Spacing**: Uses imported `spacing` tokens for padding and internal margins.
+- **Typography**: MUI `variant="micro"` for compact label sizing.
+- **Border radius**: Token-referenced via `borderRadius` in `sx` prop.
 
-# Architecture Mapping
+## 6. Interaction Design
 
-| Pattern | Feature Usage | Reason |
-|---------|---------------|--------|
-| **Atom (Atomic Hierarchy)** | Single `<Typography>` element with sx styling | One primitive DOM node; no composition of other components. |
-| **Stateless UI** | No state, no effects, no callbacks | Pure render function — output is solely determined by `level` prop. |
-| **Theme Sovereignty** | Color values resolve through MUI theme: `'error.main'`, `'warning.main'`, `'success.main'`, `'info.main'` | All colors are theme token strings; no hardcoded hex/rgb values. Spacing uses token imports from `src/theme/tokens/spacing`. |
-| **Public API Stability** | Named export via barrel; typed union with runtime-friendly `| string` widening | TypeScript consumers get autocomplete for known levels; dynamic data consumers pass arbitrary strings. |
-| **Dependency Safety** | Imports `FC` from `react`, `Typography` from `@mui/material`, `spacing` from theme tokens | Minimal dependency surface; theme token import is tree-shakeable. |
+No user interactions. SeverityBadge is a purely passive visual label.
 
-Not used: Localization (text is the `level` prop itself, not a user-facing string), `useLanguage`, `useTheme`.
+## 7. Accessibility Implementation
 
----
+- No `role`, `aria-label`, or semantic HTML attributes.
+- Color is the sole differentiator — no icon or text-style distinction for colorblind users.
+- **Gap**: Accessibility attributes not implemented. Feature spec lists icon slot and size presets as future enhancements.
 
-# Technical Structure
+## 8. Error Handling
 
-## Views
+| Condition | Behavior |
+|--- |--- |
+| Unknown level string | `colorMap[level]` returns `undefined`; fallback to `'info.main'` → badge renders in info color |
+| Case-sensitive mismatch (e.g., `"critical"` lowercase) | `colorMap["critical"]` is `undefined`; fallback to `'info.main'` — wrong severity color |
+| Very long level text | No `nowrap` — text wraps within badge; layout may expand |
+| Missing level at runtime | `level` is `undefined`; `colorMap[undefined]` returns `undefined`; fallback to `'info.main'`. Badge renders "undefined" text in info color |
 
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|------------------|--------------|
-| `SeverityBadge` (single view) | `src/common/components/atoms/SeverityBadge.tsx` | Renders a color-coded severity label badge | Map `level` to theme color via `colorMap` lookup with `'info.main'` fallback; render `<Typography variant="micro">` with the level text; apply semi-transparent background via hex alpha (`${tone}15`); apply spacing tokens (`spacing.sm`, `spacing.internal`), borderRadius `1` | `react` (`FC`), `@mui/material` (`Typography`), `../../../theme/tokens/spacing` (`spacing`) |
+No errors thrown or logged. No error boundary provided.
 
-The component renders a single view with no sub-views. The entire output is one `<Typography>` element.
+## 9. Performance Considerations
 
----
-
-# Validation Design
-
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|------------------|-------------------|
-| `level` must be provided | Prop omitted at call site | TypeScript compile error | Developer provides `level` |
-| `level` is a known `SeverityLevel` | Uppercase matching string | Color mapping applies correct styling | N/A — correct behavior |
-| `level` is lowercase e.g. `"critical"` | Dynamic string at runtime | `colorMap[level]` returns `undefined`; fallback `|| 'info.main'` applies `info.main` styling | Text renders with info color (visual mismatch) |
-| `level` is any unrecognized string | External data source | Fallback to `'info.main'` | Badge renders as info-styled |
-| `level` is `"ERROR"` | Explicit string | `colorMap` has `ERROR` alias mapping to `'error.main'` | Badge renders as error-styled (CRITICAL alias) |
-
-The `colorMap` includes an `ERROR` -> `'error.main'` alias not present in the `SeverityLevel` union, allowing `"ERROR"` as a recognized but untyped level.
-
----
-
-# Error Handling
-
-| Error Type | Cause | System Response | User Response |
-|------------|-------|-----------------|---------------|
-| Unknown level string | External data source passes unrecognized value | `colorMap[level] || 'info.main'` resolves to `'info.main'`; badge renders in info color | Badge appears with incorrect severity color; text is still the provided level |
-| Case-sensitive mismatch | Lowercase input like `"critical"` | `colorMap["critical"]` is `undefined`; fallback to `'info.main'` | Severity color is wrong (info instead of error) |
-| Very long level text | Consumer passes long string | `nowrap` is not set — text wraps within badge; layout may expand | Badge may grow wider or taller than intended |
-| Missing `level` (runtime) | JS without TS | `level` is `undefined`; `colorMap[undefined]` returns `undefined`; `'info.main'` fallback | Badge renders with "undefined" text in info color |
-
-The component throws no errors, logs no warnings. No error boundary is provided.
-
----
-
-# Non-Functional Requirements
-
-## Performance
-
-- Single MUI `<Typography>` element with inline `sx` — minimal DOM footprint.
+- Single `<Typography>` element — minimal DOM footprint.
 - No state, no effects, no re-renders beyond prop changes.
-- Theme spacing tokens are imported statically — no runtime context resolution required for spacing values.
+- Theme spacing tokens imported statically — no runtime context resolution for spacing.
+- Re-renders only when `level` prop changes.
 
-## Reliability
+## 10. Integration Points
 
-- Every input path resolves: known key → mapped color; unknown key → `'info.main'`. No unhandled level exists.
-- Hex alpha format (`${tone}15`) is a CSS `background-color` string — if `tone` resolves to an invalid token, `'info.main'` is still a valid CSS color string because MUI resolves theme token strings. If `tone` itself is `undefined` (impossible given fallback), the template string produces `"undefined15"` which is invalid CSS but does not throw — the property is silently ignored by the browser.
+- **Consumers**: Molecules and organisms needing severity labels (e.g., `Notification`, `DataTable` cells).
+- **Barrel export**: Re-exported via `src/common/components/atoms/index.ts`.
+- **Sibling atoms**: Related to `StatusDot` (icon-based status indicator) — both communicate status/severity at different levels of detail.
 
-## Maintainability
+## 11. Open Questions
 
-- Adding a new severity level: add one entry to `SeverityLevel` union and one entry to `colorMap`. No branch logic.
-- Changing color assignments: update the value in `colorMap` — no conditional changes.
-- Spacing and borderRadius are literal values from token imports — single point of change.
-
----
-
-# Architecture Compliance Review
-
-## Applied Patterns
-
-- Stateless UI — fully compliant (zero state, zero effects).
-- Atom tier — renders a single typographic element with styling, no composition.
-- Theme sovereignty — colors via theme token strings; spacing via token imports; no hardcoded pixel values.
-- Public API — stable named export with typed union widened with `string` for dynamic callers.
-
-## Risks
-
-- **No Storybook stories**: Missing visual regression coverage for all 5 levels + unknown/custom levels. No dark mode visual verification through stories.
-- **Hex alpha opacity mismatch**: The feature spec documents 12% opacity backgrounds, but the implementation uses `${tone}15` which evaluates to ~8% opacity (hex `15` = 21/255). This is a spec vs. implementation drift.
-- **`borderRadius: 1` is a raw number**: While MUI resolves number values via `theme.shape.borderRadius` factor, `1` here is a raw value bypassing explicit theme token usage. The feature spec says `spacing.internal` should be used.
-- **No accessibility**: The badge has no `role`, `aria-label`, or semantic HTML. Color is the only differentiator — no icon or text-style distinction for colorblind users.
-
-## Gaps
-
-- Icon slot (feature spec "Future Enhancements") — not implemented.
-- Size presets — not implemented.
-- Animated entrance — not implemented.
-- `ERROR` alias exists in code but is undocumented in the feature spec.
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| Component | `src/common/components/atoms/SeverityBadge.tsx` | `SeverityBadge` (component), `SeverityLevel` (type), `SeverityBadgeProps` (interface) | `react` (`FC`), `@mui/material` (`Typography`), `../../../theme/tokens/spacing` (`spacing`) |
-| Barrel | `src/common/components/atoms/index.ts` | Re-exports all from `SeverityBadge.tsx` via `export *` | `./SeverityBadge` |
-| Tests | `src/common/components/atoms/SeverityBadge.test.tsx` | None | `@testing-library/react`, `vitest`, `./SeverityBadge` |
-
----
-
-# Final Rule
-
-SeverityBadge is a pure, stateless label atom. Its visual output — background color, text color, spacing, and border radius — is a deterministic function of the `level` prop. Every string input resolves to a valid color output via the `colorMap` lookup with `'info.main'` fallback. The component must never hold state, respond to user interaction, or import from higher atomic tiers.
+1. The `ERROR` alias exists in `colorMap` but is not documented in the `SeverityLevel` union. Should it be added to the type?
+2. Should hex alpha be standardized across all atoms (documented spec vs. implementation at `15` vs. desired 12%)?
+3. Should `borderRadius: 1` be replaced with an explicit token reference?
+4. Feature spec mentions icon slot and size presets — what milestone are these planned for?

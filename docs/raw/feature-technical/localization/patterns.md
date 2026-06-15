@@ -1,147 +1,115 @@
-# Translation Patterns
+# Translation Patterns: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
+Translation Patterns defines the naming conventions and dictionary structure consumed by the `LanguageProvider` / `useLanguage` system. All translations are organized as per-language flat JSON files in `src/common/localization/{lang}.json` using dot-notation keys following `{domain}.{page}.{element}` pattern. Keys are category-prefixed (`ui.*`, `msg.*`, `form.*`, `validation.*`) for maintainability. Conventions are enforced via code review — no automated lint rules exist. Flat structure avoids nested object traversal ambiguity.
 
-Conventions for structuring translation dictionaries, naming keys, and accessing localized strings. Defines the dot-notation key format (`domain.element.key`), prefix categories (`ui.*`, `msg.*`, `form.*`, `validation.*`), and per-language flat `Record<string, string>` structure. These patterns are convention-only — no runtime enforcement via tooling or lint rules.
+## 2. Architecture Realization
 
----
+| Feature Spec Concept | Architecture Implementation |
+|---|---|
+| Dot-notation keys | `{domain}.{page}.{element}` — e.g. `app.list.title`, `common.save` |
+| Category prefixing | `ui.*`, `msg.*`, `form.*`, `validation.*` — documented convention |
+| Per-language dictionary | Flat JSON files: `en.json`, `es.json` in `src/common/localization/` |
+| Partial coverage | Languages define subset of keys — missing keys surface as `undefined` at runtime |
+| Key naming | snake_case for key segments, camelCase for structural grouping |
 
-# Implementation Reference
-## Status
-Not Yet Implementated (convention-only; no source module enforces these patterns)
-## Source Files
-| File | Role |
-|------|------|
-| `src/common/localization/LanguageProvider.tsx` | `TranslationMap` type definition consumes pattern |
-| `src/common/localization/LanguageContext.ts` | `literal: Record<string, string>` is the runtime shape |
-| `docs/raw/architecture/core/localization.md` | Architecture spec defining key naming convention |
-| `docs/raw/architecture/invariants/localization.md` | Invariant rules prohibiting hardcoded strings |
-## Public API
+**Consumption pattern:**
+
 ```typescript
-// TranslationMap shape (from LanguageProvider.tsx)
-type TranslationMap = {
-  [key: string]: Record<string, string>;  // language code → flat dictionary
-};
+// ViewModel resolves translations:
+import { useLanguage } from 'astra';
+const { literal } = useLanguage();
+const title = literal['app.list.title'];
 
-// Consumed via LanguageContextValue.literal (from LanguageContext.ts)
-type LanguageContextValue = {
-  literal: Record<string, string>;  // dot-notation keys → translated values
-  // ... other fields
-};
+// Pass resolved strings as props to pure components:
+// <PageHeader title={title} />
 ```
 
-Expected key structure (convention):
+## 3. Data Flow
+
 ```
-category.element.identifier      →  "ui.save"
-component.element.action         →  "header.title"
-screen.action                    →  "login.submit"
-```
-
----
-
-# Architecture Mapping
-
-| Pattern | Feature Usage | Reason |
-|---------|---------------|--------|
-| Dot-Notation Keys | `"ui.save"`, `"msg.welcome"` — flat keys with semantic delimiters | Avoids nested object ambiguity; enables simple `Record<string, string>` lookup |
-| Category Prefixing | `ui.*`, `msg.*`, `form.*`, `validation.*` | Groups related keys for maintainability and enables future namespace-based code splitting |
-| Per-Language Dictionary | Each language is an independent `Record<string, string>` | Languages may have partial coverage; missing keys surface as `undefined` |
-| Flat Structure | No nested objects — strictly `{ "dot.key": "value" }` | Consistent lookup (`literal["key"]`); no traversal or deep merge needed |
-| Convention Over Configuration | Patterns documented but not enforced | Teams adopt at their own pace; no runtime dependency on lint tooling |
-
----
-
-# Technical Structure
-
-## Data format
-```typescript
-// Per-language translation dictionary (flat, dot-notation)
-const translations = {
-  en: {
-    "ui.save": "Save",
-    "ui.cancel": "Cancel",
-    "ui.delete": "Delete",
-    "msg.welcome": "Welcome back",
-    "msg.saved": "Changes saved",
-    "form.name.label": "Name",
-    "form.email.placeholder": "Enter your email",
-  },
-  es: {
-    "ui.save": "Guardar",
-    "ui.cancel": "Cancelar",
-    "msg.welcome": "Bienvenido de nuevo",
-    // "ui.delete" and others intentionally omitted — partial coverage
-  },
-};
+Developer adds key to en.json: "ui.save": "Save"
+       ↓
+Key added to es.json: "ui.save": "Guardar"
+       ↓
+Translation files imported in src/common/localization/index.ts
+       ↓
+Passed as translations prop to LanguageProvider
+       ↓
+Component accesses literal['ui.save'] → resolved string
 ```
 
-## Inputs/Outputs
-| Input | Output |
-|-------|--------|
-| `literal["category.key"]` | Translated string or `undefined` if missing |
-| `TranslationMap` with `en`, `es`, etc. | Provider's `literal` switches on language change |
-| New language entry | Extended `TranslationMap` + `LanguageDefinition[]` |
+Adding a new language:
 
----
+```
+Create fr.json with same key structure
+       ↓
+Add { code: 'fr', label: 'Français' } to availableLanguages
+       ↓
+LanguageProvider exposes new option → users can select
+```
 
-# Error Handling
+## 4. State Management
 
-| Error Type | Cause | System Response | Consumer Response |
-|------------|-------|-----------------|-------------------|
-| Missing key | `literal["ui.save"]` not defined for active language | Returns `undefined` | Use `??` fallback or conditional render |
-| Dot key collision | `form.name` and `form.name.label` both exist | Last one wins in `Record` — but semantically ambiguous | Keep keys at one depth level |
-| Non-string value | Object or number stored in translation value | `React` renders `[object Object]` or nothing | Only store string values in `Record<string, string>` |
-| Partial language coverage | Language has subset of keys | Missing keys return `undefined` | Validate coverage in CI or handle per-key |
-| Empty dictionary | Language `{}` in `TranslationMap` | All lookups return `undefined` | Provide at minimum all required keys |
+No state transitions specific to patterns — patterns are conventions, not runtime constructs. The dictionary file content maps directly to the `literal` object exposed by `useLanguage()`.
 
----
+| Pattern State | Description |
+|---|---|
+| Defined | Convention documented with examples |
+| Extended | New language added following pattern |
+| Degraded | Conventions diverge across features |
 
-# Non-Functional Requirements
+## 5. Styling Implementation
 
-| Requirement | Constraint |
-|-------------|------------|
-| Lookup Performance | O(1) — `Record<string, string>` access |
-| Memory | Full dictionary per language in memory simultaneously |
-| Scalability | Flat keys work to ~1000 entries before maintenance becomes unwieldy |
-| No Runtime Cost | Patterns are documentation-only — zero bundle impact |
-| CI Opportunity | Key coverage can be validated in CI via script (not implemented) |
+No styling impact. Translation patterns govern text content only. String length variance across languages must be considered in layout components — use `min-width` and `overflow` handling rather than fixed widths.
 
----
+## 6. Interaction Design
 
-# Architecture Compliance Review
+No interaction logic in patterns — patterns are authoring conventions. The runtime behavior is dictated by `LanguageProvider`:
 
-## Applied Patterns
-- **No Hardcoded Strings**: `localization-invariant.md` — patterns explicitly document key-based access
-- **Flat Key Structure**: `localization.md` key format `{domain}.{page}.{element}` — compliant
-- **Partial Coverage**: Documented as valid — languages may define subsets, aligns with `localization-invariant.md` fallback behavior
+- Partial language coverage: missing keys render as `undefined` — consumer handles with fallback
+- Empty dictionary: all keys return `undefined` — UI renders without text
+- Non-string values in dictionary: causes rendering errors — must be validated at authoring time
 
-## Risks
-- **No enforcement**: Pattern violations compile silently — no tooling catches hardcoded strings or non-standard key formats
-- **Partial coverage silent**: Missing keys produce `undefined` in UI with no warning — consumers must remember to provide fallback
-- **Dot key collision**: Not prevented by type system — `form.name` and `form.name.label` can coexist ambiguously
-- **No interpolation standard**: Variable substitution (`{count} items`) not defined — each component invents its own format
+## 7. Accessibility Implementation
 
-## Gaps
-- No parameterized/interpolated key support (e.g., `t("item.count", { count })`)
-- No pluralization rules (singular/dual/plural by locale)
-- No date/number formatting integration with locale
-- No file-splitting or lazy-loading strategy for large translation sets
-- No automated key-coverage reporting in CI
-- No TypeScript template literal autocompletion for keys
+- Translation keys for ARIA labels must follow the same `{domain}.{page}.{element}` pattern
+- Screen reader text must be included in translation dictionaries, not hardcoded
+- Alt text for images must use translation keys
+- Translations must not contain HTML or markup — text-only values to prevent XSS in ARIA attributes
 
----
+## 8. Error Handling
 
-# Module Map
+| Condition | Behavior | Mitigation |
+|---|---|---|
+| Missing key in active language | `literal['key']` returns `undefined` | Optional chaining or fallback component |
+| Dot key collision | `form.name` and `form.name.label` cause ambiguous lookups | Keep all keys at one depth level |
+| Non-string values | Objects/numbers in dictionary cause rendering errors | Validate at authoring time |
+| Partial language coverage | Language missing keys renders empty text | CI coverage check (future) |
+| No fallback string | Silent `undefined` in UI — no error thrown | Use key itself as visual fallback during development |
 
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| `LanguageProvider` | `src/common/localization/LanguageProvider.tsx` | `LanguageProvider`, `TranslationMap` | `react`, `./LanguageContext` |
-| `LanguageContext` | `src/common/localization/LanguageContext.ts` | `LanguageContext`, `LanguageContextValue`, `LanguageDefinition`, `useLanguage` | `react` |
+## 9. Performance Considerations
 
----
+- Flat dictionary structure avoids deep object traversal on every key access
+- Full dictionaries loaded at mount — no lazy-loading for pattern-defined files
+- String length variance across locales impacts layout reflow — test with longest-translation placeholder
+- Key lookup is O(1) property access on flat object — no nested traversal needed
+- No interpolation runtime cost in pattern layer — resolved in ViewModel
 
-# Final Rule
+## 10. Integration Points
 
-All translation keys must use dot-notation format `domain.element.action`. All languages must follow the same key structure — a key defined in one language must exist in all others (or be handled with explicit fallback). No nested translation objects. No hardcoded user-facing strings outside the translation dictionary.
+| Integration | Mechanism |
+|---|---|
+| Translation files → LanguageProvider | `import en from './en.json'` → passed as `translations={{ en, es }}` |
+| Key convention → Code review | Pattern adherence checked during PR review (no automated enforcement) |
+| New language → Available languages | Add entry to `availableLanguages` array in `LanguageProvider` |
+| Missing key detection → Development | Runtime `undefined` values visible in UI — no silent fallback |
+| Interpolation → ViewModel | `literal['key']` returns raw template string; `interpolate()` in ViewModel |
+
+## 11. Open Questions
+
+- Should keys follow a strict hierarchical namespace or remain flat with prefixes?
+- Is a codemod needed to migrate from hardcoded strings to translation key usage?
+- Should automated key-coverage reporting be added to CI?
+- Are namespace-based file splits with lazy loading needed per route?

@@ -1,165 +1,88 @@
-# LoadingState - Technical Specification
+# LoadingState: Feature Technical
 
-# Overview
+## 1. Technical Overview
 
-A self-contained atomic component that renders a centered loading indicator consisting of an MUI `CircularProgress` spinner and a localized "Loading..." text message. The component accepts no props — it is a fully self-contained visual state indicator that relies on `useLanguage` context for its text content.
+LoadingState is a primitive atomic component that renders a centered loading indicator. It displays a spinning animation (via MUI `CircularProgress`) with a localized "Loading..." text message below. Zero-configuration — the component accepts no props and resolves its text through the localization system. Zero state, zero side effects, zero data dependencies beyond localization context.
 
-# Feature Summary
+## 2. Architecture Realization
 
-Renders a `<Box>` with flex column centering containing a `CircularProgress` (spinner, role="progressbar") and a `<Typography>` displaying the localized string from key `loading_message`. Uses theme spacing tokens for padding and margin. The component has no input props, no internal state, and no interaction surface.
+| Architecture Document | Realization |
+|--- |--- |
+| `core/component-tiers.md:18-30` — Atom rules | Renders two primitives (`CircularProgress` + `Typography`) arranged with flexbox centering. No composition of custom components. NO data management, NO business logic. |
+| `invariants/atomic-hierarchy.md:22-37` — Atom boundary | Imports from `@mui/material` (`Box`, `CircularProgress`, `Typography`) and localization hook. No imports from higher atomic tiers. |
+| `invariants/stateless-ui.md:20-36` — Stateless UI | Reads localized message via `useLanguage()` hook (context subscription, not state management). No `useState`, no `useEffect`, no side effects. |
+| `invariants/theme-sovereignty.md:22-38` — Theme tokens | Spinner and typography colors resolve through MUI theme via `sx` prop. Centering via flexbox from theme spacing. |
+| `invariants/public-api-stability.md:18-36` — Public API | `LoadingState` component and `LoadingStateProps` interface exported via barrel. Named export only. |
+| `invariants/dependency-safety.md:18-36` — Dependency control | `react`, `@mui/material` (`Box`, `CircularProgress`, `Typography`), `useLanguage` hook. Minimal, tree-shakeable. |
 
-# Implementation Reference
+## 3. Data Flow
 
-## Status
-Implemented
-
-## Source Files
-
-| File | Path |
-|------|------|
-| Component source | `src/common/components/atoms/LoadingState.tsx` |
-| Component tests | `src/common/components/atoms/LoadingState.test.tsx` |
-| Component stories | `src/common/components/atoms/LoadingState.stories.tsx` |
-| Barrel export | `src/common/components/atoms/index.ts` |
-
-## Public API
-
-### Exported Symbols
-
-```typescript
-// File: src/common/components/atoms/LoadingState.tsx
-
-const LoadingState: FC;
-export default LoadingState;
+```
+Parent Component renders LoadingState (no props)
+  │
+  ▼
+LoadingState
+  ├── useLanguage().literal['loading.text'] ──→ localized "Loading..." message
+  └── <Box sx={{ display: 'flex', ... }}>
+        ├── <CircularProgress />         (theme-colored spinner)
+        └── <Typography>                  (localized text)
+              {literal['loading.text']}
+            </Typography>
+      </Box>
 ```
 
-### Barrel Re-export
+Data flows from localization context → component. No parent-to-child prop passing (zero-config).
 
-```typescript
-// src/common/components/atoms/index.ts
-export { default as LoadingState } from './LoadingState';
-```
+## 4. State Management
 
-The component is a **default export** re-exported as a named export from the barrel:
+- No component state. The only dynamic input is the localization context value.
+- `useLanguage()` hook reads from `LanguageProvider` context — re-renders when language changes.
+- State transitions (loading → success/error) are managed by the parent component (typically via `useDataState` or `AppStateHandler`).
 
-```typescript
-import { LoadingState } from '@/common/components/atoms';
-// or
-import LoadingState from '@/common/components/atoms/LoadingState';
-```
+## 5. Styling Implementation
 
-No type exports are provided (no props interface is exported).
+- **Layout**: Flexbox centering (`display: 'flex'`, `flexDirection: 'column'`, `alignItems: 'center'`, `justifyContent: 'center'`).
+- **Width**: `width: '100%'` to fill parent container.
+- **Spacing**: Theme spacing between spinner and text via token-based gap/padding.
+- **Spinner**: MUI `CircularProgress` — color resolves from theme automatically.
+- **Typography**: Standard body variant — color from theme `text.secondary` or similar.
 
----
+## 6. Interaction Design
 
-# Architecture Mapping
+No user interactions. LoadingState is a purely passive loading indicator.
 
-| Pattern | Feature Usage | Reason |
-|---------|---------------|--------|
-| **Atom (Atomic Hierarchy)** | Renders a fixed composition of Box + CircularProgress + Typography | These are MUI primitive elements, not user components. No user components are composed. |
-| **Stateless UI** | No state, no effects, no callbacks | Pure render function. Output depends only on `useLanguage` context. |
-| **Theme Sovereignty** | `color: 'primary.main'` for spinner; `color="text.secondary"` for text; spacing via `spacing.md`, `spacing.lg`, `spacing.xl` tokens | All colors and spacing derive from theme tokens — no hardcoded values. |
-| **Localization** | `literal.loading_message` via `useLanguage()` | No hardcoded string; text is resolved through localization context. |
-| **Public API Stability** | Default export with renamed barrel re-export | Internal file can change default name without breaking consumers who use the barrel. |
-| **Dependency Safety** | Imports `FC` from `react`, `Box`/`CircularProgress`/`Typography` from `@mui/material`, `useLanguage` from local context, `spacing` from theme tokens | All imports are minimal and tree-shakeable. |
+## 7. Accessibility Implementation
 
----
+- MUI `CircularProgress` includes `role="progressbar"` by default.
+- **Gap**: No `aria-label` or `aria-describedby` connecting the spinner to the loading text.
+- Screen readers can detect the progressbar role but may not associate it with the text.
 
-# Technical Structure
+## 8. Error Handling
 
-## Views
+| Condition | Behavior |
+|--- |--- |
+| Missing localization key `'loading.text'` | `literal['loading.text']` returns `undefined` — spinner renders without visible text |
+| Parent container has no defined height | Flexbox centering may not be visible if container has zero height |
+| Multiple instances | Each renders independently — no coordination or deduplication |
 
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|------------------|--------------|
-| `LoadingState` (single view) | `src/common/components/atoms/LoadingState.tsx` | Renders centered loading spinner + localized message | Create flex column Box with centering; render `<CircularProgress>` with primary color and bottom margin; render `<Typography>` with `text.secondary` color and localized `loading_message` | `react` (`FC`), `@mui/material` (`Box`, `CircularProgress`, `Typography`), `../../localization/LanguageContext` (`useLanguage`), `../../../theme/tokens/spacing` (`spacing`) |
+No errors thrown. Spinner always renders regardless of text availability.
 
-The component has one view. No sub-views, no conditional rendering, no composition of other user components.
+## 9. Performance Considerations
 
----
+- Minimal DOM: one `<Box>` containing `<CircularProgress>` + `<Typography>`.
+- `useLanguage()` subscription triggers re-render on language change — acceptable for this scope.
+- No expensive computations or animations beyond MUI's optimized `CircularProgress`.
+- Re-renders only when parent re-renders or language changes.
 
-# Validation Design
+## 10. Integration Points
 
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|------------------|-------------------|
-| No props accepted | Consumer passes any prop | TypeScript compile error (empty interface `FC`) | Remove extraneous props |
-| Localization key `loading_message` exists | Component renders | Typography shows `literal.loading_message` | N/A |
-| Localization key `loading_message` missing | Translation object lacks key | Typography renders empty — no text displayed | Add key to translation files; component still renders spinner |
-| Language context missing | `useLanguage()` called outside `LanguageProvider` | Runtime error: hook context is undefined | Wrap consumer in `LanguageProvider` |
+- **Consumers**: Typically rendered by `AppStateHandler` organism when `state.state === StateType.LOADING`.
+- **Localization**: Reads `loading.text` key from translation dictionaries (`src/common/localization/{lang}.json`).
+- **Sibling atoms**: Part of state atom trio with `ErrorState` (error display) and `EmptyState` (no-data display). All three share the same centering pattern and localization approach.
+- **Barrel export**: Re-exported via `src/common/components/atoms/index.ts`.
 
-The component performs no runtime validation. All constraints are enforced by TypeScript or the React context system.
+## 11. Open Questions
 
----
-
-# Error Handling
-
-| Error Type | Cause | System Response | User Response |
-|------------|-------|-----------------|---------------|
-| Missing localization key | Translation file lacks `loading_message` | `literal.loading_message` resolves to `undefined`; Typography renders empty | Spinner visible but no text — confusing for long loads |
-| Missing `LanguageProvider` | Component rendered outside provider context | `useLanguage()` throws runtime error | Application crashes (white screen / error boundary) |
-| Missing theme context | Component rendered outside `ThemeProvider` | MUI defaults apply; colors may be incorrect | Spinner still renders |
-
-No error boundary is provided. Errors propagate to the parent.
-
----
-
-# Non-Functional Requirements
-
-## Performance
-
-- Renders 3 DOM nodes (Box > CircularProgress + Typography). CircularProgress renders an animated SVG.
-- No internal state or effects — re-render only triggered by context change (language switch, theme switch) or parent re-render.
-- Animation is handled by MUI's `CircularProgress` — no custom animation.
-
-## Reliability
-
-- The spinner always renders regardless of localization state.
-- If the localization key is missing, the spinner still provides visual feedback (animated progress indicator without text).
-- Spacing uses theme tokens — layout adapts to theme spacing changes.
-
-## Maintainability
-
-- Zero-prop interface means no API surface to maintain or deprecate.
-- Changing the loading message requires only updating the translation key value — no component changes.
-- The component is a direct analogue of `EmptyState` and `ErrorState` — shared patterns across all three state atoms.
-
----
-
-# Architecture Compliance Review
-
-## Applied Patterns
-
-- Stateless UI — fully compliant (no state, no effects beyond CircularProgress internal animation).
-- Atom tier — composes only MUI primitives (Box, CircularProgress, Typography). No user components.
-- Theme sovereignty — all visual properties via theme tokens (color, spacing).
-- Localization — text via `useLanguage` context, no hardcoded strings.
-- Public API — default export with barrel rename.
-
-## Risks
-
-- **No props interface exported**: Consumers have no way to customize the component (message, spinner size, variant). The feature spec lists this as "Future Enhancements" but there is no current API for it.
-- **Hardcoded `variant="body1"`**: While not a hardcoded color, the typography variant is a literal in sx and assumes `body1` exists in all consumer themes.
-- **No `React.memo` or stabilization**: The component re-renders whenever its parent re-renders, even if nothing changed. Acceptable for an atom but worth noting.
-
-## Gaps
-
-- Optional `message` prop (feature spec "Future Enhancements") — not implemented.
-- Alternative spinner variants — not implemented.
-- Size presets — not implemented.
-- Minimum display duration — not implemented.
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| Component | `src/common/components/atoms/LoadingState.tsx` | `LoadingState` (default export) | `react` (`FC`), `@mui/material` (`Box`, `CircularProgress`, `Typography`), `../../localization/LanguageContext` (`useLanguage`), `../../../theme/tokens/spacing` (`spacing`) |
-| Barrel | `src/common/components/atoms/index.ts` | `LoadingState` (renamed default export) | `./LoadingState` |
-| Tests | `src/common/components/atoms/LoadingState.test.tsx` | None | `@testing-library/react`, `vitest`, `./LoadingState` |
-| Stories | `src/common/components/atoms/LoadingState.stories.tsx` | Default + Default story | `@storybook/react`, `./LoadingState` |
-
----
-
-# Final Rule
-
-LoadingState is a self-contained, zero-prop atomic loading indicator. It must always render a spinner and a localized text message, regardless of the consumer's locale. The component must never accept props, manage state, or compose user-defined components. It is one of three sibling state atoms (LoadingState, ErrorState, EmptyState) sharing the same structural pattern of flex-centered Box + context-driven text content.
+1. Should LoadingState accept an optional custom message prop for cases where the default "Loading..." is insufficient?
+2. Should a minimum display duration be implemented to prevent flash-of-loading for fast operations?
+3. Should `CircularProgress` size be configurable or use a fixed size?

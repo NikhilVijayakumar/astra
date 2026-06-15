@@ -1,235 +1,141 @@
-# DrawerComponent
+# DrawerComponent: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
+`DrawerComponent` (`src/common/components/organisms/DrawerComponent.tsx`) is a responsive side navigation drawer organism built on MUI `Drawer`. It renders a temporary drawer (overlay with backdrop) on `xs` screens and a permanent sidebar on `sm+` screens. Navigation items are filtered by matching feature names against an externally-provided `UiFeatureList` record, enabling feature-flag-driven navigation.
 
-A responsive navigation drawer organism that renders a temporary drawer on `xs` screens (with overlay) and a permanent drawer on `sm+` screens. Filters navigation items by matching feature names against an externally-provided feature flag map. Built on MUI Drawer with a generic type parameter for type-safe feature items.
+The component is fully controlled — the parent owns `mobileOpen` state and `handleDrawerToggle` callback. It is parameterized with a generic constraint `<T extends Features>` for type-safe feature items.
 
----
+## 2. Architecture Realization
 
-# Implementation Reference
+| Architecture Pattern | Realization |
+|---|---|
+| **Stateless UI** (invariant) | Fully controlled — `mobileOpen` and `handleDrawerToggle` owned by parent; no internal open/close state |
+| **Atomic Hierarchy** (component-tiers.md) | Organism — composes MUI molecules/atoms (`Drawer`, `List`, `ListItem`, `ListItemButton`, `ListItemIcon`, `ListItemText`, `Divider`, `Toolbar`, `Box`) |
+| **Theme Sovereignty** (theming.md) | `drawerWidth` defined as exported constant (240px); responsive breakpoints via MUI `sx` display rules |
+| **MVVM Separation** (mvvm-pattern.md) | Pure View — no ViewModel hook, no repository access, no data fetching |
+| **Dependency Safety** (dependencies.md) | Imports from MUI components and `drawerData.ts` (type definitions) |
+| **Public API Stability** (api-surface.md) | Exported via barrel with generic typed interface; breaking changes to `Features` constraint affect all consumers |
 
-## Status
-
-Implemented
-
-## Source Files
-
-| File | Path | Role |
-|------|------|------|
-| Component | `src/common/components/organisms/DrawerComponent.tsx` | View — responsive navigation drawer |
-| Data types | `src/common/components/organisms/drawerData.ts` | Type definitions (`Features`, `UiFeature`, `DrawerProps`, `drawerWidth`) |
-| Barrel | `src/common/components/organisms/index.ts` | Re-exports `DrawerComponent` |
-
-No test or story files exist.
-
-## Public API
-
-### Exports
+## 3. Data Flow
 
 ```
-DrawerComponent       (generic component)
-Features              (interface)
-UiFeature             (type alias)
-DrawerProps           (generic interface)
-drawerWidth           (const = 240)
+Parent component (App shell)
+  │
+  ├─► sortedFeatures: T[] | null       (sorted by display_order)
+  ├─► UiFeatureList: Record<string, UiFeature>  (feature key → route mapping)
+  ├─► mobileOpen: boolean              (controlled open state)
+  ├─► handleDrawerToggle: () => void   (toggle callback)
+  ├─► onMenuItemClick: (index: number) => void  (item selection callback)
+  └─► container?: () => HTMLElement    (optional scroll container)
+        │
+        ▼
+  DrawerComponent
+    │
+    ├─► Guard: if (!sortedFeatures || sortedFeatures.length === 0) → <List /> empty
+    ├─► Filter: sortedFeatures.filter(f => UiFeatureList[f.name])
+    │     (items without matching UiFeatureList key produce null — excluded silently)
+    │
+    ├─► Temporary Drawer (xs screens, display: { xs: 'block', sm: 'none' })
+    │     ├─► open={mobileOpen}
+    │     ├─► onClose={handleDrawerToggle}
+    │     └─► keepMounted
+    │
+    └─► Permanent Drawer (sm+ screens, display: { xs: 'none', sm: 'block' })
+          └─► open (always true)
+                │
+                ▼
+          User clicks item → handleListItemClick(display_order - 1)
+                │
+                ▼
+          onMenuItemClick(index) → parent navigates / closes drawer
 ```
 
-### Import Path
+## 4. State Management
 
-```typescript
-import { DrawerComponent } from "src/common/components/organisms/DrawerComponent";
-import type { Features, DrawerProps } from "src/common/components/organisms/drawerData";
-// or via barrel:
-import { DrawerComponent } from "src/common/components/organisms";
-```
+**No ViewModel state.** The component is fully controlled via props. The parent owns:
 
-### Generic Constraint
+| State Variable | Owner | Type | Purpose |
+|---|---|---|---|
+| `mobileOpen` | Parent | `boolean` | Mobile drawer visibility (toggled by ToolbarComponent) |
+| `sortedFeatures` | Parent | `T[] \| null` | Feature-flag-driven navigation items |
+| `UiFeatureList` | Parent | `Record<string, UiFeature>` | Route mapping for feature flag filtering |
 
-```typescript
-interface Features {
-  id: number;
-  name: string;
-  display_order: number;
-  icon: SvgIconComponent;
-}
+**UI-only internal helpers** (not state):
+- `loadList()` — render-time filter function (no memoization, runs on every render)
+- `handleListItemClick(index)` — delegates to `onMenuItemClick(index)` prop
 
-type UiFeature = {
-  url: string;
-};
+## 5. Styling Implementation
 
-// DrawerComponent is parameterized: <T extends Features>
-```
+| Style Rule | Implementation |
+|---|---|
+| Drawer width | Exported const `drawerWidth = 240` — used in `sx={{ width: drawerWidth }}` |
+| Mobile responsiveness | `sx={{ display: { xs: 'block', sm: 'none' } }}` on temporary drawer |
+| Desktop responsiveness | `sx={{ display: { xs: 'none', sm: 'block' } }}` on permanent drawer |
+| Navigation icon | MUI `SvgIconComponent` type — icon sourced from `Features.icon` |
+| Feature name truncation | MUI `ListItemText` handles with CSS ellipsis |
+| Divider | MUI `Divider` component — uses theme `divider` color |
 
-### Props Interface
+## 6. Interaction Design
 
-```typescript
-interface DrawerProps<T extends Features> {
-  sortedFeatures: T[] | null;                     // required — feature items sorted by display_order
-  UiFeatureList: Record<string, UiFeature>;        // required — feature key to route mapping
-  container: (() => HTMLElement) | undefined;      // optional — scroll container for mobile drawer
-  onMenuItemClick: (index: number) => void;         // required — click handler (index = display_order - 1)
-  mobileOpen: boolean;                              // required — mobile drawer open state
-  handleDrawerToggle: () => void;                   // required — drawer toggle handler
-}
-```
+| Interaction | Behavior |
+|---|---|
+| Toggle menu (mobile) | Parent fires `handleDrawerToggle` → `mobileOpen` toggles → drawer slides in/out |
+| Tap overlay (mobile) | MUI Drawer `onClose` fires `handleDrawerToggle` → drawer closes |
+| Select item | `handleListItemClick(display_order - 1)` → `onMenuItemClick(index)` → parent handles navigation + drawer close |
+| Desktop sidebar | Always visible, no overlay, no toggle interaction |
+| Keep-mounted (mobile) | `keepMounted={true}` — content stays in DOM when closed, preserves scroll position |
 
-### Contract
+## 7. Accessibility Implementation
 
-- `sortedFeatures`, `UiFeatureList`, `onMenuItemClick`, `mobileOpen`, `handleDrawerToggle` are required
-- `container` is optional — defaults to document body
-- Menu items filtered by matching `feature.name` against `UiFeatureList` keys — no match = item excluded silently
-- Menu item click index computed as `display_order - 1`
-- `drawerWidth` constant = 240px — not configurable
-- Mobile drawer uses `keepMounted: true` — content stays in DOM when closed
+| Requirement | Status | Implementation |
+|---|---|---|
+| Drawer role | ✅ | MUI `Drawer` provides `role="dialog"` by default |
+| Backdrop focus trap | ✅ | MUI temporary drawer traps focus when open |
+| `aria-hidden` | ✅ | MUI manages `aria-hidden` on backdrop |
+| Keyboard dismiss | ✅ | Escape key closes temporary drawer (MUI default) |
+| Active item highlight | ❌ | No `aria-current` or visual indication of current navigation item |
+| `aria-selected` | ❌ | Not set on selected menu item |
+| Arrow key navigation | ❌ | Not implemented — future enhancement |
+| Focus on open | ❌ | Not explicitly managed beyond MUI defaults |
 
----
+## 8. Error Handling
 
-# Architecture Mapping
+| Error Type | Cause | Behavior |
+|---|---|---|
+| All features filtered out | No `UiFeatureList` keys match any `feature.name` | Empty `<List />` rendered — drawer appears blank |
+| Null/empty `sortedFeatures` | Prop is `null` or `[]` | Guard clause returns empty `<List />` |
+| Missing feature key | `UiFeatureList[name]` is undefined | Item returns `null` — excluded silently (no log) |
+| Null `container` | Prop is undefined | Default portal target (document body) — mobile drawer renders correctly |
+| Long feature name | Name string exceeds container width | MUI `ListItemText` truncates with ellipsis |
+| Duplicate `display_order` | Two features share `display_order` | `onMenuItemClick(display_order - 1)` fires with same index — ambiguous navigation |
 
-| Pattern | Feature Usage | Reason |
-|---------|--------------|--------|
-| Stateless UI | Controlled component | `mobileOpen` and `handleDrawerToggle` owned by parent — component fires callbacks only |
-| Atomic Hierarchy | Organism | Composes MUI Drawer, List, ListItem (molecules/atoms) |
-| MVVM Separation | Pure View | No data fetching, no business logic, no ViewModel |
-| Theme Sovereignty | Styling via MUI theme | `drawerWidth` used in `sx` width — no hardcoded breakpoint values beyond MUI defaults |
-| Dependency Safety | Minimal imports | Only MUI components, `SvgIconComponent` type, `drawerData` |
+## 9. Performance Considerations
 
----
+| Factor | Analysis |
+|---|---|
+| DOM size | Two `Drawer` instances mounted simultaneously — one always `display: none` |
+| `keepMounted` | Mobile drawer content stays in DOM when closed — avoids remount cost but increases baseline DOM |
+| Filter pass | O(n) on `sortedFeatures` — runs on every render with no memoization |
+| Re-render | Re-renders on every `mobileOpen`, `sortedFeatures`, or `UiFeatureList` reference change |
 
-# Technical Structure
+**Risk:** Permanent drawer is always mounted in DOM even if never visible on mobile — increases baseline DOM size on all viewports.
 
-## Views
+## 10. Integration Points
 
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|-----------------|--------------|
-| `DrawerComponent` | `src/common/components/organisms/DrawerComponent.tsx` | Responsive navigation drawer | Render dual-drawer (temporary + permanent), filter items by UiFeatureList, fire onMenuItemClick on selection | MUI (`Drawer`, `List`, `ListItem`, `ListItemButton`, `ListItemIcon`, `ListItemText`, `Divider`, `Toolbar`, `Box`), `drawerData` |
+| Integration | Details |
+|---|---|
+| **ToolbarComponent** | Sibling that fires `handleDrawerToggle` — the toolbar menu icon triggers drawer open/close |
+| **App shell** | Used as part of the application shell layout alongside `ToolbarComponent` and main content area |
+| **Feature flags** | `UiFeatureList` enables feature-flag-driven navigation — items without a flag key are silently excluded |
+| **Barrel export** | `src/common/components/organisms/index.ts` re-exports `DrawerComponent` |
+| **drawerData.ts** | `src/common/components/organisms/drawerData.ts` defines `Features`, `UiFeature`, `DrawerProps`, `drawerWidth` |
 
-## State Model
+## 11. Open Questions
 
-No ViewModel or domain state. The component is fully controlled — parent owns `mobileOpen` and `handleDrawerToggle`.
-
-### UI-Only Internal State
-
-- `loadList()` — memoization-free render helper; not state
-- `handleListItemClick` — event handler that delegates to `onMenuItemClick` prop
-
-## State Machine (View States)
-
-| State | Condition | Rendered Output |
-|-------|-----------|----------------|
-| Open (mobile) | `mobileOpen === true`, xs screen | Temporary Drawer visible with overlay |
-| Closed (mobile) | `mobileOpen === false`, xs screen | Temporary Drawer hidden (content keptMounted) |
-| Open (desktop) | sm+ screen | Permanent Drawer visible, no overlay |
-| Empty | `sortedFeatures === null \|\| sortedFeatures.length === 0` | Empty `<List />` |
-| Filtered | Some features excluded by UiFeatureList lookup | Only matching items render; unmatched items produce `null` |
-| All filtered | No features match UiFeatureList keys | Empty `<List />` rendered |
-
-## Workflow Design
-
-```
-Parent resolves sortedFeatures, UiFeatureList, mobileOpen
-       ↓
-DrawerComponent filters items: sortedFeatures.filter(f => UiFeatureList[f.name])
-       ↓
-Renders two Drawer elements:
-  ├── Temporary (xs only, display: { xs: 'block', sm: 'none' })
-  │     ├── open={mobileOpen}
-  │     └── onClose={handleDrawerToggle}
-  └── Permanent (sm+ only, display: { xs: 'none', sm: 'block' })
-       └── open (always)
-       ↓
-User clicks menu item
-       ↓
-handleListItemClick(display_order - 1)
-       ↓
-onMenuItemClick(index) → parent handles navigation/drawer close
-```
-
----
-
-# Validation Design
-
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|-----------------|-------------------|
-| `sortedFeatures`, `UiFeatureList`, `onMenuItemClick`, `mobileOpen`, `handleDrawerToggle` required | TypeScript compilation | TS error | N/A — compile-time |
-| Feature name not in UiFeatureList | Runtime filter check | Item returns `null`, excluded from rendered list | Silent exclusion — no error log |
-| Empty sortedFeatures | `!sortedFeatures \|\| sortedFeatures.length === 0` guard | Returns `<List />` with no children | Empty drawer rendered |
-
----
-
-# Error Handling
-
-| Error Type | Cause | System Response | User Response |
-|-----------|-------|----------------|---------------|
-| All features filtered out | No matching UiFeatureList keys | Renders empty `<List />` | Drawer appears blank |
-| Empty sortedFeatures | Array is null or length 0 | Guard clause returns `<List />` | Drawer appears blank |
-| Null container | `container` prop is undefined | Default portal target (document body) | Mobile drawer renders correctly |
-| Missing feature key | `UiFeatureList[name]` is undefined | Item returns `null`, excluded silently | Feature not visible in drawer (silent) |
-| Long feature names | Name string exceeds container | MUI `ListItemText` truncates with ellipsis | Text truncated |
-| Duplicate display_order | Two features share display_order | `onMenuItemClick(display_order - 1)` fires with same index | Ambiguous navigation — parent must handle |
-
----
-
-# Non-Functional Requirements
-
-## Performance
-
-- Two Drawer instances mounted simultaneously — one always hidden via `display: none`
-- `keepMounted: true` on mobile drawer preserves DOM — avoids remount cost but increases baseline DOM size
-- Filter pass is O(n) on `sortedFeatures` — no memoization; re-runs on every render
-
-## Reliability
-
-- CSS-based responsive visibility (`display: { xs: 'block', sm: 'none' }` / inverse) — no JS breakpoint listener, no hydration mismatch
-- Guard clause on null/empty `sortedFeatures` prevents runtime iteration on null
-- Fixed 240px width defined as exported constant — consistent across all drawer variants
-
-## Maintainability
-
-- Generic type parameter `<T extends Features>` allows type-safe feature items without casting
-- Filter logic centralized in `loadList()` — single location for item inclusion/exclusion logic
-- Two Drawer elements with complementary `display` rules — responsive behavior is explicit and CSS-driven
-
----
-
-# Architecture Compliance Review
-
-## Applied Patterns
-
-- **Stateless UI**: Full compliance — parent manages open state
-- **Atomic Hierarchy**: Full compliance — organism tier
-- **MVVM Separation**: Full compliance — pure View
-- **Theme Sovereignty**: Full compliance — no hardcoded values except `drawerWidth` (defined as exported constant)
-- **Repository Isolation**: N/A — no data access
-
-## Risks
-
-- `drawerWidth` is a hardcoded constant (240px) — violates Theme Sovereignty if considered a design token; should derive from theme if theme-based drawer widths are needed
-- Silent feature exclusion (no match in `UiFeatureList`) with no warning or log — debugging difficulty when expected items don't appear
-- Two Drawer instances in DOM simultaneously increases DOM size on all viewports — permanent drawer is always mounted even if never visible (sm+ only display)
-- `onMenuItemClick` uses `display_order - 1` as index — fragile; assumes `display_order` is 1-based and contiguous
-
-## Gaps
-
-- No active/highlighted state for current navigation item
-- No aria `aria-current` or `aria-selected` on active item
-- No keyboard navigation (arrow keys, focus trapping) — documented in future enhancements
-- No collapsible/expandable desktop drawer variant
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| `DrawerComponent` | `src/common/components/organisms/DrawerComponent.tsx` | `DrawerComponent` | MUI (`List`, `ListItem`, `ListItemButton`, `ListItemIcon`, `ListItemText`, `Divider`, `Toolbar`, `Box`, `Drawer`), `drawerData` |
-| `drawerData` | `src/common/components/organisms/drawerData.ts` | `Features`, `UiFeature`, `DrawerProps`, `drawerWidth` | `@mui/icons-material` (type only: `SvgIconComponent`) |
-| Barrel | `src/common/components/organisms/index.ts` | `DrawerComponent` | re-exports |
-
----
-
-# Final Rule
-
-The component must remain fully controlled — `mobileOpen` and `handleDrawerToggle` must never have internal state. Feature filtering via `UiFeatureList` is a runtime decision; items without a matching key are silently excluded. The `display_order` field must be treated as 1-based; the index passed to `onMenuItemClick` is `display_order - 1`. Any change to the `DrawerProps` generic constraint (`Features` interface) is a breaking API change.
+1. Should `drawerWidth` be derived from the MUI theme (spacing tokens) instead of a hardcoded constant?
+2. Should silent feature exclusion log a warning in development mode for debugging?
+3. Should active/highlighted navigation state be added with `aria-current`?
+4. Should collapsible/expandable sub-navigation be supported?
+5. Should `display_order` be validated for contiguity to prevent duplicate index collisions?
+6. Should keyboard arrow navigation be implemented for the menu list?

@@ -1,159 +1,149 @@
-# ImageViewer
+# ImageViewer: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
+ImageViewer is an interactive molecule that renders base64-encoded image data with toolbar controls for zoom (0.5x–3x, 0.2x steps) and rotation (0°, 90°, 180°, 270°). It constructs a data URI from `fileContent` + `mimeType` props and renders via an `<img>` element. Zoom and rotation are managed as internal UI-only state via `useState` — purely presentation state that does not persist or lift to parent. Shows a localized placeholder message when no content is provided.
 
-An interactive base64 image viewer molecule with toolbar controls for zoom (0.5x–3x, 0.2x steps) and rotation (0°, 90°, 180°, 270°). Constructs a data URI from `fileContent` + `mimeType` and renders via an `<img>` element. Manages zoom and rotation as internal UI-only state via `useState`. Shows a localized placeholder when no content is provided.
+## 2. Architecture Realization
 
----
+| Architecture Pattern | Realization |
+|---|---|
+| **Molecule (Atomic Hierarchy)** | Composes MUI atoms (`Box`, `Typography`, `IconButton`) with MUI icons (`ZoomIn`, `ZoomOut`, `RotateRight`). No imports from organism or template tiers. Complies with `docs/raw/architecture/core/component-tiers.md:34-46`. |
+| **Stateless UI** | Manages only UI presentation state (`zoom`, `rotation`) via `useState`. Both are purely visual view states — not domain data, not business state, not persisted. Image content arrives via props. Complies with `docs/raw/architecture/invariants/stateless-ui.md:20-28` (UI interaction state is allowed). |
+| **Theme Sovereignty** | All visual values derive from theme tokens — background via `'background.default'` / `'background.paper'`, border via `'divider'`, text via `'text.secondary'`, spacing from token constants. Complies with `docs/raw/architecture/invariants/theme-sovereignty.md:22-38`. |
+| **Localization** | Uses `useLanguage` hook for empty-state message. Translation key: `viewer.empty_image` with fallback `"No image content available for preview."`. Complies with `docs/raw/architecture/invariants/localization.md:22-37`. |
+| **Dependency Safety** | Four MUI icon imports (`@mui/icons-material/ZoomIn`, `ZoomOut`, `RotateRight`) — tree-shakeable. Complies with `docs/raw/architecture/core/component-tiers.md:45-46`. |
+| **MVVM Pattern** | View component with allowed UI-only internal state. No ViewModel involvement, no data fetching. Follows `docs/raw/architecture/core/mvvm-pattern.md:99-116`. |
 
-# Implementation Reference
-## Status
-Implemented
+## 3. Data Flow
 
-## Source Files
-| File | Role |
-|------|------|
-| `src/common/components/molecules/ImageViewer.tsx` | Component implementation |
-| `src/common/components/molecules/index.ts` | Barrel re-export |
-
-## Public API
-```typescript
-import { ImageViewer } from "astra";
-import { ImageViewer } from "@/common/components/molecules/ImageViewer";
-
-interface ImageViewerProps {
-  fileName: string;
-  fileContent?: string;
-  fileEncoding?: "text" | "base64";
-  mimeType?: string;
-}
+```
+Parent (FileViewerRouter organism)
+  │
+  ├── fileName: string ────────────────→ ImageViewer
+  ├── fileContent?: string ────────────→ ImageViewer
+  ├── fileEncoding?: string ───────────→ ImageViewer
+  └── mimeType?: string ───────────────→ ImageViewer
+                                             │
+                                             ├── imageSource construction (inline):
+                                             │     fileContent && fileEncoding === "base64"
+                                             │       → `data:${mimeType || "image/png"};base64,${fileContent}`
+                                             │       : null
+                                             │
+                                             ├── Toolbar Box (always visible)
+                                             │     ├── Typography (fileName)
+                                             │     ├── ZoomIn IconButton → setZoom(prev => Math.min(prev + 0.2, 3))
+                                             │     ├── ZoomOut IconButton → setZoom(prev => Math.max(prev - 0.5, 0.5))
+                                             │     ├── Zoom level display
+                                             │     └── RotateRight IconButton → setRotation(prev => (prev + 90) % 360)
+                                             │
+                                             └── Image area Box
+                                                   ├── imageSource ? <img style={transform: rotate(Xdeg) scale(Y)}>
+                                                   └── !imageSource ? <Placeholder Box>{emptyMessage}</Placeholder>
 ```
 
----
+Data flow is one-way from props into the component. Image content is pre-loaded by the parent — the component never accesses the file system or network. Zoom and rotation mutations are self-contained within the component.
 
-# Architecture Mapping
+## 4. State Management
 
-| Pattern | Feature Usage | Reason |
-|---------|---------------|--------|
-| Molecule (Atomic Design) | Composes MUI atoms (Box, Typography, IconButton) with MUI icons (ZoomIn, ZoomOut, RotateRight) | No imports from organism/template tiers |
-| Stateless UI | Manages only UI presentation state (`zoom`, `rotation`) via `useState` | Both are purely visual view states — not domain data, not business state, not persisted. All image content arrives via props |
-| Theme Sovereignty | All visual values derive from theme tokens | Background via `'background.default'` / `'background.paper'`; border via `'divider'`; text via `'text.secondary'`; spacing from `spacing` constants |
-| Localization | Uses `useLanguage` hook for empty-state message | `viewer.empty_image` translation key with fallback: `"No image content available for preview."` |
-| Dependency Safety | Four MUI icon imports (`@mui/icons-material/ZoomIn`, etc.) | Tree-shakeable icon imports — only the used icons are included in the bundle |
-
----
-
-# Technical Structure
-
-## Views table
-
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|------------------|--------------|
-| ImageViewer (root) | `src/common/components/molecules/ImageViewer.tsx` | Renders base64 image with zoom/rotate toolbar | Construct data URI from `fileContent` + `mimeType`; manage zoom state (clamped 0.5–3.0); manage rotation state (modulo 360); render toolbar with filename and zoom/rotate controls; render `<img>` or empty-state fallback | `react` (FC, useState), `@mui/material` (Box, Typography, IconButton), `@mui/icons-material/ZoomIn`, `@mui/icons-material/ZoomOut`, `@mui/icons-material/RotateRight`, `../../localization/LanguageContext`, `../../../theme/tokens/spacing` |
-
-## Internal State
+ImageViewer manages two pieces of UI-only internal state via `useState`:
 
 | State | Type | Initial | Mutations | Purpose |
-|-------|------|---------|-----------|---------|
-| `zoom` | `number` | `1` | `Math.min(prev + 0.2, 3)` / `Math.max(prev - 0.2, 0.5)` | Controls image scale (0.5x–3x) |
-| `rotation` | `number` | `0` | `(prev + 90) % 360` | Controls image rotation (0, 90, 180, 270) |
+|---|---|---|---|---|
+| `zoom` | `number` | `1` | `zoom + 0.2` (clamped to max 3), `zoom - 0.2` (clamped to min 0.5) | Controls CSS `scale()` transform on `<img>` |
+| `rotation` | `number` | `0` | `(rotation + 90) % 360` | Controls CSS `rotate()` transform on `<img>` |
 
-## Data Flow
+This is explicitly permitted by the Stateless UI Invariant (`docs/raw/architecture/invariants/stateless-ui.md:74-93`): "A component may: manage UI interaction state (open/closed, selected, hovered), manage animation state, manage temporary visual transitions." Zoom and rotation are temporary visual transitions — they are reset when the component unmounts and are never persisted.
 
+No `useReducer`, no `useDataState`, no `useContext` for state. The state is purely local and non-essential — it affects only the visual presentation of the image, not the data model.
+
+## 5. Styling Implementation
+
+All styling applied via MUI `sx` prop with theme token references:
+
+| Element | Styling Tokens | Source |
+|---|---|---|
+| Outer container Box | `sx={{ display: 'flex', flexDirection: 'column', bgcolor: 'background.default', border: '1px solid', borderColor: 'divider', borderRadius: 1 }}` | Theme tokens for surface, border |
+| Toolbar Box | `sx={{ display: 'flex', alignItems: 'center', gap: spacing.sm, px: spacing.md, py: spacing.xs, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}` | Theme tokens for toolbar surface and separator |
+| File name Typography | `sx={{ color: 'text.secondary', flexGrow: 1 }}` | Theme token `text.secondary` |
+| Image area Box | `sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: spacing.lg, bgcolor: 'background.default', minHeight: 200 }}` | Theme tokens for layout and surface |
+| Placeholder Typography | `sx={{ color: 'text.secondary' }}` | Theme token `text.secondary` |
+
+**Image transforms** (applied as inline style on `<img>`):
+```typescript
+style={{
+  transform: `rotate(${rotation}deg) scale(${zoom})`,
+  maxWidth: '100%',
+  maxHeight: '100%',
+  objectFit: 'contain',
+}}
 ```
-fileContent (string | undefined)
-fileEncoding (string | undefined)
-mimeType (string | undefined)
-  ↓
-imageSource = fileContent && fileEncoding === "base64"
-  ? `data:${mimeType || "image/png"};base64,${fileContent}`
-  : null
-  ↓
-imageSource ? <img src={imageSource} zoom+rotation transforms>
-            : <placeholder Box>{emptyMessage}</placeholder>
-```
 
-## Translation Keys
+## 6. Interaction Design
 
-| Key | Default | Location |
-|-----|---------|----------|
-| `viewer.empty_image` | "No image content available for preview." | `useLanguage().literal` access in component |
+| Control | Icon | Action | Boundary |
+|---|---|---|---|
+| Zoom In | `ZoomIn` | `setZoom(prev => Math.min(prev + 0.2, 3))` | Max 3.0x |
+| Zoom Out | `ZoomOut` | `setZoom(prev => Math.max(prev - 0.5, 0.5))` | Min 0.5x |
+| Rotate Right | `RotateRight` | `setRotation(prev => (prev + 90) % 360)` | Cycles 0→90→180→270→0 |
 
----
+All controls are `IconButton` components with MUI icons — always visible in the toolbar. The zoom level is displayed as text between the zoom buttons. Clicking any button triggers an immediate state update, which causes a React re-render with the new CSS transform applied to the `<img>` element. There are no animations for zoom or rotation transitions — the transform changes instantly.
 
-# Validation Design
+Zoom and rotation are independent: a user can rotate the image and zoom in simultaneously; the transforms compose via CSS `transform: rotate(Xdeg) scale(Y)`.
 
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|-----------------|-------------------|
-| `fileName` required | Not provided | TypeScript compile error | N/A |
-| `fileContent` optional | Not provided | `imageSource = null` → placeholder rendered | Empty-state box shown with translated message |
-| `fileEncoding` must be "base64" | Not "base64" or undefined | `imageSource = null` → placeholder rendered | Same empty-state as no content |
-| `mimeType` optional | Not provided | Defaults to `"image/png"` in data URI | Image renders with PNG MIME type |
-| Zoom minimum | zoom < 0.5 | Clamped to 0.5 via `Math.max` | Zoom stops at 0.5x |
-| Zoom maximum | zoom > 3.0 | Clamped to 3.0 via `Math.min` | Zoom stops at 3.0x |
-| Rotation cycle | rotation >= 360 | Modulo 360 resets to 0 | Rotation cycles naturally |
+## 7. Accessibility Implementation
 
----
+- **Icon buttons**: Each toolbar button uses MUI `IconButton` with an icon. MUI `IconButton` renders as a `<button>` element with no default accessible label. The component should include `aria-label` on each `IconButton` (e.g., `aria-label="Zoom in"`, `aria-label="Rotate right"`).
+- **Image alt text**: The `<img>` element has no `alt` attribute. The `fileName` is displayed in the toolbar but is not passed as `alt` on the image.
+- **Keyboard navigation**: Toolbar buttons are natively focusable and keyboard-activatable (Enter/Space) via MUI `IconButton`.
+- **Zoom level**: The zoom level is displayed as visible text — no `aria-live` region announces zoom changes.
 
-# Error Handling
+**Accessibility gaps**:
+- Missing `aria-label` on `IconButton` components — screen readers will announce the icon name (e.g., "Zoom in icon") based on the icon's SVG title, not a semantic label.
+- Missing `alt` attribute on `<img>` — screen readers cannot describe the image content. `fileName` should be used as `alt` text.
+- No `aria-live` region for zoom/rotation state announcements.
 
-| Error Type | Cause | System Response | User Response |
-|------------|-------|-----------------|---------------|
-| No content | `fileContent` not provided | `imageSource = null` → placeholder Box with empty message | Sees "No image content available for preview." |
-| Wrong encoding | `fileEncoding` not `"base64"` | `imageSource = null` → placeholder Box | Sees placeholder (same as no content) |
-| Corrupted image data | Base64 string invalid | Browser shows broken image icon on `<img>` | Sees broken image icon — no custom error handler |
-| Missing translation key | `literal["viewer.empty_image"]` falsy | Hardcoded fallback string used | English fallback displays in placeholder |
+## 8. Error Handling
 
----
+| Error Scenario | Behavior |
+|---|---|
+| `fileContent` not provided | `imageSource = null` → placeholder Box with translated empty-state message |
+| `fileEncoding` not `"base64"` | `imageSource = null` → same placeholder as no content |
+| `mimeType` not provided | Defaults to `"image/png"` in data URI construction |
+| Corrupted base64 data | Browser shows broken image icon on `<img>` — no custom `onError` handler |
+| Missing translation key `viewer.empty_image` | Hardcoded fallback `"No image content available for preview."` displayed |
+| Very large image | Constrained by `maxWidth: '100%'`, `maxHeight: '100%'`, `objectFit: 'contain'` — aspect ratio preserved |
 
-# Non-Functional Requirements
-## Performance
-- Minimal re-render: only zoom/rotation state changes trigger re-renders
-- No lazy loading or code splitting — ImageViewer is eager-loaded
-- Image loading is deferred to browser's native `<img>` element
+**Critical gap**: There is no `onError` handler on the `<img>` element. Corrupted image data produces the browser's native broken image icon, which is inconsistent with the application's design language. Per `docs/raw/architecture/core/component-tiers.md:107`, errors from the `<img>` element are not caught.
 
-## Reliability
-- Zoom and rotation are clamped at the state update level — no conditional rendering
-- Empty state is always reachable: missing content, wrong encoding, or missing fileContent all lead to same placeholder
-- No async operations inside the component
+## 9. Performance Considerations
 
-## Maintainability
-- ~128 lines, single file
-- Internal state (`zoom`, `rotation`) is self-contained and localized
-- Data URI construction is a single inline expression
+- **Render cost**: Minimal — two `useState` hooks. State updates trigger re-renders only of the `<img>` element and the zoom level text.
+- **Re-render scope**: Only `zoom` and `rotation` state changes trigger re-renders. Prop changes (new `fileContent`) also trigger re-render.
+- **Image loading**: Deferred to browser's native `<img>` element — no custom loading logic. Large images are constrained by CSS (`maxWidth: '100%'`, `maxHeight: '100%'`).
+- **Lazy loading**: ImageViewer is eager-loaded (not lazy) — it is expected to be used only when the user opens an image file, so lazy loading would add latency without benefit.
+- **Bundle size**: ~128 lines. Four tree-shakeable icon imports. No heavy third-party dependencies.
+- **CSS transform performance**: Zoom and rotation use CSS `transform`, which is GPU-accelerated and does not trigger layout recalculations.
 
----
+## 10. Integration Points
 
-# Architecture Compliance Review
-## Applied Patterns
-- **UI-only internal state**: `zoom` and `rotation` are pure presentation state — compliant with Stateless UI invariant which permits UI interaction state
-- **Clamped property pattern**: State mutations clamped via `Math.min`/`Math.max` at the update site, not with conditional render logic
-- **Base64 data URI pattern**: Component receives pre-loaded base64 data and constructs the data URI — no network fetching
-- **Toolbar control pattern**: Compact toolbar with filename display and zoom/rotate controls always visible
-- **Molecule tier compliance**: No data fetching, no business logic, no organism imports. Internal `useState` is UI-only state (zoom level, rotation angle)
+| Integration | Details |
+|---|---|
+| **Consumer import** | `import { ImageViewer } from "astra"` via barrel, or directly from `@/common/components/molecules/ImageViewer` |
+| **Consumed by** | `FileViewerRouter` organism (`docs/raw/feature/components/molecules/ImageViewer.md:33`) — delegates image file rendering based on file extension |
+| **Pattern** | Pre-loaded base64 content — parent (FileViewerRouter) reads file content and passes it as props |
+| **Test file** | **No test file** (`ImageViewer.test.tsx` does not exist) — gap identified |
+| **Barrel export** | `src/common/components/molecules/index.ts` re-exports `ImageViewer` |
+| **MUI dependencies** | `@mui/material` (`Box`, `Typography`, `IconButton`), `@mui/icons-material/ZoomIn`, `ZoomOut`, `RotateRight` |
+| **Localization** | Uses `useLanguage` from `../../localization/LanguageContext` |
+| **Spacing tokens** | Imports from `../../../theme/tokens/spacing` |
+| **Composition constraint** | Cannot compose organisms or templates — molecule tier rule per `docs/raw/architecture/core/component-tiers.md:45-46` |
+| **State constraint** | Only UI presentation state (`useState` for zoom/rotation) — allowed per `docs/raw/architecture/invariants/stateless-ui.md:74-93` |
 
-## Risks
-- No custom error handler for `<img>` `onError` — corrupted images show browser's native broken image icon
-- No `displayName` set on component
-- `fileEncoding` typed as `string` in interface (not `"text" | "base64"` union) — runtime logic checks `=== "base64"` but TypeScript does not enforce the union
+## 11. Open Questions
 
-## Gaps
-- [Gap] `fileEncoding` prop type is `string | undefined` in interface but the component logic expects only `"text"` or `"base64"` — type should be narrowed to `"text" | "base64" | undefined` for better compile-time safety
-- [Gap] No test file (`ImageViewer.test.tsx`) — component has no test coverage
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| ImageViewer | `src/common/components/molecules/ImageViewer.tsx` | `ImageViewer` (component) | `react`, `@mui/material` (Box, Typography, IconButton), `@mui/icons-material/ZoomIn`, `@mui/icons-material/ZoomOut`, `@mui/icons-material/RotateRight`, `../../localization/LanguageContext`, `../../../theme/tokens/spacing` |
-| molecules index | `src/common/components/molecules/index.ts` | Re-exports `ImageViewer` | `./ImageViewer` |
-
----
-
-# Final Rule
-
-Image content arrives pre-loaded as base64 via props. No file system or network access. Zoom and rotation are UI-only internal state — not persisted, not lifted. Missing content or wrong encoding always shows a localized placeholder, never crashes.
+1. Should `fileEncoding` prop type be narrowed from `string` to `"text" | "base64" | undefined` for better compile-time safety? (Current: `string | undefined` — `"base64"` check is a runtime string comparison.)
+2. Should an `onError` handler be added to the `<img>` element to show the application's ErrorState component instead of the browser's native broken image icon?
+3. Should an `alt` attribute be set on the `<img>` element using `fileName` for screen reader accessibility?
+4. Should `aria-label` attributes be added to `IconButton` controls for better screen reader support?
+5. Should a test file be created (`ImageViewer.test.tsx`) to cover zoom, rotation, empty state, and error scenarios?

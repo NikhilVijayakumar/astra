@@ -1,168 +1,114 @@
-# FormLayout
+# FormLayout: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
+`FormLayout` (`src/common/components/organisms/FormLayout.tsx`) is a presentational page-level form wrapper organism that provides consistent vertical stacking for form pages. It defines three optional vertical slots — header (title), body (children), and footer (actions) — with a max-width constraint of 600px for readability.
 
-A presentational form layout organism that provides consistent vertical stacking for form pages. Defines three vertical slots — header (title), body (children), and footer (actions) — with a max-width constraint of 600px for readability.
+The component is a pure View with no state, no data fetching, and no form logic. It uses MUI `Box` and `Typography` primitives with theme tokens for all styling.
 
----
+## 2. Architecture Realization
 
-# Implementation Reference
+| Architecture Pattern | Realization |
+|---|---|
+| **Stateless UI** (invariant) | No `useState` or `useEffect` — pure function of props |
+| **Atomic Hierarchy** (component-tiers.md) | Organism — composes MUI atoms (`Box`, `Typography`) |
+| **Theme Sovereignty** (theming.md) | All spacing via `spacing.xl/lg/md`, text color via `palette.text.primary`, borders via `borderColor: 'divider'` |
+| **MVVM Separation** (mvvm-pattern.md) | Pure View — no ViewModel, no data fetching, no business logic |
+| **Dependency Safety** (dependencies.md) | Minimal imports: `@mui/material` (Box, Typography), `spacing` tokens |
+| **Platform Neutrality** (platform-abstraction.md) | Pure React + MUI — no platform-specific APIs |
+| **Localization** (localization.md) | Not used — `title` is a pre-translated string prop from parent |
 
-## Status
-
-Implemented
-
-## Source Files
-
-| File | Path | Role |
-|------|------|------|
-| Component | `src/common/components/organisms/FormLayout.tsx` | View — pure presentational |
-| Barrel | `src/common/components/organisms/index.ts` | Re-exports `FormLayout` |
-| Spacing tokens | `src/theme/tokens/spacing.ts` | Token imports |
-
-No test or story files exist.
-
-## Public API
-
-### Exports
+## 3. Data Flow
 
 ```
-FormLayout        (component)
-FormLayoutProps   (interface)
+Parent component
+  │
+  ├─► title?: string (optional)
+  ├─► children: React.ReactNode (required)
+  └─► actions?: React.ReactNode (optional)
+        │
+        ▼
+  FormLayout
+    │
+    ├─► Conditional: title && <Typography variant="h5">{title}</Typography>
+    ├─► <Box>{children}</Box>
+    └─► Conditional: actions && <Box sx={{ borderTop: 1, borderColor: 'divider' }}>{actions}</Box>
+        │
+        ▼
+  Vertical stacked layout with max-width: 600px
 ```
 
-### Import Path
+No data flows upward — no callbacks, no events.
 
-```typescript
-import { FormLayout } from "src/common/components/organisms/FormLayout";
-// or via barrel:
-import { FormLayout } from "src/common/components/organisms";
-```
+## 4. State Management
 
-### Props Interface
+**No state.** The component is a pure function of its props. No `useDataState`, no `useState`, no `useEffect`.
 
-```typescript
-interface FormLayoutProps {
-  title?: string;                  // optional — rendered as h5 typography header
-  children: React.ReactNode;       // required — form body content
-  actions?: React.ReactNode;       // optional — rendered in footer row
-}
-```
+The parent owns all form state via ViewModel hooks (`useDataState` for async operations, `useState` for form field values per state-management.md).
 
-### Contract
+## 5. Styling Implementation
 
-- `children` is required — TypeScript compilation fails if omitted
-- `title` and `actions` are optional — omitted sections produce no DOM
-- No runtime validation
-- No default values
+All styling uses MUI `sx` prop with theme tokens:
 
----
+| Token Path | Usage |
+|---|---|
+| `spacing.xl` (32px) | Vertical gap between header, body, footer sections |
+| `spacing.lg` (24px) | Padding inside the max-width container |
+| `spacing.md` (16px) | Padding on action footer row |
+| `palette.text.primary` | Title typography color |
+| `borderColor: 'divider'` | Top border separator on actions section (adapts to light/dark mode) |
 
-# Architecture Mapping
+The max-width constraint is applied via `<Box maxWidth={600}>` — hardcoded as an inline value. This is a **known risk**: the max-width is not configurable via props and violates Theme Sovereignty if considered a design token.
 
-| Pattern | Feature Usage | Reason |
-|---------|--------------|--------|
-| Stateless UI | Component owns no state | Pure function of props — no useState/useEffect |
-| Atomic Hierarchy | Organism | Composes Typography (atom), Box (layout primitive) |
-| Theme Sovereignty | All styling via theme tokens | `spacing.xl/lg/md`, `palette.text.primary`, `borderColor: 'divider'` |
-| MVVM Separation | Pure View | No data fetching, no business logic |
-| Dependency Safety | Minimal imports | Only MUI `Box`, `Typography`, and spacing tokens |
+## 6. Interaction Design
 
----
+**No built-in interactions.** The layout is a passive structural wrapper. All interactive elements (buttons, inputs, toggles) are provided by the parent via `children` and `actions` slots.
 
-# Technical Structure
+## 7. Accessibility Implementation
 
-## Views
+| Requirement | Status | Implementation |
+|---|---|---|
+| Semantic heading | ⚠️ Partial | `title` rendered as `<Typography variant="h5">` — provides `<h5>` element when title exists |
+| Landmark regions | ❌ | No `role="form"` or `aria-label` on the layout wrapper |
+| Form association | ❌ | No `id` or `aria-labelledby` — form fields in `children` must associate themselves |
+| Focus management | ❌ | Not applicable (no interactive elements in layout itself) |
+| Keyboard navigation | ❌ | Not applicable (passive wrapper) |
 
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|-----------------|--------------|
-| `FormLayout` | `src/common/components/organisms/FormLayout.tsx` | Form page layout wrapper | Render optional title header, required children body, optional actions footer with consistent spacing | MUI (`Box`, `Typography`), `spacing` |
+## 8. Error Handling
 
-No ViewModel — component is purely presentational.
+| Error Type | Cause | Behavior |
+|---|---|---|
+| Missing `children` | `children` prop omitted | TypeScript compilation error (required prop) |
+| No `title` | Prop omitted | Header section not rendered — form appears without title |
+| No `actions` | Prop omitted | Footer row not rendered — form appears without action buttons |
+| Empty `children` | `<FormLayout></FormLayout>` | Empty flex column rendered — invisible to user |
+| Single child | One ReactNode as children | Renders normally without extra spacing issues |
+| Very long title | Title string exceeds container width | Text wraps naturally — no truncation |
 
-## State Model
+## 9. Performance Considerations
 
-No state — stateless layout wrapper.
+| Factor | Analysis |
+|---|---|
+| Time complexity | O(1) — single-pass render, no iteration |
+| Re-render behavior | Re-renders only when `title`, `children`, or `actions` change |
+| DOM size | Minimal: 3-4 Box elements + 1 Typography (when all slots occupied) |
+| Conditional rendering | Header and footer slots produce zero DOM when omitted (short-circuit `&&`) |
 
-## Workflow Design
+## 10. Integration Points
 
-No workflows — component is a structural layout element.
+| Integration | Details |
+|---|---|
+| **Parent page** | Any feature page requiring a form layout. Parent provides form content as `children` |
+| **Barrel export** | `src/common/components/organisms/index.ts` re-exports `FormLayout`, `FormLayoutProps` |
+| **PageHeader template** | Often used together — `PageHeader` above, `FormLayout` below for page-level form structure |
+| **Theme provider** | Requires MUI `ThemeProvider` ancestor for theme token resolution |
+| **Language provider** | Not required — `title` is a pre-translated string prop from parent |
 
----
+## 11. Open Questions
 
-# Validation Design
-
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|-----------------|-------------------|
-| `children` required | TypeScript compilation | TS error: missing required prop | N/A — compile-time |
-
----
-
-# Error Handling
-
-| Error Type | Cause | System Response | User Response |
-|-----------|-------|----------------|---------------|
-| No `title` | Prop omitted | Header section not rendered | Form appears without title |
-| No `actions` | Prop omitted | Footer row not rendered | Form appears without action buttons |
-| Empty `children` | `<FormLayout></FormLayout>` | Empty flex column rendered — invisible to user | Page appears blank |
-| Single child | One ReactNode as children | Renders normally without extra spacing | No visible issue |
-
----
-
-# Non-Functional Requirements
-
-## Performance
-
-- Single-pass render — no effects, no state
-- Conditional rendering of header/footer via `&&` — minimal DOM when slots omitted
-
-## Reliability
-
-- Max-width constraint (`600px`) enforced via `Box` wrapper — prevents line-length readability degradation
-- Border-top separator on actions slot uses theme `divider` color — automatically adapts to light/dark mode
-
-## Maintainability
-
-- Three clearly defined slots with independent conditional rendering
-- No internal state — trivially testable via props assertion
-- Single file — no supporting data types file needed
-
----
-
-# Architecture Compliance Review
-
-## Applied Patterns
-
-- **Stateless UI**: Full compliance
-- **Atomic Hierarchy**: Full compliance — organism tier, composes atoms only
-- **Theme Sovereignty**: Full compliance — no hardcoded values
-- **MVVM Separation**: Full compliance — pure View
-- **Repository Isolation**: N/A
-- **Localization**: N/A — `title` is a pre-translated string prop from parent
-
-## Risks
-
-- Max-width is hardcoded at 600px — not configurable. Future enhancement: add `maxWidth` prop
-- No `id` or `aria-label` on any rendered section — accessibility gap
-
-## Gaps
-
-- No localization — title is received as pre-translated string, which is compliant but shifts responsibility to parent
-- No form-level validation summary slot (noted as open question in spec)
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| `FormLayout` | `src/common/components/organisms/FormLayout.tsx` | `FormLayout`, `FormLayoutProps` | `react`, `@mui/material`, `spacing` |
-| Barrel | `src/common/components/organisms/index.ts` | `FormLayout` | re-exports from `FormLayout` |
-
----
-
-# Final Rule
-
-The component must never manage form state, validation, submission, or lifecycle events — it is a structural layout slot machine only. Any additional visual behavior (loading skeletons, sticky actions footer) must be added via new props as optional features, never as mandatory behaviors.
+1. Should `maxWidth` be a configurable prop (currently hardcoded 600px)?
+2. Should a `loading` prop be added to render skeleton placeholders while form data loads?
+3. Should the actions footer be sticky at the bottom of the viewport for long forms?
+4. Should `aria-label` or `role="form"` be added to the wrapper for accessibility?
+5. Should the title support a `titleComponent` prop for rendering custom heading levels (h2, h3, etc.)?
+6. Should a form-level validation summary slot be added as a fourth section?

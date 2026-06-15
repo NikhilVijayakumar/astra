@@ -1,165 +1,90 @@
-# EmptyState - Technical Specification
+# EmptyState: Feature Technical
 
-# Overview
+## 1. Technical Overview
 
-A self-contained atomic component that renders a centered "No data found" text indicator. The component accepts no props — text is resolved entirely through the `useLanguage` localization context via key `no_data_found`. It is the empty-data counterpart in the state atom trio.
+EmptyState is a primitive atomic component that displays a centered "No data found" indicator. Zero-configuration — accepts no props and resolves its text through the localization system. Renders as a `<Typography>` element with neutral visual treatment. Zero state, zero side effects, zero data dependencies beyond localization context.
 
-# Feature Summary
+## 2. Architecture Realization
 
-Renders a `<Box>` with centered text alignment containing a `<Typography>` displaying the localized string from key `no_data_found`. Uses theme spacing tokens for padding and margin. The component has no input props, no internal state, no interaction surface, and no conditional rendering.
+| Architecture Document | Realization |
+|--- |--- |
+| `core/component-tiers.md:18-30` — Atom rules | Renders single `<Typography>` element (one primitive). Accepts no props. NO composition, NO business logic, NO data management. |
+| `invariants/atomic-hierarchy.md:22-37` — Atom boundary | Imports from `@mui/material` (`Box`, `Typography`) and localization hook. No imports from higher tiers. |
+| `invariants/stateless-ui.md:20-36` — Stateless UI | Pure function of localization context. No `useState`, no `useEffect`, no side effects. |
+| `invariants/theme-sovereignty.md:22-38` — Theme tokens | Colors via theme tokens (`'text.secondary'` or similar muted color). Spacing via theme spacing tokens. |
+| `invariants/public-api-stability.md:18-36` — Public API | `EmptyState` component and `EmptyStateProps` interface exported via barrel. Named export only. |
+| `invariants/dependency-safety.md:18-36` — Dependency control | `react`, `@mui/material` (`Box`, `Typography`), `useLanguage` hook. Minimal surface. |
 
-# Implementation Reference
+## 3. Data Flow
 
-## Status
-Implemented
-
-## Source Files
-
-| File | Path |
-|------|------|
-| Component source | `src/common/components/atoms/EmptyState.tsx` |
-| Component tests | `src/common/components/atoms/EmptyState.test.tsx` |
-| Component stories | `src/common/components/atoms/EmptyState.stories.tsx` |
-| Barrel export | `src/common/components/atoms/index.ts` |
-
-## Public API
-
-### Exported Symbols
-
-```typescript
-// File: src/common/components/atoms/EmptyState.tsx
-
-const EmptyState: FC;
-export default EmptyState;
+```
+Parent Component renders EmptyState (no props)
+  │
+  ▼
+EmptyState
+  │
+  └── useLanguage().literal['empty.text'] ──→ localized "No data found" message
+      │
+      ▼
+  <Box sx={{ display: 'flex', ... }}>
+    └── <Typography>
+          {literal['empty.text']}
+        </Typography>
+  </Box>
 ```
 
-### Barrel Re-export
+Data flows exclusively from localization context → component. No parent-to-child prop passing.
 
-```typescript
-// src/common/components/atoms/index.ts
-export { default as EmptyState } from './EmptyState';
-```
+## 4. State Management
 
-The component is a **default export** re-exported as a named export from the barrel:
+- No component state.
+- `useLanguage()` hook reads from `LanguageProvider` context.
+- Parent manages the empty/data state transition by conditionally rendering EmptyState vs. content.
 
-```typescript
-import { EmptyState } from '@/common/components/atoms';
-// or
-import EmptyState from '@/common/components/atoms/EmptyState';
-```
+## 5. Styling Implementation
 
-No type exports are provided (no props interface exists).
+- **Layout**: Flexbox centering (identical pattern to `LoadingState` and `ErrorState` for visual consistency across all state atoms).
+- **Width**: `width: '100%'` to fill parent container.
+- **Typography**: Neutral text color via theme (`'text.secondary'` or similar).
+- **Spacing**: Theme spacing tokens for padding.
+- **Visual treatment**: Muted, non-intrusive styling to clearly signal absence of data without alarming the user.
 
----
+## 6. Interaction Design
 
-# Architecture Mapping
+No user interactions. EmptyState is a purely passive "no data" indicator.
 
-| Pattern | Feature Usage | Reason |
-|---------|---------------|--------|
-| **Atom (Atomic Hierarchy)** | Single `<Typography>` inside a `<Box>` | Renders only MUI primitives; no user component composition. |
-| **Stateless UI** | No state, no effects, no callbacks | Pure render function — output determined solely by `useLanguage` context. |
-| **Theme Sovereignty** | `color="text.secondary"` via Typography prop; spacing via `spacing.lg`, `spacing.xl` tokens | All visual properties derive from theme; no hardcoded values. |
-| **Localization** | `literal.no_data_found` via `useLanguage()` | No hardcoded string — full locale support through context. |
-| **Public API Stability** | Default export with barrel rename | Stable import path; zero props means zero breaking changes to the API surface. |
-| **Dependency Safety** | Imports `FC` from `react`, `Box`/`Typography` from `@mui/material`, `useLanguage` from local context, `spacing` from theme tokens | Minimal imports; tree-shakeable. |
+## 7. Accessibility Implementation
 
----
+- **Gap**: No `role="status"` or `aria-live="polite"` to announce empty state to screen readers.
+- Text content is readable but dynamic appearance may not be announced.
+- **Gap**: No semantic association with the content area it replaces.
 
-# Technical Structure
+## 8. Error Handling
 
-## Views
+| Condition | Behavior |
+|--- |--- |
+| Missing localization key `'empty.text'` | `literal['empty.text']` returns `undefined` — renders with no visible text |
+| Parent container has no defined height | Flexbox centering may not be visible if container has zero height |
+| Multiple instances | Each renders independently — no coordination or deduplication |
 
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|------------------|--------------|
-| `EmptyState` (single view) | `src/common/components/atoms/EmptyState.tsx` | Renders centered "No data found" text | Create `<Box>` with `textAlign: "center"`, `p: spacing.lg`, `mt: spacing.xl`; render `<Typography variant="body1" color="text.secondary">` with localized `no_data_found` text | `react` (`FC`), `@mui/material` (`Box`, `Typography`), `../../localization/LanguageContext` (`useLanguage`), `../../../theme/tokens/spacing` (`spacing`) |
+No errors thrown. Component always renders the `<Box>` container regardless of text availability.
 
-The component has one view with one child Typography. No sub-views, no conditional rendering.
+## 9. Performance Considerations
 
----
+- Single `<Box>` containing `<Typography>` — minimal DOM footprint.
+- `useLanguage()` subscription triggers re-render on language change.
+- Zero-config design means no prop change detection overhead.
+- Re-renders only when parent re-renders or language changes.
 
-# Validation Design
+## 10. Integration Points
 
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|------------------|-------------------|
-| No props accepted | Consumer passes any prop | TypeScript compile error (empty interface `FC`) | Remove extraneous props |
-| Localization key `no_data_found` exists | Component renders | Typography shows `literal.no_data_found` | N/A |
-| Localization key `no_data_found` missing | Translation object lacks key | Typography renders empty — no visible text | Add `no_data_found` to translation files |
-| Language context missing | Component rendered outside `LanguageProvider` | `useLanguage()` throws runtime error | Wrap consumer in `LanguageProvider` |
+- **Consumers**: Typically rendered by `AppStateHandler` organism when `state.isSuccess === true` and `state.data` is null/empty.
+- **Localization**: Reads `empty.text` key from translation dictionaries.
+- **Sibling atoms**: Part of state atom trio with `LoadingState` (loading display) and `ErrorState` (error display). All three share the same centering pattern, full-width layout, and localization hook usage.
+- **Barrel export**: Re-exported via `src/common/components/atoms/index.ts`.
 
-No runtime validation is performed. All constraints are enforced by TypeScript or the React context system.
+## 11. Open Questions
 
----
-
-# Error Handling
-
-| Error Type | Cause | System Response | User Response |
-|------------|-------|-----------------|---------------|
-| Missing localization key | Translation file lacks `no_data_found` | `literal.no_data_found` resolves to `undefined`; Typography renders empty | No visible content — empty page section with no explanation |
-| Missing `LanguageProvider` | Component rendered outside provider | `useLanguage()` throws runtime error | Application crashes (white screen / error boundary) |
-| Missing theme context | Component rendered outside `ThemeProvider` | MUI defaults apply; text color may not match design | Text renders in default black |
-
-No error boundary is provided. Errors propagate to the parent.
-
----
-
-# Non-Functional Requirements
-
-## Performance
-
-- Renders 2 DOM nodes (Box > Typography). No animated elements.
-- No internal state or effects — re-render only on context change or parent re-render.
-- Lightest component in the atom set — no icons, no complex layout, no animations.
-
-## Reliability
-
-- Zero-prop interface eliminates all prop-related errors.
-- If the localization key is missing, the Box still renders (empty Typography) — layout space is preserved.
-- Spacing uses theme tokens — consistent with LoadingState and ErrorState layouts.
-
-## Maintainability
-
-- Zero-prop API means zero migration burden when changing internal implementation.
-- Changing the empty message requires only updating the translation key value — no component code changes.
-- Structural twin of LoadingState (same pattern: flex-centered Box + Typography with localized text) — shared mental model.
-
----
-
-# Architecture Compliance Review
-
-## Applied Patterns
-
-- Stateless UI — fully compliant (no state, no effects).
-- Atom tier — composes only MUI primitives (Box, Typography).
-- Theme sovereignty — text color and spacing via theme tokens.
-- Localization — text via `useLanguage` context, no hardcoded strings.
-- Public API — stable default export, zero props.
-
-## Risks
-
-- **No props interface for extensibility**: The component cannot accept a custom message, action button, or illustration slot. The feature spec lists these as future enhancements but the current API precludes them without a breaking change (adding props would widen the implicit `{}` interface).
-- **Typographic coupling**: `variant="body1"` is hardcoded. If the consumer's theme redefines `body1` to be inappropriate for empty-state messaging, there is no override.
-- **No min-height enforcement**: When populated content loads, the area may shift. The feature spec recommends evaluating a min-height to prevent layout shift, but none is implemented.
-
-## Gaps
-
-- Action button slot (feature spec "Future Enhancements") — not implemented.
-- Illustration or icon slot — not implemented.
-- Custom message prop — not implemented.
-- Min-height to prevent layout shift — not implemented.
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| Component | `src/common/components/atoms/EmptyState.tsx` | `EmptyState` (default export) | `react` (`FC`), `@mui/material` (`Box`, `Typography`), `../../localization/LanguageContext` (`useLanguage`), `../../../theme/tokens/spacing` (`spacing`) |
-| Barrel | `src/common/components/atoms/index.ts` | `EmptyState` (renamed default export) | `./EmptyState` |
-| Tests | `src/common/components/atoms/EmptyState.test.tsx` | None | `@testing-library/react`, `vitest`, `./EmptyState` |
-| Stories | `src/common/components/atoms/EmptyState.stories.tsx` | Default | `@storybook/react`, `./EmptyState` |
-
----
-
-# Final Rule
-
-EmptyState is a self-contained, zero-prop atomic empty-data indicator. It must always render a centered text message derived from the localization context key `no_data_found`. The component must never accept props, manage state, or compose user-defined components. It is the empty-data counterpart in the state atom trio (LoadingState, ErrorState, EmptyState), sharing the same structural pattern of centered Box + localized Typography text.
+1. Should EmptyState accept an optional custom message prop for domain-specific empty messages (e.g., "No results match your filter")?
+2. Should EmptyState include an optional illustration or icon to visually differentiate from a truly blank/error state?
+3. Should empty-data logic (checking `state.data === null` or `state.data.length === 0`) be handled by this component or remain in the parent/`AppStateHandler`?

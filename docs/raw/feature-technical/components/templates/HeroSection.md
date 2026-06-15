@@ -1,179 +1,142 @@
-# HeroSection — Technical Blueprint
+# HeroSection: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
-
-A high-impact landing-style template with a prominent headline, optional description, optional primary action button, optional children slot, and 7 entrance animation variants powered by framer-motion. Includes a typewriter effect for headline text.
-
----
-
-# Implementation Reference
-## Status
-Implemented
-
-## Source Files
-| File | Purpose |
-|------|---------|
-| `src/common/components/templates/HeroSection.tsx` | Component implementation |
-| `src/common/components/templates/HeroSection.test.tsx` | Unit tests (vitest) |
-| `src/common/components/templates/index.ts` | Barrel re-export |
-| `src/theme/tokens/spacing.ts` | Spacing token dependency |
-| `src/theme/tokens/colors.ts` | Color token dependency (Button styling) |
-
-## Public API
+`HeroSection` is a template-tier component at `src/common/components/templates/HeroSection.tsx`. It renders a high-impact landing section with a prominent headline (required), optional description, optional primary action button, optional children slot, and 7 entrance animation variants powered by `framer-motion`. Includes a `TypewriterHeadline` sub-component for character-by-character reveal animation. Exported via `src/common/components/templates/index.ts` → `src/lib.ts`. Consumed as `import { HeroSection } from 'astra'`.
 
 ```typescript
-// Exported from src/common/components/templates/index.ts → lib.ts
-export type AnimationVariant =
-  | "fade-up"
-  | "fade-in"
-  | "slide-left"
-  | "slide-right"
-  | "scale-up"
-  | "stagger-fade"
-  | "typewriter";
+type AnimationVariant =
+  | "fade-up" | "fade-in" | "slide-left" | "slide-right"
+  | "scale-up" | "stagger-fade" | "typewriter";
 
-export interface HeroSectionProps {
+interface HeroSectionProps {
   headline: string;
   description?: string;
   primaryActionLabel?: string;
   onPrimaryAction?: () => void;
   children?: ReactNode;
-  enableAnimation?: boolean;
-  animationVariant?: AnimationVariant;
-  animationDuration?: number;    // default: 600
-  animationDelay?: number;       // default: 0
-  animationStagger?: number;     // default: 100
+  enableAnimation?: boolean;      // default: true
+  animationVariant?: AnimationVariant;  // default: "fade-up"
+  animationDuration?: number;     // default: 600
+  animationDelay?: number;        // default: 0
+  animationStagger?: number;      // default: 100
 }
-
-export const HeroSection: FC<HeroSectionProps>;
 ```
 
----
+## 2. Architecture Realization
 
-# Architecture Mapping
-| Pattern | Feature Usage | Reason |
-|---------|--------------|--------|
-| Atomic Hierarchy | Template tier | Composes MUI atoms (Box, Typography, Button) and framer-motion `motion` wrappers. Defines section-level flex layout. No business logic. |
-| Stateless UI | Partially compliant | Uses `useState` + `useEffect` inside internal `TypewriterHeadline` sub-component for animation timing. This is UI-only presentation state (character reveal), not domain state. Framer-motion manages its own internal state for entrance animations. |
-| Theme Sovereignty | Partially compliant | Spacing via `spacing.ts` tokens. Colors for headline/description via MUI theme paths. Button uses **hardcoded** `colors.primary` / `colors.primaryHover` from token constants — this violates theme sovereignty (should use `sx` theme path or `theme.palette.primary.main`). |
-| Localization | Not yet applied | `headline`, `description`, `primaryActionLabel` are raw string props — consumer must pass translated strings. |
-| Dependency Safety | Uses framer-motion | Imports `motion` from `framer-motion`. Must ensure peer dependency is declared. |
-| Public API Stability | Stable | Exported via barrel from `templates/index.ts`. All 8 animation variant strings are public API. |
+| Architecture Pattern | Realization |
+|---|---|
+| **Atomic Hierarchy** | Template tier — composes MUI atoms (Box, Typography, Button) and framer-motion `motion.*` wrappers. Section-level layout. No business logic. See `docs/raw/architecture/core/component-tiers.md`. |
+| **Stateless UI** | Partially compliant per `docs/raw/architecture/invariants/stateless-ui.md`. Uses `useState` + `useEffect` inside `TypewriterHeadline` for character reveal timing — this is UI presentation state (animation), not domain state. Framer-motion manages its own internal state for entrance animations. |
+| **Theme Sovereignty** | Partially compliant — spacing via `spacing.ts` tokens; colors via MUI theme paths for headline/description. **Violation**: Button uses hardcoded `colors.primary` / `colors.primaryHover` from token constants with `color="#fff"` instead of MUI theme path `theme.palette.primary.main`. See `docs/raw/architecture/invariants/theme-sovereignty.md`. |
+| **Localization** | `headline`, `description`, `primaryActionLabel` are raw string props — consumer must pass translated strings via `useLanguage()`. See `docs/raw/architecture/core/localization.md`. |
+| **Public API Stability** | Stable — exported via barrel from `templates/index.ts`. All 7 animation variant strings are public API. See `docs/raw/architecture/core/api-surface.md`. |
+| **Dependency Safety** | Adds `framer-motion` as runtime dependency. Must be declared as peer dependency in consumer `package.json`. See `docs/raw/architecture/core/dependencies.md`. |
 
----
+## 3. Data Flow
 
-# Technical Structure
-
-## Views
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|------------------|--------------|
-| HeroSection | `src/common/components/templates/HeroSection.tsx` | Render hero section | Flex column layout (800px max-width), headline + description + action button + children, 7 animation variants, typewriter sub-component | `react`, `@mui/material`, `framer-motion`, `theme/tokens/spacing`, `theme/tokens/colors` |
-
-## Data Flow Sequence
 ```
 Consumer passes props
-  → HeroSection selects animation config from `animationConfigs` lookup
-    → Headline: motion.div (animated) OR TypewriterHeadline OR static Typography
-      → TypewriterHeadline manages useState for character reveal via setInterval
-    → Description (optional): motion.div (animated) OR static, delay = duration
-    → Button (optional): motion.div (animated) OR static, delay = duration * 1.5
-    → Children (optional): motion.div (animated) OR static Box, delay = duration * 2
+  → HeroSection reads enableAnimation
+    → false: renders all content statically (no motion.* wrappers)
+    → true: selects animation config from animationConfigs lookup
+      → Headline: motion.div (animated) OR TypewriterHeadline OR static Typography
+        → TypewriterHeadline: useState for character reveal via setInterval
+      → Description (optional): motion.div with calculated delay OR static
+      → Button (optional): motion.div with calculated delay OR static
+      → Children (optional): motion.div with calculated delay OR static Box
 ```
 
-## Animation Timing
+Animation timing:
+
 | Element | Delay Formula |
-|---------|---------------|
+|---|---|
 | Headline | `animationDelay` |
 | Description | `animationDelay + animationDuration` |
 | Action Button | `animationDelay + animationDuration * 1.5` |
 | Children | `animationDelay + animationDuration * 2` |
 
-## `animationConfigs` (internal constant)
+Internal `animationConfigs` constant maps variant strings to framer-motion `initial`/`animate` objects:
+
 ```typescript
 const animationConfigs = {
   "fade-up":         { initial: { opacity: 0, y: 20 },    animate: { opacity: 1, y: 0 } },
   "fade-in":         { initial: { opacity: 0 },            animate: { opacity: 1 } },
   "slide-left":      { initial: { opacity: 0, x: -30 },   animate: { opacity: 1, x: 0 } },
   "slide-right":     { initial: { opacity: 0, x: 30 },   animate: { opacity: 1, x: 0 } },
-  "scale-up":        { initial: { opacity: 0, scale: 0.9 },animate: { opacity: 1, scale: 1 } },
+  "scale-up":        { initial: { opacity: 0, scale: 0.9 }, animate: { opacity: 1, scale: 1 } },
   "stagger-fade":    { initial: { opacity: 0, y: 10 },   animate: { opacity: 1, y: 0 } },
-  typewriter:        { initial: { opacity: 0 },            animate: { opacity: 1 } },
+  "typewriter":      { initial: { opacity: 0 },            animate: { opacity: 1 } },
 };
 ```
 
-## Invariant Rules
-- `headline` is required string — TypeScript enforced
-- `enableAnimation` defaults to `true`
-- `animationVariant` defaults to `"fade-up"`
-- `animationDuration` defaults to `600`, `animationDelay` to `0`, `animationStagger` to `100`
-- Typewriter variant disables framer-motion on non-headline elements (description, button, children render static)
-- `enableAnimation === false` renders all content static — no `motion.*` wrappers
-- Button uses hardcoded theme token colors (`colors.primary`, `colors.primaryHover`) with `color="#fff"` hardcoded
+## 4. State Management
 
----
+- **HeroSection**: No state beyond props. Stateless aside from animation orchestration.
+- **TypewriterHeadline (internal sub-component)**: Uses `useState` for character index tracking and `useEffect` with `setInterval` for character reveal timing. State is strictly UI presentation scope (character index), not domain data.
+- **Framer-motion**: Manages internal animation state (opacity, transform) — not React state, not observable.
+- **No `useDataState`**: No async data — compliant with template-tier rules per `docs/raw/architecture/core/state-management.md`.
 
-# Validation Design
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|-----------------|-------------------|
-| `headline` is string | TypeScript | Compilation error | Fix call-site |
-| All other props optional | Runtime conditionals | Respective sections omitted | N/A — valid states |
-| `enableAnimation=false` | Runtime check | All content renders statically | N/A — valid state |
-| Typewriter + empty headline | Runtime | Cursor blinks with no characters | Consumer should provide text |
-| Invalid `animationVariant` string | TypeScript | Compilation error (union type) | Use valid variant string |
+## 5. Styling Implementation
 
----
+- **Layout**: Outer `Box` with flex column, `maxWidth: 800px`, centered via `margin: "0 auto"`, `textAlign: "center"`, `padding` via `spacing.xl`
+- **Headline**: `Typography variant="h2"`, `fontWeight: 700` via `sx`, `color="text.primary"`
+- **Description**: `Typography variant="body1"`, `color="text.secondary"`
+- **Button**: **Styled via hardcoded token constants** — `backgroundColor: colors.primary`, `"&:hover": { backgroundColor: colors.primaryHover }`, `color: "#fff"` — this violates Theme Sovereignty (should reference `theme.palette.primary.main`)
+- **Spacing**: Inter-element gaps via `spacing.md`, `spacing.lg` from `src/theme/tokens/spacing.ts`
 
-# Error Handling
-| Error Type | Cause | System Response | User Response |
-|------------|-------|-----------------|---------------|
-| Missing `headline` | Consumer omits required prop | TypeScript compilation error | Provide `headline` |
-| Empty `headline` string | Consumer passes `""` | Typewriter renders empty; static renders empty Typography | Pass non-empty string |
-| Missing `onPrimaryAction` | Consumer omits callback | Button renders without click handler | Provide `onPrimaryAction` if interaction needed |
-| Framer-motion animation error | Motion lib runtime | Component degrades to static render (motion.div wraps content regardless) | Check framer-motion peer dependency |
-| All flag errors | — | Errors propagate to parent — no error boundary | Wrap with ErrorBoundary |
+## 6. Interaction Design
 
----
+- **Primary action button**: MUI `<Button>` with `onClick={onPrimaryAction}`. If `onPrimaryAction` is undefined, the button still renders but is non-functional.
+- **Animation entrance**: Content animates in on mount (or on viewport entry) — no user interaction required to trigger.
+- **Typewriter effect**: Headline reveals characters sequentially. After completion, cursor blinks (CSS `@keyframes` blink animation).
+- **No hover/focus animations**: No additional interaction beyond MUI Button defaults.
 
-# Non-Functional Requirements
-- **Performance**: `TypewriterHeadline` uses `setInterval` — Component unmounts during animation will leak interval if `useEffect` cleanup is missed (currently handles cleanup).
-- **Accessibility**: `prefers-reduced-motion` not respected — `enableAnimation` must be set externally. Typewriter text is revealed visually only (no aria-live region).
-- **Bundle**: Adds `framer-motion` as runtime dependency. MUI Box, Typography, Button.
-- **Testability**: 11 tests cover render, conditional slots, animation toggle, all 7 variants, duration/delay props.
-- **Responsive**: Max-width 800px container. No intrinsic wrap behavior — consumer must add responsive override via wrapper.
+## 7. Accessibility Implementation
 
----
+- **`prefers-reduced-motion`**: NOT respected. `enableAnimation` is a prop-based toggle — consumer must detect `prefers-reduced-motion` via `window.matchMedia("(prefers-reduced-motion: reduce)")` and pass `enableAnimation={false}`. See risk/gap in `docs/raw/architecture/invariants/stateless-ui.md`.
+- **Typewriter**: No `aria-live="polite"` region — screen readers do not announce progressively revealed text. The full headline text should be set as `aria-label` on the container.
+- **Button**: Native MUI `<Button>` provides keyboard focusability and ARIA button role.
+- **No landmark role**: Outer container has no `role="banner"` or `aria-label`. Consumer should wrap appropriately.
 
-# Architecture Compliance Review
-## Applied Patterns
-- Template tier — section-level layout composition
-- Animation orchestration with staggered delays
-- Slot-based composable sections (headline, description, action, children)
-- Animation config as component props pattern
+## 8. Error Handling
 
-## Risks
-- **Theme sovereignty violation**: Button uses `colors.primary` hardcoded value and `color: "#fff"` instead of theme path — breaks dark mode and consumer theming. See `src/common/components/templates/HeroSection.tsx:201-207`.
-- Framer-motion peer dependency must be declared in `package.json` — missing it causes runtime errors.
-- Typewriter `setInterval` is an animation concern embedded inside a component — consider extracting to a dedicated animation utility.
+| Condition | Behavior |
+|---|---|
+| Missing `headline` | TypeScript compilation error (required prop) |
+| Empty `headline` (`""`) | Typewriter renders blinking cursor with no characters; static renders empty Typography |
+| Missing `description` | Description slot omitted |
+| Missing `primaryActionLabel` | Button omitted |
+| Missing `onPrimaryAction` | Button renders without click handler |
+| `enableAnimation=false` | All content renders statically — valid state |
+| Invalid `animationVariant` | TypeScript compilation error (union type) |
+| Framer-motion runtime error | Content degrades to static (motion.div wraps content regardless) — error propagates to parent |
+| Typewriter interval on unmount | `useEffect` cleanup clears `setInterval` — currently handled |
 
-## Gaps
-- No `prefers-reduced-motion` OS-level media query respect
-- No `aria-live="polite"` on typewriter-revealed text for screen readers
-- No secondary action button slot
-- No background image/gradient overlay support
-- Localization invariant not enforced internally
+## 9. Performance Considerations
 
----
+- **Typewriter**: Uses `setInterval` — cleanup handled in `useEffect` return. Interval interval is derived from `animationStagger` (default 100ms). For long headlines, animation time = `headline.length * 100ms`.
+- **Framer-motion**: Animations are GPU-accelerated (opacity, transform). No layout thrashing.
+- **Bundle cost**: Adds `framer-motion` as runtime dependency (~30KB gzipped). MUI Box, Typography, Button.
+- **No `React.memo`**: Parent re-render triggers HeroSection re-render. Each animated element is a `motion.div` — framer-motion optimizes internal renders.
+- **No scroll-based animations**: Animations trigger on mount only. No `IntersectionObserver` or scroll listeners.
 
-# Module Map
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| HeroSection | `src/common/components/templates/HeroSection.tsx` | `HeroSection`, `AnimationVariant`, `HeroSectionProps` | `react`, `@mui/material` (`Box`, `Typography`, `Button`), `framer-motion`, `theme/tokens/spacing`, `theme/tokens/colors` |
-| templates barrel | `src/common/components/templates/index.ts` | `HeroSection`, `PageHeader`, `SummaryPanel`, all related types | re-exports from individual modules |
+## 10. Integration Points
 
----
+| Integration | Mechanism |
+|---|---|
+| **Consumer app** | Import `{ HeroSection }` from `astra`. Pass headline + optional props. |
+| **Localization** | Consumer resolves `headline`, `description`, `primaryActionLabel` via `useLanguage().literal[key]` before passing as props. |
+| **Theming** | MUI `ThemeProvider` must be ancestor. Button **must be migrated** from hardcoded `colors.primary` to `sx={{ backgroundColor: 'primary.main' }}` for dark mode support. |
+| **Animation customization** | Consumer tunes `animationVariant`, `duration`, `delay`, `stagger` per instance. |
+| **Reduced motion** | Consumer detects `prefers-reduced-motion` and passes `enableAnimation={false}`. |
+| **Page routing** | `onPrimaryAction` calls consumer's navigation or modal trigger. |
 
-# Final Rule
+## 11. Open Questions
 
-HeroSection must remain a stateless (except UI animation state) template tier component. The `TypewriterHeadline` internal component is the only allowed stateful element, and its state is strictly presentation-scoped (character reveal timing). The Button's color values must be migrated from hardcoded token constants to MUI theme paths (`sx` with `backgroundColor: 'primary.main'`) to satisfy Theme Sovereignty. No data fetching, business logic, or domain state may be added.
+- Should `animationDuration`, `animationDelay`, and `animationVariant` defaults be configurable at a theme or provider level instead of per-instance?
+- What is the expected behavior when `animationVariant="typewriter"` is combined with `enableAnimation=false` — should typewriter be treated as animation or text presentation?
+- Should the Button be migrated from hardcoded `colors.primary` to MUI theme path — and if so, should this be a breaking change for consumers relying on the current brand color?
+- Should a secondary action button slot be added for multi-CTA hero layouts?
+- Should `prefers-reduced-motion` be detected internally or remain a consumer responsibility?

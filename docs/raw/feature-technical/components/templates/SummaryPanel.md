@@ -1,35 +1,16 @@
-# SummaryPanel — Technical Blueprint
+# SummaryPanel: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
-
-A bordered panel template that renders a title header and a mapped array of `SummaryLine` text entries with variant-based typography hierarchy (`body2` inline / `caption` block).
-
----
-
-# Implementation Reference
-## Status
-Implemented
-
-## Source Files
-| File | Purpose |
-|------|---------|
-| `src/common/components/templates/SummaryPanel.tsx` | Component implementation |
-| `src/common/components/templates/SummaryPanel.test.tsx` | Unit tests (vitest) |
-| `src/common/components/templates/index.ts` | Barrel re-export |
-| `src/theme/tokens/spacing.ts` | Token dependency |
-
-## Public API
+`SummaryPanel` is a template-tier component at `src/common/components/templates/SummaryPanel.tsx`. It renders a bordered panel with a title header and a mapped array of `SummaryLine` entries, each configurable with variant-based typography (`body2` inline / `caption` block) for visual hierarchy. Exported via `src/common/components/templates/index.ts` → `src/lib.ts`. Consumed as `import { SummaryPanel } from 'astra'`.
 
 ```typescript
-// Exported from src/common/components/templates/index.ts → lib.ts
-export interface SummaryLine {
+interface SummaryLine {
   text: string;
   variant?: "body2" | "caption";
 }
 
-export interface SummaryPanelProps {
+interface SummaryPanelProps {
   title: string;
   lines: SummaryLine[];
 }
@@ -37,103 +18,85 @@ export interface SummaryPanelProps {
 export const SummaryPanel: FC<SummaryPanelProps>;
 ```
 
----
+## 2. Architecture Realization
 
-# Architecture Mapping
-| Pattern | Feature Usage | Reason |
-|---------|--------------|--------|
-| Atomic Hierarchy | Template tier | Composes MUI atoms (Box, Typography). Defines section-level layout. No business logic. |
-| Stateless UI | Fully compliant | Props-only (`title`, `lines`). No useState, no effects, no API calls. Pure render function. |
-| Theme Sovereignty | Token-based | Uses `spacing.lg`, `spacing.sm` from theme tokens. Border, radius, colors via MUI sx theme path. |
-| Localization | Not yet applied | `title` and `line.text` are raw string props — consumer must pass translated strings. |
-| Dependency Safety | Minimal | Depends only on React, MUI Box/Typography, internal spacing token. |
-| Public API Stability | Stable | Exported via barrel from `templates/index.ts`. `SummaryPanelProps` and `SummaryLine` are public types. |
+| Architecture Pattern | Realization |
+|---|---|
+| **Atomic Hierarchy** | Template tier — composes MUI atoms (Box, Typography). Section-level layout only. No business logic. See `docs/raw/architecture/core/component-tiers.md`. |
+| **Stateless UI** | Fully compliant per `docs/raw/architecture/invariants/stateless-ui.md`. Props-only (`title`, `lines`). No `useState`, no `useEffect`, no API calls. Pure render function. |
+| **Theme Sovereignty** | Spacing via `spacing.lg`, `spacing.sm` from `src/theme/tokens/spacing.ts`. Border, radius, colors via MUI `sx` theme path. All text uses `color: "text.secondary"`. See `docs/raw/architecture/core/theming.md`. |
+| **Localization** | `title` and `SummaryLine.text` are raw string props — consumer must pass translated strings via `useLanguage()`. See `docs/raw/architecture/core/localization.md`. |
+| **Public API Stability** | Stable — exported via barrel from `templates/index.ts`. `SummaryPanelProps` and `SummaryLine` are public types per `docs/raw/architecture/core/api-surface.md`. |
+| **Dependency Safety** | Depends only on React, MUI Box/Typography, internal spacing token. No runtime dependencies beyond `@mui/material`. See `docs/raw/architecture/core/dependencies.md`. |
 
----
+## 3. Data Flow
 
-# Technical Structure
-
-## Views
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|------------------|--------------|
-| SummaryPanel | `src/common/components/templates/SummaryPanel.tsx` | Render bordered panel | Render title (h4), map lines to Typography elements with variant-aware display (inline/block) | `react`, `@mui/material`, `theme/tokens/spacing` |
-
-## Data Flow Sequence
 ```
 Consumer passes title and lines[]
-  → SummaryPanel renders Box with border
-    → Typography (h4) for title
-    → lines.map → Typography (body2 | caption) per line
+  → SummaryPanel renders outer Box with border and padding
+    → Typography (variant="h4") for title header
+    → lines.map((line, index)) → Typography per line
+      → variant="body2": display="inline"
+      → variant="caption": display="block"
 ```
 
-## Invariant Rules
-- `title` is required string — TypeScript enforced
-- `lines` is required `SummaryLine[]` — TypeScript enforced
-- `SummaryLine.variant` defaults to `"body2"` via `line.variant ?? "body2"`
-- `variant === "caption"` sets `display: "block"`; otherwise `display: "inline"`
-- All text color: `text.secondary`
-- All spacing via theme token constants (`spacing.lg`, `spacing.sm`)
-- Composition only — no state, effects, refs, or callbacks
+Flow is strictly **props → render**. No callbacks, no event handlers, no upward data flow. The `lines` array is iterated with no filtering, sorting, or transformation — content renders exactly as provided.
 
----
+## 4. State Management
 
-# Validation Design
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|-----------------|-------------------|
-| `title` is string | TypeScript | Compilation error | Fix call-site |
-| `lines` is array | TypeScript | Compilation error | Fix call-site |
-| `variant` not provided | JS `??` operator | Defaults to `body2` | Automatic grace |
-| Empty `lines` array | Runtime render | Title renders with no body content | N/A — valid state |
-| Long text | Runtime | Wraps within panel width | N/A — CSS handles |
+**None.** The component has no internal state. All data arrives via props. No `useState`, `useEffect`, `useDataState`, or `useRef`. This is the canonical template-tier pattern — state management belongs in the consumer's ViewModel hook (`hooks/use<Feature>.ts`) per `docs/raw/architecture/core/state-management.md`.
 
----
+## 5. Styling Implementation
 
-# Error Handling
-| Error Type | Cause | System Response | User Response |
-|------------|-------|-----------------|---------------|
-| Missing `title` | Consumer omits required prop | TypeScript compilation error | Provide `title` |
-| Missing `lines` | Consumer omits required prop | TypeScript compilation error | Provide `lines` |
-| `lines` of wrong type | Consumer passes non-array | TypeScript compilation error | Pass `SummaryLine[]` |
-| Empty array | Consumer passes `[]` | Renders title only | Add lines or accept state |
-| Undefined `variant` | Line object omits variant | Defaults to `body2` | No action needed |
+- **Panel surface**: `Box` with `border: 1px solid`, `borderColor: "divider"`, `borderRadius: 1`, `padding` via `spacing.lg`
+- **Title**: MUI `<Typography variant="h4">` with no custom styling beyond `spacing.sm` bottom margin
+- **Line variants**: `variant === "body2"` → `display: "inline"` (flows inline with text); `variant === "caption"` → `display: "block"` (block-level, full width)
+- **Line fallback**: `line.variant ?? "body2"` — missing variant defaults to inline body
+- **All text color**: `color: "text.secondary"` applied via `sx`
+- **Spacing**: Between title and lines via `spacing.sm` margin-bottom; inter-line gap via `spacing.xs` margin-bottom on each line
 
----
+## 6. Interaction Design
 
-# Non-Functional Requirements
-- **Performance**: O(n) render over `lines` array. No re-renders trigger (pure component, no state).
-- **Accessibility**: Typography inherits MUI a11y defaults. No interactive elements — no keyboard requirement.
-- **Bundle**: Depends only on MUI Box, MUI Typography, internal spacing token. No added runtime.
-- **Testability**: 4 tests cover title render, multi-line render, variant branches (`body2`, `caption`, default).
+**None.** The component is purely presentational with no interactive elements. No click handlers, no hover states, no focus management. The panel is a read-only display surface — all interaction is delegated to parent components.
 
----
+## 7. Accessibility Implementation
 
-# Architecture Compliance Review
-## Applied Patterns
-- Template tier within Atomic Hierarchy — section-level layout only
-- Props-driven, stateless rendering
-- Theme token spacing via `spacing.ts` constants (not hardcoded px)
-- Data-driven line rendering via `lines.map`
+- **Typography**: MUI variant mapping handles heading level semantics. Title renders with appropriate heading role.
+- **No `aria-label` or `role`**: The panel container has no explicit landmark role. Consumer should wrap in `<section>` with `aria-label` if the panel represents a distinct region.
+- **No interactive elements**: No keyboard navigation requirements — purely static content.
+- **Color contrast**: Relies on MUI theme defaults for `text.secondary` — must ensure theme provides sufficient contrast ratio.
 
-## Risks
-- `title` and `SummaryLine.text` are raw strings — localization not built in. Consumer must pre-translate.
-- No `key` uniqueness guarantee beyond `${line.text}-${index}` — duplicate text + index collision possible if order changes. Consider `React.useId()` or stable key.
-- No max-height with scroll — very long line lists extend panel indefinitely.
+## 8. Error Handling
 
-## Gaps
-- Localization invariant not enforced internally
-- No HTML `aria-label` or `role` on panel container
-- No loading/error/empty sub-states — only `lines.length === 0` is visible
+| Condition | Behavior |
+|---|---|
+| Missing `title` | TypeScript compilation error (required prop) |
+| Missing `lines` | TypeScript compilation error (required prop) |
+| Empty `lines` array (`[]`) | Renders title only with no body content — valid state |
+| Line missing `variant` | Defaults to `"body2"` via `?? "body2"` — renders inline |
+| Long text in line | Wraps naturally within panel width — CSS handles overflow |
+| `lines` of wrong type | TypeScript compilation error |
 
----
+## 9. Performance Considerations
 
-# Module Map
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| SummaryPanel | `src/common/components/templates/SummaryPanel.tsx` | `SummaryPanel`, `SummaryLine`, `SummaryPanelProps` | `react`, `@mui/material` (`Box`, `Typography`), `theme/tokens/spacing` |
-| templates barrel | `src/common/components/templates/index.ts` | `SummaryPanel`, `PageHeader`, `HeroSection`, all related types | re-exports from individual modules |
+- O(n) render over `lines` array. No re-renders trigger (pure component, no state).
+- No `React.memo` wrapper — parent re-render triggers SummaryPanel re-render. Each line is a simple `<Typography>` — re-render cost is proportional to array length.
+- Bundle cost: MUI Box, MUI Typography, internal spacing token. No added runtime, animation, or state libraries.
+- Key warning: Current implementation likely uses `${line.text}-${index}` as key — duplicate text with same index causes key collision. Consider `React.useId()` or stable unique key per line.
 
----
+## 10. Integration Points
 
-# Final Rule
+| Integration | Mechanism |
+|---|---|
+| **Consumer app** | Import `{ SummaryPanel }` from `astra`. Pass `title` and `lines[]` props. |
+| **Localization** | Consumer resolves `title` and each `line.text` via `useLanguage().literal[key]` before constructing the props object. |
+| **Theming** | MUI `ThemeProvider` must be ancestor. Border, typography, colors resolve through theme. |
+| **Page layout** | Consumer controls panel width, positioning, and adjacent components. Template is width-100% within its parent. |
+| **Data pipeline** | `lines` array typically constructed in ViewModel hook from transformed API data. |
 
-SummaryPanel must remain a stateless, props-driven template tier component that receives pre-translated `title` and `lines` arrays. No internal state, effects, or data fetching may be added. All visual properties must derive from theme tokens only.
+## 11. Open Questions
+
+- Should the panel support `maxHeight` with internal scroll for very long line lists?
+- Should lines support rich content (ReactNode) or remain plain `text: string` only?
+- Should a `className` or `sx` prop be added for consumer-specific overrides (width, background, shadow)?
+- Should the component accept `aria-label` or `aria-labelledby` for improved accessibility?

@@ -1,212 +1,134 @@
-# FileViewerRouter
+# FileViewerRouter: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
+`FileViewerRouter` (`src/common/components/organisms/FileViewerRouter.tsx`) is a smart routing organism that dispatches file content to the correct sub-viewer molecule based on file extension. It supports CSV (→ `CsvViewer`), Markdown/Text (→ `MdViewer`), Images (→ `ImageViewer`), and JSON/JSONL (→ `JsonViewer`) file types. Unsupported extensions render a localized fallback message.
 
-A smart routing organism that dispatches file content to the correct viewer molecule based on file extension. Supports CSV, Markdown, Images, and JSON/JSONL files with an unsupported-file fallback. Acts as the entry point for file preview across the application.
+The component is stateless — routing is a deterministic function of `fileName`. Extension extraction uses `fileName.split(".").pop()?.toLowerCase()`, matched via `switch-case`. `fileEncoding` and `mimeType` metadata are only forwarded to `ImageViewer`; other viewers ignore them. The fallback UI uses the `useLanguage` hook for localized text.
 
----
+## 2. Architecture Realization
 
-# Implementation Reference
+| Architecture Pattern | Realization |
+|---|---|
+| **Stateless UI** (invariant) | No `useState` or `useEffect` — routing is a pure function of props |
+| **Atomic Hierarchy** (component-tiers.md) | Organism — composes molecules (`CsvViewer`, `MdViewer`, `ImageViewer`, `JsonViewer`) and atoms (`Typography`) |
+| **Theme Sovereignty** (theming.md) | Fallback UI uses `spacing.lg`, `palette.text.secondary` |
+| **MVVM Separation** (mvvm-pattern.md) | Pure View — no data fetching, no ViewModel, no business logic beyond extension extraction |
+| **Localization** (localization.md) | Uses `useLanguage` for fallback keys `viewer.unsupported` and `viewer.extension` |
+| **Dependency Safety** (dependencies.md) | Imports only known sub-viewer molecules and MUI primitives |
+| **Platform Neutrality** (platform-abstraction.md) | Pure React + MUI — no platform-specific APIs |
 
-## Status
-
-Implemented
-
-## Source Files
-
-| File | Path | Role |
-|------|------|------|
-| Component | `src/common/components/organisms/FileViewerRouter.tsx` | Organism — extension-based router/dispatcher |
-| Barrel | `src/common/components/organisms/index.ts` | Re-exports `FileViewerRouter` |
-| CsvViewer | `src/common/components/organisms/CsvViewer.tsx` | Sub-viewer for `.csv` |
-| MdViewer | `src/common/components/molecules/MdViewer.tsx` | Sub-viewer for `.md`, `.markdown`, `.txt` |
-| ImageViewer | `src/common/components/molecules/ImageViewer.tsx` | Sub-viewer for image extensions |
-| JsonViewer | `src/common/components/molecules/JsonViewer.tsx` | Sub-viewer for `.json`, `.jsonl` |
-| Localization | `src/common/localization/LanguageContext.tsx` | `useLanguage` hook |
-| Spacing tokens | `src/theme/tokens/spacing.ts` | Token imports |
-
-No test or story files exist.
-
-## Public API
-
-### Exports
+## 3. Data Flow
 
 ```
-FileViewerRouter          (component)
-FileViewerRouterProps     (interface)
+Parent component
+  │
+  ├─► fileName: string           (required — for extension extraction)
+  ├─► fileContent?: string       (optional — content body)
+  ├─► fileEncoding?: "text" | "base64"  (optional — ImageViewer only)
+  └─► mimeType?: string          (optional — ImageViewer only)
+        │
+        ▼
+  FileViewerRouter
+    │
+    ├─► ext = fileName.split(".").pop()?.toLowerCase()
+    │
+    ├─► switch (ext):
+    │     ├─► "csv"          → <CsvViewer fileName fileContent />
+    │     ├─► "md"/"markdown"/"txt" → <MdViewer fileName fileContent />
+    │     ├─► "jpg"/"jpeg"/"png"/"gif"/"svg"/"webp"
+    │     │                     → <ImageViewer fileName fileContent fileEncoding mimeType />
+    │     ├─► "json"/"jsonl" → <JsonViewer fileName fileContent />
+    │     └─► default        → Fallback Box (localized "Binary / Unsupported File" + extension label)
+    │
+    ▼
+  Rendered file content or unsupported fallback
 ```
 
-### Import Path
+## 4. State Management
 
-```typescript
-import { FileViewerRouter } from "src/common/components/organisms/FileViewerRouter";
-// or via barrel:
-import { FileViewerRouter } from "src/common/components/organisms";
-```
+**No state.** The component is stateless. All sub-viewers manage their own state independently:
 
-### Props Interface
+| Sub-Viewer | Internal State |
+|---|---|
+| `CsvViewer` | `page`, `rowsPerPage` (pagination UI state) |
+| `MdViewer` | None (stateless) |
+| `ImageViewer` | None (stateless) |
+| `JsonViewer` | None (stateless) |
 
-```typescript
-interface FileViewerRouterProps {
-  fileName: string;                        // required — including extension for routing
-  fileContent?: string;                    // optional — file content string
-  fileEncoding?: "text" | "base64";        // optional — passed through to ImageViewer only
-  mimeType?: string;                       // optional — passed through to ImageViewer only
-}
-```
+No `useDataState` is used — file content arrives already resolved via props.
 
-### Route Map
+## 5. Styling Implementation
 
-| Extension(s) | Target Viewer | Passed Props |
-|-------------|--------------|--------------|
-| `.csv` | `CsvViewer` | `fileName`, `fileContent` |
-| `.md`, `.markdown`, `.txt` | `MdViewer` | `fileName`, `fileContent` |
-| `.jpg`, `.jpeg`, `.png`, `.gif`, `.svg`, `.webp` | `ImageViewer` | `fileName`, `fileContent`, `fileEncoding`, `mimeType` |
-| `.json`, `.jsonl` | `JsonViewer` | `fileName`, `fileContent` |
-| Other / none | Fallback Box | hardcoded fallback title and extension label |
+The router's own styling is limited to the fallback UI:
 
----
+| Token Path | Usage |
+|---|---|
+| `spacing.lg` (24px) | Padding in fallback Box container |
+| `palette.text.secondary` | Fallback message text color |
+| `borderColor: 'divider'` | Fallback container border (from theme) |
 
-# Architecture Mapping
+Sub-viewer styling is the responsibility of each sub-viewer molecule — the router does not apply styles to routed content.
 
-| Pattern | Feature Usage | Reason |
-|---------|--------------|--------|
-| Stateless UI | Component owns no state | Pure routing function of props — no useState/useEffect |
-| Atomic Hierarchy | Organism | Composes molecules (CsvViewer, MdViewer, ImageViewer, JsonViewer) and atoms (Typography) |
-| Theme Sovereignty | Fallback UI via theme tokens | `spacing.lg`, `palette.text.secondary` |
-| MVVM Separation | Pure View | No data fetching, no business logic beyond extension extraction |
-| Localization | `useLanguage` for fallback keys | `viewer.unsupported`, `viewer.extension` |
-| Dependency Safety | Controlled imports | Imports only known sub-viewer molecules |
+## 6. Interaction Design
 
----
+**No built-in interactions.** The router is a passive dispatcher:
 
-# Technical Structure
+| Interaction | Owner |
+|---|---|
+| CSV pagination | CsvViewer (page clicks, rows-per-page selector) |
+| CSV sorting (future) | CsvViewer (header click) |
+| Image zoom/pan | ImageViewer |
+| Markdown link click | MdViewer (default anchor behavior) |
+| JSON expand/collapse | JsonViewer |
 
-## Views
+## 7. Accessibility Implementation
 
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|-----------------|--------------|
-| `FileViewerRouter` | `src/common/components/organisms/FileViewerRouter.tsx` | Extension-based file viewer dispatcher | Extract extension via `split('.').pop()`, switch on extension, render matched viewer or fallback | `CsvViewer`, `MdViewer`, `ImageViewer`, `JsonViewer`, MUI (`Box`, `Typography`), `useLanguage`, `spacing` |
+| Requirement | Status | Implementation |
+|---|---|---|
+| Fallback message | ✅ | Localized text rendered as `Typography` — readable by screen readers |
+| Role passthrough | ❌ | Router does not set `role` — each sub-viewer must manage its own roles |
+| `aria-label` on routed content | ❌ | Router does not pass `aria-label` to sub-viewers |
+| Focus management | ❌ | Not applicable (router is a passive switch) |
+| Keyboard navigation | ❌ | Delegated to sub-viewers |
 
-No ViewModel — routing is a stateless deterministic function of props.
+## 8. Error Handling
 
-## Sub-Viewer Contracts
+| Error Type | Cause | Behavior |
+|---|---|---|
+| Unknown extension | No matching `case` in switch | Renders fallback Box with localized "Binary / Unsupported File" + `.ext` label |
+| No file extension | `ext` is `undefined` (`fileName = "Makefile"`) | Falls to `default` case — unsupported file message with no extension label |
+| Missing localization key | `literal["viewer.unsupported"]` undefined | Uses `"⚠️"` as fallback for title, `"📄"` for extension label |
+| Sub-viewer crash | Error in CsvViewer / MdViewer / ImageViewer / JsonViewer | Propagates to parent — **no error boundary** in router |
+| Missing `fileContent` | Prop omitted | Delegated to sub-viewer — each handles independently |
+| Missing `fileName` | Prop omitted | TypeScript compilation error (required prop) |
 
-### Consumer Perspective
+## 9. Performance Considerations
 
-Each sub-viewer is an independent molecule imported by the router. The router must not transform data before passing it — pass-through of `fileContent`, `fileEncoding`, `mimeType` is the only behavior.
+| Factor | Analysis |
+|---|---|
+| Time complexity | O(1) — single switch-case, no iteration |
+| Sub-viewer rendering | Only one sub-viewer rendered per route — no unnecessary rendering |
+| Extension extraction | O(n) on filename string length (negligible) |
+| Re-render behavior | Re-renders when `fileName`, `fileContent`, `fileEncoding`, or `mimeType` reference changes |
 
-### ImageViewer-Specific Contract
+## 10. Integration Points
 
-`fileEncoding` and `mimeType` are forwarded only to `ImageViewer`. All other viewers receive `fileName` and `fileContent` only.
+| Integration | Details |
+|---|---|
+| **CsvViewer** | `src/common/components/organisms/CsvViewer.tsx` — handles `.csv` files |
+| **MdViewer** | `src/common/components/molecules/MdViewer.tsx` — handles `.md`, `.markdown`, `.txt` |
+| **ImageViewer** | `src/common/components/molecules/ImageViewer.tsx` — handles image extensions; receives `fileEncoding` and `mimeType` |
+| **JsonViewer** | `src/common/components/molecules/JsonViewer.tsx` — handles `.json`, `.jsonl` |
+| **Barrel export** | `src/common/components/organisms/index.ts` re-exports `FileViewerRouter`, `FileViewerRouterProps` |
+| **Language provider** | Requires `LanguageProvider` ancestor for fallback localization keys |
+| **Theme provider** | Requires MUI `ThemeProvider` ancestor for fallback styling tokens |
 
-## State Model
+## 11. Open Questions
 
-No state — stateless routing organism.
-
-## Workflow Design
-
-```
-User selects a file
-       ↓
-Parent provides fileName, fileContent
-       ↓
-FileViewerRouter receives props
-       ↓
-Extract ext = fileName.split(".").pop()?.toLowerCase()
-       ↓
-switch (ext)
-  ├── "csv"          → <CsvViewer />
-  ├── "md"/"markdown"/"txt" → <MdViewer />
-  ├── "jpg"/"jpeg"/"png"/"gif"/"svg"/"webp" → <ImageViewer />
-  ├── "json"/"jsonl" → <JsonViewer />
-  └── default → Fallback Box with title + extension label
-```
-
----
-
-# Validation Design
-
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|-----------------|-------------------|
-| `fileName` required | TypeScript compilation | TS error | N/A — compile-time |
-| Extension extraction | `fileName.split('.').pop()` returns `undefined` | Falls to `default` case — unsupported fallback | User sees "Binary / Unsupported File" |
-
----
-
-# Error Handling
-
-| Error Type | Cause | System Response | User Response |
-|-----------|-------|----------------|---------------|
-| Unsupported extension | No matching `case` in switch | Renders fallback Box with title + `.ext` label | User sees "Binary / Unsupported File" message |
-| Missing localization key | `literal["viewer.unsupported"]` undefined | Uses `"⚠️"` as fallback for title, `"📄"` for extension | Fallback emoji displayed |
-| Sub-viewer crash | Error in CsvViewer/MdViewer/etc. | Propagates to parent — no error boundary | App crashes or parent catches error |
-| No file extension | `ext` is `undefined` | Falls to `default` case | Unsupported file message with `undefined` as extension |
-| No `fileContent` | `fileContent` prop omitted | Delegated to sub-viewer — each handles independently | Depends on sub-viewer |
-
----
-
-# Non-Functional Requirements
-
-## Performance
-
-- O(1) routing decision — simple switch-case, no iteration
-- Sub-viewers are lazy-loaded only for their matched route — no unnecessary rendering
-
-## Reliability
-
-- Extension extraction uses `?.toLowerCase()` — case-insensitive matching
-- Localization fallback prevents blank UI on missing keys
-- No side effects — deterministic output for given props
-
-## Maintainability
-
-- Adding a new file type requires: (1) add `case` to switch, (2) import viewer molecule, (3) add prop forwarding
-- Extension list concentrated in single switch-case — single point of truth for routing logic
-- Sub-viewers can be tested independently — router is just a switch
-
----
-
-# Architecture Compliance Review
-
-## Applied Patterns
-
-- **Stateless UI**: Full compliance
-- **Atomic Hierarchy**: Full compliance — organism composes molecules
-- **Theme Sovereignty**: Full compliance in fallback UI
-- **MVVM Separation**: Full compliance — pure View
-- **Localization**: Full compliance — uses `useLanguage` for fallback text
-- **Repository Isolation**: N/A — no data access
-
-## Risks
-
-- No error boundary around sub-viewers — a crash in any sub-viewer propagates to the parent and may take down the entire file preview
-- `fileEncoding` and `mimeType` forwarding is implicit — dependent on ImageViewer API shape; changes to ImageViewer props must update router
-- Hardcoded emoji fallbacks (`"⚠️"`, `"📄"`) — not localizable; violates localization invariant for fallback case
-
-## Gaps
-
-- No support for `.xml`, `.yaml`, `.pdf`, `.log` — future enhancement tracked in spec
-- No file-size-based routing — large files could crash sub-viewers
-- No `key` prop on routed sub-viewers — may cause React reconciliation issues on re-mount with same extension
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| `FileViewerRouter` | `src/common/components/organisms/FileViewerRouter.tsx` | `FileViewerRouter`, `FileViewerRouterProps` | `CsvViewer`, `MdViewer`, `ImageViewer`, `JsonViewer`, MUI (`Box`, `Typography`), `useLanguage`, `spacing` |
-| Barrel | `src/common/components/organisms/index.ts` | `FileViewerRouter` | re-exports |
-| `CsvViewer` | `src/common/components/organisms/CsvViewer.tsx` | `CsvViewer` | see CsvViewer spec |
-| `MdViewer` | `src/common/components/molecules/MdViewer.tsx` | `MdViewer` | molecule |
-| `ImageViewer` | `src/common/components/molecules/ImageViewer.tsx` | `ImageViewer` | molecule |
-| `JsonViewer` | `src/common/components/molecules/JsonViewer.tsx` | `JsonViewer` | molecule |
-
----
-
-# Final Rule
-
-The router must never contain rendering logic beyond the fallback unsupported state — all file-type-specific rendering must be delegated to sub-viewer molecules. The switch-case is the single source of truth for the supported extension-to-viewer mapping; adding a new file type requires only a new case entry and the corresponding molecule import. Hardcoded emoji fallback strings violate the localization invariant and must be replaced with translation keys.
+1. Should an error boundary be added to contain sub-viewer crashes within the router (falling back to unsupported-file message)?
+2. Should the hardcoded emoji fallbacks (`"⚠️"`, `"📄"`) be replaced with localized translation keys?
+3. Should `fileName` with no extension (e.g., "Makefile", "README") get special handling instead of falling to unsupported?
+4. Should file-type-specific accessibility announcements differ per sub-viewer?
+5. Should the extension-to-viewer map be configurable via a prop to allow custom viewer registration?
+6. Should binary files over 50 MB be blocked with a size warning before routing?

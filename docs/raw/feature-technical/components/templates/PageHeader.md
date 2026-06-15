@@ -1,30 +1,11 @@
-# PageHeader — Technical Blueprint
+# PageHeader: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
-
-A responsive page-level header template with a title, optional subtitle, leading/trailing meta content slots, and up to two action buttons (primary/secondary). Uses `flexWrap: wrap` for narrow viewport adaptation.
-
----
-
-# Implementation Reference
-## Status
-Implemented
-
-## Source Files
-| File | Purpose |
-|------|---------|
-| `src/common/components/templates/PageHeader.tsx` | Component implementation |
-| `src/common/components/templates/PageHeader.test.tsx` | Unit tests (vitest) |
-| `src/common/components/templates/index.ts` | Barrel re-export |
-| `src/theme/tokens/spacing.ts` | Token dependency |
-
-## Public API
+`PageHeader` is a template-tier component at `src/common/components/templates/PageHeader.tsx`. It renders a responsive page-level header with five independent content slots: leading meta, title (required), subtitle, action buttons (primary/secondary), and trailing meta. Exported via `src/common/components/templates/index.ts` → `src/lib.ts`. Consumed as `import { PageHeader } from 'astra'`.
 
 ```typescript
-// Exported from src/common/components/templates/index.ts → lib.ts
-export interface HeaderActionConfig {
+interface HeaderActionConfig {
   label: string;
   onClick?: () => void;
   disabled?: boolean;
@@ -32,7 +13,7 @@ export interface HeaderActionConfig {
   size?: "small" | "medium" | "large";
 }
 
-export interface PageHeaderProps {
+interface PageHeaderProps {
   title: string;
   subtitle?: string;
   primaryAction?: HeaderActionConfig;
@@ -40,114 +21,88 @@ export interface PageHeaderProps {
   leadingMeta?: ReactNode;
   trailingMeta?: ReactNode;
 }
-
-export const PageHeader: FC<PageHeaderProps>;
 ```
 
----
+## 2. Architecture Realization
 
-# Architecture Mapping
-| Pattern | Feature Usage | Reason |
-|---------|--------------|--------|
-| Atomic Hierarchy | Template tier | Composes MUI atoms (Box, Button, Typography). Defines page-level header layout with flex. No business logic. No data access. |
-| Stateless UI | Fully compliant | Props-only component. No useState, no effects. Actions emit callbacks (`onClick`). |
-| Theme Sovereignty | Token-based | Spacing via `spacing.xl`, `spacing.md`, `spacing.xs` theme tokens. Colors via MUI sx theme paths (`text.primary`, `text.secondary`). Button variants use MUI theme defaults. |
-| Localization | Not yet applied | `title`, `subtitle`, and `HeaderActionConfig.label` are raw string props — consumer must pass translated strings. |
-| Dependency Safety | Minimal | Depends on React, MUI (Box, Button, Typography), internal spacing token. |
-| Public API Stability | Stable | Exported via barrel from `templates/index.ts`. `PageHeaderProps` and `HeaderActionConfig` are public types. |
+| Architecture Pattern | Realization |
+|---|---|
+| **Atomic Hierarchy** | Template tier — composes MUI atoms (Box, Button, Typography). No business logic, no data access. See `docs/raw/architecture/core/component-tiers.md` for tier rules. |
+| **Stateless UI** | Fully compliant per `docs/raw/architecture/invariants/stateless-ui.md`. Props-only component. No `useState`, no `useEffect`, no data fetching. Actions emit callbacks (`onClick`). |
+| **Theme Sovereignty** | Spacing via `spacing.xl`, `spacing.md`, `spacing.xs` from `src/theme/tokens/spacing.ts`. Colors via MUI `sx` theme paths (`text.primary`, `text.secondary`). Button variants use MUI theme defaults. See `docs/raw/architecture/core/theming.md`. |
+| **Localization** | `title`, `subtitle`, and `HeaderActionConfig.label` are raw string props — consumer must pass translated strings via `useLanguage()` per `docs/raw/architecture/core/localization.md`. |
+| **Public API Stability** | Stable — exported via barrel from `templates/index.ts`. `PageHeaderProps` and `HeaderActionConfig` are public types per `docs/raw/architecture/core/api-surface.md`. |
+| **Dependency Safety** | Depends on React, MUI (Box, Button, Typography), internal spacing token. No runtime dependencies beyond `@mui/material`. See `docs/raw/architecture/core/dependencies.md`. |
 
----
+## 3. Data Flow
 
-# Technical Structure
-
-## Views
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|------------------|--------------|
-| PageHeader | `src/common/components/templates/PageHeader.tsx` | Render page-level header | Responsive flex layout (space-between, wrap), conditional render of subtitle, action buttons, leadingMeta, trailingMeta | `react`, `@mui/material`, `theme/tokens/spacing` |
-
-## Data Flow Sequence
 ```
 Consumer passes props
   → PageHeader renders outer Box (flex, wrap, space-between)
-    → Left group: leadingMeta, title, conditional subtitle
-    → Right group: trailingMeta, conditional secondaryAction (Button), conditional primaryAction (Button)
+    → Left group: leadingMeta, title, conditional subtitle (<Typography>)
+    → Right group: trailingMeta, conditional secondaryAction (<Button>), conditional primaryAction (<Button>)
 ```
 
-## Rendering Logic
-- `renderAction(action)`: internal helper that renders MUI Button with defaults: `variant="outlined"`, `size="small"`, `borderRadius: 1`, `textTransform: 'none'`
-- Right group renders in visual order (right-to-left in DOM): trailingMeta → secondaryAction → primaryAction
-- Each section (leadingMeta, subtitle, actions, trailingMeta) renders independently via conditional checks
+Flow direction is strictly **props → render → callback**. No upward data flow. Action clicks call `onClick` from `HeaderActionConfig` — parent handles side effects. Each optional section renders independently via conditional checks; omitted props produce no DOM output for that slot.
 
-## Invariant Rules
-- `title` is required string — TypeScript enforced
-- All other props optional — each omitted section renders nothing
-- Action button defaults: `variant ?? "outlined"`, `size ?? "small"`
-- No internal state, effects, or data fetching
-- All spacing via theme token constants
-- Leading meta placed inside left Box (below subtitle)
-- Actions render in reversed DOM order (primary rightmost visually)
+## 4. State Management
 
----
+**None.** The component has no internal state. All data arrives via props. No `useState`, `useEffect`, `useDataState`, or `useRef`. This is the canonical template-tier pattern — state management belongs in the consumer's ViewModel hook (`hooks/use<Feature>.ts`) per `docs/raw/architecture/core/state-management.md`.
 
-# Validation Design
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|-----------------|-------------------|
-| `title` is string | TypeScript | Compilation error | Fix call-site |
-| Missing `subtitle` | Runtime conditional | Subtitle `<Typography>` omitted | N/A — valid state |
-| Missing all actions/meta | Runtime conditionals | Right-side Box renders with no children | N/A — valid state |
-| Action missing `onClick` | Runtime click | Button renders but does nothing | Consumer must provide callback |
-| Action missing `variant` | `?? "outlined"` | Defaults to `outlined` | Automatic grace |
-| Action missing `size` | `?? "small"` | Defaults to `small` | Automatic grace |
+## 5. Styling Implementation
 
----
+- **Layout**: Flexbox outer `Box` with `display: "flex"`, `flexWrap: "wrap"`, `justifyContent: "space-between"`, `alignItems: "center"`
+- **Spacing**: Constants from `src/theme/tokens/spacing.ts` — `spacing.xl` for outer padding, `spacing.md` for inter-element gaps, `spacing.xs` for tight spacing
+- **Typography**: MUI `<Typography>` variants via `sx` — title uses `variant="h4"`, subtitle uses `variant="body2"` with `color="text.secondary"`
+- **Button defaults**: `variant ?? "outlined"`, `size ?? "small"`, `borderRadius: 1`, `textTransform: 'none'`
+- **Right-to-left rendering**: DOM order is trailingMeta → secondaryAction → primaryAction; visual order from right to left
 
-# Error Handling
-| Error Type | Cause | System Response | User Response |
-|------------|-------|-----------------|---------------|
-| Missing `title` | Consumer omits required prop | TypeScript compilation error | Provide `title` |
-| Empty `title` string | Consumer passes `""` | Renders empty Typography | Pass non-empty string |
-| Action `disabled` set | Consumer sets `true` | Renders `<Button disabled>` | Visual gray + no click |
-| Narrow viewport | Browser width small | Flex container wraps via `flexWrap: "wrap"` | CSS handles |
+## 6. Interaction Design
 
----
+- **Action buttons**: Each button is a native MUI `<Button>`. Click invokes `onClick` from the `HeaderActionConfig`. If `onClick` is undefined, the button renders but is non-functional (no cursor pointer, no ripple).
+- **Disabled state**: `HeaderActionConfig.disabled` maps to MUI Button's `disabled` prop — visual gray + no click interaction.
+- **No hover/focus/active customization**: Relies entirely on MUI Button default interaction states.
 
-# Non-Functional Requirements
-- **Performance**: Single render pass. No state-driven re-renders.
-- **Responsive**: `flexWrap: "wrap"` on outer Box enables natural wrapping. Left and right groups each wrap independently.
-- **Accessibility**: Buttons are native MUI Button (keyboard-focusable, aria-enabled). Typography hierarchy via MUI variant mapping.
-- **Bundle**: Depends on MUI Box, Button, Typography. No added runtime or animation libs.
-- **Testability**: 8 tests cover title, subtitle, actions, meta, click handler, disabled state.
+## 7. Accessibility Implementation
 
----
+- **Buttons**: Native MUI `<Button>` provides keyboard focusability, ARIA button role, and screen reader support by default.
+- **Typography hierarchy**: MUI variant mapping handles heading level semantics. `title` renders as `h4`, `subtitle` as `body2`.
+- **Missing `aria-label`**: Action buttons use `label` as visible text content only. No explicit `aria-label` prop — consumer must wrap if screen-reader-only labels are needed.
+- **No `role` attributes**: Outer container has no landmark role. Consumer should wrap in `<header>` or `<section>` as appropriate.
 
-# Architecture Compliance Review
-## Applied Patterns
-- Template tier layout composition with flex
-- Slot-based pattern (5 independent content slots)
-- Action config objects vs raw React nodes for simple button cases
-- Reverse-order action rendering for visual hierarchy
+## 8. Error Handling
 
-## Risks
-- `title`, `subtitle`, and `HeaderActionConfig.label` are raw strings — localization burden on consumer
-- Action buttons use MUI `Button` directly with minimal theming — not full design system customization
-- No sticky/scroll-aware behavior — header scrolls with page content
+| Condition | Behavior |
+|---|---|
+| Missing `title` | TypeScript compilation error (required prop) |
+| Empty `title` string (`""`) | Renders empty `<Typography>` — no crash |
+| Missing `subtitle` | Subtitle slot omitted (conditional render) |
+| Missing all actions/meta | Right-side Box renders with no children |
+| Action missing `onClick` | Button renders but does nothing on click — consumer must provide callback |
+| Action missing `variant` | Defaults to `"outlined"` via `?? "outlined"` |
+| Action missing `size` | Defaults to `"small"` via `?? "small"` |
+| Narrow viewport | Flex container wraps via `flexWrap: "wrap"` — CSS handles |
 
-## Gaps
-- Localization invariant not enforced internally
-- No `aria-label` on action buttons (uses `label` as visible text, not a11y label)
-- No loading state for action buttons (async operations have no spinner)
-- Responsive breakpoint strategy is minimal — no collapse-to-menu behavior at specific widths
+## 9. Performance Considerations
 
----
+- Single render pass per prop change. No state-driven re-renders.
+- No `React.memo` wrapper — parent re-render triggers PageHeader re-render. Re-render cost is trivial (pure JSX, no effects).
+- Bundle cost: MUI Box, Button, Typography. No added runtime, animation, or state libraries.
+- Responsive wrapping handled entirely by CSS (`flexWrap: "wrap"`) — no resize observers or media query listeners.
 
-# Module Map
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| PageHeader | `src/common/components/templates/PageHeader.tsx` | `PageHeader`, `HeaderActionConfig`, `PageHeaderProps` | `react`, `@mui/material` (`Box`, `Button`, `Typography`), `theme/tokens/spacing` |
-| templates barrel | `src/common/components/templates/index.ts` | `PageHeader`, `SummaryPanel`, `HeroSection`, all related types | re-exports from individual modules |
+## 10. Integration Points
 
----
+| Integration | Mechanism |
+|---|---|
+| **Consumer app** | Import `{ PageHeader }` from `astra`. Pass props directly. |
+| **Localization** | Consumer resolves `title`, `subtitle`, `label` via `useLanguage().literal[key]` before passing as props. |
+| **Theming** | MUI `ThemeProvider` must be ancestor. Button variants, typography, colors resolve through theme. |
+| **Page layout** | Consumer wraps in page-level container with desired padding, background, or sticky behavior. |
+| **Action routing** | Action `onClick` callbacks are consumer-managed — typically calls `useNavigate()` or ViewModel actions. |
 
-# Final Rule
+## 11. Open Questions
 
-PageHeader must remain a stateless, props-driven template tier component. It receives pre-translated text and optional action configs. No internal state, effects, data fetching, or navigation routing may be added. All visual properties must derive from theme tokens only.
+- Should action buttons support an `isLoading` prop for async operations (spinner in button)?
+- Should `subtitle` support rich text (ReactNode) or remain plain `string` only?
+- Should trailing/leading meta accept a `className` or `sx` override for consumer-specific positioning?
+- Is sticky/scroll-aware behavior needed at the template level or should it remain consumer-managed?

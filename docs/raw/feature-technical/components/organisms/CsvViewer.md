@@ -1,233 +1,157 @@
-# CsvViewer
+# CsvViewer: Feature Technical
 
----
+## 1. Technical Overview
 
-# Feature Summary
+`CsvViewer` (`src/common/components/organisms/CsvViewer.tsx`) is a CSV file viewer organism that parses raw CSV strings into tabular data and renders a paginated table with sticky headers, built on MUI `Table`, `TablePagination`, and `Typography`. It auto-detects comma vs. semicolon delimiters from the first line using a lightweight heuristic (`lines[0].includes(";") ? ";" : ","`).
 
-A CSV file viewer organism that parses raw CSV strings into tabular data and renders a paginated, sortable table with sticky headers. Auto-detects comma vs. semicolon delimiters from the first line. Manages its own pagination UI state (page, rowsPerPage) as a pure visual concern.
+The component manages its own pagination UI state (`page`, `rowsPerPage`) via `useState` — this is pure visual state, not domain state, compliant with the Stateless UI invariant. The parse logic lives in a module-level pure function `parseCsv()` co-located in the component file.
 
----
+## 2. Architecture Realization
 
-# Implementation Reference
+| Architecture Pattern | Realization |
+|---|---|
+| **Stateless UI** (invariant) | Partial — `page` and `rowsPerPage` are UI interaction state (compliant); `parseCsv` is domain-adjacent logic that should be externalized |
+| **Atomic Hierarchy** (component-tiers.md) | Organism — composes MUI atoms/molecules (`Table`, `TableHead`, `TableBody`, `TableRow`, `TableCell`, `TableContainer`, `TablePagination`, `Typography`, `Paper`, `Box`) |
+| **Theme Sovereignty** (theming.md) | All styling via theme tokens: `background.default/paper`, `palette.text.primary/secondary`, `borderColor: 'divider'`, `spacing.md/sm` |
+| **MVVM Separation** (mvvm-pattern.md) | View with co-located parse utility — `parseCsv` is a model-adjacent pure function, not a ViewModel hook |
+| **Localization** (localization.md) | Uses `useLanguage` for `viewer.empty_csv` key with hardcoded fallback `"No CSV content available"` |
+| **Dependency Safety** (dependencies.md) | Minimal imports: MUI components, `useLanguage`, `spacing` tokens |
+| **Platform Neutrality** (platform-abstraction.md) | Pure React + MUI — no platform-specific APIs |
 
-## Status
-
-Implemented
-
-## Source Files
-
-| File | Path | Role |
-|------|------|------|
-| Component | `src/common/components/organisms/CsvViewer.tsx` | Organism — CSV parse + paginated table |
-| Barrel | `src/common/components/organisms/index.ts` | Re-exports `CsvViewer` |
-| Localization | `src/common/localization/LanguageContext.tsx` | `useLanguage` hook |
-| Spacing tokens | `src/theme/tokens/spacing.ts` | Token imports |
-
-No test or story files exist.
-
-## Public API
-
-### Exports
+## 3. Data Flow
 
 ```
-CsvViewer          (component)
-CsvViewerProps     (interface)
+Parent / FileViewerRouter
+  |
+  +-> fileName: string   (required -- displayed as title)
+  +-> fileContent?: string (optional -- raw CSV content)
+        |
+        v
+  CsvViewer
+    |
+    +-> parseCsv(fileContent ?? "")
+    |     +-> Split by newline (CRLF / LF)
+    |     +-> Trim lines, filter empty
+    |     +-> If lines.length === 0 -> { headers: [], rows: [] }
+    |     +-> Detect delimiter: lines[0].includes(";") ? ";" : ","
+    |     +-> headers = lines[0].split(delimiter)
+    |     +-> rows = lines[1..n].map(line => line.split(delimiter))
+    |
+    +-> Derived: visibleRows = rows.slice(page * rowsPerPage, (page + 1) * rowsPerPage)
+    |
+    +-> Render:
+          +-> fileName as Typography variant="h4"
+          +-> If headers.length === 0 -> empty-state message (localized)
+          +-> Table (stickyHeader)
+          |     +-> TableHead -> header cells
+          |     +-> TableBody -> visibleRows.map() -> TableRow -> cells
+          +-> TablePagination
+                +-> rowsPerPageOptions: [10, 25, 50]
+                +-> count: rows.length
+                +-> page, rowsPerPage controlled by useState
 ```
 
-### Import Path
+## 4. State Management
 
-```typescript
-import { CsvViewer } from "src/common/components/organisms/CsvViewer";
-// or via barrel:
-import { CsvViewer } from "src/common/components/organisms";
-```
+The component manages UI-only pagination state via `useState`:
 
-### Props Interface
+| State Variable | Type | Initial Value | Purpose |
+|---|---|---|---|
+| `page` | `number` | `0` | Current page index in paginated table |
+| `rowsPerPage` | `number` | `10` | Number of rows displayed per page |
 
-```typescript
-interface CsvViewerProps {
-  fileName: string;          // required — CSV file name for display
-  fileContent?: string;       // optional — raw CSV content string
-}
-```
+**State transitions:**
 
-### Contract
+| Transition | Trigger | Effect |
+|---|---|---|
+| Next page | User clicks next page button | `setPage(page + 1)` |
+| Previous page | User clicks prev page button | `setPage(page - 1)` |
+| Specific page | User clicks page number | `setPage(newPage)` |
+| Change rows per page | User selects new value in pagination dropdown | `setRowsPerPage(parseInt(value, 10))`, `setPage(0)` |
+| New file content | `fileName` or `fileContent` prop changes | Full re-parse, `page` resets to 0 |
 
-- `fileName` is required — TypeScript compilation fails if omitted
-- `fileContent` is optional — empty/undefined content produces empty table + empty-state message
-- No runtime validation
-- Delimiter auto-detected from first line: `includes(";")` → semicolon, else comma
+No `useDataState` is used — file content arrives already resolved via props. The `page` and `rowsPerPage` states are pure UI interaction state (per state-management.md) and do not represent domain data.
 
----
+## 5. Styling Implementation
 
-# Architecture Mapping
+All styling uses MUI `sx` prop with theme tokens:
 
-| Pattern | Feature Usage | Reason |
-|---------|--------------|--------|
-| Stateless UI | UI-only state | `useState` for `page` and `rowsPerPage` — purely visual pagination state, not domain state |
-| Atomic Hierarchy | Organism | Composes MUI Table, Typography, TablePagination (molecules/atoms); contains parse logic |
-| Theme Sovereignty | All styling via theme tokens | `spacing.md/sm`, `palette.text.primary/secondary`, `background.default/paper`, `borderColor: 'divider'` |
-| MVVM Separation | View with parse utility | `parseCsv` is a pure utility function (model-adjacent), not a ViewModel hook |
-| Localization | `useLanguage` for empty message | Key `viewer.empty_csv` with hardcoded fallback |
-| Dependency Safety | Minimal imports | Only MUI components, `useLanguage`, spacing tokens |
+| Token Path | Usage |
+|---|---|
+| `background.default` | Table container background |
+| `background.paper` | Paper wrapper background |
+| `palette.text.primary` | Title typography color |
+| `palette.text.secondary` | Empty state message color |
+| `borderColor: 'divider'` | Table cell borders, container border |
+| `spacing.md` (16px) | Container padding, title bottom margin |
+| `spacing.sm` (8px) | Cell padding |
 
----
+The sticky header is enabled via MUI's `stickyHeader` prop on `<Table>` — CSS-based, no JavaScript scroll handling.
 
-# Technical Structure
+## 6. Interaction Design
 
-## Views
+| Interaction | Behavior |
+|---|---|
+| Page navigation | User clicks next/prev or page number in `TablePagination` — `onPageChange` fires, `page` updates, visible rows re-slice |
+| Rows per page change | User selects 10/25/50 in pagination dropdown — `onRowsPerPageChange` fires, `rowsPerPage` updates, `page` resets to 0 |
+| Table scroll | Sticky header remains visible while user scrolls through rows |
+| Row hover | MUI `TableRow hover` prop applies CSS background change on mouse hover |
 
-| View | File Path | Purpose | Responsibilities | Imports From |
-|------|-----------|---------|-----------------|--------------|
-| `CsvViewer` | `src/common/components/organisms/CsvViewer.tsx` | CSV file viewer | Parse CSV string, detect delimiter, render paginated table with sticky headers, empty state handling | MUI (`Box`, `Table`, `TableBody`, `TableCell`, `TableContainer`, `TableHead`, `TableRow`, `Paper`, `Typography`, `TablePagination`), `useLanguage`, `spacing` |
+## 7. Accessibility Implementation
 
-## ViewModel
+| Requirement | Status | Implementation |
+|---|---|---|
+| Semantic table | ✅ | Native `<table>` with `<thead>`, `<tbody>`, `<th>`, `<td>` elements |
+| Sticky header | ✅ | MUI `stickyHeader` preserves column labels during scroll |
+| Pagination controls | ✅ | MUI `TablePagination` provides accessible page navigation |
+| Empty state message | ✅ | Typography rendered as text — readable by screen readers |
+| Table caption | ❌ | No `<caption>` element describing table content |
+| `aria-label` on table | ❌ | Not set |
+| `aria-sort` | ❌ | Not applicable (no built-in sorting) |
+| Row count announcement | ❌ | No `aria-live` region for pagination changes |
 
-No separate ViewModel hook. The component co-locates the following concerns:
+## 8. Error Handling
 
-| Concern | Implementation | Location |
-|---------|---------------|----------|
-| Parse CSV | `parseCsv(content: string): { headers: string[]; rows: string[][] }` | In-component utility (module-level function) |
-| Pagination state | `useState(0)` for `page`, `useState(10)` for `rowsPerPage` | In component body |
-| Delimiter detection | `lines[0].includes(";") ? ";" : ","` | Inside `parseCsv` |
+| Error Type | Cause | Behavior |
+|---|---|---|
+| Missing `fileName` | Prop omitted | TypeScript compilation error (required) |
+| Empty/undefined `fileContent` | Prop omitted or empty string | `parseCsv("")` returns `{ headers: [], rows: [] }` — empty-state message displayed |
+| Mixed delimiters | Some rows use `;`, others use `,` | Delimiter detected from first line only — subsequent lines may parse with incorrect column count |
+| Missing translation key | `literal["viewer.empty_csv"]` undefined | Uses hardcoded fallback `"No CSV content available"` |
+| Whitespace-only CSV | All lines empty after trim | Lines filtered out — headers and rows both empty, empty-state message displayed |
+| Very large CSV | Rows > 50K | Pagination without virtualization — DOM grows with each page, performance degrades |
+| `fileContent` is not a string | Unexpected type passed at runtime | `parseCsv` receives non-string — `.split()` may throw, error propagates to parent |
 
-## State Model
+## 9. Performance Considerations
 
-| State Variable | Type | Initial Value | Purpose | Transitions |
-|---------------|------|---------------|---------|-------------|
-| `page` | `number` | `0` | Current page index | `setPage(newPage)` on page change; `setPage(0)` on rows-per-page change |
-| `rowsPerPage` | `number` | `10` | Rows displayed per page | `setRowsPerPage(parseInt(value, 10))` on rows-per-page change |
+| Factor | Analysis |
+|---|---|
+| Parse complexity | O(n) on lines — runs on every render (no `useMemo`) |
+| Render complexity | O(currentPageRows x columns) — only visible rows rendered |
+| Re-render behavior | Full re-render on every `page`/`rowsPerPage` change, including re-parse of CSV content |
+| Pagination state | `page` resets to 0 on rows-per-page change to prevent invalid page index |
+| Virtualization | Not implemented — 10K+ rows will cause DOM performance issues |
 
-### State Transitions
+**Risk:** `parseCsv` executes on every render with no memoization via `useMemo`. For large files, this causes unnecessary re-parsing on every state change.
 
-```
-[page: 0, rowsPerPage: 10] ← initial
-       ↓
-User clicks next page → page++
-User changes rows-per-page → rowsPerPage = newValue, page = 0
-       ↓
-[page: n, rowsPerPage: m] ← current
-```
+**Recommendation:** Wrap `parseCsv` call in `useMemo` with `fileContent` as dependency.
 
-### Parsing State (derived, not stored)
+## 10. Integration Points
 
-```
-fileContent string → parseCsv() → { headers: string[], rows: string[][] }
-                                    ↓
-                              displayed rows = rows.slice(page * rowsPerPage, (page + 1) * rowsPerPage)
-```
+| Integration | Details |
+|---|---|
+| **FileViewerRouter** | Primary consumer — routes `.csv` files to `CsvViewer` via extension match |
+| **Barrel export** | `src/common/components/organisms/index.ts` re-exports `CsvViewer`, `CsvViewerProps` |
+| **Language provider** | Requires `LanguageProvider` ancestor for `viewer.empty_csv` localization key |
+| **Theme provider** | Requires MUI `ThemeProvider` ancestor for theme token resolution |
+| **DataTable** | Related organism — `CsvViewer` currently renders its own MUI Table inline instead of composing `DataTable` |
 
-## Workflow Design
+## 11. Open Questions
 
-```
-Parent provides fileName + fileContent
-       ↓
-CsvViewer receives props
-       ↓
-parseCsv(fileContent ?? "") executes:
-  ├── Split by /\r?\n/, trim, filter empty
-  ├── If lines.length === 0 → { headers: [], rows: [] }
-  ├── Detect delimiter: lines[0].includes(";") ? ";" : ","
-  ├── headers = lines[0].split(delimiter)
-  └── rows = lines[1..n].map(line => line.split(delimiter))
-       ↓
-Render UI:
-  ├── fileName as h4 title
-  ├── If headers.length === 0 → empty message
-  ├── Table with stickyHeader:
-  │     ├── TableHead → header cells
-  │     └── TableBody → sliced rows (page * rowsPerPage to page * rowsPerPage + rowsPerPage)
-  └── TablePagination:
-        ├── rowsPerPageOptions: [10, 25, 50]
-        ├── count: rows.length
-        └── page, rowsPerPage controlled by state
-```
-
----
-
-# Validation Design
-
-| Rule | Trigger | Failure Behavior | Recovery Behavior |
-|------|---------|-----------------|-------------------|
-| `fileName` required | TypeScript compilation | TS error | N/A — compile-time |
-| Empty `fileContent` | `fileContent ?? ""` produces empty string | `parseCsv("")` returns `{ headers: [], rows: [] }` | Empty-state message displayed |
-| Delimiter detection | First line contains `;` | Switches to semicolon delimiter for all lines | Incorrect parse if later lines use comma — no error surfaced |
-
----
-
-# Error Handling
-
-| Error Type | Cause | System Response | User Response |
-|-----------|-------|----------------|---------------|
-| No fileContent | Prop omitted or undefined | `parseCsv("")` returns empty arrays | Renders title + "No CSV content available" |
-| Empty CSV string | Content is empty string | Same as above | Same as above |
-| Mixed delimiters | Some rows use `;`, others use `,` | Delimiter detected from first line only — subsequent lines may parse incorrectly | Rows may have unexpected cell counts; no error surfaced |
-| Missing translation key | `literal["viewer.empty_csv"]` undefined | Uses hardcoded `"No CSV content available"` | English fallback displayed |
-| Whitespace-only CSV | After trim, all lines empty | Lines filtered out; `headers` and `rows` both empty | Empty-state message |
-| Large CSV (>50K rows) | Rows count exceeds typical | Pagination without virtualization — DOM grows with each page | Performance degradation |
-
----
-
-# Non-Functional Requirements
-
-## Performance
-
-- Parse is O(n) on lines — runs on every render (no memoization of `parseCsv` result)
-- Table renders all columns and current page rows — no virtualization for large datasets
-- `page`/`rowsPerPage` state changes cause full component re-render including re-parse
-- **Risk**: `parseCsv` executes on every render — should memoize via `useMemo` for large files
-
-## Reliability
-
-- Delimiter detection is first-line-only heuristic — works for ~95% of real-world CSV files
-- Pagination resets to page 0 on `rowsPerPage` change — prevents invalid page index after page size change
-- `stickyHeader` + fixed-height container ensures column labels remain visible during scroll
-
-## Maintainability
-
-- `parseCsv` is a module-level pure function — independently testable without React
-- Pagination state is fully internal (UI-only) — no parent coordination needed
-- Single-file implementation — no supporting data types file
-
----
-
-# Architecture Compliance Review
-
-## Applied Patterns
-
-- **Stateless UI**: Partial compliance — `page` and `rowsPerPage` are UI interaction state (compliant per invariant); `parseCsv` is domain-adjacent logic that should ideally be externalized to a utility or hook
-- **Atomic Hierarchy**: Full compliance — organism tier
-- **Theme Sovereignty**: Full compliance — no hardcoded values
-- **MVVM Separation**: Partial compliance — `parseCsv` lives in the component file; should be extracted to a utility module within the organism's scope for testability
-- **Localization**: Full compliance — uses `useLanguage` for empty message
-- **Repository Isolation**: N/A — no data access
-
-## Risks
-
-- `parseCsv` runs on every render with no `useMemo` — potential performance issue on large files
-- Delimiter detection is heuristic-based (first line only) — mixed-delimiter files parse silently wrong
-- No column type detection — all cells rendered as strings, no number/date formatting
-- No error boundary — uncaught errors in parse (e.g., if `fileContent` is not a string type) propagate to parent
-
-## Gaps
-
-- No column sorting — documented as future enhancement
-- No column filtering/search — documented as future enhancement
-- No row selection — documented as future enhancement
-- No virtualization — performance degrades on large datasets
-- `parseCsv` not extracted to separate module — violates separation of concerns (parse logic mixed with component code)
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|--------------|
-| `CsvViewer` | `src/common/components/organisms/CsvViewer.tsx` | `CsvViewer`, `CsvViewerProps` | `react`, `@mui/material`, `useLanguage`, `spacing` |
-| Barrel | `src/common/components/organisms/index.ts` | `CsvViewer` | re-exports |
-
----
-
-# Final Rule
-
-Pagination state (`page`, `rowsPerPage`) is the only allowed internal state — it is pure UI interaction state in compliance with the Stateless UI invariant. The `parseCsv` function must be treated as a module-level pure utility, not a ViewModel; it must not cause side effects, access React hooks, or interact with the DOM. The delimiter detection heuristic (`first line includes ";"`) is the single source of truth for delimiter selection — mixed-delimiter files are an accepted limitation with no error recovery.
+1. Should `parseCsv` be extracted to a separate utility module within the organism's scope for independent testability?
+2. Should `parseCsv` be wrapped in `useMemo` to prevent re-parsing on pagination state changes?
+3. Should column sorting by clicking header cells be implemented?
+4. Should column search/filter input be added for quick data filtering?
+5. What is the expected behavior for malformed CSV rows — skip, highlight, or surface an error?
+6. Should CSV export functionality be added as a toolbar action?
+7. Should the component compose `DataTable` internally instead of rendering its own MUI Table?
