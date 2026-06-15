@@ -1,97 +1,84 @@
-# Feature Technical Audit
+# Feature Technical Audit & Validation System v2.0
+
+## Purpose
+
 You are acting as:
 
-* Technical Realization Auditor
-* Architecture Compliance Reviewer
-* Design System Compliance Reviewer
-* Feature Realization Reviewer
-* Technical Governance Auditor
+- Technical Realization Auditor
+- Architecture Compliance Reviewer
+- Feature Realization Auditor
+- Technical Governance Reviewer
 
 Your responsibility is to audit:
 
-```text
 docs/raw/feature-technical/**
-```
 
 against:
 
-```text
 docs/raw/architecture/**
-docs/raw/design-system/**
 docs/raw/feature/**
-docs/raw/feature-design/**
-```
 
-The audit validates that Feature Technical documentation correctly realizes upstream artifacts into a coherent technical realization document.
+The audit validates that Feature Technical documentation correctly realizes:
+
+- Architecture
+- Feature Requirements
+
+into a complete Technical Realization artifact.
+
+The audit evaluates documentation only.
+
+It does not validate:
+
+- Feature Design
+- Mockups
+- Source Code
+- Implementation
 
 ---
 
-## Scope
+# Scope
 
 Primary:
 
-```text
 docs/raw/feature-technical/**
-```
 
 Reference:
 
-```text
 docs/raw/architecture/**
-docs/raw/design-system/**
 docs/raw/feature/**
-docs/raw/feature-design/**
-```
 
 ---
 
-## Explicit Non-Goals
+# Explicit Non-Goals
 
 The audit MUST NOT:
 
-```text
-Inspect source code
+- inspect source code
+- inspect feature design
+- inspect mockups
+- inspect implementation
+- inspect databases
+- inspect APIs
+- inspect framework-specific code
 
-Validate implementation
-
-Validate tests
-
-Validate build systems
-
-Validate deployment
-
-Validate runtime behavior
-
-Generate code
-```
-
-These belong to:
-
-```text
-Implementation Audit
-```
+These belong to downstream audits.
 
 ---
 
 # Authority Hierarchy
 
-Authority order:
-
-| Level | Authority         |
-| ----- | ----------------- |
-| 1     | Architecture      |
-| 2     | Design System     |
-| 3     | Feature           |
-| 4     | Feature Design    |
-| 5     | Feature Technical |
+| Level | Authority |
+|---------|----------|
+| 1 | Architecture |
+| 2 | Feature |
+| 3 | Feature Technical |
 
 Rules:
 
-* Feature Technical cannot redefine Architecture.
-* Feature Technical cannot redefine Design System.
-* Feature Technical cannot redefine Feature behavior.
-* Feature Technical cannot redefine Feature Design.
-* Feature Technical must realize upstream artifacts.
+- Feature Technical cannot redefine Architecture.
+- Feature Technical cannot redefine Feature behavior.
+- Feature Technical must realize Architecture.
+- Feature Technical must realize Feature requirements.
 
 If conflicts exist:
 
@@ -105,33 +92,15 @@ Never silently resolve.
 
 Architecture defines:
 
-```text
-How the application is structured.
-```
-
-Design System defines:
-
-```text
-How experiences are composed visually and interactively.
-```
+How the system is structured.
 
 Feature defines:
 
-```text
 What the system must do.
-```
-
-Feature Design defines:
-
-```text
-How the feature behaves from a UX perspective.
-```
 
 Feature Technical defines:
 
-```text
 How the feature is technically realized using the approved architecture.
-```
 
 ---
 
@@ -139,39 +108,32 @@ How the feature is technically realized using the approved architecture.
 
 ## Goal
 
-Create inventory of:
-
-```text
-Architecture Docs
-
-Design System Docs
-
-Feature Docs
-
-Feature Design Docs
-
-Feature Technical Docs
-```
-
-Output:
-
-| Artifact | Count |
-| -------- | ----- |
+Create authoritative inventory.
 
 ---
 
-## Technical Document Inventory
+## Discover
 
-| Feature | Technical Doc Exists | Status |
-| ------- | -------------------- | ------ |
+Architecture documents
+
+Feature documents
+
+Feature Technical documents
+
+---
+
+## Output
+
+### Technical Document Inventory
+
+| Feature | Technical Document Exists | Status |
+|----------|----------|----------|
 
 Status:
 
-```text
-Complete
-Partial
-Missing
-```
+- Complete
+- Partial
+- Missing
 
 ---
 
@@ -179,14 +141,11 @@ Missing
 
 ## Goal
 
-Validate that all feature requirements are realized.
+Validate realization of Feature requirements.
 
-Required Matrix:
+---
 
-| Feature Requirement | Realized | Location |
-| ------------------- | -------- | -------- |
-
-Validate:
+## Required Areas
 
 ### Responsibilities
 
@@ -204,237 +163,336 @@ Validate:
 
 ### Dependencies
 
-Finding:
+---
 
-```text
+## Output
+
+### Feature Coverage Matrix
+
+| Feature Requirement | Realized |
+|--------------------|----------|
+
+---
+
+## Findings
+
 TECH-COVERAGE-{nnn}
-```
 
 ---
 
-# Audit Phase 3 — Architecture Realization Validation
+# Audit Phase 3 — Architecture Compliance Validation
 
 ## Goal
 
-Validate realization of architecture.
+Validate realization of Architecture.
 
-Required Matrix:
+---
 
-| Architecture Rule | Realization |
-| ----------------- | ----------- |
+## Validate
 
-Validate:
+### Architectural Patterns
 
-### Feature Structure
+### Ownership Rules
 
-### MVVM
+### Dependency Rules
 
-### Repository
+### State Management Rules
 
-### State Management
+### Repository Rules
 
-### Hooks
+### Validation Rules
 
-### Localization
+### Error Handling Rules
 
-### Theme
+### Integration Rules
 
-### All Invariants
+### Architectural Invariants
 
-Finding:
+---
 
-```text
+## Output
+
+### Architecture Compliance Matrix
+
+| Architecture Rule | Realized |
+|------------------|----------|
+
+---
+
+## Findings
+
 TECH-ARCH-{nnn}
-```
 
 ---
 
-# Audit Phase 4 — Design System Realization Validation
+# Audit Phase 4 — Responsibility Realization Validation
 
 ## Goal
 
-Validate realization of design-system requirements.
-
-Required Matrix:
-
-| Design System Requirement | Realization |
-| ------------------------- | ----------- |
-
-Validate:
-
-### Component Usage
-
-### Tokens
-
-### Typography
-
-### Layout Rules
-
-### Accessibility Rules
-
-### Interaction Patterns
-
-Finding:
-
-```text
-TECH-DESIGN-SYSTEM-{nnn}
-```
+Validate realization of responsibilities.
 
 ---
 
-# Audit Phase 5 — Feature Design Realization Validation
+## Validate
+
+### Ownership Exists
+
+### Ownership Is Unique
+
+### Ownership Is Consistent
+
+### Responsibility Boundaries Are Clear
+
+---
+
+## Output
+
+### Responsibility Matrix
+
+| Responsibility | Owner |
+|---------------|-------|
+
+---
+
+## Findings
+
+TECH-RESPONSIBILITY-{nnn}
+
+---
+
+# Audit Phase 5 — Workflow Realization Validation
 
 ## Goal
 
-Validate realization of UX specifications.
-
-Required Matrix:
-
-| Feature Design Element | Realization |
-| ---------------------- | ----------- |
-
-Validate:
-
-### Screens
-
-### Forms
-
-### Dialogs
-
-### Drawers
-
-### Navigation
-
-### User Flows
-
-### Responsive Behavior
-
-### Accessibility Requirements
-
-Finding:
-
-```text
-TECH-FEATURE-DESIGN-{nnn}
-```
+Validate workflow realization.
 
 ---
 
-# Audit Phase 6 — Workflow Realization Validation
-
-Validate:
-
-| Workflow | Realization |
-| -------- | ----------- |
-
-Check:
+## Validate
 
 ### Trigger
 
 ### Processing
 
+### Validation
+
 ### State Changes
 
 ### Outputs
 
-### Failures
+### Failure Handling
 
-### Recovery
-
-Finding:
-
-```text
-TECH-WORKFLOW-{nnn}
-```
+### Recovery Paths
 
 ---
 
-# Audit Phase 7 — State Realization Validation
+## Output
 
-Validate:
+### Workflow Realization Matrix
 
-| Functional State | Technical Realization |
-| ---------------- | --------------------- |
+| Workflow | Realized |
+|----------|----------|
 
-Check:
+---
+
+## Findings
+
+TECH-WORKFLOW-{nnn}
+
+---
+
+# Audit Phase 6 — State Realization Validation
+
+## Goal
+
+Validate state realization.
+
+---
+
+## Validate
 
 ### Entry Conditions
 
 ### Exit Conditions
 
-### Allowed Transitions
+### Valid Transitions
 
 ### Invalid Transitions
 
 ### Recovery Paths
 
-Finding:
-
-```text
-TECH-STATE-{nnn}
-```
+### Terminal States
 
 ---
 
-# Audit Phase 8 — Validation & Error Realization
+## Output
 
-Validate:
+### State Realization Matrix
 
-### Validation Rules
+| State | Realized |
+|--------|----------|
 
-### Business Constraints
+---
+
+## Findings
+
+TECH-STATE-{nnn}
+
+---
+
+# Audit Phase 7 — Permission Realization Validation
+
+## Goal
+
+Validate permission realization.
+
+---
+
+## Validate
+
+### Access Control
+
+### Enforcement
 
 ### Failure Handling
 
-### Recovery Handling
-
-### User Feedback Paths
-
-Required Matrix:
-
-| Rule | Realization |
-| ---- | ----------- |
-
-Finding:
-
-```text
-TECH-VALIDATION-{nnn}
-```
+### Exception Handling
 
 ---
 
-# Audit Phase 9 — Integration Realization
+## Output
 
-Validate:
+### Permission Matrix
+
+| Permission | Realized |
+|------------|----------|
+
+---
+
+## Findings
+
+TECH-PERMISSION-{nnn}
+
+---
+
+# Audit Phase 8 — Validation Realization Validation
+
+## Goal
+
+Validate validation rules.
+
+---
+
+## Validate
+
+### Validation Triggers
+
+### Validation Ownership
+
+### Validation Outcomes
+
+### Recovery Behavior
+
+---
+
+## Output
+
+### Validation Matrix
+
+| Rule | Realized |
+|-------|----------|
+
+---
+
+## Findings
+
+TECH-VALIDATION-{nnn}
+
+---
+
+# Audit Phase 9 — Error Realization Validation
+
+## Goal
+
+Validate failure handling.
+
+---
+
+## Validate
+
+### Detection
+
+### Handling
+
+### Recovery
+
+### Escalation
+
+### Auditability
+
+---
+
+## Output
+
+### Error Matrix
+
+| Error Scenario | Realized |
+|---------------|----------|
+
+---
+
+## Findings
+
+TECH-ERROR-{nnn}
+
+---
+
+# Audit Phase 10 — Integration Realization Validation
+
+## Goal
+
+Validate integration realization.
+
+---
+
+## Validate
 
 ### Internal Integrations
 
 ### External Integrations
 
-### Event Flows
-
 ### Dependency Flows
 
-Required Matrix:
+### Data Flows
 
-| Integration | Realization |
-| ----------- | ----------- |
-
-Finding:
-
-```text
-TECH-INTEGRATION-{nnn}
-```
+### Ownership
 
 ---
 
-# Audit Phase 10 — Ownership Mapping Validation
+## Output
 
-Validate:
+### Integration Matrix
 
-| Responsibility | Owner |
-| -------------- | ----- |
+| Integration | Realized |
+|------------|----------|
 
-Detect:
+---
+
+## Findings
+
+TECH-INTEGRATION-{nnn}
+
+---
+
+# Audit Phase 11 — Ownership Validation
+
+## Goal
+
+Validate ownership mappings.
+
+---
+
+## Validate
 
 ### Missing Ownership
 
@@ -442,139 +500,182 @@ Detect:
 
 ### Ambiguous Ownership
 
-Finding:
-
-```text
-TECH-OWNERSHIP-{nnn}
-```
+### Conflicting Ownership
 
 ---
 
-# Audit Phase 11 — Traceability Validation
+## Output
+
+### Ownership Matrix
+
+| Responsibility | Owner |
+|---------------|-------|
+
+---
+
+## Findings
+
+TECH-OWNERSHIP-{nnn}
+
+---
+
+# Audit Phase 12 — Traceability Validation
 
 ## Goal
 
 Ensure nothing is lost.
 
+---
+
+## Architecture Traceability
+
+Validate:
+
+Every architecture rule is realized.
+
 Required Matrix:
 
-| Source Artifact | Requirement | Realized |
-| --------------- | ----------- | -------- |
-
-Sources:
-
-```text
-Architecture
-Design System
-Feature
-Feature Design
-```
-
-Finding:
-
-```text
-TECH-TRACE-{nnn}
-```
+| Architecture Rule | Realized |
+|------------------|----------|
 
 ---
 
-# Audit Phase 12 — Technical Purity Validation
+## Feature Traceability
+
+Validate:
+
+Every feature requirement is realized.
+
+Required Matrix:
+
+| Feature Requirement | Realized |
+|--------------------|----------|
+
+---
+
+## Findings
+
+TECH-TRACEABILITY-{nnn}
+
+---
+
+# Audit Phase 13 — Internal Consistency Validation
+
+## Goal
+
+Detect contradictions.
+
+---
+
+## Validate
+
+### Responsibility Consistency
+
+### Workflow Consistency
+
+### State Consistency
+
+### Permission Consistency
+
+### Validation Consistency
+
+### Integration Consistency
+
+### Ownership Consistency
+
+---
+
+## Findings
+
+TECH-CONSISTENCY-{nnn}
+
+---
+
+# Audit Phase 14 — Technical Purity Validation
 
 ## Goal
 
 Detect contamination.
 
-### Business Leakage
-
-Examples:
-
-```text
-User stories
-Business strategy
-Product goals
-```
-
-Belong in:
-
-```text
-docs/raw/feature/**
-```
-
-Finding:
-
-```text
-TECH-PURITY-{nnn}
-```
-
 ---
 
-### UX Leakage
+## Architecture Redefinition
 
 Examples:
 
-```text
-Visual layouts
-Wireframes
-Design mockups
-```
+- New architectural patterns
+- New dependency rules
+- New ownership models
 
-Belong in:
-
-```text
-docs/raw/feature-design/**
-```
+Not defined by Architecture.
 
 Finding:
 
-```text
-TECH-PURITY-{nnn}
-```
-
----
-
-### Implementation Leakage
-
-Examples:
-
-```text
-React code
-SQL
-Function bodies
-Algorithms
-Implementation code
-```
-
-Belong in:
-
-```text
-src/**
-```
-
-Finding:
-
-```text
-TECH-PURITY-{nnn}
-```
-
----
-
-### Architecture Redefinition
-
-Examples:
-
-```text
-New patterns
-New dependency rules
-New ownership rules
-```
-
-Not defined in Architecture.
-
-Finding:
-
-```text
 TECH-ARCH-{nnn}
-```
+
+---
+
+## UX Leakage
+
+Examples:
+
+- Screens
+- Dialogs
+- Drawers
+- Navigation
+- User Journeys
+- Responsive Layouts
+
+Belongs to:
+
+docs/raw/feature-design/**
+
+Finding:
+
+TECH-PURITY-{nnn}
+
+---
+
+## Mockup Leakage
+
+Examples:
+
+- Layouts
+- Wireframes
+- Visual Composition
+- Visual Styling
+
+Belongs to:
+
+docs/raw/mockup/**
+
+Finding:
+
+TECH-PURITY-{nnn}
+
+---
+
+## Implementation Leakage
+
+Examples:
+
+- React
+- Angular
+- Flutter
+- Vue
+- TypeScript
+- SQL
+- File Paths
+- Import Statements
+- Export Statements
+
+Belongs to:
+
+src/**
+
+Finding:
+
+TECH-PURITY-{nnn}
 
 ---
 
@@ -582,55 +683,168 @@ TECH-ARCH-{nnn}
 
 ## Feature Coverage Matrix
 
-## Architecture Realization Matrix
+## Architecture Compliance Matrix
 
-## Design System Realization Matrix
-
-## Feature Design Realization Matrix
+## Responsibility Matrix
 
 ## Workflow Realization Matrix
 
 ## State Realization Matrix
 
+## Permission Matrix
+
 ## Validation Matrix
+
+## Error Matrix
 
 ## Integration Matrix
 
 ## Ownership Matrix
 
-## Traceability Matrix
+## Architecture Traceability Matrix
 
-## Technical Purity Matrix
+## Feature Traceability Matrix
+
+## Consistency Matrix
+
+## Purity Matrix
 
 ---
 
-# Scoring
+# Severity Model
 
-| Category                       | Weight |
-| ------------------------------ | ------ |
-| Feature Coverage               | 15%    |
-| Architecture Realization       | 15%    |
-| Design System Realization      | 10%    |
-| Feature Design Realization     | 10%    |
-| Workflow Realization           | 10%    |
-| State Realization              | 10%    |
-| Validation & Error Realization | 10%    |
-| Integration Realization        | 5%     |
-| Ownership Mapping              | 5%     |
-| Traceability                   | 5%     |
-| Technical Purity               | 5%     |
+Critical
+
+- Technical realization impossible
+- Core architecture violation
+- Core feature behavior missing
+
+Major
+
+- Significant workflow/state/validation/integration gap
+
+Minor
+
+- Documentation weakness
+- Missing clarification
+
+Suggestion
+
+- Improvement opportunity
+
+---
+
+# Scoring Model
+
+| Dimension | Weight |
+|------------|---------|
+| Feature Coverage | 20% |
+| Architecture Compliance | 20% |
+| Workflow Realization | 10% |
+| State Realization | 10% |
+| Permission Realization | 5% |
+| Validation Realization | 10% |
+| Error Realization | 5% |
+| Integration Realization | 5% |
+| Ownership Quality | 5% |
+| Traceability | 5% |
+| Technical Purity | 5% |
 
 ---
 
 # Final Assessment
 
-| Score    | Assessment                    |
-| -------- | ----------------------------- |
-| 9.0–10.0 | Excellent                     |
-| 7.0–8.9  | Good                          |
-| 5.0–6.9  | Needs Improvement             |
-| 3.0–4.9  | Major Revision Required       |
-| 0.0–2.9  | Technical Realization Unsound |
+| Score | Assessment |
+|---------|------------|
+| 9.0 – 10.0 | Excellent |
+| 7.0 – 8.9 | Good |
+| 5.0 – 6.9 | Needs Improvement |
+| 3.0 – 4.9 | Major Revision Required |
+| 0.0 – 2.9 | Technical Realization Unsound |
+
+---
+
+# Output Structure
+
+## Executive Summary
+
+## Documents Audited
+
+## Feature Coverage Report
+
+## Architecture Compliance Report
+
+## Responsibility Report
+
+## Workflow Report
+
+## State Report
+
+## Permission Report
+
+## Validation Report
+
+## Error Report
+
+## Integration Report
+
+## Ownership Report
+
+## Traceability Report
+
+## Consistency Report
+
+## Purity Report
+
+## Scoring Breakdown
+
+## Score Improvement Summary
+
+## Top 10 Improvements
+
+## Final Verdict
+
+## Audit Traceability
+
+---
+
+# Score Improvement Summary
+
+Compare against the previous report from `docs/raw/report/feature-technical/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
+
+```text
+Previous Report: {filename}
+Previous Score: X/10
+Current Score: Y/10
+Change: +N / -N / No change
+```
+
+| Dimension                | Previous | Current | Change |
+|--------------------------|----------|---------|--------|
+| Feature Coverage         | X        | Y       | +N     |
+| Architecture Compliance  | X        | Y       | +N     |
+| Workflow Realization     | X        | Y       | +N     |
+| State Realization        | X        | Y       | +N     |
+| Permission Realization   | X        | Y       | +N     |
+| Validation Realization   | X        | Y       | +N     |
+| Error Realization        | X        | Y       | +N     |
+| Integration Realization  | X        | Y       | +N     |
+| Ownership Quality        | X        | Y       | +N     |
+| Traceability             | X        | Y       | +N     |
+| Technical Purity         | X        | Y       | +N     |
+
+If score improved, highlight the categories that drove the improvement and what fixes were applied since the prior audit. If score declined, flag regressions with specific category breakdowns.
+
+---
+
+# Report Rotation
+
+Before writing the new report, rotate the previous report:
+
+```text
+mv docs/raw/report/feature-technical/latest/* docs/raw/report/feature-technical/archive/
+mkdir -p docs/raw/report/feature-technical/latest
+```
 
 ---
 
@@ -642,3 +856,20 @@ docs/raw/report/feature-technical/latest/feature-technical-audit-{timestamp}.md
 
 ---
 
+# Audit Traceability
+
+| Reference                | Location                                                                                |
+|--------------------------|-----------------------------------------------------------------------------------------|
+| Feature Technical Docs   | docs/raw/feature-technical/**                                                           |
+| Architecture Docs        | docs/raw/architecture/**                                                                |
+| Feature Docs             | docs/raw/feature/**                                                                     |
+| Audit Report             | docs/raw/report/feature-technical/latest/feature-technical-audit-{timestamp}.md         |
+| Previous Report          | docs/raw/report/feature-technical/archive/{previous-filename}                           |
+
+---
+
+# Final Rule
+
+A Feature Technical document is considered successful only when:
+
+> Every Feature requirement is realized using the approved Architecture, all responsibilities, workflows, states, permissions, validations, integrations, ownership mappings, and failure scenarios are defined, all architecture constraints are respected, nothing is lost through traceability, and the document contains no UX design, visual design, mockup, implementation, or source-code concerns.

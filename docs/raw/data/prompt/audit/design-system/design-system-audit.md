@@ -799,11 +799,54 @@ DESIGN-READINESS-{nnn}
 
 ## Scoring Breakdown
 
+## Score Improvement Summary
+
 ## Findings
 
 ## Top 10 Improvements
 
 ## Final Verdict
+
+## Audit Traceability
+
+---
+
+# Score Improvement Summary
+
+Compare against the previous report from `docs/raw/report/design-system/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
+
+```text
+Previous Report: {filename}
+Previous Score: X/10
+Current Score: Y/10
+Change: +N / -N / No change
+```
+
+| Dimension                | Previous | Current | Change |
+| ------------------------ | -------- | ------- | ------ |
+| Vision Alignment         | X        | Y       | +N     |
+| Principle Coverage       | X        | Y       | +N     |
+| Rule Quality             | X        | Y       | +N     |
+| Pattern Coverage         | X        | Y       | +N     |
+| Token Coverage           | X        | Y       | +N     |
+| Accessibility Coverage   | X        | Y       | +N     |
+| Localization Coverage    | X        | Y       | +N     |
+| Consistency              | X        | Y       | +N     |
+| Feature Design Readiness | X        | Y       | +N     |
+| Design Purity            | X        | Y       | +N     |
+
+If score improved, highlight the categories that drove the improvement and what fixes were applied since the prior audit. If score declined, flag regressions with specific category breakdowns.
+
+---
+
+# Report Rotation
+
+Before writing the new report, rotate the previous report:
+
+```text
+mv docs/raw/report/design-system/latest/* docs/raw/report/design-system/archive/
+mkdir -p docs/raw/report/design-system/latest
+```
 
 ---
 
@@ -812,6 +855,16 @@ DESIGN-READINESS-{nnn}
 ```text
 docs/raw/report/design-system/latest/design-system-audit-{timestamp}.md
 ```
+
+---
+
+# Audit Traceability
+
+| Reference             | Location                                                                  |
+| --------------------- | ------------------------------------------------------------------------- |
+| Design System Docs    | docs/raw/design-system/**                                                 |
+| Audit Report          | docs/raw/report/design-system/latest/design-system-audit-{timestamp}.md   |
+| Previous Report       | docs/raw/report/design-system/archive/{previous-filename}                 |
 
 ---
 
