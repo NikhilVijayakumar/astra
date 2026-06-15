@@ -34,6 +34,17 @@ Provides a comprehensive header for page-level content. Supports primary and sec
 - **Minimal** — Only title provided; all optional sections omitted
 - **Partial** — Any combination of optional props present; each section independently renderable
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Minimal | Partial | One or more optional props (subtitle, action, meta) are provided |
+| Minimal | Full | All optional props are provided |
+| Partial | Full | The remaining optional props are provided |
+| Partial | Minimal | All optional props removed; only title remains |
+| Full | Partial | One or more optional props removed |
+| Full | Minimal | All optional props removed |
+
 ## Edge Cases
 
 - No subtitle provided: Subtitle slot is omitted; title renders alone

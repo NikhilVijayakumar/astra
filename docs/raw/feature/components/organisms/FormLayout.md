@@ -34,6 +34,17 @@ Provides consistent vertical layout for form pages. Includes an optional title h
 - **No actions** — Footer section omitted
 - **Empty children** — Empty flex column rendered (invisible to user)
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Idle | No title | Title prop removed or set to empty |
+| Idle | No actions | Actions prop removed |
+| Idle | Empty children | Children removed |
+| No title | Idle | Title prop provided |
+| No actions | Idle | Actions prop provided |
+| Empty children | Idle | Children provided to the layout body |
+
 ## Edge Cases
 
 - No title provided: Header section omitted entirely

@@ -33,6 +33,15 @@ Shows a metric label and value in a compact card format, with an optional trend 
 - **With trend** — Trend value and direction provided; indicator rendered with color-coded direction
 - **Without trend** — Only label and value shown; no trend indicator
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Loaded | With trend | Trend value and direction props are provided |
+| Loaded | Without trend | Trend props are absent or trend value is omitted |
+| With trend | Without trend | Trend value removed; indicator no longer renders |
+| Without trend | With trend | Trend value provided; indicator renders with direction color |
+
 ## Edge Cases
 
 - No trend value provided: Trend indicator not rendered

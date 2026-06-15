@@ -1,5 +1,7 @@
 # Astra — Core Design Rules
 
+> **Canonical source:** `design.md §1 — Brand Philosophy` is the single source of truth for these rules. This document provides the verbose format for deeper reading. If the two ever conflict, design.md §1 takes precedence.
+
 *(Premium Product Design Principles)*
 
 ## Rule 1 — Radical Simplicity

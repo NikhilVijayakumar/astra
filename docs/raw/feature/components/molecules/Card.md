@@ -33,6 +33,17 @@ A versatile card component that wraps content in a bordered surface. Supports a 
 - **Empty** — No header props and no children; renders as empty surface with padding and border
 - **No header** — Only children rendered without title or action sections
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Full | No header | All header props are removed; only children remain |
+| Full | Empty | All props removed; renders empty bordered surface |
+| No header | Full | Header props (title, action, supporting text) provided |
+| No header | Empty | Children removed; no header props present |
+| Empty | No header | Children provided with no header props |
+| Empty | Full | Children and header props both provided |
+
 ## Edge Cases
 
 - All header props omitted: Header row not rendered; only children displayed

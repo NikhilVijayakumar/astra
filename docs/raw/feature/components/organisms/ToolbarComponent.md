@@ -37,6 +37,15 @@ A fixed-position top bar that displays a mobile menu toggle button, a page title
 - **Mobile** — Menu icon button visible (small screens)
 - **Desktop** — Menu icon hidden (larger screens)
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Mobile | Desktop | Viewport width crosses the breakpoint threshold to a larger screen size |
+| Desktop | Mobile | Viewport width crosses the breakpoint threshold to a small screen size |
+| Idle | Mobile | Component mounts on a small-screen viewport |
+| Idle | Desktop | Component mounts on a large-screen viewport |
+
 ## Edge Cases
 
 - Long title: Title text truncates with ellipsis

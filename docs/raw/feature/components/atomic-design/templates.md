@@ -130,12 +130,25 @@ Primitives Functional  Complex    Layout
 - **Populated** — Template rendered with organisms/molecules in content slots
 - **Responsive** — Layout adapts to viewport breakpoints defined in the template
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Empty | Populated | Children or organisms are provided into content slots |
+| Populated | Empty | All slot content is removed or unmounted |
+| Populated | Responsive | Viewport width crosses a defined breakpoint threshold |
+| Empty | Responsive | Template mounts with no children on a narrow viewport |
+
 ## Error Conditions
 
 - **Missing children** — Template with all optional slots renders empty layout
 - **Invalid slot arrangement** — Organisms placed in wrong slots cause layout breakage
 - **Responsive breakpoint mismatch** — Template defines breakpoints inconsistent with organism content requirements
 - **Business logic leak** — Data fetching or state management accidentally added to template
+
+## Authorization
+
+**Visibility:** Internal — template components define page-level layout structure; they are developer-facing layout primitives used within authenticated application pages.
 
 ## User Journey
 
@@ -176,6 +189,13 @@ The template is designed for a single page — the developer evaluates whether i
 
 ### Completion Criteria
 The template passes the design checklist, is placed in the correct directory, and is usable by multiple pages.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [Organisms tier](./organisms.md) — the components that templates arrange
+- [Atomic Design Methodology](./README.md) — classification rules and decision flowchart
 
 ## Future Enhancements
 

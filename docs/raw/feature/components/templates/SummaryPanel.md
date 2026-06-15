@@ -33,6 +33,17 @@ Renders a panel with a title header and an array of text lines, each configurabl
 - **Empty** — Lines array is empty; renders title only with no body content
 - **Single variant** — All lines share same variant; consistent display with no hierarchy
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Empty | Populated | Lines array updated with one or more entries |
+| Empty | Single variant | Lines array updated with entries all sharing the same variant |
+| Populated | Empty | Lines array set to empty |
+| Populated | Single variant | All line variants changed to the same value |
+| Single variant | Populated | A line with a different variant is added |
+| Single variant | Empty | Lines array set to empty |
+
 ## Edge Cases
 
 - Empty lines array: Renders title only with no text lines

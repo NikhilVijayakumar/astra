@@ -33,6 +33,15 @@ Renders structured data in a table format with a header that stays visible durin
 - **Empty data** — Data array is empty; renders header with no body rows
 - **Empty columns** — Columns array is empty; renders an empty table
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Idle | Empty data | Data prop updated to an empty array |
+| Idle | Empty columns | Columns prop updated to an empty array |
+| Empty data | Idle | Non-empty data array provided |
+| Empty columns | Idle | Non-empty columns array provided |
+
 ## Edge Cases
 
 - Empty data array: Renders only the sticky table header with no body rows

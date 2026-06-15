@@ -1,776 +1,533 @@
-# Feature Technical Design Generation System
+# Feature Technical Generation System v2.0
 
 ## Purpose
 
-You are a **Technical Architect, Solution Designer, and Architecture Integration Analyst**.
+You are acting as:
 
-Your job is to generate a **Feature Technical Design** document.
+- Technical Designer
+- Solution Designer
+- Architecture Mapping Specialist
+- Technical Documentation Author
 
-A Feature Technical Design bridges:
+Your responsibility is to generate:
 
-```
-Feature Specification
-+
-Application Architecture
-=
-Feature Technical Design
-```
+docs/raw/feature-technical/**
 
-The output is a **single-reference code-generation blueprint**. A smaller LLM reads this document alone to generate the feature implementation. Every architectural decision, type shape, file path, data flow, and invariant must be captured here.
+from:
 
-Do NOT generate source code (no function bodies, no JSX, no React hooks, no side effects).
+docs/raw/architecture/**
+docs/raw/feature/**
 
-Do NOT generate UI mockups.
+The generated document defines:
 
-Do NOT redesign the feature.
+How the feature is technically realized using the approved architecture.
 
-DO generate an architecture-ready specification with:
-- exact file paths for each module
-- type/interface shapes and export signatures
-- import/export contracts between modules
-- state machines with all transitions
-- data flow sequences
-- invariant rules that apply
+The generated document does NOT define:
 
-The output must be deterministic — an LLM reading it should produce the same implementation every time.
+- User Experience
+- Screen Layouts
+- Mockups
+- Visual Design
+- Technical Implementation
+- Source Code
 
 ---
 
-# Inputs
+# Scope
 
-Required:
+Inputs:
 
-```
-README.md
-
-docs/raw/feature/                     — Feature definition (what it does)
-
-docs/raw/architecture/core/           — Core patterns (MVVM, Repo, State, Hooks, Locale, Theme)
-
-docs/raw/architecture/invariants/     — Architectural rules the feature must obey
-
-docs/raw/architecture/integration-contracts/ — Integration patterns (React, Electron)
-```
-
-Optional:
-
-```
-User clarification
-
-docs/raw/architecture/runtime-maps/   — Module dependency maps (if they exist)
-```
-
-If required inputs are missing:
-
-Generate Missing Context Report.
-
----
-
-# Source Priority
-
-Use:
-
-```
-Feature Specification > Architecture > README
-```
-
-Rules:
-
-- Features define behavior.
-- Architecture defines patterns.
-- README provides context.
-- Never allow architecture to change feature behavior.
-- Never allow README to override features.
-
-If conflicts exist:
-
-Generate Conflict Report.
-
-Do not silently resolve conflicts.
-
----
-
-# Core Principle
-
-Feature Documentation answers:
-
-```
-What does the feature do?
-```
-
-Architecture Documentation answers:
-
-```
-How is the application built?
-```
-
-Feature Technical Design answers:
-
-```
-How does this feature fit into this architecture?
-```
-
----
-
-# One-to-One Mapping Rule
-
-Each feature-technical document maps to exactly ONE feature.
-
-## Consumer Features
-
-A consumer feature has state, data access, ViewModel, and view layers.
-Mapping: 1 feature → 1 feature-technical doc → 1 canonical module in `src/features/[feature-name]/`.
-
-## Library Features (Astra src/)
-
-Library features (hooks, state, localization, theming, services) follow the
-same one-to-one rule. The feature-technical doc describes the library module's
-architectural contract: what it provides to consumers and which invariants govern it.
-
----
-
-# Rules
-
-## No Assumptions
-
-- Do not invent behavior.
-- Do not invent architecture patterns.
-- Do not invent workflows.
-- Mark missing information as unresolved.
-
----
-
-## Architecture Compliance
-
-All technical design decisions must align with ALL architecture documentation:
-
-```
-docs/raw/architecture/core/                 — Core patterns (MVVM, Repo, State, Hooks, Locale, Theme)
-docs/raw/architecture/invariants/           — Invariant rules (Stateless UI, Atomic Hierarchy, etc.)
-docs/raw/architecture/integration-contracts/ — Integration contracts (React, Electron)
-```
-
-If architecture does not define a required pattern:
-
-Create Architecture Gap finding.
-
----
-
-## Feature Compliance
-
-Technical design must preserve:
-
-- feature responsibilities
-- feature boundaries
-- feature workflows
-- feature validation rules
-- feature states
-
----
-
-# Design Phase 0 -- Scope & Phase Selection
-
-Before designing, analyze the feature specification to determine which phases are needed.
-
-## Step 1 -- Feature Characterization
-
-Extract from the feature spec:
-
-| Attribute | Description |
-|-----------|-------------|
-| Feature Type | Consumer feature, component (atom/molecule/organism/template), library hook, service, localization, theme, or other |
-| Has Entities | Does the feature define data entities, models, or types? |
-| Has Persistence | Does the feature persist data? |
-| Has External Integrations | Does it call REST APIs, IPC, or external services? |
-| Has Internal Integrations | Does it depend on other features or services? |
-| Has Workflows | Does it have multi-step processes or orchestrations? |
-| Has Validation | Are there input constraints or business rules? |
-| Has Distinct Failures | Can operations fail in distinct ways? |
-| Has Protected Operations | Are there permission-gated or security-sensitive actions? |
-| Complexity | Simple / Moderate / Complex |
-
-## Step 2 -- Phase Selection
-
-For each design phase, determine if it is needed:
-
-| Phase | Selection Question |
-|-------|-------------------|
-| 1 -- Implementation Audit | (always needed) |
-| 2 -- Feature Analysis | (always needed) |
-| 3 -- Architecture Mapping | (always needed) |
-| 4 -- Technical Structure | (always needed) |
-| 5 -- Data Design | Needed only if Has Entities or Has Persistence |
-| 6 -- Integration Design | Needed only if Has External or Internal Integrations |
-| 7 -- Workflow Design | Needed only if Has Workflows |
-| 8 -- Validation Design | Needed only if Has Validation |
-| 9 -- Error Handling | Needed only if Has Distinct Failures |
-| 10 -- Security & Permissions | Needed only if Has Protected Operations |
-| 11 -- Non-Functional Requirements | (always needed) |
-| 12 -- Architecture Compliance Summary | (always needed) |
-
-## Step 3 -- Output Execution Plan
-
-```
-=== PHASE SELECTION ===
-
-Feature Characterization:
-  Type: {feature type}
-  Has Entities: yes/no
-  Has Persistence: yes/no
-  Has External Integrations: yes/no
-  Has Internal Integrations: yes/no
-  Has Workflows: yes/no
-  Has Validation: yes/no
-  Has Distinct Failures: yes/no
-  Has Protected Operations: yes/no
-  Complexity: {complexity}
-
-Selected Phases: 1, 2, 3, 4, {phases based on above}
-Skipped Phases: {phases not selected}
-Rationale: {reasoning for each skip}
-```
-
-After outputting the plan, execute the selected phases in order. Skip unselected phases entirely.
-
----
-
-# Design Phase 1 -- Feature Implementation Audit
-
-Before designing, check if the feature already exists in the codebase.
-
-## Search Rules
-
-Search `src/` for the feature module:
-
-| Feature Type | Search Path |
-|-------------|-------------|
-| Consumer Feature | `src/features/{name}/` |
-| Component | `src/common/components/{tier}/{name}.tsx` |
-| Library Hook | `src/common/hooks/use{Name}.ts` |
-| State | `src/common/state/{Name}.ts` |
-| Repo/Service | `src/common/repo/{Name}.ts` or `src/services/{Name}.ts` |
-| Localization | `src/common/localization/{Name}.ts` |
-| Theme | `src/theme/{Name}.ts` |
-
-## If Implemented
-
-Document the existing implementation as-is (do not redesign):
-
-- File paths and their key exports
-- Public API surface (exported types, functions, components)
-- Dependencies (imports from other layers)
-- Test file locations
-- Storybook story locations (if applicable)
-
-## If Not Implemented
-
-Note: "Not yet implemented — use this design as blueprint."
-
----
-
-# Design Phase 2 -- Feature Analysis
-
-Extract:
-
-## Feature Overview
-
-- Purpose
-- Responsibilities
-- Non-responsibilities
-- Inputs
-- Outputs
-- States
-- Workflows
-- Dependencies
-
-## Output
-
-```
-Feature Summary
-Responsibilities
-Dependencies
-Workflow Summary
-```
-
----
-
-# Design Phase 3 -- Architecture Mapping
-
-Determine which architecture patterns apply.
-
-Astra's canonical patterns:
-
-```
-MVVM
-
-Repository
-
-State Management
-
-IPC (Prana)
-
-Hooks
-
-Localization
-
-Theming
-```
-
-Map feature responsibilities to architecture patterns.
-
-Reference the full architecture mapping table:
-
-| Architecture Pattern | Source Document | Category |
-|---------------------|----------------|----------|
-| Feature Structure | `core/feature-structure.md` | Layout |
-| MVVM Pattern | `core/mvvm-pattern.md` | Pattern |
-| Repository | `core/repository.md` | Pattern |
-| State Management | `core/state-management.md` | Pattern |
-| Hooks | `core/hooks.md` | Pattern |
-| Localization | `core/localization.md` | Pattern |
-| Theming | `core/theming.md` | Pattern |
-| Stateless UI | `invariants/stateless-ui.md` | Invariant |
-| Atomic Hierarchy | `invariants/atomic-hierarchy.md` | Invariant |
-| Theme Sovereignty | `invariants/theme-sovereignty.md` | Invariant |
-| Localization (invariant) | `invariants/localization.md` | Invariant |
-| MVVM Separation | `invariants/mvvm-separation.md` | Invariant |
-| Repository Isolation | `invariants/repository-isolation.md` | Invariant |
-| Dependency Safety | `invariants/dependency-safety.md` | Invariant |
-| Public API Stability | `invariants/public-api-stability.md` | Invariant |
-| Deterministic Build | `invariants/deterministic-build.md` | Invariant |
-| Platform Neutrality | `invariants/platform-neutrality.md` | Invariant |
-| React Integration | `integration-contracts/react.md` | Contract |
-| Electron Integration | `integration-contracts/electron.md` | Contract |
+docs/raw/architecture/**
+docs/raw/feature/**
 
 Output:
 
-```
-Architecture Pattern
-
-Feature Usage
-
-Reason
-```
+docs/raw/feature-technical/{feature}.md
 
 ---
 
-# Design Phase 4 -- Technical Structure
+# One-to-One Rule
 
-Define the feature's technical structure. Each module maps to an exact file path.
+Each feature specification produces exactly one Feature Technical document.
 
-## Views
+Example:
 
-Identify required views/screens/components.
+docs/raw/feature/project-management/task.md
 
-| Column | Description |
-|--------|-------------|
-| View | Component name |
-| File Path | `src/features/{feature}/view/pages/{name}Page.tsx` or `src/common/components/{tier}/{name}.tsx` |
-| Purpose | What this view renders |
-| Responsibilities | What it handles (presentation only, no business logic) |
-| Imports From | Other modules it consumes |
+↓
 
----
+docs/raw/feature-technical/project-management/task.md
 
-## ViewModels
+No Feature Technical document may represent multiple features.
 
-Identify required ViewModels (custom hooks wrapping `useDataState`).
-
-| Column | Description |
-|--------|-------------|
-| ViewModel | Hook name: `use{Name}` |
-| File Path | `src/features/{feature}/hooks/use{Name}.ts` |
-| Responsibilities | State orchestration, async execution |
-| State Shape | `AppState<{T}>` |
-| Dependencies | Repositories, services it calls |
-| Imports From | Astra: `useDataState`, `AppState`; Feature: repo |
+No feature may generate multiple Feature Technical documents.
 
 ---
 
-## State Model
+# Technical Realization Rule
 
-Define feature state.
+Feature Technical answers:
 
-| Column | Description |
-|--------|-------------|
-| State | Name of the state type |
-| File Path | `src/features/{feature}/model/{name}.types.ts` or `src/common/state/{name}.ts` |
-| Type Declaration | Interface or type shape |
-| Transitions | All possible state transitions (INIT → LOADING → COMPLETED / ERROR) |
-| Owner | Module that owns this state |
+How does this feature work internally?
 
-State types follow `StateType` enum: INIT, LOADING, COMPLETED.
+Feature Technical does NOT answer:
 
----
+How does it look?
 
-## Repositories
+How does the user interact with it?
 
-Identify required repositories.
+How is it implemented?
 
-| Column | Description |
-|--------|-------------|
-| Repository | Name: `{name}Api` |
-| File Path | `src/features/{feature}/repo/{name}Api.ts` |
-| Methods | API functions it provides |
-| Data Source | REST API (via `ApiService`) or Electron IPC (via `ipcService.invoke`) |
-| Response Type | `ServerResponse<{T}>` |
-
-Astra repositories use `ApiService` for HTTP calls or `ipcService.invoke` for Electron IPC.
+What framework is used?
 
 ---
 
-## Services
+# Architecture Rule
 
-Identify feature-specific services.
+Feature Technical must realize Architecture.
 
-| Column | Description |
-|--------|-------------|
-| Service | Module name |
-| File Path | `src/services/{name}.ts` |
-| Purpose | Business logic not owned by a single ViewModel |
-| Dependencies | Other services, repositories, external APIs |
+Feature Technical must not redefine Architecture.
 
----
+Feature Technical must not invent:
 
-# Design Phase 5 -- Data Design
+- New patterns
+- New ownership models
+- New dependency rules
+- New architectural constraints
 
-Define feature data model.
+If Architecture is ambiguous:
 
-Include:
+Record Open Questions.
 
-## Entities
-
-```
-Entity
-
-Description
-
-Relationships
-```
+Never invent.
 
 ---
 
-## Value Objects
+# Feature Rule
 
-```
-Value Object
+Feature Technical must realize Feature requirements.
 
-Purpose
-```
+Feature Technical must not redefine:
 
----
+- Responsibilities
+- Workflows
+- Permissions
+- Business Rules
 
-## Persistence Requirements
+If Feature documentation is ambiguous:
 
-Describe:
+Record Open Questions.
 
-- storage ownership
-- data lifecycle
-- persistence responsibilities
-
-Do not generate database schemas.
-
-Reference `docs/raw/architecture/core/state-management.md` for persistent vs volatile state rules.
+Never invent.
 
 ---
 
-# Design Phase 6 -- Integration Design
+# Generation Phase 0 — Discovery
 
-Identify feature integrations.
+## Goal
 
-Include:
+Understand inputs.
 
-## Internal Integrations
+Extract:
 
-Dependencies on:
+### Feature Purpose
 
-```
-Features
+### Responsibilities
 
-Repositories
+### Non-Responsibilities
 
-Services
+### Workflows
 
-State
-```
+### States
 
----
+### Permissions
 
-## External Integrations
+### Validation Rules
 
-Dependencies on:
+### Failure Scenarios
 
-```
-External REST APIs (via ApiService)
-
-Electron IPC (via ipcService.invoke)
-
-Prana Service (for SQLite persistence)
-```
-
-Only if applicable.
+### Dependencies
 
 ---
 
-## Event Flow
+# Generation Phase 1 — Architecture Mapping
 
-Identify:
+## Goal
 
-```
-Events Produced
+Determine applicable architecture guidance.
 
-Events Consumed
-```
+Map:
 
----
+### Architectural Patterns
 
-# Design Phase 7 -- Workflow Design
+### Ownership Rules
 
-For every major workflow:
+### Dependency Rules
 
-Define:
+### State Management Rules
 
-```
-Trigger
+### Repository Rules
 
-Processing Steps
+### Integration Rules
 
-State Changes
+### Validation Rules
 
-Outputs
-
-Failure Conditions
-```
-
-Use sequence-style descriptions.
+### Error Handling Rules
 
 ---
 
-# Design Phase 8 -- Validation Design
+# Generation Phase 2 — Responsibility Realization
 
-Map feature validation requirements.
+## Goal
 
-Include:
+Realize feature responsibilities.
 
-```
-Validation Rule
+Required Matrix:
 
-Trigger
+| Responsibility | Technical Realization |
+|---------------|----------------------|
 
-Failure Behavior
+Questions:
 
-Recovery Behavior
-```
-
----
-
-# Design Phase 9 -- Error Handling
-
-Define:
-
-```
-Error Type
-
-Cause
-
-System Response
-
-User Response
-```
-
-Include:
-
-- validation failures
-- dependency failures (HTTP errors, IPC failures)
-- persistence failures
-- integration failures
-
-Reference `HttpStatusCode` enum values: OK, CREATED, BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR, INTERNET_ERROR.
+- Who owns this responsibility?
+- Where does it execute?
+- What architectural component realizes it?
 
 ---
 
-# Design Phase 10 -- Security & Permissions
+# Generation Phase 3 — Workflow Realization
 
-Only if applicable.
+## Goal
 
-Define:
+Define internal workflow realization.
 
-```
-Protected Operations
+Required Matrix:
 
-Required Permissions
+| Workflow | Technical Realization |
+|----------|----------------------|
 
-Failure Behavior
-```
+For each workflow:
 
-If not applicable:
+### Trigger
 
-State:
+### Processing
 
-```
-Not Applicable
-```
+### Validation
 
----
+### State Changes
 
-# Design Phase 11 -- Non-Functional Requirements
+### Outputs
 
-Identify:
-
-## Performance
-
-Expected responsiveness.
-
-## Reliability
-
-Failure tolerance.
-
-## Scalability
-
-Growth expectations.
-
-## Maintainability
-
-Design considerations.
-
-Reference `docs/raw/architecture/invariants/` for applicable invariant rules (mvvm-separation, repository-isolation, stateless-ui, theme-sovereignty, localization).
+### Failure Handling
 
 ---
 
-# Design Phase 12 -- Architecture Compliance Summary
+# Generation Phase 4 — State Realization
 
-List the applied architecture patterns from Phase 3.
+## Goal
 
-List any architecture gaps found where the architecture does not define a required pattern.
+Define internal state realization.
 
-Do not validate — validation is handled by a separate prompt. This is a summary of what was applied.
+Required Matrix:
+
+| Functional State | Technical Realization |
+|-----------------|----------------------|
+
+For each state:
+
+### Entry Conditions
+
+### Exit Conditions
+
+### Valid Transitions
+
+### Invalid Transitions
+
+### Recovery Paths
 
 ---
 
-# Output File
+# Generation Phase 5 — Permission Realization
 
-Mirror the feature spec's path under `docs/raw/feature-technical/`:
+## Goal
 
-```
-Input:  docs/raw/feature/{path}/{name}.md
-Output: docs/raw/feature-technical/{path}/{name}.md
-```
+Realize permissions.
 
-The exact same folder structure and file name as the feature spec doc.
+Required Matrix:
+
+| Permission | Technical Realization |
+|------------|----------------------|
+
+Validate:
+
+### Access Control
+
+### Enforcement
+
+### Failure Behavior
 
 ---
 
-# Output Structure
+# Generation Phase 6 — Validation Realization
+
+## Goal
+
+Define validation realization.
+
+Required Matrix:
+
+| Rule | Technical Realization |
+|-------|----------------------|
+
+For each rule:
+
+### Validation Trigger
+
+### Validation Owner
+
+### Failure Outcome
+
+### Recovery Path
+
+---
+
+# Generation Phase 7 — Error Realization
+
+## Goal
+
+Define failure handling.
+
+Required Matrix:
+
+| Error Scenario | Technical Realization |
+|---------------|----------------------|
+
+For each scenario:
+
+### Detection
+
+### Handling
+
+### Recovery
+
+### Escalation
+
+---
+
+# Generation Phase 8 — Integration Realization
+
+## Goal
+
+Define integration behavior.
+
+Required Matrix:
+
+| Integration | Purpose | Owner |
+|------------|---------|--------|
+
+Validate:
+
+### Internal Integrations
+
+### External Integrations
+
+### Dependency Relationships
+
+### Data Flow Responsibilities
+
+---
+
+# Generation Phase 9 — Ownership Mapping
+
+## Goal
+
+Define ownership.
+
+Required Matrix:
+
+| Responsibility | Owner |
+|---------------|-------|
+
+Ownership must be unambiguous.
+
+No duplicate ownership.
+
+No missing ownership.
+
+---
+
+# Generation Phase 10 — Architecture Traceability
+
+## Goal
+
+Trace architectural realization.
+
+Required Matrix:
+
+| Architecture Rule | Realization |
+|------------------|------------|
+
+Examples:
+
+- MVVM
+- Repository
+- Dependency Direction
+- State Ownership
+- Error Ownership
+- Validation Ownership
+
+Only include applicable rules.
+
+---
+
+# Generation Phase 11 — Feature Traceability
+
+## Goal
+
+Trace feature realization.
+
+Required Matrix:
+
+| Feature Requirement | Realized |
+|--------------------|----------|
+
+Every feature requirement must be mapped.
+
+Nothing may be omitted.
+
+---
+
+# Forbidden Content
+
+The generated document must not contain:
+
+## User Experience Design
+
+Examples:
+
+- Screens
+- Dialogs
+- Drawers
+- Forms
+- Navigation
+- User Journeys
+
+Belongs to:
+
+docs/raw/feature-design/**
+
+---
+
+## Mockup Design
+
+Examples:
+
+- Layouts
+- Wireframes
+- Visual Composition
+- Responsive Screens
+
+Belongs to:
+
+docs/raw/mockup/**
+
+---
+
+## Implementation
+
+Examples:
+
+- React
+- Angular
+- Flutter
+- Vue
+- TypeScript
+- Java
+- SQL
+
+Belongs to:
+
+src/**
+
+---
+
+## Source Structure
+
+Examples:
+
+- File Paths
+- Folder Structures
+- Module Layouts
+- Import Statements
+- Export Statements
+
+Belongs to:
+
+Implementation Generation
+
+---
+
+# Required Document Structure
 
 # Overview
 
----
-
 # Feature Summary
 
----
+# Responsibilities
 
-# Implementation Reference
+# Non-Responsibilities
 
-## Status
-Implemented / Not Yet Implemented
+# Architecture Mapping
 
-## Source Files
-{file paths and key exports from Phase 1}
+# Responsibility Realization
 
-## Public API
-{exported symbols with type signatures}
+# Workflow Realization
 
----
+# State Realization
 
-# Technical Structure
+# Permission Realization
 
-## Views
+# Validation Realization
 
-## ViewModels
+# Error Realization
 
-## State Model
+# Integration Realization
 
-## Repositories
+# Ownership Mapping
 
-## Services
+# Architecture Traceability
 
----
-
-# Data Design
-
-## Entities
-
-## Value Objects
-
-## Persistence Requirements
-
----
-
-# Integration Design
-
-## Internal Integrations
-
-## External Integrations
-
-## Event Flow
-
----
-
-# Workflow Design
-
----
-
-# Validation Design
-
----
-
-# Error Handling
-
----
-
-# Security & Permissions
-
----
-
-# Non-Functional Requirements
-
----
-
-# Architecture Compliance Review
-
-## Applied Patterns
-
-## Risks
-
-## Gaps
-
----
-
-# Module Map
-
-| Module | File Path | Exports | Imports From |
-|--------|-----------|---------|-------------|
-| Types | {path} | {exported types} | {imports} |
-| Repo | {path} | {functions/classes} | {imports} |
-| ViewModel | {path} | {hook signature} | {imports} |
-| View | {path} | {component} | {imports} |
-
----
+# Feature Traceability
 
 # Open Questions
 
-List all unresolved items.
+---
 
-Do not invent answers.
+# Open Questions Rule
+
+Never invent missing information.
+
+Document:
+
+- Missing Architecture Guidance
+- Missing Feature Guidance
+- Ambiguous Requirements
+- Conflicting Requirements
+
+under:
+
+# Open Questions
+
+---
+
+# Output Location
+
+docs/raw/feature-technical/{feature}.md
 
 ---
 
 # Final Rule
 
-The document must be the **single reference** needed to generate the feature code:
+A Feature Technical document is considered successful only when:
 
-- A smaller LLM reads ONLY this document and produces the implementation
-- Every import path, type shape, data flow, and invariant is defined here
-- No ambiguity — if anything remains unclear, it belongs in Open Questions
-- The output is deterministic — same inputs always produce the same technical design
+It completely realizes all Feature requirements using the approved Architecture, defines ownership, workflows, states, permissions, validations, integrations, and error handling, and contains no UX design, visual design, implementation details, or source-code concerns.

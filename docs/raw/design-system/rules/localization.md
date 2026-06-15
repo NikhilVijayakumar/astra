@@ -91,3 +91,38 @@ To assist the **Verification Project**, the Agent must tag every localized eleme
 
 ---
 
+## 7. Localization × Accessibility
+
+Localization changes can introduce accessibility regressions. These rules apply whenever locale-specific content is rendered.
+
+### RTL + Screen Reader Behavior
+
+* Set `dir="rtl"` on `<html>` — not on individual elements. Screen readers use this to announce reading direction.
+* Never apply `dir` via CSS `direction` property alone — screen readers do not read CSS.
+* Landmark elements (`<nav>`, `<aside>`, `<header>`) must remain semantically correct in RTL. Their visual mirroring does not change their ARIA role.
+* Icon-only buttons: when icons are mirrored (`transform: scaleX(-1)`), `aria-label` must still describe the intent in the active locale language.
+
+### Indic Script Contrast
+
+* Malayalam (`ml`) and Hindi (`hi`) scripts have denser glyph structures. Text at the minimum 4.5:1 contrast ratio may appear visually heavier — verify contrast visually at target font weight, not just via automated tools.
+* Avoid font weights below `400` for Indic scripts on dark surfaces — thin strokes lose legibility at small sizes.
+* Minimum `line-height: 1.7` for Indic body text (versus 1.5 for Latin) to prevent ascender/descender clipping that obscures characters used for screen reader pronunciation.
+
+### Text Expansion + Layout Reflow
+
+* German, Finnish, and other expansion-heavy languages can expand strings by 30–40%. Ensure interactive elements (buttons, tabs, labels) do not clip or truncate — this hides content from screen readers.
+* Use `overflow: visible` or proper wrapping on elements that receive localized text. Clipped text is not announced by screen readers.
+
+### lang Attribute
+
+* Always set `lang` attribute on `<html>` to the active locale code (`en`, `ml`, `hi`, etc.).
+* Screen readers use `lang` to switch pronunciation engines. Without it, assistive technology reads Malayalam text with English phoneme rules — unintelligible output.
+* For inline multilingual content (e.g., a product name in English within a Malayalam page), use `lang` on the specific element: `<span lang="en">Astra</span>`.
+
+### Focus and Keyboard in RTL
+
+* Tab order in RTL should follow visual reading order (right-to-left). Verify that DOM order matches the RTL layout.
+* Focus ring direction is inherited from the layout — no special handling needed if CSS logical properties are used correctly.
+
+---
+

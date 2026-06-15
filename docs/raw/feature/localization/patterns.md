@@ -76,6 +76,15 @@ es: {
 - **Undefined:** Patterns are convention-only — no runtime enforcement via tooling or lint rules
 - **Extended:** Adding a new language following the documented pattern
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Defined | Extended | A developer adds a new language dictionary following conventions |
+| Extended | Defined | New language addition is complete and verified |
+| Defined | Undefined | Conventions diverge across features with no enforcement; pattern consistency degrades |
+| Undefined | Defined | Patterns are re-aligned and documented with examples |
+
 ## Edge Cases
 
 - **Missing key in active language**: Consuming code must handle with fallback or optional chaining

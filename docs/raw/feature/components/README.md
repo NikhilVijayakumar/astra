@@ -35,6 +35,15 @@ The UI component library is organized by atomic design methodology into four tie
 - **Unclassified** — New component exists but not assigned to a tier
 - **Deprecated** — Component superseded by newer version
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Unclassified | Organized | Developer assigns component to a tier per atomic design methodology |
+| Organized | Deprecated | Component is superseded by a newer implementation |
+| Deprecated | Organized | Deprecated component is revived or replaced in the same tier |
+| Organized | Unclassified | Component is moved between tiers pending re-review |
+
 ## Edge Cases
 
 - **Cross-Tier Components**: A component that could logically fit multiple tiers; use the Atomic Design flowchart to resolve
@@ -46,6 +55,10 @@ The UI component library is organized by atomic design methodology into four tie
 
 - **Cross-tier dependency violation** — A lower-tier component depends on a higher-tier component, creating a composition direction that violates atomic design ordering
 - **Unclassified component** — A component is added to the library without tier assignment, making it undiscoverable and inconsistently composed
+
+## Authorization
+
+**Visibility:** Internal — the component library is a developer-facing resource; all contributors may browse, compose, and classify components without access restrictions.
 
 ## User Journey
 
@@ -86,6 +99,12 @@ A component could fit multiple tiers — the developer uses the atomic design fl
 
 ### Completion Criteria
 The developer locates the correct component or assigns the new component to the correct tier.
+
+## See Also
+
+- [Glossary](../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../concepts/authorization.md) — cross-cutting permission rules
+- [Atomic Design Methodology](./atomic-design/README.md) — classification rules and decision flowchart
 
 ## Atomic Design Methodology
 

@@ -39,6 +39,8 @@ Every visual decision should support **focus and simplicity**.
 
 # 2. Premium Design Principles
 
+> **Canonical source:** These 10 principles correspond 1-to-1 with the Core Design Rules in `design.md §1`. In design.md they are called "Rules"; here they are called "Principles" — same concepts, same authority. `design.md §1` is the single source of truth. Updates must be made there first.
+
 ### 1 — Radical Simplicity
 
 Interfaces should be clean and free from unnecessary decoration.

@@ -91,11 +91,25 @@ Before creating an atom, verify:
 - **Borderline** — 4+ props; should be evaluated as potential molecule
 - **Degraded** — Contains internal state, business logic, or component imports
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Compliant | Borderline | Prop count increases beyond 3 |
+| Compliant | Degraded | Internal state or logic added |
+| Borderline | Compliant | Props reduced to 3 or fewer |
+| Borderline | Degraded | State or logic added to a borderline atom |
+| Degraded | Compliant | Logic extracted to parent; atom returns to presentational-only |
+
 ## Error Conditions
 
 - **Invalid prop combination** — Mutually exclusive or contradictory props (e.g. error + success simultaneously)
 - **Missing required prop** — Atom renders incorrectly or not at all if required props are omitted
 - **Wrong value** — Incorrect value renders incorrect visual state
+
+## Authorization
+
+**Visibility:** Public — atom components are building blocks available for composition across all tiers; no access restrictions apply.
 
 ## User Journey
 
@@ -136,6 +150,13 @@ The component has more than 3 props — the developer considers if it should be 
 
 ### Completion Criteria
 The atom passes the design checklist and is placed in the correct directory.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [Molecules tier](./molecules.md) — the next tier that composes atoms
+- [Atomic Design Methodology](./README.md) — classification rules and decision flowchart
 
 ## Future Enhancements
 

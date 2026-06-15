@@ -104,12 +104,28 @@ Before creating an organism, verify:
 - **Success** — Data loaded; full organism rendered
 - **Empty** — Success with no data; empty state shown
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Idle | Loading | Data fetch or user interaction initiates a data operation |
+| Loading | Success | Data fetch completes with results |
+| Loading | Error | Data fetch fails with a network or API error |
+| Loading | Empty | Data fetch completes with zero results |
+| Success | Loading | User triggers a refresh or pagination action |
+| Error | Loading | User triggers a retry |
+| Empty | Loading | User triggers a refresh expecting new data |
+
 ## Error Conditions
 
 - **Data fetch failure** — Network error or API rejection; organism must handle via error state
 - **Missing required data** — Prop or context dependency is undefined at render time
 - **Performance degradation** — Large datasets cause slow renders; organisms must define their maximum expected data volume and behavior at that threshold
 - **Over-composition** — Too many responsibilities makes organism unmaintainable; should be split
+
+## Authorization
+
+**Visibility:** Authenticated — organism-tier components form complex authenticated application sections; they are used within authenticated views and rely on authenticated data access.
 
 ## User Journey
 
@@ -150,6 +166,14 @@ The organism is actually a page layout — it is reclassified as a template.
 
 ### Completion Criteria
 The organism passes the design checklist, is placed in the correct directory, and handles all data states.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [Molecules tier](./molecules.md) — the components that organisms compose
+- [Templates tier](./templates.md) — the next tier that arranges organisms into page layouts
+- [Atomic Design Methodology](./README.md) — classification rules and decision flowchart
 
 ## Future Enhancements
 

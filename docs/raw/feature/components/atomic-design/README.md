@@ -157,6 +157,16 @@ Before adding a component:
 - **Ambiguous** — Component could fit multiple tiers; requires flowchart evaluation or discussion
 - **Unclassified** — New component awaiting tier assignment; may be placed in wrong directory
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Unclassified | Classified | Developer completes flowchart evaluation and assigns the component to a tier |
+| Unclassified | Ambiguous | Evaluation reveals the component fits multiple tiers equally |
+| Ambiguous | Classified | Discussion resolves the classification; simpler tier selected per rule |
+| Classified | Ambiguous | Component scope changes make the tier assignment questionable |
+| Classified | Unclassified | Component is removed from a tier pending reclassification after a major refactor |
+
 ## Inputs/Outputs
 
 - **Inputs:** New or existing component to classify; component purpose, props, composition, and state requirements
@@ -168,6 +178,10 @@ Before adding a component:
 - **Boundary ambiguity** — Component straddling tier boundaries with no clear classification path
 - **Missing classification** — Component added without tier review, bypassing design checklist
 - **Migration failure** — Tier upgrade/downgrade causes import breakage across dependent components
+
+## Authorization
+
+**Visibility:** Internal — the atomic design methodology is a developer reference; all contributors may use it for classification without access restrictions.
 
 ## User Journey
 
@@ -208,6 +222,15 @@ The component straddles tier boundaries — the developer consults the ambiguous
 
 ### Completion Criteria
 The component is assigned to a tier, placed in the correct directory, and its classification is documented.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [Atoms tier](./atoms.md) — fundamental UI primitives
+- [Molecules tier](./molecules.md) — composed functional units
+- [Organisms tier](./organisms.md) — complex UI sections
+- [Templates tier](./templates.md) — page-level layouts
 
 ## Future Enhancements
 

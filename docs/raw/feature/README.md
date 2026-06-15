@@ -61,6 +61,21 @@ Cross-cutting specifications that apply to all features:
 - **In-progress** — Documentation partially written or under active development
 - **Deprecated** — Feature still documented but marked for removal or replacement
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| In-progress | Documented | Documentation is completed and reviewed |
+| Documented | In-progress | A significant feature change requires documentation updates |
+| Documented | Deprecated | Feature is superseded or removed from the library |
+| Deprecated | Documented | Deprecated feature is revived with updated documentation |
+
+## Edge Cases
+
+- **New feature with no module**: A feature is implemented in code but not yet documented — index shows an incomplete picture of the library
+- **Renamed module**: A module is moved or renamed but the root index still points to the old path — cross-references break silently
+- **Duplicate module entries**: The same feature appears under multiple modules with inconsistent descriptions — discoverability and ownership are ambiguous
+
 ## Error Conditions
 
 - **Missing module** — Feature exists in codebase but has no documentation entry

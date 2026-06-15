@@ -200,6 +200,40 @@ crisis:   '#F85149'   // Critical alerts — HR safety/emergency
 - Keep accent saturation controlled — never neon in dark mode
 - Dividers: `Neutral 700` range, never solid black lines
 
+### Icon Tokens
+
+Style: Feather Icons / Lucide Icons — geometric, minimal, 2px stroke weight. Never filled icons in enterprise/product UI.
+
+**Size scale:**
+
+```ts
+icon-xs:  12px   // Inline badges, status dots
+icon-sm:  16px   // Form inputs, inline text icons
+icon-md:  20px   // Toolbars, lists, navigation items (default)
+icon-lg:  24px   // Prominent UI, empty states, feature highlights
+icon-xl:  32px   // Hero icons, page-level status indicators
+```
+
+**Color tokens:**
+
+```ts
+icon-primary:   var(--mui-primary-main)        // Action icons, interactive
+icon-secondary: var(--mui-text-secondary)      // Decorative, muted
+icon-disabled:  'rgba(0,0,0,0.38)'             // Disabled — light mode
+icon-error:     var(--mui-error-main)          // Error indicators
+icon-success:   var(--mui-success-main)        // Success indicators
+icon-warning:   var(--mui-warning-main)        // Warning indicators
+icon-brand:     var(--mui-brand)               // Brand-colored elements
+```
+
+**Icon rules:**
+- Default: `icon-md` (20px) in all standard UI contexts
+- Navigation sidebar: `icon-md` (20px)
+- Empty state illustrations: `icon-lg` or `icon-xl`
+- Decorative icons: always `aria-hidden="true"`
+- Functional icons (no visible label): always `aria-label="[intent]"`
+- Never use icon color alone to convey meaning — pair with label or tooltip
+
 ---
 
 ## 4. Typography
@@ -256,7 +290,7 @@ Base unit: **8px** (MUI standard). All spacing must be multiples of 8px.
 
 | Token | CSS Variable | Value | Pixels | Usage |
 |---|---|---|---|---|
-| `spacing-0` | `--spacing-0` | 0 | 0px | Reset |
+| `spacing-0` | `--mui-spacing-0` | 0 | 0px | Reset |
 | `spacing-1` | `--mui-spacing-1` | 1× | 8px | Tight internal gaps |
 | `spacing-2` | `--mui-spacing-2` | 2× | 16px | Standard component padding |
 | `spacing-3` | `--mui-spacing-3` | 3× | 24px | Internal component sections |
@@ -580,6 +614,114 @@ Progress indicators show **position in a multi-step flow**.
 - Pending: secondary text color
 - Optional: connector line between steps
 
+### Multi-Step Workflow
+
+Multi-step workflows guide users through a **sequential task that cannot be completed in one view**.
+
+- Step count: 3–7 steps. Beyond 7, restructure the flow.
+- Progress indicator: stepper at page top — always visible during the workflow
+- Step labels: short, verb-led ("Select", "Configure", "Review")
+
+**State rules:**
+- Current step: primary color + bold label
+- Completed steps: checkmark + muted style — clickable to revisit
+- Pending steps: neutral color — not interactive until reached
+- Back: never discards data — preserves all inputs from prior steps
+- Next: validates current step before advancing — shows inline errors on fail
+- Exit: confirmation dialog if any step has unsaved progress
+
+**Final step (Review + Confirm):**
+- Always include a summary view before the commit action
+- Primary action: final commit button (e.g., "Submit", "Create", "Save")
+- Secondary action: "Back" to last step
+- Never allow commits without a review step in destructive or irreversible flows
+
+**Error recovery:**
+- Stay on current step
+- Highlight specific fields with inline error messages
+- Scroll to first error automatically
+
+### Confirmation Flow
+
+Confirmation flows prevent **accidental destructive or irreversible actions**.
+
+**When to use:**
+- Delete actions (records, files, accounts)
+- Discard actions (unsaved form data, draft cancellation)
+- Irreversible state changes (publish, submit, deactivate)
+
+**Standard dialog pattern:**
+- Title: action-specific ("Delete Project?", "Discard Changes?")
+- Body: short consequence statement — one sentence max
+- Primary action: confirms the action — label matches title verb ("Delete", "Discard")
+- Secondary action: always "Cancel" — ghost or secondary button
+
+**Destructive variant (delete/deactivate):**
+- Primary button: `danger` variant (`#ED5F74`) — never primary indigo
+- Backdrop: not dismissible on click — forces explicit Cancel or Confirm
+- Escape key: triggers Cancel
+
+**Non-destructive variant (discard/navigate away):**
+- Primary button: standard `primary` variant
+- Backdrop: dismissible on click (treated as Cancel)
+- Escape key: triggers Cancel
+
+**Never:**
+- Inline confirmation without a dialog for destructive actions
+- "OK / Cancel" as button labels — use action-specific verbs
+- Stack a confirmation inside another modal
+
+### Search
+
+Search allows users to **locate specific records within a dataset**.
+
+**Pattern:**
+- Input: text field with leading search icon, trailing clear (✕) button
+- Width: full-width within its container or fixed `320px` in toolbars
+- Placeholder: descriptive ("Search tasks...", "Find employees...")
+- Debounce: 300ms before triggering search
+- Results: update inline without full page reload
+
+**States:**
+- Empty input: show full dataset (no filter active)
+- Typing: show loading indicator after debounce fires
+- Results: update list/table below — no separate results page needed for in-app search
+- No results: empty state with "No results for '[query]'" + clear search link
+- Error: error state with retry option
+
+**Accessibility:**
+- Input: `role="searchbox"` or `type="search"`
+- Clear button: `aria-label="Clear search"`
+- Results region: `aria-live="polite"` to announce result count changes
+
+### Filter
+
+Filters allow users to **narrow a dataset by one or more criteria**.
+
+**Pattern types:**
+
+| Type | When to use |
+|------|-------------|
+| Chip/tag bar | ≤5 filter options, always visible |
+| Dropdown filter | Single-select from a list |
+| Filter panel (drawer) | Complex multi-criteria filtering |
+
+**Active state:**
+- Selected filters: chips with ✕ to remove individually
+- Active filter count badge on filter button when panel is closed
+- "Clear all filters" action — always visible when any filter is active
+- Chips use `primary` tint background, not full accent fill
+
+**Filter + Search:**
+- Search and filter operate simultaneously — results reflect both
+- Filter state persists when search query changes
+- Search state persists when filters change
+
+**Accessibility:**
+- Each filter chip: `aria-label="Remove [filter name] filter"`
+- Filter count badge: `aria-label="[N] filters active"`
+- Results region: `aria-live="polite"` to announce updated count
+
 ### State Handler Pattern
 
 Use `AppStateHandler` from Astra for consistent state routing:
@@ -593,7 +735,7 @@ Use `AppStateHandler` from Astra for consistent state routing:
 />
 ```
 
-This component handles LOADING → ERROR → SUCCESS → EMPTY transitions automatically. See `docs/raw/feature/mvvm/pattern.md`.
+This component handles LOADING → ERROR → SUCCESS → EMPTY transitions automatically.
 
 ### Z-Index Scale
 
@@ -1220,7 +1362,6 @@ States covered:
 - `isSuccess + emptyCondition` → renders `<EmptyState />`
 - `isSuccess + data` → renders `SuccessComponent`
 
-See `docs/raw/feature/state/AppStateHandler.md` and `docs/raw/feature/state/useDataState.md`.
 
 ### Astra Components Quick Reference
 

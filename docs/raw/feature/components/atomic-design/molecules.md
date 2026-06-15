@@ -94,10 +94,23 @@ Before creating a molecule, verify:
 - **Borderline** — Wraps single atom with minimal added behavior; consider keeping as atom
 - **Degraded** — Contains data fetching, complex state, or side effects; should be promoted to organism
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Compliant | Borderline | Atom count drops to one with no added behavior |
+| Compliant | Degraded | Data fetching or complex state management added |
+| Borderline | Compliant | A second atom composed in; behavior added beyond single wrapper |
+| Degraded | Compliant | Data fetching and state extracted to an organism parent |
+
 ## Error Conditions
 
 - **Missing composed atom** — Required atom is not rendered or receives invalid props
 - **Invalid content type** — Molecule designed for specific data shape receives incompatible input
+
+## Authorization
+
+**Visibility:** Public — molecule components are reusable UI building blocks available for composition across all tiers; no access restrictions apply.
 
 ## User Journey
 
@@ -138,6 +151,14 @@ The component has complex state or data fetching — it is promoted to organism 
 
 ### Completion Criteria
 The molecule passes the design checklist and is placed in the correct directory.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [Atoms tier](./atoms.md) — the primitives that molecules compose
+- [Organisms tier](./organisms.md) — the next tier that composes molecules
+- [Atomic Design Methodology](./README.md) — classification rules and decision flowchart
 
 ## Future Enhancements
 

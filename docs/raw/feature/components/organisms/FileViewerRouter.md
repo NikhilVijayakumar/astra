@@ -33,6 +33,16 @@ A smart routing component that inspects the file extension and delegates renderi
 - **Unsupported** — File extension does not match any known viewer; renders unsupported file message
 - **Empty** — No content provided; passes undefined to sub-viewer (each handles it independently)
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Idle | Unsupported | File name changes to one with an unknown or missing extension |
+| Idle | Empty | Content prop changes to undefined or null |
+| Unsupported | Idle | File name updated to one with a recognized extension and content provided |
+| Empty | Idle | Content prop provided with a recognized file extension |
+| Empty | Unsupported | No content and file has an unknown extension |
+
 ## Edge Cases
 
 - No file extension: Falls through to unsupported file case

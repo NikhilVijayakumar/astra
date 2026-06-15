@@ -51,6 +51,12 @@ Every async operation progresses through these phases:
 | Completed (Success) | Loading | Refresh or re-fetch triggered |
 | Completed (Error) | Loading | Retry initiated |
 
+## Edge Cases
+
+- **Concurrent operations**: Multiple async operations triggered simultaneously may produce interleaved state updates — consumers should key state by operation identity if ordering matters
+- **Stale closure**: A callback capturing a now-outdated state value may act on old data — consumers should use refs or stable selectors to avoid stale reads
+- **Immediate re-trigger**: An operation is re-triggered during the Completed state before the UI has rendered the result — loading state cycles before the user sees success content
+
 ## Error Conditions
 
 - **Stale state after unmount**: Component unmounts during pending request — state updates must be guarded to avoid updating unmounted components
