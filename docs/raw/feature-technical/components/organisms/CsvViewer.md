@@ -155,3 +155,7 @@ The sticky header is enabled via MUI's `stickyHeader` prop on `<Table>` — CSS-
 5. What is the expected behavior for malformed CSV rows — skip, highlight, or surface an error?
 6. Should CSV export functionality be added as a toolbar action?
 7. Should the component compose `DataTable` internally instead of rendering its own MUI Table?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

@@ -92,3 +92,7 @@ No errors thrown. Fallback chain ensures no crash path exists.
 1. Should ErrorState include an optional `onRetry` callback prop to enable inline retry without parent composition?
 2. Should ErrorState display error codes or technical details behind a "Show details" toggle?
 3. The feature spec says "Does not capture or log errors" — should the component accept an `onError` callback for logging integrations?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

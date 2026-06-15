@@ -12,7 +12,7 @@ The glossary defines single-ownership for every concept in the system. Each conc
 | Concept-to-feature map | Canonical table: |Concept| → |Owning Feature| → |File| |
 | Architecture owns HOW | `docs/raw/architecture/core/*` define mechanisms (hooks, providers, patterns) |
 | Feature owns WHAT | `docs/raw/feature/*` define behavioral contracts |
-| Implementation name isolation | Feature specs use capability language, not `useTheme()`, `useDataState`, etc. |
+| Implementation name isolation | Behavioral feature specs (`docs/raw/feature/*`) use capability language, not `useTheme()`, `useDataState`, etc. Feature-technical docs (`docs/raw/feature-technical/*`) are implementation references and are explicitly permitted to name hooks, providers, and classes. |
 
 **Ownership resolution flow:**
 
@@ -109,3 +109,7 @@ No direct accessibility impact. The glossary ensures that accessibility-related 
 - Should glossary compliance be verified by automated tooling (e.g., lint rule for orphaned concepts)?
 - How should versioned concepts be handled when ownership changes across releases?
 - Should the glossary include deprecated/removed concepts with migration targets?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

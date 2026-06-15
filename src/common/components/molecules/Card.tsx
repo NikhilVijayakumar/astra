@@ -41,7 +41,6 @@ export const Card = ({
             {title && (
               <Typography
                 variant="h4"
-                fontWeight={600}
                 color="text.primary"
               >
                 {title}

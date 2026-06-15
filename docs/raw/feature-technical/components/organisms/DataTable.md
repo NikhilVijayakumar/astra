@@ -135,3 +135,7 @@ The sticky header is enabled via MUI's `stickyHeader` prop on `<Table>` — CSS-
 4. Should `aria-label` be a configurable prop instead of a hardcoded value?
 5. Should the component export a named constant for default column width (currently implicit 100px via `minWidth || 100`)?
 6. Should `EmptyState` be composed internally when `data.length === 0` or remain external?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

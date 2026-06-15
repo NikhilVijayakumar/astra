@@ -122,3 +122,7 @@ All styling uses MUI `sx` prop with theme tokens:
 4. Should the toolbar support action items beyond the theme toggle (e.g., notification bell, user avatar)?
 5. Should an error boundary be added to prevent `ThemeToggle` invariant error from crashing the entire toolbar?
 6. Should the toolbar support shadow/elevation on scroll (elevation pattern)?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

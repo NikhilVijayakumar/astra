@@ -122,3 +122,7 @@ All rendering is deterministic. No runtime validation occurs — TypeScript comp
 2. Should `fontWeight={600}` on the title be replaced with `theme.typography.fontWeightBold` to close the theme-sovereignty gap identified in the Architecture Compliance Review?
 3. Should the Card render as `<section>` with an `aria-label` or `aria-labelledby` prop for better accessibility semantics when used as a content region?
 4. Should the header row accept an optional `aria-label` for cases where all header content is visually hidden or icon-only?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

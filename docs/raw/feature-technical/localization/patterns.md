@@ -113,3 +113,7 @@ No interaction logic in patterns — patterns are authoring conventions. The run
 - Is a codemod needed to migrate from hardcoded strings to translation key usage?
 - Should automated key-coverage reporting be added to CI?
 - Are namespace-based file splits with lazy loading needed per route?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

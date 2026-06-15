@@ -106,3 +106,7 @@ Flow direction is strictly **props → render → callback**. No upward data flo
 - Should `subtitle` support rich text (ReactNode) or remain plain `string` only?
 - Should trailing/leading meta accept a `className` or `sx` override for consumer-specific positioning?
 - Is sticky/scroll-aware behavior needed at the template level or should it remain consumer-managed?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

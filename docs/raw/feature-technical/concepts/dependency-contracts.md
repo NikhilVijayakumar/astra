@@ -150,3 +150,7 @@ No direct interaction logic in dependency contracts. Interaction behavior is gov
 - Should dependency contracts be formalized as TypeScript interfaces with runtime validation?
 - Should circular dependency detection be implemented at build time?
 - How should contract versioning work across feature releases?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

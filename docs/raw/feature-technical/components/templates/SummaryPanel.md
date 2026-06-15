@@ -100,3 +100,7 @@ Flow is strictly **props → render**. No callbacks, no event handlers, no upwar
 - Should lines support rich content (ReactNode) or remain plain `text: string` only?
 - Should a `className` or `sx` prop be added for consumer-specific overrides (width, background, shadow)?
 - Should the component accept `aria-label` or `aria-labelledby` for improved accessibility?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

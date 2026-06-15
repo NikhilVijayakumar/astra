@@ -1,23 +1,15 @@
 import { FC, useState } from "react";
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  TablePagination,
-} from "@mui/material";
+import { Box, Typography, TablePagination } from "@mui/material";
 import { useLanguage } from "../../localization/LanguageContext";
 import { spacing } from "../../../theme/tokens/spacing";
+import { DataTable, Column } from "./DataTable";
 
 interface CsvViewerProps {
   fileName: string;
   fileContent?: string;
 }
+
+type CsvRow = Record<string, string>;
 
 const parseCsv = (content: string): { headers: string[]; rows: string[][] } => {
   const lines = content
@@ -42,19 +34,22 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const parsed = parseCsv(fileContent ?? "");
-  const headers = parsed.headers;
-  const rows = parsed.rows;
+  const { headers, rows } = parseCsv(fileContent ?? "");
 
-  const emptyMessage = literal["viewer.empty_csv"];
+  const columns: Column<CsvRow>[] = headers.map((h) => ({
+    id: h,
+    label: h,
+    minWidth: 100,
+  }));
 
-  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const tableData: CsvRow[] = rows
+    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    .map((row, idx) =>
+      headers.reduce<CsvRow>(
+        (acc, h, i) => ({ ...acc, [h]: row[i] ?? "" }),
+        { __key: String(page * rowsPerPage + idx) }
+      )
+    );
 
   return (
     <Box
@@ -67,66 +62,23 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
     >
       <Typography
         variant="h4"
-        sx={{ mb: spacing.md, color: 'text.primary', fontWeight: 600 }}
+        sx={{ mb: spacing.md, color: "text.primary" }}
       >
         {fileName}
       </Typography>
 
-      {headers.length === 0 && (
-        <Typography
-          variant="body2"
-          sx={{ mb: spacing.md, color: 'text.secondary' }}
-        >
-          {emptyMessage}
+      {headers.length === 0 ? (
+        <Typography variant="body2" sx={{ mb: spacing.md, color: "text.secondary" }}>
+          {literal["viewer.empty_csv"]}
         </Typography>
+      ) : (
+        <DataTable<CsvRow>
+          columns={columns}
+          data={tableData}
+          keyField="__key"
+          aria-label={`${fileName} data`}
+        />
       )}
-
-      <TableContainer
-        component={Paper}
-        sx={{
-          flexGrow: 1,
-          backgroundColor: 'background.default',
-          border: `1px solid`,
-          borderColor: 'divider',
-          borderRadius: 1,
-        }}
-      >
-        <Table stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              {headers.map((header) => (
-                <TableCell
-                  key={header}
-                  sx={{
-                    backgroundColor: 'background.paper',
-                    fontWeight: 600,
-                    px: spacing.md,
-                    py: spacing.sm,
-                  }}
-                >
-                  {header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, idx) => (
-                <TableRow key={idx} hover>
-                  {row.map((cell, cIdx) => (
-                    <TableCell
-                      key={cIdx}
-                      sx={{ color: 'text.secondary', px: spacing.md, py: spacing.sm }}
-                    >
-                      {cell}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
 
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
@@ -134,8 +86,11 @@ export const CsvViewer: FC<CsvViewerProps> = ({ fileName, fileContent }) => {
         count={rows.length}
         rowsPerPage={rowsPerPage}
         page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        onPageChange={(_, p) => setPage(p)}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
       />
     </Box>
   );

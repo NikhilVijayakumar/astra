@@ -6,8 +6,8 @@ export enum HttpStatusCode {
   UNAUTHORIZED = 401,
   NOT_FOUND = 404,
   INTERNAL_SERVER_ERROR = 500,
-  //for managing state
   INTERNET_ERROR = 0,
+  /** @deprecated Use StateCode.IDLE from src/common/state/AppState instead. */
   IDLE = 1000,
 }
 

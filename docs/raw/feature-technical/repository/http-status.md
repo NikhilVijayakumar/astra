@@ -155,3 +155,7 @@ AppStateHandler / UI — renders via getStatusMessage(literal)
 # Final Rule
 
 Magic number status codes are forbidden. All status comparisons and assignments must use `HttpStatusCode` enum members. Every status code must have a corresponding literal key in the localization map. Synthetic codes `INTERNET_ERROR` (0) and `IDLE` (1000) are reserved for network-layer and state-management-layer respectively — never emit them from business logic.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

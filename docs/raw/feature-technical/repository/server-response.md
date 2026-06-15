@@ -152,3 +152,7 @@ Page component reads AppState for conditional rendering
 # Final Rule
 
 Every API interaction must go through `ServerResponse<T>`. Raw axios responses must never escape the `ApiService` layer. Consumers must always check `isError` before accessing `data`. Errors are values — never catch and rethrow outside `ApiService`.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

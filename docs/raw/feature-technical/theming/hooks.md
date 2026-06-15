@@ -186,3 +186,7 @@ themeContext.ts (createContext, useTheme)
 # Final Rule
 
 `useTheme` must remain a thin typed wrapper over `useContext(ThemeContext)`. It must never manage state, persist data, or contain business logic. The context value must always be provided by `ThemeProvider`. Consider adding an explicit guard that throws a descriptive error when the hook is called outside a provider subtree.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

@@ -6,7 +6,7 @@ export class ServerResponse<T> {
   public isError: boolean = false;
   public isSuccess: boolean = false;
   public status: HttpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
-  public statusMessage: String = '';
+  public statusMessage: string = '';
   public data?: T;
 
   private constructor() {}

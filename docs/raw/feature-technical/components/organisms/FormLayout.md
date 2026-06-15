@@ -112,3 +112,7 @@ The max-width constraint is applied via `<Box maxWidth={600}>` — hardcoded as 
 4. Should `aria-label` or `role="form"` be added to the wrapper for accessibility?
 5. Should the title support a `titleComponent` prop for rendering custom heading levels (h2, h3, etc.)?
 6. Should a form-level validation summary slot be added as a fourth section?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

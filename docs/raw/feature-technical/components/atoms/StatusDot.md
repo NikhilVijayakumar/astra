@@ -78,3 +78,7 @@ No errors are thrown, logged, or surfaced. No error boundary provided.
 1. Should the `executing` tone include a CSS pulse animation? The feature spec lists it as "Future Enhancements" but no timeline is defined.
 2. Should accessibility attributes (`aria-label` per tone, `role="status"`) be added as part of the core implementation or deferred?
 3. Should `size` have an upper bound or clamp to prevent extreme values?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

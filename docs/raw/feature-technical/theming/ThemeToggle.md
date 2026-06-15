@@ -150,3 +150,7 @@ function AppHeader() {
 - Should the accessible label be localized?
 - Should icon transitions be animated?
 - Should keyboard shortcut toggling be handled by this component or a parent?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

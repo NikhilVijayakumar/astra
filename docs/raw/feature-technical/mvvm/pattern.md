@@ -222,3 +222,7 @@ hooks/useDataState.ts ──→ state/AppState.ts (StateType, AppState)
 # Final Rule
 
 Every feature that performs async data loading must use `useDataState<T>` for state management. ViewModel hooks must be the exclusive owners of feature state. Components must never call `useDataState` directly — they receive data via props from a page-level container that composes the ViewModel. Always handle all four states: INIT (render nothing), LOADING (spinner), ERROR (error message), SUCCESS (data). Always check `data !== null` before accessing data properties.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

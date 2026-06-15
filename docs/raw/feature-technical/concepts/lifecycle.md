@@ -138,3 +138,7 @@ No interaction design in lifecycle ordering. Interactions follow per-component p
 - Should there be lifecycle hooks for features to react to initialization completion?
 - Should initialization timeout be configurable per feature?
 - Should health-check reporting be added for each feature's initialization state?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

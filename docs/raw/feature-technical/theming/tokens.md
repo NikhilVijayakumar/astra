@@ -140,3 +140,7 @@ Tokens are static values — no interaction design. Components use tokens for vi
 - How should brand tokens be versioned to support multi-brand deployments?
 - Should automated WCAG contrast ratio verification be added to CI?
 - Should responsive spacing tokens scale with viewport breakpoints?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

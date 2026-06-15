@@ -156,3 +156,7 @@ Consumer calls useLanguage() → destructs context value
 # Final Rule
 
 `LanguageProvider` must be the outermost context provider in the application tree (above all routed content). Every user-facing string must flow through the `literal` dictionary provided by this component. Never hardcode a language code or translation string outside of this provider's configuration.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

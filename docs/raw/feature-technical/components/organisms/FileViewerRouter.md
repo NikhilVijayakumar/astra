@@ -132,3 +132,7 @@ Sub-viewer styling is the responsibility of each sub-viewer molecule — the rou
 4. Should file-type-specific accessibility announcements differ per sub-viewer?
 5. Should the extension-to-viewer map be configurable via a prop to allow custom viewer registration?
 6. Should binary files over 50 MB be blocked with a size warning before routing?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

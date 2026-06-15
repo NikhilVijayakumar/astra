@@ -170,3 +170,7 @@ URL construction: `` `${this.baseUrl}/${url}` `` — baseUrl and url are concate
 # Final Rule
 
 `ApiService` is the only layer that touches axios. Feature repositories must never import axios directly — they depend on `ApiService` methods exclusively. All errors must be caught and returned as `ServerResponse.error`. Never let an axios exception propagate uncaught beyond the repository layer.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

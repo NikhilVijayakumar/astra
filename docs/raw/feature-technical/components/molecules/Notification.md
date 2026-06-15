@@ -137,3 +137,7 @@ Per `docs/raw/architecture/core/component-tiers.md:107`, the component has no er
 2. Should `anchorOrigin` be configurable? (Current design hardcodes bottom-center as a deliberate UX choice per feature spec.)
 3. Should the component accept an optional `action` slot (e.g., "Undo" button inside the notification)? (Currently out of scope per Non-Responsibilities.)
 4. Should swipe-to-dismiss gesture be added for mobile/touch scenarios?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

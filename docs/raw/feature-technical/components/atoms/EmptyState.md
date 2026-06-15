@@ -88,3 +88,7 @@ No errors thrown. Component always renders the `<Box>` container regardless of t
 1. Should EmptyState accept an optional custom message prop for domain-specific empty messages (e.g., "No results match your filter")?
 2. Should EmptyState include an optional illustration or icon to visually differentiate from a truly blank/error state?
 3. Should empty-data logic (checking `state.data === null` or `state.data.length === 0`) be handled by this component or remain in the parent/`AppStateHandler`?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

@@ -27,9 +27,8 @@ Implemented
 ## Public API
 
 ```typescript
-// NOT exported via state/index.ts (exports only AppState)
-// Exported via src/common/components/organisms/AppStateHandler.tsx as default export
-// Re-exported via components barrel path
+// Exported via state/index.ts barrel (alongside AppState, StateType)
+// Also re-exported via components/organisms barrel path
 
 export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
   appState: S;
@@ -152,7 +151,7 @@ Parent passes appState: AppState<T>
 - No retry button in ErrorState (delegated to atom, but no `onRetry` prop chain)
 - No `LoadingComponent` customization — always renders `LoadingState` atom
 - No animation transitions between states (loading→success flash)
-- Not exported via `state/index.ts` barrel (only `AppState.ts` is). Current export path is through components barrel.
+- No `LoadingComponent` customization — always renders `LoadingState` atom
 
 ---
 
@@ -171,3 +170,7 @@ Parent passes appState: AppState<T>
 # Final Rule
 
 AppStateHandler is the single declarative boundary for async UI routing in Astra. All feature containers that consume `useDataState` must use AppStateHandler (or an equivalent) to render loading/error/empty/success states — no manual conditional branching on `AppState` flags is permitted in feature components. The INIT→EmptyState fallback behavior is intentional but must remain documented. No business logic, data fetching, or persistence may be added to this component.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

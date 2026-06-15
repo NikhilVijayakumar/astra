@@ -139,3 +139,7 @@ Parent component (App shell)
 4. Should collapsible/expandable sub-navigation be supported?
 5. Should `display_order` be validated for contiguity to prevent duplicate index collisions?
 6. Should keyboard arrow navigation be implemented for the menu list?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

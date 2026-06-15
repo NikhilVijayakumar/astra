@@ -147,3 +147,7 @@ Zoom and rotation are independent: a user can rotate the image and zoom in simul
 3. Should an `alt` attribute be set on the `<img>` element using `fileName` for screen reader accessibility?
 4. Should `aria-label` attributes be added to `IconButton` controls for better screen reader support?
 5. Should a test file be created (`ImageViewer.test.tsx`) to cover zoom, rotation, empty state, and error scenarios?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

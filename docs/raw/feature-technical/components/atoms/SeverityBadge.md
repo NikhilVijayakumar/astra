@@ -83,3 +83,7 @@ No errors thrown or logged. No error boundary provided.
 2. Should hex alpha be standardized across all atoms (documented spec vs. implementation at `15` vs. desired 12%)?
 3. Should `borderRadius: 1` be replaced with an explicit token reference?
 4. Feature spec mentions icon slot and size presets — what milestone are these planned for?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

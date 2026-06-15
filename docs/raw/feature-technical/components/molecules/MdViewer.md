@@ -172,3 +172,7 @@ The error handling is designed for graceful degradation — the component never 
 3. Should the file name heading accept an optional `aria-label` override for accessible context?
 4. Should the markdown output be memoized (e.g., `useMemo`) to avoid re-parsing on unrelated re-renders?
 5. Should a test file be created (`MdViewer.test.tsx`) to cover empty state, loading state, and rendering scenarios?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

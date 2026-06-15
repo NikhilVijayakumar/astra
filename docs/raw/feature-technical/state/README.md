@@ -214,3 +214,7 @@ App Root
 - Should state tracking include timestamps for staleness checks (cache invalidation)?
 - How should WebSocket or SSE-driven state updates integrate with the `INIT → LOADING → COMPLETED` lifecycle?
 - Should `AppStateHandler` have a retry action wired through to ErrorState?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

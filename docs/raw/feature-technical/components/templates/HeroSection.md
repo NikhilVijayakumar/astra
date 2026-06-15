@@ -140,3 +140,7 @@ const animationConfigs = {
 - Should the Button be migrated from hardcoded `colors.primary` to MUI theme path — and if so, should this be a breaking change for consumers relying on the current brand color?
 - Should a secondary action button slot be added for multi-CTA hero layouts?
 - Should `prefers-reduced-motion` be detected internally or remain a consumer responsibility?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

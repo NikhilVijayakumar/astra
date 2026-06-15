@@ -60,6 +60,8 @@ Same as `pattern.md` — the best practices document does not define additional 
 | Use `AppStateHandler` for consistent UI | Standardizes loading/error/empty/success across all features | `<AppStateHandler appState={...}>` |
 | Type your state generically | `AppState<User[]>` prevents accessing wrong shape | `useDataState<User[]>()` |
 | Extract custom hooks | Reuse state logic without duplicating `useDataState` calls | Wrap `useDataState` in `useUsersViewModel()` |
+| Pass `unexpectedErrorMessage` from `useLanguage()` | Prevents hardcoded English fallback on exception — required by Localization invariant | `useDataState<T>({}, { unexpectedErrorMessage: literal['common.errors.unexpected'] })` |
+| Use LOADING's `prev.data` for stale-while-reloading | LOADING preserves previous data — display stale content with a spinner overlay instead of blanking the view | `data={appState.data ?? []}` while `state === LOADING` |
 
 ## Rules Table — Don't
 
@@ -79,6 +81,9 @@ Same as `pattern.md` — the best practices document does not define additional 
 | Missing error boundaries | Unhandled ViewModel exceptions crash entire tree | Wrap page with `<ErrorBoundary>` |
 | Calling `execute()` on already-LOADING state | Duplicate requests, flickering UI | Guard with `if (appState.state !== StateType.LOADING)` |
 | `AppState<TypeA>` where `AppState<TypeB>` expected | Silent logic errors if shapes are similar | Use branded types for strict differentiation |
+| Blanking view on re-fetch | LOADING preserves `prev.data` — replacing content with spinner causes content flicker | Show stale data with overlay spinner: `appState.state === LOADING && appState.data !== null` |
+| Omitting `unexpectedErrorMessage` | Exception catch produces empty `statusMessage` that `ErrorState` renders without text | Always pass `literal['common.errors.unexpected']` as `options.unexpectedErrorMessage` |
+| Skipping retry guidance | `ErrorState` shows error but user cannot recover | Expose `execute` ref from ViewModel; pass as `onRetry` callback to error UI |
 
 ## Testing Strategy
 
@@ -203,3 +208,7 @@ Best Practices (document)
 # Final Rule
 
 Every feature that performs async operations must follow the MVVM pattern exactly: `useDataState` in a ViewModel hook (never in a component), `AppState<T>` with a typed generic parameter, and `AppStateHandler` for conditional rendering. Business logic must live in the ViewModel or a domain utility — never in a component. Every async operation must handle all four states: INIT, LOADING, ERROR, and SUCCESS (with empty-data check). Violations are caught through code review until automated lint rules are introduced.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

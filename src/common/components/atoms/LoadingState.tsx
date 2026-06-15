@@ -9,6 +9,8 @@ const LoadingState: FC = () => {
 
   return (
     <Box
+      role="status"
+      aria-label={literal.loading_message}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -18,7 +20,7 @@ const LoadingState: FC = () => {
         mt: spacing.xl,
       }}
     >
-      <CircularProgress sx={{ mb: spacing.md, color: 'primary.main' }} />
+      <CircularProgress aria-hidden="true" sx={{ mb: spacing.md, color: 'primary.main' }} />
       <Typography variant="body1" color="text.secondary">
         {literal.loading_message}
       </Typography>

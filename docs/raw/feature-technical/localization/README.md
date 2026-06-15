@@ -124,3 +124,7 @@ No direct styling. The localization system provides text content only. Layout mu
 - How should date, number, and currency formatting be integrated?
 - Is lazy-loaded translation chunk support needed for large applications?
 - Should keys follow a strict hierarchical namespace or remain flat with prefixes?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

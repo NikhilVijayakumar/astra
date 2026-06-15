@@ -128,3 +128,7 @@ All rendering is deterministic. No runtime validation occurs — TypeScript comp
 2. Should `MetricTrend` be validated at runtime (e.g., via a switch statement with default) instead of relying on TypeScript compile-time checking for better resilience in non-TypeScript usage?
 3. Should `letterSpacing: '0.08em'` on the label be replaced with a theme typography variant or token reference?
 4. Should the trend indicator include an arrow/icon in addition to the colored text (as the original spec describes but the implementation does not)?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

@@ -138,3 +138,7 @@ The toggle must be inside `ThemeProvider`. No keyboard shortcut (non-responsibil
 - Is CSS variable-based theming a better long-term approach?
 - Should system `prefers-color-scheme` detection be added with opt-in auto mode?
 - Should high-contrast accessibility theme variant be supported?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

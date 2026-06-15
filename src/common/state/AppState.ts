@@ -7,11 +7,16 @@ export enum StateType {
   COMPLETED = 2,
 }
 
+// Synthetic status codes for internal state management — not HTTP codes.
+export enum StateCode {
+  IDLE = 1000,
+}
+
 export interface AppState<T> {
   state: StateType;
   isError: boolean;
   isSuccess: boolean;
-  status: HttpStatusCode;
+  status: HttpStatusCode | StateCode;
   statusMessage: string;
   data: T | null;
 }

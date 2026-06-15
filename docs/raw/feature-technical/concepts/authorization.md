@@ -153,3 +153,7 @@ function getEffectivePermission(resource: Resource, user: User): Permission {
 - Should Astra provide optional auth guard wrapper components for common patterns (e.g., `<Authenticated>`, `<WithRole>`)?
 - How should visibility override for admin users be handled in component rendering?
 - Should authorization be enforceable via a centralized middleware or left entirely to each feature?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

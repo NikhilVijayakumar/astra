@@ -142,3 +142,7 @@ These are intentionally omitted per the feature spec's Non-Responsibilities.
 3. Should the Prism style import be cached or preloaded to avoid the sequential component-load-then-style-load waterfall on first render?
 4. Should memoization (`useMemo`) be added for `normalizeJsonForDisplay` output to avoid re-parsing on unrelated re-renders?
 5. Should virtualization be considered for large JSON files (>1MB) to prevent main-thread blocking during syntax highlighting?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

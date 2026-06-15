@@ -211,3 +211,7 @@ themeContext.ts (ThemeContext) ───────────┘       │
 # Final Rule
 
 `ThemeProvider` must be the single root-level theme injection point. It must initialize state from `localStorage`, expose `darkMode`/`toggleDarkMode` via context, wrap with MUI `ThemeProvider` + `CssBaseline`, and support `forceTheme` override for testing. All persistence errors must be silently caught — the application must never crash due to `localStorage` unavailability.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

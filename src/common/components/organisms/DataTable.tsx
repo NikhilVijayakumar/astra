@@ -22,9 +22,10 @@ export interface DataTableProps<T> {
   columns: Column<T>[];
   data: T[];
   keyField: keyof T;
+  'aria-label'?: string;
 }
 
-export const DataTable = <T extends Record<string, any>>({ columns, data, keyField }: DataTableProps<T>) => {
+export const DataTable = <T extends Record<string, any>>({ columns, data, keyField, 'aria-label': ariaLabel }: DataTableProps<T>) => {
   return (
     <Box sx={{ width: '100%', overflow: 'hidden' }}>
       <TableContainer
@@ -37,7 +38,7 @@ export const DataTable = <T extends Record<string, any>>({ columns, data, keyFie
           backgroundColor: 'background.paper',
         }}
       >
-        <Table stickyHeader aria-label="premium data table">
+        <Table stickyHeader aria-label={ariaLabel ?? 'data table'}>
           <TableHead>
             <TableRow>
               {columns.map((column) => (

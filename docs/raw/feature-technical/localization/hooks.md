@@ -138,3 +138,7 @@ Component destructs: const { currentLanguage, setCurrentLanguage, literal, avail
 # Final Rule
 
 Every component that renders user-facing text must call `useLanguage()` — never access `literal` from a global or module-level scope. The hook must only be called inside a `LanguageProvider` boundary. If a component receives translated text as props (pre-translated by a parent), it does not need `useLanguage` — but the parent must have called it.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

@@ -30,6 +30,7 @@ Implemented
 
 export function useDataState<T>(
   customInitialState?: Partial<AppState<T>>,
+  options?: { unexpectedErrorMessage?: string },
 ): readonly [
   appState: AppState<T>,
   execute: (apiCall: () => Promise<ServerResponse<T>>) => Promise<void>,
@@ -61,7 +62,7 @@ export interface AppState<T> {
 | Atomic Hierarchy | Not applicable | This is a hook, not a component. Used by Organism and Template tiers via ViewModel pattern. |
 | Stateless UI | Enforcer | `useDataState` is the mechanism that keeps UI components stateless — it owns async state so components don't have to. |
 | Theme Sovereignty | Not applicable | No visual output. |
-| Localization | Partially | `statusMessage` from `ServerResponse` carries localized strings. Error fallback `'An unexpected error occurred.'` is hardcoded English — violates Localization invariant. |
+| Localization | ✅ Compliant | `statusMessage` from `ServerResponse` carries localized strings. Exception fallback uses `options?.unexpectedErrorMessage ?? ''` — consumer passes `literal['common.errors.unexpected']` from `useLanguage()`. |
 | Dependency Safety | Minimal deps | Depends on React `useState`, internal `AppState`, `ServerResponse`, `HttpStatusCode`. |
 | Public API Stability | Stable | Exported via `hooks/index.ts` barrel. `useDataState` is a core public API surface of Astra. |
 
@@ -83,7 +84,7 @@ export interface AppState<T> {
    → await apiCall()
    → on success: setAppState({ state: COMPLETED, isSuccess: true, data: response.data, ... })
    → on error (ServerResponse error): setAppState({ state: COMPLETED, isSuccess: false, isError: true, data: null, ... })
-   → on exception (throw): setAppState({ state: COMPLETED, isError: true, status: INTERNAL_SERVER_ERROR, statusMessage: 'An unexpected error occurred.' })
+   → on exception (throw): setAppState({ state: COMPLETED, isError: true, status: INTERNAL_SERVER_ERROR, statusMessage: options?.unexpectedErrorMessage ?? '' })
 
 3. Consumer reads appState for conditional rendering
 ```
@@ -103,7 +104,7 @@ export interface AppState<T> {
 - `execute` is async, always returns `Promise<void>`
 - LOADING state preserves `prev.data` — allows stale-while-reloading UX
 - Exception catch sets `status: HttpStatusCode.INTERNAL_SERVER_ERROR` (value 500)
-- Error message on exception is hardcoded: `'An unexpected error occurred.'`
+- No unmount guard — `setAppState` after unmount produces React warning in development
 - Return type is `readonly [AppState<T>, execute, setAppState]` via `as const`
 
 ---
@@ -122,7 +123,7 @@ export interface AppState<T> {
 | Error Type | Cause | System Response | User Response |
 |------------|-------|-----------------|---------------|
 | API returns error ServerResponse | Backend error | `isError=true, status=errorStatusCode, data=null` | Consumer checks `isError` and renders ErrorState |
-| API call throws exception | Network failure, crash | `isError=true, status=500, statusMessage='An unexpected error occurred.'` | Consumer renders error with hardcoded message |
+| API call throws exception | Network failure, crash | `isError=true, status=500, statusMessage=options?.unexpectedErrorMessage ?? ''` | Consumer passes `literal['common.errors.unexpected']` as `options.unexpectedErrorMessage` |
 | Missing `data` in success response | Backend returns empty body | `data=null` though `isSuccess=true` | Consumer must handle `data !== null` check |
 | `customInitialState` overrides `state` | Consumer sets LOADING as initial | Hook starts in LOADING | Valid use case (e.g. rehydrating) |
 
@@ -146,7 +147,7 @@ export interface AppState<T> {
 
 ## Risks
 - **No unmount safety**: `execute` resolves after unmount → `setAppState` on unmounted component. Should use `useRef` mount guard.
-- **Hardcoded English error string**: `'An unexpected error occurred.'` violates Localization invariant. Should accept via `customInitialState` or use translation key.
+- No unmount guard — `setAppState` called after component unmount produces React warning. Future: integrate `AbortController` or `useRef` mounted flag.
 - **No request deduplication**: Concurrent `execute` calls race — last one wins regardless of order.
 - **LOADING preserves prev.data**: Intended for stale-while-reloading but no explicit documentation warning consumers about UI flash.
 
@@ -170,4 +171,8 @@ export interface AppState<T> {
 
 # Final Rule
 
-`useDataState` is the single source of async state management in Astra. All data fetching operations must flow through this hook — components must never call `fetch`, `axios`, or API services directly. The hardcoded English error message must be externalized via `customInitialState` or a localization key. An unmount guard must be added to prevent `setState` after unmount. No data caching, deduplication, or business logic may be added — these belong in the consumer's ViewModel layer.
+`useDataState` is the single source of async state management in Astra. All data fetching operations must flow through this hook — components must never call `fetch`, `axios`, or API services directly. Pass `options.unexpectedErrorMessage` from `useLanguage().literal['common.errors.unexpected']` to satisfy the Localization invariant. No data caching, deduplication, or business logic may be added — these belong in the consumer's ViewModel layer.
+
+## Authorization
+
+**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.

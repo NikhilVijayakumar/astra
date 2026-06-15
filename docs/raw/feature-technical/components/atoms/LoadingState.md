@@ -86,3 +86,7 @@ No errors thrown. Spinner always renders regardless of text availability.
 1. Should LoadingState accept an optional custom message prop for cases where the default "Loading..." is insufficient?
 2. Should a minimum display duration be implemented to prevent flash-of-loading for fast operations?
 3. Should `CircularProgress` size be configurable or use a fixed size?
+
+## 12. Authorization
+
+**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.
