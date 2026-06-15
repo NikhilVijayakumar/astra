@@ -34,6 +34,17 @@ A toast-style notification that displays a message with a configurable severity 
 - **Auto-dismissing** — Timer active, counting down to auto-hide
 - **Persistent** — Auto-dismiss disabled; stays open until manually closed
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Closed | Open | Parent sets open = true |
+| Open | Auto-dismissing | Auto-dismiss duration is set and timer starts |
+| Open | Persistent | Auto-dismiss is set to null |
+| Open | Closed | User manually closes before timer expires |
+| Auto-dismissing | Closed | Timer expires |
+| Persistent | Closed | User manually closes |
+
 ## Edge Cases
 
 - Open is false: Notification is hidden; no content renders
@@ -45,6 +56,10 @@ A toast-style notification that displays a message with a configurable severity 
 
 - Missing required inputs (open state, message, close callback) — Required values must be provided
 - Close callback throws — Error propagates to parent
+
+## Authorization
+
+**Visibility:** Authenticated — used to surface system events and feedback within authenticated application views.
 
 ## User Journey
 
@@ -85,3 +100,8 @@ Auto-dismiss is null — the notification persists until manually closed.
 
 ### Completion Criteria
 The notification is displayed and dismissed either automatically or manually.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules

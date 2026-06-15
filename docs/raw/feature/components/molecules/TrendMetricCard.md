@@ -46,6 +46,10 @@ Shows a metric label and value in a compact card format, with an optional trend 
 - Missing required inputs (label, value) — Required values must be provided
 - Unknown trend direction — Renders with neutral fallback color
 
+## Authorization
+
+**Visibility:** Authenticated — used to display key metrics in authenticated dashboard views.
+
 ## User Journey
 
 ### Entry Conditions
@@ -85,3 +89,9 @@ Unknown trend direction — renders with neutral fallback color.
 
 ### Completion Criteria
 The metric card renders with label, value, and optional trend indicator.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [Card](./Card.md) — general-purpose container used in dashboard contexts

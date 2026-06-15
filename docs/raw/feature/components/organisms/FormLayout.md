@@ -46,6 +46,10 @@ Provides consistent vertical layout for form pages. Includes an optional title h
 
 - Missing required input (children content) — Required value must be provided
 
+## Authorization
+
+**Visibility:** Authenticated — used as a page-level layout wrapper for forms within authenticated application views.
+
 ## User Journey
 
 ### Entry Conditions
@@ -85,3 +89,9 @@ No children — an empty layout is rendered with only header/footer.
 
 ### Completion Criteria
 The form layout renders with available header, body, and footer sections.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [PageHeader](../templates/PageHeader.md) — template for page-level headers above forms

@@ -109,6 +109,10 @@ Base unit: 4px
 - **Token collision** — Duplicate semantic names across categories cause silent override
 - **Missing dark variant** — Color categories missing dark-mode values render incorrect colors in dark mode
 
+## Authorization
+
+**Visibility:** Public — design tokens are a static reference; they do not have runtime access control. All components consume them without authentication requirements.
+
 ## User Journey
 
 ### Entry Conditions
@@ -148,6 +152,12 @@ The token name is misspelled or does not exist — no value is applied and the c
 
 ### Completion Criteria
 The component uses the correct token value and renders consistently with the rest of the application.
+
+## See Also
+
+- [Glossary](../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../concepts/authorization.md) — cross-cutting permission rules
+- [Theming System](./README.md) — consumes design tokens to build light/dark palettes
 
 ## Future Enhancements
 

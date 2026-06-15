@@ -29,11 +29,24 @@ Parses CSV content into a sortable table with configurable pagination. Auto-dete
 - **Pagination state management:** Page number and rows-per-page are managed locally — pagination is a pure UI concern scoped to this component.
 - **Sticky header with scrollable body:** Column labels remain visible while the user scrolls through data rows.
 
+## Consumed By
+
+- [FileViewerRouter](./FileViewerRouter.md) — delegates CSV file rendering to this component based on file extension
+
 ## States
 
 - **Idle** — Content loaded and parsed; renders paginated table with headers and rows
 - **Empty** — No content or empty CSV string; renders title and empty-state message
-- **Headers-only** — CSV has headers but zero data rows; renders header row with empty table body
+- **Headers-only** — Delimiter detected, headers parsed, but no data rows present
+
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Idle | Empty | Parsed CSV has no data rows |
+| Idle | Headers-only | CSV has headers but zero data rows |
+| Any state | Idle | New valid CSV content provided with data rows |
+| Idle | Idle | User changes page or rows-per-page |
 
 ## Edge Cases
 
@@ -49,6 +62,10 @@ Parses CSV content into a sortable table with configurable pagination. Auto-dete
 - No content or empty content — Renders empty-state message
 - Mixed-delimiter CSV — Delimiter detection on first line only; may parse subsequent lines incorrectly
 - Very large datasets — Pagination without virtualization; performance degrades beyond typical sizes
+
+## Authorization
+
+**Visibility:** Authenticated — used to view CSV file contents within authenticated file viewer contexts.
 
 ## User Journey
 
@@ -89,6 +106,13 @@ Mixed delimiters — first-line detection may produce incorrect parsing for subs
 
 ### Completion Criteria
 The CSV content is parsed and displayed in a paginated table.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [FileViewerRouter](./FileViewerRouter.md) — routes CSV files to this component
+- [DataTable](./DataTable.md) — related organism for rendering general tabular data
 
 ## Future Enhancements
 

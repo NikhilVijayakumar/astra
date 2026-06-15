@@ -23,10 +23,14 @@ A specialized viewer for JSON and JSONL files. Parses JSON content and renders i
 
 ## Core Concepts
 
-- **Parse-and-render pipeline:** Raw JSON string is parsed into structured data, then syntax-highlighted into styled HTML — errors in parsing produce a structured error object rather than crashing.
-- **Graceful error recovery:** Invalid JSON produces a structured error object showing both the error context and the raw content — the component stays mounted and usable.
-- **JSONL line-by-line parsing:** Each line of a JSONL file is parsed independently; a single malformed line produces an error object for that line only, preserving valid data from other lines.
-- **Lazy-loaded syntax highlighter:** The syntax highlighting library is loaded asynchronously, showing a loading fallback on first render to keep initial bundle size small.
+- **Parse-and-render pipeline:** Raw JSON text is parsed into structured data and rendered with syntax coloring — invalid JSON produces a structured error object with the raw content alongside it rather than crashing the component.
+- **Graceful error recovery:** When JSON is invalid, the component stays mounted and displays both the error context and the raw input, allowing the user to inspect the problem without losing access to the content.
+- **JSONL line-by-line handling:** Each line of a JSONL file is parsed and rendered independently — a single malformed line produces an error entry for that line only, leaving all other lines unaffected.
+- **On-demand syntax coloring:** The syntax coloring library is loaded only when this component first renders — the user sees a brief loading indicator on first use, with no impact on initial page load.
+
+## Consumed By
+
+- [FileViewerRouter](../organisms/FileViewerRouter.md) — delegates JSON and JSONL file rendering to this component based on file extension
 
 ## States
 
@@ -35,6 +39,17 @@ A specialized viewer for JSON and JSONL files. Parses JSON content and renders i
 - **Error** — Invalid JSON; structured error object with raw content displayed
 - **Loading** — Syntax highlighter lazily loading; loading fallback shown
 - **JSONL parsing** — Lines parsed independently; each line may be in loaded or error state
+
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Empty | Loading | Content provided; syntax colorer not yet ready |
+| Loading | Loaded | JSON valid and syntax colorer ready |
+| Loading | Error | JSON is invalid; structured error object rendered |
+| Loaded | Empty | Content prop removed |
+| Error | Loading | Replacement content provided |
+| Loading | JSONL parsing | File extension is .jsonl; line-by-line mode activates |
 
 ## Edge Cases
 
@@ -51,6 +66,10 @@ A specialized viewer for JSON and JSONL files. Parses JSON content and renders i
 - Invalid JSON — Structured error object rendered with raw content fallback
 - JSONL parse failures — Failed lines produce error objects in output
 - Very large JSON — Performance may degrade; no virtualization
+
+## Authorization
+
+**Visibility:** Authenticated — used to view JSON and JSONL files within authenticated file viewer contexts.
 
 ## User Journey
 
@@ -91,3 +110,9 @@ Invalid JSON — a structured error object with raw content fallback is displaye
 
 ### Completion Criteria
 The JSON data is parsed and rendered with syntax highlighting.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [FileViewerRouter](../organisms/FileViewerRouter.md) — routes JSON and JSONL files to this component

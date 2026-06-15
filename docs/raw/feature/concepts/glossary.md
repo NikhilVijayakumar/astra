@@ -47,17 +47,15 @@ Every concept in the system has exactly one owning feature doc. Other docs may r
 | SummaryPanel | Templates | `components/templates/SummaryPanel.md` |
 | HeroSection | Templates | `components/templates/HeroSection.md` |
 
-## Referenced External Concepts
+## Referenced Architecture Concepts
 
-These concepts are owned by `architecture/` docs. Feature docs reference them but do not define them.
+These capabilities are owned by `docs/raw/architecture/` documents. Feature docs describe WHAT these capabilities do; architecture docs define HOW they are realized. Feature specifications must not reference implementation names (hooks, providers, classes).
 
-| Concept | Owning Doc | Referenced From |
-|---------|-----------|-----------------|
-| MVVM pattern | `architecture/core/mvvm-pattern.md` | state/README.md (implicit) |
-| Repository pattern | `architecture/core/repository.md` | state/README.md (implicit) |
-| useDataState hook | `architecture/core/hooks.md` | state/README.md (implicit) |
-| AppStateHandler | `architecture/core/state-management.md` | state/README.md (implicit) |
-| ThemeProvider | `architecture/core/theming.md` | theming/README.md (implicit) |
-| useTheme hook | `architecture/core/hooks.md` | theming/ThemeToggle.md (implicit) |
-| LanguageProvider | `architecture/core/localization.md` | localization/README.md (implicit) |
-| useLanguage hook | `architecture/core/hooks.md` | localization/README.md (implicit) |
+| Capability (WHAT) | Authoritative Architecture Doc |
+|-------------------|---------------------------------|
+| Async state tracking mechanism | `architecture/core/state-management.md` |
+| MVVM pattern | `architecture/core/mvvm-pattern.md` |
+| Repository data access pattern | `architecture/core/repository.md` |
+| Theme context delivery mechanism | `architecture/core/theming.md` |
+| Language context delivery mechanism | `architecture/core/localization.md` |
+| Hook contracts for state, theme, and language | `architecture/core/hooks.md` |

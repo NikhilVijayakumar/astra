@@ -6,6 +6,21 @@ This document defines the authorization and permission model for all features. I
 
 The authorization model governs access to features and data. It defines visibility rules (who can see), action permissions (who can act), and ownership (who owns). This model is cross-cutting — every feature should reference and conform to these rules.
 
+## Responsibilities
+
+- Define visibility levels that govern who can see each feature or resource
+- Define action permissions that govern what operations each user role may perform
+- Define ownership rules that govern who holds authority over a resource
+- Define delegation rules that govern how ownership may be transferred or shared
+- Serve as the single authoritative reference for authorization behavior across all features
+
+## Non-Responsibilities
+
+- Does not manage user authentication or session management
+- Does not implement role assignment or user management
+- Does not define per-feature UI rendering logic
+- Does not enforce permissions at runtime — it defines the rules; enforcement is the responsibility of each feature
+
 ## Visibility
 
 | Level | Definition | Example |
@@ -47,6 +62,23 @@ The authorization model governs access to features and data. It defines visibili
 - Ownership transfer requires admin approval
 - Temporary access grants expire after a configurable duration
 - Delegation does not revoke original owner's access
+
+## States
+
+- **Unauthenticated** — No user identity established; only Public-visibility features accessible
+- **Authenticated** — User identity confirmed; Authenticated-visibility features accessible; role and ownership checks apply
+- **Escalated** — Admin override active; role-restricted actions permitted for the duration of the override
+- **Denied** — Access check failed; user receives denial feedback and no resource is exposed
+- **Delegated** — Temporary access granted by an owner; expires after the configured duration
+
+## Edge Cases
+
+- **Resource with no owner** — Mutating actions (edit, delete, share) are denied; view-only access follows visibility rules
+- **Role not found** — Access defaults to most restrictive; deny is applied
+- **Expired delegation** — Access reverts to the delegatee's base permissions; the resource behaves as if delegation never occurred
+- **Permission configuration missing** — System defaults to most restrictive policy for the affected feature
+- **Admin overriding owner-scoped action** — Admin override takes precedence; original owner's access is not revoked
+- **Concurrent delegation grants** — Multiple active delegations are independent; revoking one does not affect others
 
 ## User Journey
 

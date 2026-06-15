@@ -41,6 +41,10 @@ Displays an error message with appropriate visual treatment for error states. Ac
 
 - Missing message and missing localization key — Alert renders with no visible content
 
+## Authorization
+
+**Visibility:** Authenticated — displayed when an operation fails within authenticated application contexts.
+
 ## User Journey
 
 ### Entry Conditions
@@ -80,3 +84,11 @@ No message and no localization key — the component renders invisibly.
 
 ### Completion Criteria
 The error message is displayed and the user is aware of the failure.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [LoadingState](./LoadingState.md) — sibling atom displayed before an operation fails
+- [EmptyState](./EmptyState.md) — sibling atom shown when an operation returns no data
+- [State Management](../../state/README.md) — the async state lifecycle that drives this component

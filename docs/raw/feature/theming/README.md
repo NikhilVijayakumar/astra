@@ -36,6 +36,18 @@ The user can switch between light and dark mode. Their preference is remembered 
 - **Dark mode** — Dark palette active
 - **Forced mode** — External override active (bypasses persisted state)
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Uninitialized | Light mode | No persisted preference, or preference = light |
+| Uninitialized | Dark mode | Persisted preference = dark |
+| Uninitialized | Forced mode | External override present at mount |
+| Light mode | Dark mode | User toggles theme |
+| Dark mode | Light mode | User toggles theme |
+| Light mode | Forced mode | External override applied |
+| Dark mode | Forced mode | External override applied |
+
 ## Edge Cases
 
 - **Missing persistence**: Falls back to light mode if storage is unavailable
@@ -49,6 +61,10 @@ The user can switch between light and dark mode. Their preference is remembered 
 - **Server rendering** — No browser APIs available; renders light theme, hydration may flicker
 - **Invalid theme configuration** — Malformed theme values may cause rendering errors
 - **Nested providers** — Multiple providers cause conflicting context; only root should manage state
+
+## Authorization
+
+**Visibility:** Public — theme switching is available to all users regardless of authentication state.
 
 ## User Journey
 
@@ -89,6 +105,13 @@ Storage is unavailable — the toggle still switches the mode but the preference
 
 ### Completion Criteria
 The active theme matches the user's selection and all components display the correct palette.
+
+## See Also
+
+- [Glossary](../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../concepts/authorization.md) — cross-cutting permission rules
+- [ThemeToggle](./ThemeToggle.md) — UI control that drives theme state changes
+- [Design Tokens](./tokens.md) — visual primitives consumed by the theming system
 
 ## Future Enhancements
 

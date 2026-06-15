@@ -43,6 +43,10 @@ Renders a compact label indicating severity (CRITICAL, WARNING, URGENT, INFO, SU
 - Case mismatch — Lowercase input falls back to default (keys are uppercase)
 - Missing level — Required value not provided
 
+## Authorization
+
+**Visibility:** Authenticated — rendered within authenticated application views to communicate severity levels.
+
 ## User Journey
 
 ### Entry Conditions
@@ -81,4 +85,10 @@ A color-coded severity badge is displayed to the user.
 An unknown severity value falls back to default styling.
 
 ### Completion Criteria
-The badge renders with the correct severity color and label.
+The badge renders with the correct color and label for all severity levels.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [StatusDot](./StatusDot.md) — related component providing icon-based status indicators

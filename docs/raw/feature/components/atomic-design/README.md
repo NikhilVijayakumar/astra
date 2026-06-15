@@ -61,19 +61,7 @@ Each component has one job appropriate to its tier:
 
 ### 2. Composition Over Inheritance
 
-Build complex UI from simple pieces:
-
-```typescript
-// ✓ Correct: Composition
-const Card = ({ children }) => (
-  <Box sx={cardStyles}>
-    {children}
-  </Box>
-);
-
-// ✗ Avoid: Monolithic components
-const Card = ({ title, body, actions, footer }) => (...)
-```
+Build complex UI from simple pieces. A well-designed atom or molecule exposes a content slot (children) and leaves content decisions to the parent, rather than accepting many specific props that hard-code its internal structure. This keeps each component focused on a single purpose and allows flexible composition at every tier.
 
 ### 3. Explicit Over Implicit
 

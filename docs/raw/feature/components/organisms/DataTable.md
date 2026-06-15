@@ -47,6 +47,10 @@ Renders structured data in a table format with a header that stays visible durin
 - Duplicate keys — Console warning; may cause rendering issues
 - Component error in render function — No error boundary; propagates to parent
 
+## Authorization
+
+**Visibility:** Authenticated — used to display structured data within authenticated application views.
+
 ## User Journey
 
 ### Entry Conditions
@@ -62,7 +66,7 @@ The data array is empty — the table renders with only the sticky header and no
 A custom cell renderer throws an error — there is no error boundary and the error propagates to the parent.
 
 ### Recovery Flows
-The parent component wraps the table in an error boundary or fixes the render function.
+The error is resolved and the table re-renders with corrected content, or the user navigates to a different view unaffected by the broken cell.
 
 ### Exit Conditions
 The user reads the tabular data — sorting, filtering, and pagination are managed by the parent or not provided.
@@ -86,6 +90,12 @@ A cell render function throws — the error propagates to the parent without a l
 
 ### Completion Criteria
 The table renders the header and all data rows.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [CsvViewer](./CsvViewer.md) — specialised organism for CSV data with parsing and pagination
 
 ## Future Enhancements
 

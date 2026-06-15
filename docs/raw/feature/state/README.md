@@ -41,11 +41,25 @@ Every async operation progresses through these phases:
 - **Completed (Success)**: Async operation finished with data
 - **Completed (Error)**: Async operation finished with an error
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Uninitialized | Loading | Async operation initiated |
+| Loading | Completed (Success) | Operation returns data |
+| Loading | Completed (Error) | Operation returns error |
+| Completed (Success) | Loading | Refresh or re-fetch triggered |
+| Completed (Error) | Loading | Retry initiated |
+
 ## Error Conditions
 
 - **Stale state after unmount**: Component unmounts during pending request — state updates must be guarded to avoid updating unmounted components
 - **Rapid state transitions**: Multiple consecutive operations may cause rapid loading → completed cycling
 - **Mixed error flags**: Error and success flags are not mutually exclusive in all states — consumers should use the state value for authoritative status
+
+## Authorization
+
+**Visibility:** Authenticated — state management operates within authenticated application contexts; no state tracking occurs before user identity is established.
 
 ## User Journey
 
@@ -86,6 +100,13 @@ Rapid state transitions occur from multiple consecutive operations causing loadi
 
 ### Completion Criteria
 The state reaches completed (success or error) and the UI renders the appropriate content.
+
+## See Also
+
+- [Glossary](../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../concepts/authorization.md) — cross-cutting permission rules
+- [Dependency Contracts](../concepts/dependency-contracts.md) — formal contracts with other features
+- [Lifecycle Ordering](../concepts/lifecycle.md) — initialization order
 
 ## Future Enhancements
 

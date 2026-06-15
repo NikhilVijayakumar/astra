@@ -49,6 +49,10 @@ Provides a comprehensive header for page-level content. Supports primary and sec
 - Empty string inputs — Renders empty text elements; no crash
 - Action config missing click handler — Button renders but does nothing on click
 
+## Authorization
+
+**Visibility:** Authenticated — used at the top of authenticated application pages.
+
 ## User Journey
 
 ### Entry Conditions
@@ -88,6 +92,13 @@ An action has no click handler — the button renders without functionality.
 
 ### Completion Criteria
 The page header renders with all provided slots in the correct layout.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [HeroSection](./HeroSection.md) — template for public-facing landing sections
+- [SummaryPanel](./SummaryPanel.md) — template used alongside page headers for contextual summaries
 
 ## Future Enhancements
 

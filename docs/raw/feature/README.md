@@ -67,6 +67,10 @@ Cross-cutting specifications that apply to all features:
 - **Broken cross-reference** — Link to related module points to non-existent or moved document
 - **Orphaned module** — Documentation exists for a feature that has been removed from codebase
 
+## Authorization
+
+**Visibility:** Internal — developer reference document. No runtime access control applies.
+
 ## User Journey
 
 ### Entry Conditions
@@ -106,6 +110,13 @@ A module is marked deprecated or in-progress; the developer considers alternativ
 
 ### Completion Criteria
 The developer locates the documentation for the feature they need.
+
+## See Also
+
+- [Glossary](./concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](./concepts/authorization.md) — cross-cutting permission rules
+- [Dependency Contracts](./concepts/dependency-contracts.md) — formal contracts between features
+- [Lifecycle Ordering](./concepts/lifecycle.md) — initialization ordering and failure cascading
 
 ## Future Enhancements
 

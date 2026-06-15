@@ -49,6 +49,10 @@ Renders a side navigation menu that adapts to screen size: temporary overlay dra
 - Empty feature list — Guard clause returns empty list
 - No matching features — All items filtered out; renders empty list
 
+## Authorization
+
+**Visibility:** Authenticated — the navigation drawer is rendered for authenticated users navigating the application.
+
 ## User Journey
 
 ### Entry Conditions
@@ -88,3 +92,20 @@ The feature list is empty — all items are filtered out and the drawer shows an
 
 ### Completion Criteria
 The drawer renders with filtered navigation items and responds to selection.
+
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Closed (mobile) | Open (mobile) | User taps the menu icon in the toolbar |
+| Open (mobile) | Closed (mobile) | User taps the overlay or selects a navigation item |
+| Any state | Open (desktop) | Screen width crosses the desktop breakpoint |
+| Any state | Filtered | Feature-flag configuration changes; some items excluded |
+| Filtered | Empty | All items are excluded by feature flags |
+| Empty | Filtered | Feature flag restored; at least one item re-included |
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [ToolbarComponent](./ToolbarComponent.md) — sibling that fires the open/close toggle callback

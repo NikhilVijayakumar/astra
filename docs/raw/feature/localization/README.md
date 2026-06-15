@@ -37,6 +37,16 @@ The application can display content in multiple languages. Users switch language
 - **Switching**: Language changed — new translations propagate to all consumers
 - **Fallback**: Default language not found in translations — provider selects first available language
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Uninitialized | Active | Provider mounts with a valid language dictionary |
+| Active | Switching | User selects a different language |
+| Switching | Active | New language dictionary loads successfully |
+| Switching | Fallback | New language dictionary fails to load |
+| Fallback | Active | Default language restored or retry succeeds |
+
 ## Edge Cases
 
 - **Missing translation key**: Lookup returns no value — consuming code should fall back to the key itself
@@ -50,6 +60,10 @@ The application can display content in multiple languages. Users switch language
 - **Invalid language code** — Sets state but produces empty dictionary; UI may show no text
 - **Provider nesting** — Inner provider shadows outer; consumers lose outer translations
 - **Empty translations map** — UI renders without localized text
+
+## Authorization
+
+**Visibility:** Public — language switching is available to all users regardless of authentication state.
 
 ## User Journey
 
@@ -90,6 +104,12 @@ The selected language has an empty dictionary — the UI renders without text, r
 
 ### Completion Criteria
 The selected language is active and all translatable content displays in that language.
+
+## See Also
+
+- [Glossary](../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../concepts/authorization.md) — cross-cutting permission rules
+- [Translation Patterns](./patterns.md) — key-naming conventions for translation dictionaries
 
 ## Future Enhancements
 

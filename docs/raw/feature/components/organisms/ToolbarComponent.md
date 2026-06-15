@@ -21,6 +21,10 @@ A fixed-position top bar that displays a mobile menu toggle button, a page title
 - Does not manage drawer open/close state — receives toggle handler as input
 - Does not handle responsive layout beyond hiding the menu icon on larger screens
 
+## Related Components
+
+- [DrawerComponent](./DrawerComponent.md) — sibling component that owns the open/close state for side navigation; the toolbar fires the toggle callback and the drawer manages the resulting state change
+
 ## Core Concepts
 
 - **Fixed-position top bar:** The toolbar stays at the top of the viewport during scroll, providing persistent access to navigation and theme controls.
@@ -42,6 +46,10 @@ A fixed-position top bar that displays a mobile menu toggle button, a page title
 ## Error Conditions
 
 - Missing theme context — Invariant error; must be wrapped in a theme provider
+
+## Authorization
+
+**Visibility:** Authenticated — the application toolbar is rendered for authenticated users; the theme toggle within it is Public.
 
 ## User Journey
 
@@ -82,3 +90,10 @@ Missing theme context — the component throws and breaks rendering.
 
 ### Completion Criteria
 The toolbar is rendered with title and controls, ready for user interaction.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [DrawerComponent](./DrawerComponent.md) — sibling component that owns the navigation drawer state
+- [ThemeToggle](../../theming/ThemeToggle.md) — the theme control embedded in this toolbar

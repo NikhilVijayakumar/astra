@@ -42,7 +42,13 @@ A versatile card component that wraps content in a bordered surface. Supports a 
 
 ## Error Conditions
 
-- Action overflow — Action slot content may overflow on narrow cards
+- **Action overflow** — Action slot content may overflow on narrow cards where the available width is insufficient for the action element
+- **Null or undefined children** — Card renders the bordered surface with no body content; header sections remain unaffected
+- **All props omitted** — Card renders as an empty bordered container; no visible content is displayed to the user
+
+## Authorization
+
+**Visibility:** Authenticated — used as a layout container within authenticated application views.
 
 ## User Journey
 
@@ -83,3 +89,8 @@ Action content overflows on narrow cards.
 
 ### Completion Criteria
 The card renders with its header and body content in a styled container.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules

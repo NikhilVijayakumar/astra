@@ -40,6 +40,10 @@ A simple text indicator displaying a localized "No data found" message when no c
 
 - Missing localization key — Typography renders with no visible text
 
+## Authorization
+
+**Visibility:** Authenticated — displayed when a data operation returns no results within authenticated application contexts.
+
 ## User Journey
 
 ### Entry Conditions
@@ -79,3 +83,11 @@ The localization key is missing — the component renders with no visible text.
 
 ### Completion Criteria
 The empty-state message is displayed in place of the content area.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [LoadingState](./LoadingState.md) — sibling atom displayed while data is loading
+- [ErrorState](./ErrorState.md) — sibling atom displayed when a data operation fails
+- [State Management](../../state/README.md) — the async state lifecycle that drives this component

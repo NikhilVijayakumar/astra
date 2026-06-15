@@ -32,12 +32,18 @@ Place the toggle in a toolbar, navigation, or settings area. It receives the cur
 ## Edge Cases
 
 - **Missing context**: Component requires theme context — will error if rendered outside theme provider
-- **Rapid clicks**: Toggle is synchronous; no race condition
+- **Rapid clicks**: Toggle is synchronous; multiple rapid clicks cycle through theme modes without error
+- **Rapid double-click**: Two rapid clicks result in the theme toggling twice, returning to the original mode; both clicks are processed
+- **Disabled parent interaction**: If the parent disables pointer events, the toggle becomes inaccessible
 
 ## Error Conditions
 
-- **Missing theme context** — Component cannot function without theme state
-- **Null/undefined context** — Runtime error when accessing theme state
+- **Missing theme context** — Component cannot locate theme state and cannot render the correct icon or fire the toggle function
+- **Invalid context value** — Context is present but provides null or undefined theme values; the toggle function cannot be invoked and the icon state is indeterminate
+
+## Authorization
+
+**Visibility:** Public — the theme toggle is visible and interactive for all users regardless of authentication state.
 
 ## User Journey
 
@@ -48,7 +54,7 @@ A user sees a sun or moon icon in the toolbar and wants to switch the visual the
 The user clicks the icon — it toggles from sun to moon (or vice versa) and all themed components update immediately.
 
 ### Alternate Flows
-A keyboard-bound power user expects a shortcut to toggle themes without reaching for the mouse.
+The toggle is placed in a compact toolbar with limited space — it renders correctly at its fixed size without affecting surrounding layout.
 
 ### Failure Flows
 The theme context is missing — the component cannot render and throws an error.
@@ -78,6 +84,12 @@ The context is undefined — the component throws a runtime error.
 
 ### Completion Criteria
 The icon updates to reflect the new theme mode and the toggle is ready for the next interaction.
+
+## See Also
+
+- [Glossary](../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../concepts/authorization.md) — cross-cutting permission rules
+- [Theming System](./README.md) — theme state owned by the theming system
 
 ## Future Enhancements
 

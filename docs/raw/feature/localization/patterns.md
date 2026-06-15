@@ -90,6 +90,10 @@ es: {
 - **Non-string values** — Objects or numbers in translation values cause rendering errors
 - **Partial language coverage** — Languages with subset of keys render missing text as empty values
 
+## Authorization
+
+**Visibility:** Public — translation patterns are a developer reference; all developers may contribute translations without access restrictions.
+
 ## User Journey
 
 ### Entry Conditions
@@ -129,6 +133,12 @@ A key is added to only some languages — missing languages show no text at runt
 
 ### Completion Criteria
 The new translation key exists in all language dictionaries and renders the correct text in the UI.
+
+## See Also
+
+- [Glossary](../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../concepts/authorization.md) — cross-cutting permission rules
+- [Localization System](./README.md) — the runtime system that consumes these dictionaries
 
 ## Future Enhancements
 

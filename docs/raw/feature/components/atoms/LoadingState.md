@@ -38,6 +38,10 @@ A simple full-width loading indicator consisting of a spinning animation and a l
 
 - Missing localization key — Spinner renders without visible text
 
+## Authorization
+
+**Visibility:** Authenticated — displayed during async operations within authenticated application contexts.
+
 ## User Journey
 
 ### Entry Conditions
@@ -77,3 +81,11 @@ The localization key is missing — the spinner renders without text.
 
 ### Completion Criteria
 The loading indicator is displayed until the operation completes and the parent replaces it.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [ErrorState](./ErrorState.md) — sibling atom shown after a loading operation fails
+- [EmptyState](./EmptyState.md) — sibling atom shown after a loading operation returns no data
+- [State Management](../../state/README.md) — the async state lifecycle that drives this component

@@ -43,9 +43,13 @@ A smart routing component that inspects the file extension and delegates renderi
 
 ## Error Conditions
 
-- Unknown extension — Renders unsupported file fallback
-- Missing content — Delegated to sub-viewer
-- Sub-viewer crash — No error boundary; error propagates to parent
+- **Unknown extension** — Renders unsupported file fallback with the extension displayed
+- **Missing content** — Delegated to sub-viewer; each handles missing content independently
+- **Sub-viewer failure** — If a sub-viewer encounters an unrecoverable error, the router displays an unsupported-file fallback and does not propagate the error to the caller
+
+## Authorization
+
+**Visibility:** Authenticated — used to display file contents within authenticated application views.
 
 ## User Journey
 
@@ -59,10 +63,10 @@ The component detects the file extension, routes to the appropriate sub-viewer (
 The file has no extension or an unknown extension — the component renders an "unsupported file" message.
 
 ### Failure Flows
-A sub-viewer crashes — there is no error boundary and the error propagates to the parent.
+A sub-viewer encounters an error with malformed content — the router displays the unsupported-file fallback and the user is informed the file cannot be displayed.
 
 ### Recovery Flows
-The parent provides valid content or the user opens a supported file type.
+The user opens a valid file of a supported type, or the parent provides corrected file content.
 
 ### Exit Conditions
 The user views the file through the routed sub-viewer or sees the unsupported message.
@@ -86,6 +90,15 @@ Unsupported extension — an unsupported file fallback message is displayed.
 
 ### Completion Criteria
 The file is routed to the correct sub-viewer and the content is displayed.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [CsvViewer](./CsvViewer.md) — handles .csv files
+- [MdViewer](../molecules/MdViewer.md) — handles .md and .txt files
+- [ImageViewer](../molecules/ImageViewer.md) — handles image files
+- [JsonViewer](../molecules/JsonViewer.md) — handles .json and .jsonl files
 
 ## Future Enhancements
 

@@ -35,6 +35,16 @@ A high-impact landing-style component for displaying primary page content. Shows
 - **Typewriter** — Headline typing in progress; cursor blinks after completion
 - **Partial content** — Any combination of description, action, and children present or omitted independently
 
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Idle (animated) | Typewriter | Animation variant set to typewriter |
+| Idle (animated) | Idle (static) | Animations disabled |
+| Idle (static) | Idle (animated) | Animations re-enabled |
+| Typewriter | Idle (animated) | Typewriter sequence completes; cursor blinks |
+| Any state | Partial content | Description, action, or children props removed |
+
 ## Edge Cases
 
 - Animations disabled: All motion disabled; content renders statically
@@ -49,6 +59,10 @@ A high-impact landing-style component for displaying primary page content. Shows
 
 - Empty headline — Renders empty text element; typewriter variant blinks cursor with no characters
 - Missing required input (headline) — Required value must be provided
+
+## Authorization
+
+**Visibility:** Public — typically rendered on landing or welcome pages accessible before authentication.
 
 ## User Journey
 
@@ -89,6 +103,12 @@ Empty headline — renders an empty text element; typewriter shows a blinking cu
 
 ### Completion Criteria
 The hero section renders with all provided content and entrance animations play.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [PageHeader](./PageHeader.md) — template for authenticated page-level headers
 
 ## Future Enhancements
 

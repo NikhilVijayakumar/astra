@@ -47,6 +47,10 @@ Renders a panel with a title header and an array of text lines, each configurabl
 - Missing variant on line — Defaults gracefully to body
 - Long text — Wraps within panel width; no overflow
 
+## Authorization
+
+**Visibility:** Authenticated — used to display contextual summary data within authenticated application views.
+
 ## User Journey
 
 ### Entry Conditions
@@ -86,6 +90,12 @@ Empty lines array — the panel renders with only the title.
 
 ### Completion Criteria
 The summary panel renders with title and all text lines.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [PageHeader](./PageHeader.md) — typically rendered above or alongside this panel
 
 ## Future Enhancements
 

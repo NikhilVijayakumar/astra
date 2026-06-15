@@ -47,6 +47,10 @@ Displays a small colored dot representing one of several predefined states (ok, 
 - Invalid status value — Falls back to neutral default appearance
 - Negative or zero size — Dot becomes invisible
 
+## Authorization
+
+**Visibility:** Authenticated — rendered within authenticated application views to communicate data status.
+
 ## User Journey
 
 ### Entry Conditions
@@ -85,4 +89,10 @@ A color-coded status indicator is displayed to the user.
 An unknown status falls back to a neutral default color.
 
 ### Completion Criteria
-The status dot renders with the correct color and size.
+The status indicator renders correctly for all severity levels.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [SeverityBadge](./SeverityBadge.md) — related component providing text-based severity labels

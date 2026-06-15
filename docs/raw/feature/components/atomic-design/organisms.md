@@ -22,15 +22,14 @@ Organisms are complex UI sections composed of multiple molecules and atoms. They
 
 The organism tier contains complex components including:
 
-| Component              | Purpose                                     | Complexity |
-| ---------------------- | ------------------------------------------- | ---------- |
-| `DataTable`            | Tabular data display with sorting/filtering | High       |
-| `TimelineNode`         | Chronological event display                 | Medium     |
-| `FileTree`             | Hierarchical file navigation                | Medium     |
-| `StatusListRow`        | Status display with actions                 | Low        |
-| `AlertListItem`        | Alert item with interactions                | Low        |
-| `OperationHealthPanel` | Health status dashboard                     | High       |
-| `SummaryListItem`      | Summary item display                        | Low        |
+| Component            | Purpose                                                       | Complexity |
+| -------------------- | ------------------------------------------------------------- | ---------- |
+| `DataTable`          | Tabular data display with sticky header and custom cell rendering | High   |
+| `FormLayout`         | Page-level form wrapper with title header and action footer   | Medium     |
+| `DrawerComponent`    | Responsive side navigation drawer with feature-flag filtering | Medium     |
+| `ToolbarComponent`   | Fixed-position top bar with navigation toggle and theme control | Low      |
+| `FileViewerRouter`   | Extension-based dispatcher to specialized file viewers        | Medium     |
+| `CsvViewer`          | Paginated CSV table with auto-delimiter detection             | High       |
 
 ## Classification Rules
 
@@ -69,8 +68,8 @@ Before creating an organism, verify:
 
 ## Performance Considerations
 
-- Organisms may use memoization to prevent unnecessary re-renders
-- Complex interactions may need debouncing or throttling
+- Organisms with large datasets should define how data volume affects rendering behavior
+- Complex user interactions (sort, filter, paginate) should specify their behavioral outcomes in the feature spec
 
 ## Related Tiers
 
@@ -81,7 +80,7 @@ Before creating an organism, verify:
 
 - **Organism-vs-Template boundary:** An organism that defines page layout structure should be a template instead
 - **Single-use organisms:** Organisms designed for exactly one page context should be evaluated for refactoring
-- **Performance-sensitive organisms:** Organisms with expensive renders or frequent data updates should consider memoization
+- **Performance-sensitive organisms:** Organisms with large or frequently-updated datasets must define how they remain responsive to user interactions
 - **Empty data state:** Organisms that fetch data must handle loading, error, and empty states
 
 ## Responsibilities
@@ -109,7 +108,7 @@ Before creating an organism, verify:
 
 - **Data fetch failure** — Network error or API rejection; organism must handle via error state
 - **Missing required data** — Prop or context dependency is undefined at render time
-- **Performance degradation** — Large datasets cause slow renders; memoization may be needed
+- **Performance degradation** — Large datasets cause slow renders; organisms must define their maximum expected data volume and behavior at that threshold
 - **Over-composition** — Too many responsibilities makes organism unmaintainable; should be split
 
 ## User Journey

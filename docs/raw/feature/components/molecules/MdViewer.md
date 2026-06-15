@@ -22,10 +22,14 @@ Converts raw Markdown content into styled HTML for reading. Displays the file na
 
 ## Core Concepts
 
-- **Lazy-loaded parser pattern:** The Markdown parser is loaded on demand — it's a large dependency that shouldn't block initial bundle load.
-- **Content rendering pipeline:** Raw Markdown string is converted to styled HTML; each element type receives theme-aware styling.
-- **Fallback chain for empty state:** Missing content renders an empty-state message instead of an error — maintains layout stability when content is absent.
+- **On-demand parser loading:** The Markdown parser is loaded only when this component first renders — the user sees a brief loading indicator while the parser becomes ready, avoiding any impact on initial page load.
+- **Content rendering pipeline:** Raw Markdown text is converted into styled, readable HTML — each element type (heading, list, blockquote) receives consistent visual treatment.
+- **Fallback for missing content:** When content is absent or empty, the component shows a "no content" message rather than an error — the layout remains stable regardless of whether content is provided.
 - **File name as heading pattern:** The file name is always rendered as a heading above the Markdown content, separating metadata from content.
+
+## Consumed By
+
+- [FileViewerRouter](../organisms/FileViewerRouter.md) — delegates Markdown and plain-text file rendering to this component based on file extension
 
 ## States
 
@@ -33,6 +37,16 @@ Converts raw Markdown content into styled HTML for reading. Displays the file na
 - **Empty** — No content or empty content; empty-state message displayed
 - **Loading** — Parser module being lazily loaded; "Loading" fallback shown
 - **Error** — Invalid Markdown gracefully renders as plain text
+
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Empty | Loading | Content provided; parser not yet ready |
+| Loading | Loaded | Parser ready and Markdown renders successfully |
+| Loading | Error | Parser encounters invalid Markdown |
+| Loaded | Empty | Content prop removed or set to empty string |
+| Error | Loading | New content provided; parser retries |
 
 ## Edge Cases
 
@@ -46,6 +60,10 @@ Converts raw Markdown content into styled HTML for reading. Displays the file na
 
 - Missing required value (file name) — Required value must be provided
 - Invalid Markdown — Renders as plain text; no crash
+
+## Authorization
+
+**Visibility:** Authenticated — used to view Markdown and text files within authenticated file viewer contexts.
 
 ## User Journey
 
@@ -86,3 +104,9 @@ Invalid Markdown — renders as plain text without crashing.
 
 ### Completion Criteria
 The Markdown content is rendered as styled HTML beneath the file name heading.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [FileViewerRouter](../organisms/FileViewerRouter.md) — routes Markdown and text files to this component

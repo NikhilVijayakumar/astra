@@ -23,10 +23,14 @@ Renders base64-encoded image data with a toolbar for zoom (0.5x to 3x) and rotat
 
 ## Core Concepts
 
-- **Internal view state:** Zoom and rotation are managed locally — these are UI-only view states that don't need to persist or be lifted to parents.
+- **Internal view state:** Zoom and rotation are managed locally — these are UI-only view states that do not need to persist or be shared with parent components.
 - **Toolbar control pattern:** Zoom in/out and rotate buttons form a compact toolbar above the image; controls are always visible, giving the user continuous feedback on current values.
-- **Base64 image pipeline:** Constructs an image source from content data and MIME type — the component is a renderer of pre-loaded content, not a fetcher.
-- **Clamped property pattern:** Zoom is clamped to range limits and rotation cycles via modulo arithmetic — edge cases are handled at the state update level.
+- **Pre-loaded content rendering:** The component renders image content that has already been loaded and encoded by the caller — it does not perform any file loading or format conversion itself.
+- **Clamped zoom range:** Zoom is bounded between its minimum and maximum values; rotation cycles through fixed degree increments with no upper bound.
+
+## Consumed By
+
+- [FileViewerRouter](../organisms/FileViewerRouter.md) — delegates image file rendering to this component based on file extension
 
 ## States
 
@@ -35,6 +39,18 @@ Renders base64-encoded image data with a toolbar for zoom (0.5x to 3x) and rotat
 - **Error** — Corrupted image data; browser shows broken image icon
 - **Zooming** — Zoom level changes via toolbar buttons
 - **Rotating** — Rotation cycles via toolbar buttons
+
+### State Transitions
+
+| From State | To State | Trigger |
+| ---------- | -------- | ------- |
+| Empty | Loaded | Valid image content provided |
+| Loaded | Zooming | User presses zoom in or zoom out |
+| Zooming | Loaded | Zoom level update completes |
+| Loaded | Rotating | User presses rotate |
+| Rotating | Loaded | Rotation update completes |
+| Loaded | Error | Image data fails to render (browser broken image) |
+| Empty | Error | Invalid encoding provided |
 
 ## Edge Cases
 
@@ -51,6 +67,10 @@ Renders base64-encoded image data with a toolbar for zoom (0.5x to 3x) and rotat
 - Missing required value (file name) — Required value must be provided
 - Invalid encoding — Falls to empty state
 - Image load failure — Browser broken image icon; no custom error handler
+
+## Authorization
+
+**Visibility:** Authenticated — used to view image files within authenticated file viewer contexts.
 
 ## User Journey
 
@@ -91,3 +111,9 @@ Corrupted image data — the browser shows a broken image icon.
 
 ### Completion Criteria
 The image is displayed and toolbar controls are responsive.
+
+## See Also
+
+- [Glossary](../../concepts/glossary.md) — concept-to-feature ownership map
+- [Authorization Model](../../concepts/authorization.md) — cross-cutting permission rules
+- [FileViewerRouter](../organisms/FileViewerRouter.md) — routes image files to this component

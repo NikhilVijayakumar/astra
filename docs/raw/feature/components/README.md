@@ -37,13 +37,15 @@ The UI component library is organized by atomic design methodology into four tie
 
 ## Edge Cases
 
-- **Cross-Tier Components**: Components that could logically fit multiple tiers
-- **Third-Party Wrappers**: External component wrappers needing custom tier assignment
+- **Cross-Tier Components**: A component that could logically fit multiple tiers; use the Atomic Design flowchart to resolve
+- **Third-Party Wrappers**: External component wrappers that need custom tier assignment based on their behavioral complexity
+- **Tier migration**: A component promoted or demoted to a different tier; all references in higher-tier components must be updated simultaneously to avoid inconsistency
+- **Circular tier dependency**: A component in a lower tier references a component in a higher tier; this violates the composition direction and must be resolved by restructuring
 
 ## Error Conditions
 
-- **Incorrect import path** — Importing from wrong tier directory causes build failure
-- **Cross-tier dependency violation** — Lower tier imports from higher tier creates circular dependency
+- **Cross-tier dependency violation** — A lower-tier component depends on a higher-tier component, creating a composition direction that violates atomic design ordering
+- **Unclassified component** — A component is added to the library without tier assignment, making it undiscoverable and inconsistently composed
 
 ## User Journey
 
