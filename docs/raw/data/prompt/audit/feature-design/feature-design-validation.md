@@ -106,6 +106,67 @@ How users experience the feature.
 
 ---
 
+# Required Report Structure
+
+## 1. Executive Summary
+
+```text
+# Feature Design Audit Report — {timestamp}
+
+Overall Assessment:
+Final Score:
+Critical Findings:
+Major Findings:
+Minor Findings:
+Documents Audited:
+```
+
+## 2. Feature Design Inventory
+
+## 3. Feature Coverage Report
+
+## 4. User Journey Report
+
+## 5. Screen Coverage Report
+
+## 6. Interaction Report
+
+## 7. Form Design Report
+
+## 8. UX State Report
+
+## 9. Feedback Report
+
+## 10. Responsive Report
+
+## 11. Accessibility Report
+
+## 12. Localization Report
+
+## 13. Design System Compliance Report
+
+## 14. Consistency Report
+
+## 15. Purity Report
+
+## 16. Required Matrices
+
+## 17. Scoring Breakdown
+
+Per-dimension scores and audit score.
+
+## 18. Score Improvement Summary
+
+## 19. Final Verdict
+
+```text
+{Assessment} ({Score}/10)
+```
+
+## 20. Audit Traceability
+
+---
+
 # Audit Phase 1 — Inventory
 
 ## Goal
