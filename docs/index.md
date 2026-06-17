@@ -3,263 +3,209 @@
 ## Navigation Guide
 
 **Task-based quick reference:**
-- **Add/modify UI component** → src/common/components/{atoms,molecules,organisms,templates}/
-- **API calls** → src/common/repo/ (ApiService)
-- **Theme/styling** → src/theme/, src/common/theme/
-- **i18n/localization** → src/common/localization/
-- **State management** → src/common/hooks/useDataState.ts (hook), src/common/state/AppState.ts (types)
-- **Build/config** → vite.config.js, package.json
+- **MVVM / data fetching** → `src/common/hooks/useDataState.ts`
+- **UI state routing** → `src/common/components/organisms/AppStateHandler.tsx`
+- **API calls** → `src/common/repo/ApiService.ts`
+- **State types** → `src/common/state/AppState.ts`
+- **HTTP codes** → `src/common/repo/HttpStatusCode.ts`
+- **Localization (provider)** → `src/common/localization/LanguageProvider.tsx`
+- **Template rendering** → `src/services/templateRenderer.ts`
+- **Build/config** → `vite.config.ts`, `package.json`
+- **UI components / theming / design tokens** → see [Prati](https://github.com/NikhilVijayakumar/prati)
 
 **Debug & Fix:**
-- **Debug API error** → src/common/repo/
-- **Fix UI style** → src/theme/tokens/, src/common/theme/
-- **Fix state bug** → src/common/state/, src/common/hooks/
+- **Debug API error** → `src/common/repo/`
+- **Fix state bug** → `src/common/state/`, `src/common/hooks/`
+- **Fix template render** → `src/services/templateRenderer.ts`, `src/templates/`
+- **Fix UI component / theme** → Prati repo
 
 **Docs:**
-- **Core features** → docs/feature/
-- **Integration** → docs/integration-guide/
-- **Component docs** → docs/feature/components/
-- **Atomic Design** → docs/feature/components/atomic-design/
+- **Architecture** → `docs/raw/architecture/`
+- **MVVM / state / repo** → `docs/raw/feature-technical/`
+- **Integration** → `docs/raw/architecture/integration-contracts/`
+- **Components / design system** → Prati `docs/raw/`
 
 ## Global Constants
 
 | Key | Value |
-|-----|------|
+|-----|-------|
 | Name | astra |
-| Version | 1.0.7 |
+| Version | 1.1.1 |
 | Type | React + Electron Library |
 | Build | Vite (ESM + UMD) |
+| UI Dependency | prati (file:../Prati or git URL) |
 
 ## High-Level Vision
 
-Astra is a React + Electron boilerplate library providing a production-ready foundation with MVVM architecture, Material UI 7 theming, localization, type-safe API, and 46+ UI components organized by Atomic Design.
+Astra is the architecture layer of the stack. It provides MVVM state management, a type-safe API layer (Axios), localization provider, AppStateHandler (state-to-UI bridge), and Handlebars template rendering. UI components, design tokens, and theming are owned by [Prati](https://github.com/NikhilVijayakumar/prati) — Astra re-exports Prati for backward compatibility.
 
 ## Dependency Stack
 
-| Library | Version |
-|---------|---------|
-| @emotion/react | 11.13.3 |
-| @emotion/styled | 11.13.0 |
-| @fontsource/roboto | 5.1.0 |
-| @mui/icons-material | 7.2.0 |
-| @mui/lab | 7.0.0-beta.14  |
-| @mui/material | 7.2.0 |
-| @mui/x-date-pickers | 8.7.0 |
-| @types/react | 19.1.8 |
-| @types/react-dom | 19.1.6 |
-| @types/uuid | 10.0.0 |
-| axios | 1.15.0 |
-| framer-motion | ^11.18.2 |
-| lucide-react | ^0.400.0 |
-| react | ^19.2.3 |
-| react-dom | ^19.2.3 |
-| react-markdown | ^10.1.0 |
-| react-syntax-highlighter | ^16.1.1 |
-| uuid | 14.0.0 |
+| Library | Version | Role |
+|---------|---------|------|
+| prati | file:../Prati | UI components, design system |
+| axios | 1.15.0 | HTTP client |
+| handlebars | 4.7.9 | Template rendering |
+| react | ^19.2.3 | Peer |
+| react-dom | ^19.2.3 | Peer |
 
 ## System Map
 
 ```
-├── App.css
-├── App.tsx
-├── common
-│   ├── components
-│   │   ├── atoms
-│   │   ├── index.ts
-│   │   ├── molecules
-│   │   ├── organisms
-│   │   ├── templates
-│   ├── hooks
-│   │   ├── index.ts
-│   │   ├── useDataState.test.ts
-│   │   ├── useDataState.ts
+src/
+├── lib.ts                          ← entry: re-exports prati + own modules
+├── common/
 │   ├── index.ts
-│   ├── localization
-│   │   ├── index.ts
-│   │   ├── LanguageComponent.tsx
-│   │   ├── LanguageContext.ts
-│   │   ├── LanguageProvider.test.tsx
-│   │   ├── LanguageProvider.tsx
-│   ├── repo
-│   │   ├── ApiService.test.ts
-│   │   ├── ApiService.ts
-│   │   ├── apiServiceFactory.ts
+│   ├── hooks/
+│   │   ├── useDataState.ts         ← MVVM hook
+│   │   └── index.ts
+│   ├── repo/
+│   │   ├── ApiService.ts           ← HTTP client
+│   │   ├── HttpStatusCode.ts       ← status enum
+│   │   ├── ServerResponse.ts       ← response wrapper
 │   │   ├── APITypes.ts
-│   │   ├── HttpStatusCode.test.ts
-│   │   ├── HttpStatusCode.ts
-│   │   ├── index.ts
-│   │   ├── ServerResponse.ts
-│   ├── state
-│   │   ├── AppState.ts
-│   │   ├── index.ts
-│   ├── theme
-│   │   ├── index.ts
-│   │   ├── themeContext.ts
-│   │   ├── themeData.ts
-│   │   ├── ThemeProvider.test.tsx
-│   │   ├── ThemeProvider.tsx
-│   │   ├── ThemeToggle.tsx
-├── index.css
-├── lib.ts
-├── main.tsx
-├── publicExports.test.ts
-├── theme
-│   ├── appTheme.ts
+│   │   ├── apiServiceFactory.ts
+│   │   └── index.ts
+│   ├── state/
+│   │   ├── AppState.ts             ← AppState<T>, StateType, StateCode
+│   │   └── index.ts
+│   ├── components/
+│   │   └── organisms/
+│   │       ├── AppStateHandler.tsx ← bridges Astra state + Prati atoms
+│   │       └── index.ts
+│   └── localization/
+│       └── LanguageProvider.tsx    ← injects translations into Prati's LanguageContext
+├── services/
+│   └── templateRenderer.ts        ← Handlebars renderer
+├── templates/
 │   ├── index.ts
-│   ├── tokens
-│   │   ├── colors.ts
-│   │   ├── spacing.ts
-│   │   ├── typography.ts
-├── types
-│   ├── global.d.ts
-├── vite-env.d.ts
-
+│   ├── base-layout.hbs
+│   ├── otp-email.hbs
+│   ├── task-summary.hbs
+│   └── alert.hbs
+└── types/
+    └── template.types.ts
 ```
 
 ## Feature Details
 
-### Theming (src/theme/, src/common/theme/)
-- **Purpose:** Material UI 7 theme system with design tokens
-- **Key:** ThemeProvider, ThemeToggle, theme tokens (colors, typography, spacing)
-- **Usage:** Wrap app, use tokens (never hardcode colors)
-- **Mode:** Light/Dark supported
+### MVVM State (src/common/hooks/)
+- **Purpose:** Manages async data fetching and state transitions
+- **Key:** `useDataState<T>()` → returns `[appState, execute, setAppState]`
+- **States:** `INIT → LOADING → COMPLETED`
+- **Usage:** Call `execute(() => repo.get())`, render based on `appState.state`
 
-### Localization (src/common/localization/)
-- **Purpose:** Internationalization (i18n)
-- **Key:** LanguageProvider, useLanguage hook
-- **Usage:** Provide translations, use hook to access
-- **Languages:** Configurable, any language
-
-### State Management (src/common/hooks/)
-- **Purpose:** MVVM pattern with useDataState
-- **Key:** useDataState hook, AppStateHandler
-- **States:** INIT, LOADING, COMPLETED, ERROR
-- **Usage:** Data fetching with auto state handling
+### AppStateHandler (src/common/components/organisms/)
+- **Purpose:** UI router that maps `AppState` to Prati atoms
+- **Key:** Renders `LoadingState` | `ErrorState` | `EmptyState` | `SuccessComponent`
+- **Depends on:** `AppState` (Astra state), `LoadingState`/`ErrorState`/`EmptyState` (Prati atoms)
 
 ### Repository (src/common/repo/)
 - **Purpose:** Type-safe API layer (Axios wrapper)
-- **Key:** ApiService, HttpStatusCode, ServerResponse
-- **Usage:** Create instance, use typed methods
-- **Errors:** Built-in status code handling
+- **Key:** `ApiService`, `HttpStatusCode`, `ServerResponse<T>`
+- **Usage:** `new ApiService(baseUrl, literal)` → `.get<T>()`, `.post<T>()`, `.put<T>()`, `.delete<T>()`
 
-### Component Library (src/common/components/)
-- **Organized by:** Atomic Design (atoms → molecules → organisms → templates)
-- **Tiers:** 
-  - Atoms: StatusDot, SeverityBadge, LoadingState, ErrorState, EmptyState (5)
-  - Molecules: Card, Notification, TrendMetricCard, ImageViewer, MdViewer, JsonViewer (6)
-  - Organisms: DataTable, DecisionActionCard, TimelineNode, +29 more (32)
-  - Templates: PageHeader, SummaryPanel, HeroSection (3)
+### State Types (src/common/state/)
+- **Purpose:** Shared state type definitions
+- **Key:** `AppState<T>`, `StateType` enum, `StateCode` enum
+- **Note:** Used by both `useDataState` hook and `AppStateHandler`
+
+### Localization Provider (src/common/localization/)
+- **Purpose:** Injects translations into Prati's `LanguageContext`
+- **Key:** `LanguageProvider` wraps app, passes `translations` + `availableLanguages`
+- **Context + hook:** `useLanguage`, `LanguageSelector`, `LanguageContext` — provided by Prati
+
+### Template Rendering (src/services/)
+- **Purpose:** Handlebars-based template renderer (Node + browser)
+- **Key:** `createTemplateRenderer(config)`, `templateRenderer` (default instance)
+- **Templates:** Bundled `.hbs` files in `src/templates/`
+
+### UI Components & Design System
+> Owned by **Prati**. Astra re-exports all of Prati via `export * from "prati"` in `lib.ts`.
+> See [Prati documentation](https://github.com/NikhilVijayakumar/prati/blob/main/README.md).
 
 ## Concept Mapping
 
 | Concept | Implementation | Location |
-|--------|---------------|----------|
-| MVVM State | useDataState | src/common/hooks/useDataState.ts |
-| Theme | ThemeProvider | src/common/theme/themeContext.ts |
-| Localization | LanguageProvider | src/common/localization/LanguageContext.ts |
-| API | ApiService | src/common/repo/ApiService.ts |
-| Components | Atomic Design | src/common/components/ |
-
-## Edit Map
-
-| Task | Location |
-|------|---------|
-| Add component | src/common/components/{tier}/ |
-| Add feature doc | docs/feature/ |
-| Update theming | src/theme/ |
-| Add integration guide | docs/integration-guide/ |
+|---------|---------------|----------|
+| MVVM ViewModel | `useDataState` | `src/common/hooks/useDataState.ts` |
+| State types | `AppState<T>`, `StateType` | `src/common/state/AppState.ts` |
+| API client | `ApiService` | `src/common/repo/ApiService.ts` |
+| UI state bridge | `AppStateHandler` | `src/common/components/organisms/AppStateHandler.tsx` |
+| i18n provider | `LanguageProvider` | `src/common/localization/LanguageProvider.tsx` |
+| Template engine | `templateRenderer` | `src/services/templateRenderer.ts` |
+| Theme / Components | via Prati | `node_modules/prati` |
 
 ## Critical Flows
 
 ### Data Flow (API to UI)
-Hook component → useDataState() → ApiService.get/post/put/delete() → ServerResponse<T> → Render data
-
-### Theme Flow
-Wrap <ThemeProvider> → useTheme() hook → MUI theme tokens → component styles
+```
+Component → useDataState() → execute(repo.method) → ApiService → ServerResponse<T> → AppState<T> → AppStateHandler → Prati atoms or SuccessComponent
+```
 
 ### Localization Flow
-Wrap <LanguageProvider> → useLanguage() hook → translations['key'] → UI text
-
-### Component Creation
-Define props → Create {Component}.tsx → Export from {tier}/index.ts → Add doc to docs/feature/components/
+```
+Wrap <LanguageProvider translations={...}> → Prati's LanguageContext populated → useLanguage() hook → translations['key'] → UI text
+```
 
 ### State Flow
-INIT → (loading) → LOADING → (success) → COMPLETED | (error) → ERROR
+```
+INIT → (execute called) → LOADING → (response) → COMPLETED [isSuccess | isError]
+```
 
 ### Build Flow
-npm run build → Vite + vite-plugin-dts → dist/astra.es.js + dist/astra.umd.js + dist/lib.d.ts
+```
+npm run build → Vite + vite-plugin-dts → dist/astra.es.js (externalizes prati, react, @mui/*)
+```
 
 ## Documentation Manifest
 
-### Core Features (theming, localization, state, repository, mvvm)
-### Core
-- **feature/localization/hooks.md** →  useLanguage Hook The `useLanguage` hook provides access to the i18n context. It
-- **feature/localization/patterns.md** →  Translation Patterns Guidelines for organizing translations and accessing local
-- **feature/localization/provider.md** →  LanguageProvider The `LanguageProvider` component wraps your React application 
-- **feature/localization/README.md** →  Localization System The Astra i18n system provides React context-based internat
-- **feature/mvvm/best-practices.md** → MVVM Best Practices Do ✅ Use for async data flows — API calls, file loading, com
-- **feature/mvvm/pattern.md** → MVVM Implementation Pattern ViewModel: useDataState Hook The `useDataState<T>` h
-- **feature/mvvm/README.md** → MVVM Architecture in Astra Astra implements the Model-View-ViewModel pattern to 
-- **feature/repository/api-service.md** → ApiService HTTP client wrapper implementing the Repository pattern. Class Overvi
-- **feature/repository/http-status.md** → HttpStatusCode Enum of HTTP status codes used throughout the repository layer. E
-- **feature/repository/README.md** → Repository Layer Provides a unified API client abstraction using the Repository 
-- **feature/repository/server-response.md** → ServerResponse<T> Generic wrapper for API responses with success/error states. C
-- **feature/state/AppStateHandler.md** → AppStateHandler Component A conditional UI router that renders Loading, Error, E
-- **feature/state/README.md** → State Management in Astra Astra uses a centralized state pattern with MVVM to ha
-- **feature/state/useDataState.md** → useDataState Hook API Manages async state with built-in loading, success, and er
-- **feature/theming/hooks.md** →  useTheme Hook The `useTheme` hook provides access to theme context values in an
-- **feature/theming/provider.md** →  ThemeProvider The `ThemeProvider` component wraps your application to provide t
-- **feature/theming/README.md** →  Theming System The theming system provides light/dark mode support using MUI's 
-- **feature/theming/ThemeToggle.md** →  ThemeToggle Component A Material UI icon button that toggles between light and 
-- **feature/theming/tokens.md** →  Design Tokens Design tokens define the visual foundation of the theming system:
+### Architecture
+- `docs/raw/architecture/core/api-surface.md`
+- `docs/raw/architecture/core/hooks.md`
+- `docs/raw/architecture/core/localization.md`
+- `docs/raw/architecture/core/mvvm-pattern.md`
+- `docs/raw/architecture/core/repository.md`
+- `docs/raw/architecture/core/state-management.md`
+- `docs/raw/architecture/core/dependencies.md`
+- `docs/raw/architecture/invariants/dependency-safety.md`
+- `docs/raw/architecture/invariants/mvvm-separation.md`
+- `docs/raw/architecture/invariants/repository-isolation.md`
+- `docs/raw/architecture/invariants/localization.md`
+- `docs/raw/architecture/invariants/public-api-stability.md`
+- `docs/raw/architecture/integration-contracts/getting-started.md`
+- `docs/raw/architecture/integration-contracts/react.md`
+- `docs/raw/architecture/integration-contracts/electron.md`
 
+### MVVM / State / Repository
+- `docs/raw/feature-technical/mvvm/pattern.md`
+- `docs/raw/feature-technical/mvvm/best-practices.md`
+- `docs/raw/feature-technical/repository/api-service.md`
+- `docs/raw/feature-technical/repository/http-status.md`
+- `docs/raw/feature-technical/repository/server-response.md`
+- `docs/raw/feature-technical/state/README.md`
+- `docs/raw/feature-technical/state/useDataState.md`
+- `docs/raw/feature-technical/state/AppStateHandler.md`
+- `docs/raw/feature-technical/localization/README.md`
+- `docs/raw/feature-technical/localization/provider.md`
+- `docs/raw/feature-technical/localization/hooks.md`
 
-
-### Component Docs
-### Components
-- **feature/components/atomic-design/atoms.md** → Atoms Tier: Atoms — Fundamental UI Primitives Definition Atoms are the smallest,
-- **feature/components/atomic-design/molecules.md** → Molecules Tier: Molecules — Composed Functional Units Definition Molecules are s
-- **feature/components/atomic-design/organisms.md** → Organisms Tier: Organisms — Complex UI Sections Definition Organisms are complex
-- **feature/components/atomic-design/README.md** → Atomic Design Methodology Purpose: Establishes classification rules for UI compo
-- **feature/components/atomic-design/templates.md** → Templates Tier: Templates — Page-Level Layouts Definition Templates define the s
-- **feature/components/atoms/SeverityBadge.md** →  tier: atom SeverityBadge An atomic component that displays a severity label wit
-- **feature/components/atoms/StatusDot.md** →  tier: atom StatusDot An atomic component that displays a colored dot representi
-- **feature/components/molecules/Card.md** →  tier: molecule Card A molecular component that provides a styled container with
-- **feature/components/molecules/JsonViewer.md** →  tier: molecule JsonViewer A file viewer component that displays JSON data with 
-- **feature/components/molecules/Notification.md** →  tier: molecule Notification A molecular component that displays a snackbar-styl
-- **feature/components/molecules/TrendMetricCard.md** →  tier: molecule TrendMetricCard A molecular component that displays a metric val
-- **feature/components/organisms/CsvViewer.md** →  tier: template CsvViewer A file viewer component that displays CSV data in a pa
-- **feature/components/organisms/FileViewerRouter.md** →  tier: template FileViewerRouter A file viewer component that routes to the appr
-- **feature/components/README.md** →  tier_index: atoms: ./atoms/ molecules: ./molecules/ organisms: ./organisms/ tem
-- **feature/components/templates/HeroSection.md** →  tier: template HeroSection A layout component that displays a prominent headlin
-- **feature/components/templates/PageHeader.md** →  tier: template PageHeader A layout component that provides a standardized page-
-- **feature/components/templates/SummaryPanel.md** →  tier: template SummaryPanel A layout component that displays a titled collectio
-
-
-
-### Integration Guides (react, electron, getting-started)
-### Guides
-- **integration-guide/electron.md** → Electron Integration Guide Astra works seamlessly in Electron desktop applicatio
-- **integration-guide/getting-started.md** → Getting Started with Astra A comprehensive guide to integrating the Astra librar
-- **integration-guide/react.md** → React Integration Guide This guide covers integrating Astra into React applicati
-
-
-
-> **Archived:** PR/Integration docs in docs/pr/ (historical)
+### UI Components & Design System
+> See Prati repo: `docs/raw/feature/components/`, `docs/raw/feature/theming/`, `docs/raw/design-system/`
 
 ## Rules
 
-- All components use theme tokens - never hardcode colors
-- All components stateless with data via props
-- Use localization - never hardcode strings
-- Follow Atomic Design methodology
+- All state transitions go through `useDataState` — no ad-hoc `useState` for async
+- API calls return `ServerResponse<T>` — never throw raw errors to components
+- Use `AppStateHandler` for loading/error/empty — no inline conditionals
+- Use `LanguageProvider` at app root — never hardcode UI strings in Astra code
+- Components (visual layer) belong in Prati — Astra only owns `AppStateHandler`
 
 ## API Surface
 
-See: src/lib.ts
+See: `src/lib.ts`
 
 ## Maintenance
 
-- Config: scripts/wiki-steps.json
-- Generated: 2026-04-26
-- Version: 1.0.7
+- Version: 1.1.1
+- UI dependency: Prati (`file:../Prati` locally, git URL for production)

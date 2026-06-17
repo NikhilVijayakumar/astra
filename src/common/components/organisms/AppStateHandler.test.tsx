@@ -5,16 +5,12 @@ import { StateType } from "../../state/AppState";
 import { HttpStatusCode } from "../../repo/HttpStatusCode";
 
 // Mock child components to verify they are rendered correctly
-vi.mock("../atoms/LoadingState", () => ({
-  default: () => <div data-testid="loading-state">Loading...</div>,
-}));
-vi.mock("../atoms/ErrorState", () => ({
-  default: ({ message }: { message?: string }) => (
+vi.mock("prati", () => ({
+  LoadingState: () => <div data-testid="loading-state">Loading...</div>,
+  ErrorState: ({ message }: { message?: string }) => (
     <div data-testid="error-state">{message || "Error"}</div>
   ),
-}));
-vi.mock("../atoms/EmptyState", () => ({
-  default: () => <div data-testid="empty-state">Empty</div>,
+  EmptyState: () => <div data-testid="empty-state">Empty</div>,
 }));
 
 describe("AppStateHandler", () => {

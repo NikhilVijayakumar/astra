@@ -6,6 +6,7 @@ export declare enum HttpStatusCode {
     NOT_FOUND = 404,
     INTERNAL_SERVER_ERROR = 500,
     INTERNET_ERROR = 0,
+    /** @deprecated Use StateCode.IDLE from src/common/state/AppState instead. */
     IDLE = 1000
 }
 export declare function getStatusMessage(status: HttpStatusCode, literal: Record<string, string>): string;

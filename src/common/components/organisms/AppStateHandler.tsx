@@ -1,9 +1,7 @@
 import { FC, ReactElement, ReactNode } from "react";
 import { AppState, StateType } from "../../state/AppState";
 import { HttpStatusCode } from "../../repo/HttpStatusCode";
-import LoadingState from "../atoms/LoadingState";
-import ErrorState from "../atoms/ErrorState";
-import EmptyState from "../atoms/EmptyState";
+import { LoadingState, ErrorState, EmptyState } from "prati";
 
 /**
  * Defines the props for the AppStateHandler component.

@@ -39,6 +39,8 @@ export default defineConfig({
           id === "react-dom" ||
           id === "react/jsx-runtime" ||
           id === "react/jsx-dev-runtime" ||
+          id === "prati" ||
+          id.startsWith("prati/") ||
           id.startsWith("@mui/") ||
           id.startsWith("@emotion/")
         );
@@ -51,6 +53,7 @@ export default defineConfig({
             "react-dom": "ReactDOM",
             "react/jsx-runtime": "ReactJsxRuntime",
             "react/jsx-dev-runtime": "ReactJsxDevRuntime",
+            prati: "Prati",
             "@mui/material": "MaterialUI",
             "@mui/material/Box": "Box",
             "@mui/material/Typography": "Typography",
@@ -94,6 +97,7 @@ export default defineConfig({
             "react-dom": "ReactDOM",
             "react/jsx-runtime": "ReactJsxRuntime",
             "react/jsx-dev-runtime": "ReactJsxDevRuntime",
+            prati: "Prati",
             "@mui/material": "MaterialUI",
             "@mui/material/Box": "Box",
             "@mui/material/Typography": "Typography",

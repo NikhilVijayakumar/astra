@@ -4,7 +4,7 @@ export declare class ServerResponse<T> {
     isError: boolean;
     isSuccess: boolean;
     status: HttpStatusCode;
-    statusMessage: String;
+    statusMessage: string;
     data?: T;
     private constructor();
     private static getSucessInstance;

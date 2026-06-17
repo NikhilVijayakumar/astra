@@ -1,7 +1,7 @@
 // src/common/hooks/useApiState.ts
 import { useState, useEffect, useRef } from 'react';
 import { AppState, StateType, StateCode } from '../state/AppState';
-import {ServerResponse} from '../repo/ServerResponse';
+import { ServerResponse } from '../repo/ServerResponse';
 import { HttpStatusCode } from '../repo/HttpStatusCode';
 
 
