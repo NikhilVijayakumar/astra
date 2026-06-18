@@ -1,7 +1,5 @@
-// Re-export design system + components + localization from prati
+// Re-export design system + components + localization from prati (includes template types and renderer)
 export * from "prati";
 
-// Astra-specific: state types, HTTP codes, MVVM hooks, API layer, AppStateHandler, template services
+// Astra-specific: state types, HTTP codes, MVVM hooks, API layer, AppStateHandler
 export * from "./common";
-export * from "./types/template.types";
-export * from "./services/templateRenderer";
