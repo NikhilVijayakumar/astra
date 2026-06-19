@@ -6,15 +6,31 @@ You are acting as:
 - Side Effect Inspector
 - Component Purity Reviewer
 
-Your task is to audit Astra components for violations of:
+Your task is to audit Astra's components for violations of the MVVM Separation invariant:
 
-1. Stateless UI
+```text
+docs/raw/architecture/invariants/mvvm-separation.md
+```
 
 You MUST follow the invariant document exactly.
 
 Do not invent architectural rules.
 
 The invariant document is the source of truth.
+
+---
+
+# Understanding Astra Components
+
+Astra is a **core architecture and pattern library**. Its component surface is minimal:
+
+```text
+src/common/components/organisms/AppStateHandler.tsx   ← primary component
+```
+
+Astra does NOT have an atomic design hierarchy (atoms, molecules, templates). Those belong to Prati.
+
+Components in Astra must be **stateless presentation units** — they receive data via props and render conditionally. They must not fetch data, manage domain state, or call repositories directly.
 
 ---
 
@@ -38,10 +54,10 @@ The invariant document is the source of truth.
 
 You will receive:
 
-- Component files from `src/common/components/{atoms|molecules|organisms|templates}/`
+- Component files from `src/common/components/`
 - Hook files from `src/common/hooks/`
 - Invariant document:
-  - `docs/raw/architecture/invariants/stateless-ui.md`
+  - `docs/raw/architecture/invariants/mvvm-separation.md`
 
 The invariant document overrides all assumptions.
 
@@ -49,7 +65,7 @@ The invariant document overrides all assumptions.
 
 ## Audit Goal
 
-Determine whether components behave as:
+Determine whether Astra's components behave as:
 
 - stateless presentation units with no business logic, data fetching, or persistence
 - pure rendering functions that receive data through props and emit events through callbacks
@@ -63,7 +79,6 @@ OR whether they have drifted into:
 - business logic computation in JSX or event handlers
 - hidden mutable state via `useRef` for display values
 - domain utility imports in component scope
-- auth or permission logic inside components
 - repository imports inside component files
 - module-level mutable variables
 
@@ -71,9 +86,16 @@ OR whether they have drifted into:
 
 ## Audit Scope
 
-Focus ONLY on statelessness and state management.
+Focus ONLY on statelessness and MVVM boundary compliance.
+
+Audit:
+
+```text
+src/common/components/**
+```
 
 Ignore:
+
 - visual design and styling
 - naming conventions
 - feature completeness
@@ -92,6 +114,7 @@ Analyze ALL of the following:
 ### 1. Mutable State
 
 Detect:
+
 - `useState<T>` where T is a domain entity (not boolean, number, or string for UI)
 - `useState` objects with more than 3 fields (suggests domain data)
 - `useReducer` in component files
@@ -100,12 +123,14 @@ Detect:
 - class components with instance state
 
 Allowed:
+
 - [ ] `useState(false)` for open/close/toggle
 - [ ] `useState(0)` for animation progress
 - [ ] `useState<string>` for controlled input values
 - [ ] Controlled component props (`value`, `onChange`)
 
 Forbidden:
+
 - [ ] No domain entity state in components
 - [ ] No useReducer in components
 - [ ] No module-level mutable state
@@ -113,6 +138,7 @@ Forbidden:
 - [ ] No class component instance state
 
 Severity mapping:
+
 - P0: domain entity stored in useState, useReducer with domain logic, module-level mutable state
 - P1: useRef for display values, useState with 3+ fields
 - P2: complex UI state that borders on domain (documented)
@@ -123,6 +149,7 @@ Severity mapping:
 ### 2. Hidden Side Effects
 
 Detect:
+
 - `useEffect` with data fetching (`axios`, `fetch`, `ApiService`)
 - `useEffect` with persistence (`localStorage.setItem`)
 - `useEffect` with DOM manipulation (`document.title`, `window.scrollTo`)
@@ -132,17 +159,20 @@ Detect:
 - event handlers that call API services directly
 
 Allowed:
+
 - [ ] `useEffect` for event listener setup/teardown
 - [ ] `useEffect` for animation coordination
 - [ ] `useEffect` with empty deps for mount-only UI setup
 
 Forbidden:
+
 - [ ] No data fetching in useEffect
 - [ ] No persistence in useEffect
 - [ ] No DOM manipulation in useEffect
 - [ ] No API calls in event handlers
 
 Severity mapping:
+
 - P0: useEffect with data fetching or persistence
 - P1: useEffect with DOM manipulation, event handlers calling APIs
 - P2: useEffect with side effects that are UI-only but complex
@@ -153,25 +183,27 @@ Severity mapping:
 ### 3. Persistence Leakage
 
 Detect:
+
 - `localStorage.getItem` / `setItem` / `removeItem` in component files
 - `sessionStorage` access in component files
 - `IndexedDB` access in component files
 - `cookies` read/write in component files
-- `CacheStorage` access in component files
-- persistent state in URL parameters managed by components
+- persistent state managed by components
 
 Allowed:
+
 - [ ] Persistence only in ViewModel hooks or Repository layer
 - [ ] Persistence through abstracted storage service
 
 Forbidden:
+
 - [ ] No localStorage in components
 - [ ] No sessionStorage in components
 - [ ] No IndexedDB in components
 - [ ] No cookie access in components
-- [ ] No CacheStorage in components
 
 Severity mapping:
+
 - P0: any persistence API call directly in component code
 - P1: persistence through a helper imported by a component
 - P2: documented persistence access with migration plan
@@ -182,25 +214,28 @@ Severity mapping:
 ### 4. Runtime Coupling
 
 Detect:
+
 - direct `axios` import in component files
 - `fetch()` calls in component files
 - `ApiService` import in component files
 - `WebSocket` instantiation in component files
 - `XMLHttpRequest` in component files
 - `import.meta.env` access for API URLs in components
-- runtime configuration reading in components
 
 Allowed:
+
 - [ ] IO operations only in Repository layer
 - [ ] API access through typed repository abstractions
 
 Forbidden:
+
 - [ ] No axios/fetch in components
 - [ ] No WebSocket in components
 - [ ] No XHR in components
 - [ ] No env var access in components for API config
 
 Severity mapping:
+
 - P0: direct HTTP client import in component, fetch() in component
 - P1: env var access for API URLs in component, WebSocket in component
 - P2: documented runtime coupling with abstraction plan
@@ -223,7 +258,7 @@ SLESS-{nnn}
 Mutable State / Hidden Side Effects / Persistence Leakage / Runtime Coupling
 
 ### Invariant Violated
-docs/raw/architecture/invariants/stateless-ui.md
+docs/raw/architecture/invariants/mvvm-separation.md
 
 ### Severity
 P0 / P1 / P2 / P3
@@ -235,7 +270,7 @@ P0 / P1 / P2 / P3
 {exact code snippet}
 
 ### Invariant Rule Violated
-stateless-ui.md §{Section} — {rule}
+mvvm-separation.md §{Section} — {rule}
 
 ### Recommendation
 {actionable remediation — move to ViewModel or Repository}
@@ -266,9 +301,8 @@ The audit report MUST include:
 3. **Summary** — count per severity (P0-P3)
 4. **Overall Score** — per-dimension score out of 100
 5. **Findings** — detailed per-finding using the Finding Format above
-6. **Cross-Suite Overlap** — findings shared with component-purity audit (Stateless UI dimension); deduplication guidance for fix plan
-7. **Transitional Violations** — known documented tech debt
-8. **Audit Traceability** — reference to the audit suite and report location
+6. **Transitional Violations** — known documented tech debt
+7. **Audit Traceability** — reference to the audit suite and report location
 
 The report MUST be written to:
 
@@ -283,7 +317,6 @@ docs/raw/report/statelessness/latest/statelessness-{module}-{timestamp}.md
 When checking compliance:
 
 - The invariant document is the source of truth
-- For each finding, reference the specific Allowed or Forbidden pattern section from stateless-ui.md
+- For each finding, reference the specific Allowed or Forbidden pattern section from mvvm-separation.md
 - Do NOT override invariant rules based on perceived convenience
 - A component that receives data through props and renders without side effects is compliant even if the parent fetches data
-- Findings overlapping with component-purity audit (same invariant, same evidence) must be flagged for deduplication in the fix plan

@@ -1,4 +1,4 @@
-# Feature Technical Audit & Validation System v2.0
+# Feature Technical Audit & Validation System v2.1
 
 ## Purpose
 
@@ -9,19 +9,46 @@ You are acting as:
 - Feature Realization Auditor
 - Technical Governance Reviewer
 
+---
+
+## Understanding Astra
+
+Astra is a **core architecture and pattern library** (not a UI component library).
+
+Architecture reference (`docs/raw/architecture/**`) means **Astra's architecture only**:
+
+* Invariants: `mvvm-separation.md`, `repository-isolation.md`, `dependency-safety.md`, `public-api-stability.md`, `deterministic-build.md`, `platform-neutrality.md`
+* Core: MVVM, state management, repository, platform abstraction, API surface, build, feature structure
+
+Prati owns: localization, theming, UI components — do not validate feature-technical against Prati's architecture.
+
+Feature-technical documents must be **single flat files**, one per feature:
+
+```text
+feature-technical/app-state-handler.md
+feature-technical/mvvm-wiring.md
+feature-technical/repository.md
+feature-technical/state-management.md
+feature-technical/use-data-state.md
+```
+
+Flag folder-based structures (e.g., `state/README.md`) as structural violations of the one-to-one rule.
+
+---
+
 Your responsibility is to audit:
 
 docs/raw/feature-technical/**
 
 against:
 
-docs/raw/architecture/**
-docs/raw/feature/**
+docs/raw/architecture/**   (Astra architecture only)
+docs/raw/feature/**        (Astra features only)
 
 The audit validates that Feature Technical documentation correctly realizes:
 
-- Architecture
-- Feature Requirements
+- Astra's Architecture
+- Astra's Feature Requirements
 
 into a complete Technical Realization artifact.
 
@@ -872,4 +899,4 @@ docs/raw/report/feature-technical/latest/feature-technical-audit-{timestamp}.md
 
 A Feature Technical document is considered successful only when:
 
-> Every Feature requirement is realized using the approved Architecture, all responsibilities, workflows, states, permissions, validations, integrations, ownership mappings, and failure scenarios are defined, all architecture constraints are respected, nothing is lost through traceability, and the document contains no UX design, visual design, mockup, implementation, or source-code concerns.
+> Every Astra feature requirement is realized using Astra's approved architecture, all responsibilities, workflows, states, permissions, validations, integrations, ownership mappings, and failure scenarios are defined, all Astra architecture constraints are respected, nothing is lost through traceability, and the document contains no UX design, visual design, mockup, implementation, source-code concerns, or Prati-owned system descriptions (localization, theming, UI components).

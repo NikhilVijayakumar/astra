@@ -1,4 +1,4 @@
-# Feature Technical Generation System v2.0
+# Feature Technical Generation System v2.1
 
 ## Purpose
 
@@ -15,21 +15,29 @@ docs/raw/feature-technical/**
 
 from:
 
-docs/raw/architecture/**
-docs/raw/feature/**
+docs/raw/architecture/**   ← Astra's architecture only (MVVM, state, repository, platform abstraction, build, API surface)
+docs/raw/feature/**        ← Astra's feature contracts only
 
-The generated document defines:
+---
 
-How the feature is technically realized using the approved architecture.
+## Astra Scope (Post-Split)
 
-The generated document does NOT define:
+Astra is a **core pattern and architecture library**. It is NOT a UI component library.
 
-- User Experience
-- Screen Layouts
-- Mockups
-- Visual Design
-- Technical Implementation
-- Source Code
+Astra owns:
+- MVVM pattern (`useDataState`, `AppState`, `AppStateHandler`)
+- State management lifecycle (`StateType`, async transitions)
+- Repository pattern (`ApiService`, `ServerResponse`, `HttpStatusCode`)
+- Platform abstraction (web HTTP / Electron IPC)
+- Build system and public API surface
+
+Astra does NOT own (these belong to **Prati**):
+- Localization (`LanguageProvider`, `useLanguage`) → Prati's feature-technical
+- Theming (`ThemeProvider`, `useTheme`, design tokens) → Prati's feature-technical
+- UI components (atoms, molecules, organisms, templates) → Prati's feature-technical
+- Atomic design hierarchy → Prati
+
+When generating feature-technical for Astra, do not reference localization or theming as Astra-owned systems. Reference them only as consumer-managed concerns or Prati dependencies when relevant.
 
 ---
 
@@ -37,12 +45,19 @@ The generated document does NOT define:
 
 Inputs:
 
-docs/raw/architecture/**
-docs/raw/feature/**
+docs/raw/architecture/**   (Astra architecture only)
+docs/raw/feature/**        (Astra features only)
 
 Output:
 
 docs/raw/feature-technical/{feature}.md
+
+Current Astra features:
+- feature/app-state-handler.md    → feature-technical/app-state-handler.md
+- feature/mvvm-wiring.md          → feature-technical/mvvm-wiring.md
+- feature/repository.md           → feature-technical/repository.md
+- feature/state-management.md     → feature-technical/state-management.md
+- feature/use-data-state.md       → feature-technical/use-data-state.md
 
 ---
 
@@ -52,15 +67,17 @@ Each feature specification produces exactly one Feature Technical document.
 
 Example:
 
-docs/raw/feature/project-management/task.md
+docs/raw/feature/use-data-state.md
 
 ↓
 
-docs/raw/feature-technical/project-management/task.md
+docs/raw/feature-technical/use-data-state.md
 
 No Feature Technical document may represent multiple features.
 
 No feature may generate multiple Feature Technical documents.
+
+Output is a **single flat .md file** — NOT a folder with multiple files.
 
 ---
 
@@ -467,6 +484,19 @@ Implementation Generation
 
 ---
 
+## Prati-Owned Concerns
+
+The following are Prati's domain — do not describe them as Astra architecture:
+
+- Localization system (`LanguageProvider`, `useLanguage`)
+- Theming system (`ThemeProvider`, `useTheme`, design tokens)
+- UI component library (atoms, molecules, organisms, templates)
+- Atomic design hierarchy
+
+These may be referenced as consumer dependencies, but Astra does not own them.
+
+---
+
 # Required Document Structure
 
 # Overview
@@ -522,7 +552,7 @@ under:
 
 # Output Location
 
-docs/raw/feature-technical/{feature}.md
+docs/raw/feature-technical/{feature}.md   ← single flat file, not a folder
 
 ---
 
@@ -530,4 +560,4 @@ docs/raw/feature-technical/{feature}.md
 
 A Feature Technical document is considered successful only when:
 
-It completely realizes all Feature requirements using the approved Architecture, defines ownership, workflows, states, permissions, validations, integrations, and error handling, and contains no UX design, visual design, implementation details, or source-code concerns.
+It completely realizes all Feature requirements using Astra's approved Architecture, defines ownership, workflows, states, permissions, validations, integrations, and error handling, and contains no UX design, visual design, implementation details, source-code concerns, or Prati-owned system descriptions.

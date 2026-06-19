@@ -18,6 +18,36 @@ It does **not** evaluate implementation, source code, feature behavior, runtime 
 
 ---
 
+# Understanding Astra
+
+Astra is a **core architecture and pattern library**.
+
+It provides:
+
+* MVVM pattern (`useDataState`, `AppState`, `AppStateHandler`)
+* Async state lifecycle (`StateType`, `INIT → LOADING → COMPLETED/ERROR`)
+* Repository pattern (`ApiService`, `ServerResponse`, `HttpStatusCode`)
+* Platform abstraction (web HTTP / Electron IPC)
+* Deterministic build and public API surface
+
+Astra does **not** own:
+
+* UI component library (atoms, molecules, organisms, templates) — Prati
+* Localization system (`LanguageProvider`, `useLanguage`) — Prati
+* Theming system (`ThemeProvider`, `useTheme`, design tokens) — Prati
+* Atomic design hierarchy — Prati
+
+Architecture guidance must remain:
+
+* implementation-agnostic
+* feature-agnostic
+* platform-neutral
+* reusable across all consumer applications
+
+Architecture documentation must never depend on any specific consumer feature.
+
+---
+
 # Purpose
 
 The goal of this audit is to determine whether Astra's architecture documentation:
@@ -43,8 +73,9 @@ Audit only:
 docs/raw/architecture/core/**
 docs/raw/architecture/integration-contracts/**
 docs/raw/architecture/invariants/**
-docs/raw/architecture/runtime-maps/**
 ```
+
+Note: `docs/raw/architecture/runtime-maps/` is currently empty — skip if unpopulated.
 
 ---
 
@@ -67,7 +98,7 @@ These responsibilities belong to:
 ```text
 Feature Audit
 Feature Technical Audit
-Library Governance Audit
+Implementation Audit
 ```
 
 ---
@@ -79,43 +110,19 @@ All findings must respect the following authority order:
 | Level | Authority             |
 | ----- | --------------------- |
 | 1     | Invariants            |
-| 2     | Runtime Maps          |
-| 3     | Core Architecture     |
-| 4     | Integration Contracts |
-| 5     | Examples              |
+| 2     | Core Architecture     |
+| 3     | Integration Contracts |
+| 4     | Examples              |
 
 Rules:
 
 * Lower authority documents MUST NOT redefine higher authority contracts.
 * Lower authority documents MUST NOT weaken higher authority requirements.
 * Examples MUST NEVER override architecture.
-* Runtime Maps MUST align with Invariants.
 * Core Architecture MUST explain Invariants.
 * Integration Contracts MUST implement Core Architecture.
 
 Violations are architecture findings.
-
----
-
-# Understanding Astra
-
-Astra is a stateless component library.
-
-Architecture documents define:
-
-* architectural invariants
-* consumer responsibilities
-* library responsibilities
-* integration contracts
-
-Architecture guidance must remain:
-
-* implementation-agnostic
-* feature-agnostic
-* platform-neutral
-* reusable across all consumer applications
-
-Architecture documentation must never depend on any specific consumer feature.
 
 ---
 
@@ -132,17 +139,12 @@ Including:
 ```text
 docs/raw/architecture/invariants/*
 docs/raw/architecture/core/*
-docs/raw/architecture/runtime-maps/*
 docs/raw/architecture/integration-contracts/*
 ```
 
-The following invariants are authoritative:
+The following Astra invariants are authoritative:
 
 ```text
-stateless-ui.md
-theme-sovereignty.md
-localization.md
-atomic-hierarchy.md
 mvvm-separation.md
 repository-isolation.md
 dependency-safety.md
@@ -203,7 +205,6 @@ Evaluate whether architecture guidance fully explains how consumers comply with 
 Required checks:
 
 * every invariant has guidance
-* every runtime map has guidance
 * every integration contract has supporting guidance
 * no missing onboarding steps
 * no unexplained architectural concepts
@@ -223,13 +224,11 @@ Evaluate all architecture documents against one another.
 Required checks:
 
 * naming consistency
-* provider ordering consistency
-* folder structure consistency
 * state management consistency
 * repository guidance consistency
 * MVVM consistency
-* localization consistency
-* runtime map consistency
+* platform abstraction consistency
+* integration contract consistency
 
 Detect:
 
@@ -257,15 +256,13 @@ Getting Started
     ↓
 Feature Structure
     ↓
-View
+ViewModel (useDataState)
     ↓
-ViewModel
+Repository (ApiService)
     ↓
-Repository
+State Management (AppState / AppStateHandler)
     ↓
-State Management
-    ↓
-Runtime Integration
+Platform Integration (web / Electron)
 ```
 
 Check:
@@ -346,9 +343,9 @@ Score:
 
 Produce:
 
-| Invariant   | Defined | Guidance Exists | Runtime Mapping Exists | Coverage                 |
-| ----------- | ------- | --------------- | ---------------------- | ------------------------ |
-| {Invariant} | Yes/No  | Yes/No          | Yes/No                 | Complete/Partial/Missing |
+| Invariant   | Defined | Guidance Exists | Integration Contract Exists | Coverage                 |
+| ----------- | ------- | --------------- | --------------------------- | ------------------------ |
+| {Invariant} | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
 
 Purpose:
 
@@ -493,7 +490,6 @@ Specify:
 
 ```text
 Invariant
-Runtime Map
 Core Architecture
 Integration Contract
 ```
@@ -699,7 +695,6 @@ Provide a concise architectural health summary.
 | --------------------- | --------------------------------------------------------------------- |
 | Architecture Docs     | docs/raw/architecture/**                                              |
 | Invariants            | docs/raw/architecture/invariants/**                                   |
-| Runtime Maps          | docs/raw/architecture/runtime-maps/**                                 |
 | Integration Contracts | docs/raw/architecture/integration-contracts/**                        |
 | Audit Report          | docs/raw/report/architecture/latest/architecture-audit-{timestamp}.md |
 | Previous Report       | docs/raw/report/architecture/archive/{previous-filename}              |

@@ -9,7 +9,17 @@ You are acting as:
 
 Your task is to audit Astra's codebase and dependencies for security issues.
 
-This is a standalone security audit suite — not derived from a single invariant document but applied against general secure coding best practices and OWASP guidelines relevant to a React UI library.
+**Astra** is a core architecture and pattern library. Its source surface is:
+
+```text
+src/common/hooks/         ← useDataState, other hooks
+src/common/components/    ← AppStateHandler only
+src/common/repo/          ← ApiService, ServerResponse
+src/common/state/         ← StateType, AppState
+src/types/                ← shared types
+```
+
+This is a standalone security audit suite — not derived from a single invariant document but applied against general secure coding best practices and OWASP guidelines relevant to a React pattern library.
 
 ---
 

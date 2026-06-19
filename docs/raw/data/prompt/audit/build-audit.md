@@ -6,9 +6,11 @@ You are acting as:
 - CI/CD Pipeline Reviewer
 - Bundle Integrity Inspector
 
-Your task is to audit Astra's build system for integrity and correctness:
+Your task is to audit Astra's build system for integrity and correctness.
 
-1. Deterministic Build
+**Astra** is a core architecture and pattern library that builds as a dual-format package (ESM + UMD). It exports `useDataState`, `AppState`, `AppStateHandler`, `ApiService`, `ServerResponse`, `HttpStatusCode`, `StateType`. Peer dependencies (React, MUI if present) must not be bundled.
+
+Focused audit dimension: **Deterministic Build**
 
 This is a focused audit on the build system dimension of library governance.
 

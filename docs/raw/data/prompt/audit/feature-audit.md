@@ -21,9 +21,7 @@ The audit validates:
 * functional completeness
 * workflow completeness
 * business rule coverage
-* user journey coverage
 * state coverage
-* permission coverage
 * edge case coverage
 * failure scenario coverage
 * cross-feature consistency
@@ -31,6 +29,22 @@ The audit validates:
 * feature traceability
 
 The audit does NOT validate implementation.
+
+---
+
+# Understanding Astra Features
+
+Astra is a **core architecture and pattern library**. Its features ARE the architectural patterns it provides. Current feature inventory:
+
+```text
+feature/app-state-handler.md   ← conditional-rendering component
+feature/mvvm-wiring.md         ← MVVM layer connection pattern
+feature/repository.md          ← ApiService, ServerResponse, HttpStatusCode
+feature/state-management.md    ← AppState, StateType async lifecycle
+feature/use-data-state.md      ← useDataState hook
+```
+
+**Important:** Astra feature documents legitimately use architectural terms (Repository, ViewModel, Hook, AppState, useDataState). These are the product vocabulary, not specification contamination. Flag implementation details (file paths, TypeScript syntax, import statements) as contamination — not architectural pattern names.
 
 ---
 
@@ -66,7 +80,7 @@ These responsibilities belong to:
 ```text
 Architecture Audit
 Feature Technical Audit
-Library Governance Audit
+Implementation Audit
 ```
 
 ---
@@ -105,6 +119,8 @@ Specification Contamination
 
 and must generate findings.
 
+**Exception:** Astra feature docs may name the patterns they define (e.g., "useDataState", "AppState", "INIT → LOADING → COMPLETED") since these are behavioral contracts, not source code.
+
 ---
 
 # Feature Discovery Rule
@@ -114,7 +130,6 @@ The audit must not assume:
 * feature names
 * workflows
 * concepts
-* roles
 * permissions
 * states
 * business rules
@@ -127,8 +142,6 @@ docs/raw/feature/**
 
 Features must be discovered dynamically.
 
-The audit must remain reusable across any application domain.
-
 ---
 
 # Primary Audit Questions
@@ -137,14 +150,12 @@ The audit must answer:
 
 1. Are feature specifications functionally complete?
 2. Are workflows fully defined?
-3. Are user journeys fully defined?
-4. Are states and transitions defined?
-5. Are permissions and ownership rules defined?
-6. Are edge cases documented?
-7. Are failure scenarios documented?
-8. Are cross-feature interactions defined?
-9. Are feature responsibilities clearly separated?
-10. Do feature specifications remain free from implementation concerns?
+3. Are states and transitions defined?
+4. Are edge cases documented?
+5. Are failure scenarios documented?
+6. Are cross-feature interactions defined?
+7. Are feature responsibilities clearly separated?
+8. Do feature specifications remain free from implementation concerns?
 
 ---
 
@@ -234,58 +245,7 @@ Impact
 
 ---
 
-# Audit Phase 3 — User Journey Coverage
-
-## Goal
-
-Determine whether user journeys are fully defined.
-
----
-
-## Validate
-
-For every feature:
-
-### Entry Conditions
-
-How does the user enter the feature?
-
-### Primary Flow
-
-Primary successful journey.
-
-### Alternate Flows
-
-Alternative valid paths.
-
-### Failure Flows
-
-What happens when something fails?
-
-### Recovery Flows
-
-How does the user recover?
-
-### Exit Conditions
-
-How does the workflow end?
-
----
-
-## Output
-
-### Journey Findings
-
-```text
-Feature
-Issue
-Severity
-Impact
-```
-
----
-
-# Audit Phase 4 — Workflow Coverage
+# Audit Phase 3 — Workflow Coverage
 
 ## Goal
 
@@ -336,7 +296,7 @@ Impact
 
 ---
 
-# Audit Phase 5 — State & Transition Coverage
+# Audit Phase 4 — State & Transition Coverage
 
 ## Goal
 
@@ -372,54 +332,7 @@ Impact
 
 ---
 
-# Audit Phase 6 — Permission & Ownership Coverage
-
-## Goal
-
-Validate authorization behavior.
-
----
-
-## Validate
-
-Where applicable:
-
-### Visibility
-
-Who can see?
-
-### Actions
-
-Who can act?
-
-### Restrictions
-
-Who cannot act?
-
-### Ownership
-
-Who owns the object?
-
-### Delegation
-
-Can ownership be delegated?
-
----
-
-## Output
-
-### Permission Findings
-
-```text
-Feature
-Issue
-Severity
-Impact
-```
-
----
-
-# Audit Phase 7 — Edge Case Coverage
+# Audit Phase 5 — Edge Case Coverage
 
 ## Goal
 
@@ -458,7 +371,7 @@ Impact
 
 ---
 
-# Audit Phase 8 — Failure Scenario Coverage
+# Audit Phase 6 — Failure Scenario Coverage
 
 ## Goal
 
@@ -468,15 +381,11 @@ Validate failure handling.
 
 ## Validate
 
-### User Errors
-
-### Permission Failures
+### Consumer Errors
 
 ### Missing Data
 
 ### Dependency Failures
-
-### Business Rule Violations
 
 ### Recovery Paths
 
@@ -495,7 +404,7 @@ Impact
 
 ---
 
-# Audit Phase 9 — Cross-Feature Interaction Audit
+# Audit Phase 7 — Cross-Feature Interaction Audit
 
 ## Goal
 
@@ -530,7 +439,7 @@ Recommendation
 
 ---
 
-# Audit Phase 10 — Functional Ownership Audit
+# Audit Phase 8 — Functional Ownership Audit
 
 ## Goal
 
@@ -567,7 +476,7 @@ Impact
 
 ---
 
-# Audit Phase 11 — Feature Traceability Audit
+# Audit Phase 9 — Feature Traceability Audit
 
 ## Goal
 
@@ -598,76 +507,26 @@ Impact
 
 ---
 
-# Audit Phase 12 — Functional Purity Audit
+# Audit Phase 10 — Functional Purity Audit
 
 ## Goal
 
-Detect architecture and implementation leakage.
+Detect implementation leakage.
 
 ---
 
 ## Forbidden Content
-
-### Architecture Leakage
-
-Examples:
-
-```text
-Repository
-ViewModel
-Service
-Controller
-Store
-Hook
-Provider
-MVVM
-Dependency Injection
-```
-
----
 
 ### Framework Leakage
 
 Examples:
 
 ```text
-React
+React hooks syntax
+TypeScript generics
 Angular
 Vue
-Electron
-Flutter
-Spring
-```
-
----
-
-### Database Leakage
-
-Examples:
-
-```text
-SQLite
-PostgreSQL
-MongoDB
-Table
-Column
-Index
-```
-
----
-
-### API Leakage
-
-Examples:
-
-```text
-REST
-GraphQL
-GET
-POST
-PUT
-DELETE
-Endpoint
+Electron API calls
 ```
 
 ---
@@ -681,22 +540,42 @@ src/
 components/
 repositories/
 services/
-viewmodels/
+import statements
+export statements
+file paths
 ```
 
 ---
 
-### Technical Design Leakage
+### Technical Interface Leakage
 
 Examples:
 
 ```text
-Class Design
-Caching
-Storage Engine
-Implementation Algorithm
-Technical Interface
+Class definitions
+Interface declarations
+Generic type parameters
+SQL queries
+HTTP methods
 ```
+
+---
+
+## Allowed Content (Astra-specific)
+
+Astra feature docs legitimately name:
+
+```text
+useDataState         ← behavioral contract name
+AppState             ← state contract name
+INIT, LOADING, COMPLETED, ERROR  ← state lifecycle names
+AppStateHandler      ← component name (it IS the feature)
+ApiService           ← repository abstraction name
+ServerResponse       ← response contract name
+HttpStatusCode       ← enum name (behavioral, not implementation)
+```
+
+These describe WHAT the feature provides, not HOW it is implemented.
 
 ---
 
@@ -735,13 +614,6 @@ FEATURE-PURITY-{nnn}
 
 ---
 
-## Permission Coverage Matrix
-
-| Feature | Permission Rules | Coverage |
-| ------- | ---------------- | -------- |
-
----
-
 ## Cross-Feature Interaction Matrix
 
 | Feature A | Feature B | Interaction | Status |
@@ -771,7 +643,6 @@ Use:
 FEATURE-COVERAGE-{nnn}
 FEATURE-WORKFLOW-{nnn}
 FEATURE-STATE-{nnn}
-FEATURE-PERMISSION-{nnn}
 FEATURE-FAILURE-{nnn}
 FEATURE-INTERACTION-{nnn}
 FEATURE-OWNERSHIP-{nnn}
@@ -796,13 +667,12 @@ FEATURE-PURITY-{nnn}
 
 | Dimension                 | Weight |
 | ------------------------- | ------ |
-| Functional Completeness   | 20%    |
-| Workflow Coverage         | 20%    |
-| Edge & Failure Coverage   | 15%    |
+| Functional Completeness   | 25%    |
+| Workflow Coverage         | 25%    |
+| Edge & Failure Coverage   | 20%    |
 | Cross-Feature Consistency | 15%    |
-| User Journey Coverage     | 10%    |
 | Feature Traceability      | 10%    |
-| Functional Purity         | 10%    |
+| Functional Purity         | 5%     |
 
 ---
 
@@ -848,61 +718,29 @@ Documents Audited:
 
 ## 2. Feature Inventory
 
-Feature inventory from Phase 1.
-
 ## 3. Functional Completeness Report
 
-Findings from Phase 2.
+## 4. Workflow Coverage Report
 
-## 4. User Journey Report
+## 5. State Coverage Report
 
-Findings from Phase 3.
+## 6. Edge Case Report
 
-## 5. Workflow Coverage Report
+## 7. Failure Scenario Report
 
-Findings from Phase 4.
+## 8. Cross-Feature Interaction Report
 
-## 6. State Coverage Report
+## 9. Functional Ownership Report
 
-Findings from Phase 5.
+## 10. Feature Traceability Report
 
-## 7. Permission Coverage Report
+## 11. Functional Purity Report
 
-Findings from Phase 6.
+## 12. Required Matrices
 
-## 8. Edge Case Report
+## 13. Scoring Breakdown
 
-Findings from Phase 7.
-
-## 9. Failure Scenario Report
-
-Findings from Phase 8.
-
-## 10. Cross-Feature Interaction Report
-
-Findings from Phase 9.
-
-## 11. Functional Ownership Report
-
-Findings from Phase 10.
-
-## 12. Feature Traceability Report
-
-Findings from Phase 11.
-
-## 13. Functional Purity Report
-
-Findings from Phase 12.
-
-## 14. Required Matrices
-
-Functional Purity Matrix, Workflow Coverage Matrix, State Coverage Matrix, Permission Coverage Matrix, Cross-Feature Interaction Matrix, Functional Ownership Matrix, Traceability Matrix.
-
-## 15. Scoring Breakdown
-
-Per-dimension scores and audit score.
-
-## 16. Score Improvement Summary
+## 14. Score Improvement Summary
 
 Compare against the previous report from `docs/raw/report/feature/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
 
@@ -913,31 +751,19 @@ Current Score: Y/10
 Change: +N / -N / No change
 ```
 
-| Dimension                 | Previous | Current | Change |
-| ------------------------- | -------- | ------- | ------ |
-| Functional Completeness   | X        | Y       | +N     |
-| Workflow Coverage         | X        | Y       | +N     |
-| Edge & Failure Coverage   | X        | Y       | +N     |
-| Cross-Feature Consistency | X        | Y       | +N     |
-| User Journey Coverage     | X        | Y       | +N     |
-| Feature Traceability      | X        | Y       | +N     |
-| Functional Purity         | X        | Y       | +N     |
-
-If score improved, highlight the categories that drove the improvement and what fixes were applied since the prior audit. If score declined, flag regressions with specific category breakdowns.
-
-## 17. Final Verdict
+## 15. Final Verdict
 
 ```text
 {Assessment} ({Score}/10)
 ```
 
-## 18. Audit Traceability
+## 16. Audit Traceability
 
-| Reference             | Location                                                            |
-| --------------------- | ------------------------------------------------------------------- |
-| Feature Docs          | docs/raw/feature/**                                                 |
-| Audit Report          | docs/raw/report/feature/latest/feature-audit-{timestamp}.md         |
-| Previous Report       | docs/raw/report/feature/archive/{previous-filename}                 |
+| Reference       | Location                                                    |
+| --------------- | ----------------------------------------------------------- |
+| Feature Docs    | docs/raw/feature/**                                         |
+| Audit Report    | docs/raw/report/feature/latest/feature-audit-{timestamp}.md |
+| Previous Report | docs/raw/report/feature/archive/{previous-filename}         |
 
 ---
 
@@ -957,6 +783,3 @@ mkdir -p docs/raw/report/feature/latest
 ```text
 docs/raw/report/feature/latest/feature-audit-{timestamp}.md
 ```
-
----
-

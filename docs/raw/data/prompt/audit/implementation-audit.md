@@ -1,4 +1,4 @@
-# Implementation Audit & Validation System 
+# Implementation Audit & Validation System
 
 ## Purpose
 
@@ -26,6 +26,31 @@ docs/raw/feature-technical/**
 ```
 
 The audit validates that the implementation correctly realizes documented architecture, feature requirements, and technical designs.
+
+---
+
+# Understanding Astra
+
+Astra is a **core architecture and pattern library**.
+
+It exports:
+
+* `useDataState<T>` — async state hook
+* `AppState<T>`, `StateType` — state contract types
+* `AppStateHandler` — conditional-rendering component
+* `ApiService`, `ServerResponse<T>`, `HttpStatusCode` — repository layer
+
+Astra source structure:
+
+```text
+src/common/hooks/         ← useDataState and other hooks
+src/common/components/    ← AppStateHandler (organisms only)
+src/common/repo/          ← ApiService, ServerResponse
+src/common/state/         ← StateType, AppState
+src/types/                ← shared type definitions
+```
+
+Astra does **not** own: localization, theming, UI component library, atomic design hierarchy. Those are Prati's scope.
 
 ---
 
@@ -132,29 +157,25 @@ Create implementation inventory.
 Discover:
 
 ```text
-Modules
-Packages
-Components
 Hooks
+Components
 Repositories
-ViewModels
-Services
+State definitions
 Utilities
-State Containers
-Providers
-Public APIs
+Type definitions
+Public API exports
 ```
 
 Output:
 
 | Category     | Count |
 | ------------ | ----- |
-| Components   | X     |
 | Hooks        | X     |
-| ViewModels   | X     |
+| Components   | X     |
 | Repositories | X     |
-| Services     | X     |
+| State types  | X     |
 | Utilities    | X     |
+| Public exports | X   |
 
 ---
 
@@ -162,29 +183,19 @@ Output:
 
 ## Goal
 
-Validate implementation against architecture invariants.
+Validate implementation against Astra's architecture invariants.
 
 ---
 
-## Validate All Invariants
-
-### Stateless UI
-
-Check:
-
-* no data fetching in views
-* no business logic in views
-* no side effects in views
-
----
+## Validate All Astra Invariants
 
 ### MVVM Separation
 
 Check:
 
-* View never accesses Repository
-* ViewModel never imports UI
-* View only communicates with ViewModel
+* View (`AppStateHandler`) never accesses Repository
+* ViewModel hooks (`useDataState`) never import UI
+* View only receives data through props
 
 ---
 
@@ -192,7 +203,9 @@ Check:
 
 Check:
 
-* external communication only through repositories
+* external communication only through `ApiService`
+* no direct axios/fetch in hooks or components
+* `ServerResponse<T>` used for all API responses
 
 ---
 
@@ -200,24 +213,9 @@ Check:
 
 Check:
 
-* import direction correct
-* no circular dependencies
-
----
-
-### Localization
-
-Check:
-
-* no hardcoded user-facing strings
-
----
-
-### Theme Sovereignty
-
-Check:
-
-* no hardcoded design values
+* import direction correct (no circular deps)
+* no consumer-layer imports in library internals
+* peer dependencies not bundled
 
 ---
 
@@ -225,7 +223,9 @@ Check:
 
 Check:
 
-* exports properly controlled
+* all exports controlled through `src/lib.ts` barrel
+* no internal types leaked to public API
+* export surface matches documented API
 
 ---
 
@@ -234,6 +234,8 @@ Check:
 Check:
 
 * no platform assumptions in shared modules
+* IPC/HTTP abstraction preserved
+* no Node.js-only or browser-only APIs in core
 
 ---
 
@@ -242,6 +244,8 @@ Check:
 Check:
 
 * no module-level side effects
+* no non-deterministic values in source
+* no timestamp/random injection
 
 ---
 
@@ -278,12 +282,6 @@ Implemented?
 ---
 
 ### States
-
-Implemented?
-
----
-
-### Permissions
 
 Implemented?
 
@@ -344,12 +342,6 @@ Matches design?
 ---
 
 ### Integration Design
-
-Matches design?
-
----
-
-### Validation Design
 
 Matches design?
 
@@ -429,13 +421,23 @@ Check:
 
 ### Export Accuracy
 
+Do exports match `docs/raw/architecture/core/api-surface.md`?
+
 ### Barrel Export Accuracy
+
+Does `src/lib.ts` correctly expose all documented exports?
 
 ### Public Contract Compliance
 
+Are exported types complete and correct?
+
 ### Hidden Exports
 
+Internal symbols leaking into public API?
+
 ### Missing Exports
+
+Documented APIs missing from barrel?
 
 ---
 
@@ -497,9 +499,9 @@ Check:
 
 ### Architecture Bypasses
 
-### Direct Repository Access
+### Direct Repository Access (from components)
 
-### Direct Infrastructure Access
+### Direct HTTP Client Access (from non-repo modules)
 
 ---
 
@@ -655,7 +657,7 @@ IMPL-PURITY-{nnn}
 
 ## API Matrix
 
-| Module | Public API | Status |
+| Export | Documented | Status |
 | ------ | ---------- | ------ |
 
 ---
@@ -754,4 +756,11 @@ Systemic impact
 docs/raw/report/implementation/latest/implementation-audit-{timestamp}.md
 ```
 
----
+# Report Rotation
+
+Before writing the new report:
+
+```text
+mv docs/raw/report/implementation/latest/* docs/raw/report/implementation/archive/
+mkdir -p docs/raw/report/implementation/latest
+```
