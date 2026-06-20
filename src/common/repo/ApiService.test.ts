@@ -91,6 +91,27 @@ describe('ApiService', () => {
         expect(result.status).toBe(HttpStatusCode.INTERNAL_SERVER_ERROR);
         expect(result.statusMessage).toBe(literal.internal_server_error);
     });
+
+    it('should call onError callback when request fails', async () => {
+      const onError = vi.fn();
+      const serviceWithCallback = new ApiService(baseUrl, literal, { onError });
+      const mockError = { isAxiosError: true, message: 'Network Error', response: { status: 500 } };
+      (axios as any).mockRejectedValue(mockError);
+      (axios.isAxiosError as any).mockReturnValue(true);
+
+      await serviceWithCallback.get('test');
+
+      expect(onError).toHaveBeenCalledOnce();
+      expect(onError).toHaveBeenCalledWith(mockError);
+    });
+
+    it('should not invoke onError when no options provided', async () => {
+      const mockError = { isAxiosError: true, message: 'Network Error', response: { status: 500 } };
+      (axios as any).mockRejectedValue(mockError);
+      (axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(apiService.get('test')).resolves.toBeInstanceOf(ServerResponse);
+    });
   });
 
   describe('post', () => {

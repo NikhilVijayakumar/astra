@@ -14,10 +14,16 @@ enum HTTPMethod {
 export class ApiService {
   private baseUrl: string;
   private literal: Record<string, string>;
+  private onError?: (error: unknown) => void;
 
-  constructor(baseUrl: string, literal: Record<string, string>) {
+  constructor(
+    baseUrl: string,
+    literal: Record<string, string>,
+    options?: { onError?: (error: unknown) => void },
+  ) {
     this.baseUrl = baseUrl;
     this.literal = literal;
+    this.onError = options?.onError;
   }
 
   private async request<T>(
@@ -32,10 +38,7 @@ export class ApiService {
       };
       return ServerResponse.success<T>(responseSuccess);
     } catch (error) {
-      console.error(
-        "API Error:",
-        error instanceof Error ? error.message : "Unknown error",
-      );
+      this.onError?.(error);
       if (axios.isAxiosError(error)) {
         const axiosError: AxiosError = error;
         const status =

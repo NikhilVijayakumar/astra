@@ -97,7 +97,19 @@ Each audit layer depends on the layer above it being correct first.
 |---|--------|-------|-----------------|
 | 6 | `security-audit.md` | `src/**` + `package.json` + `package-lock.json` + `vite.config.ts` | `docs/raw/report/security/latest/` |
 
-**Why last:** Security audit is most useful on stable, implementation-correct code. Running it while source has known behavioral bugs adds noise. Can run earlier if a security review is urgently needed — it is independent of doc layers.
+**Why:** Security audit is most useful on stable, implementation-correct code. Running it while source has known behavioral bugs adds noise. Can run earlier if a security review is urgently needed — it is independent of doc layers.
+
+---
+
+### Stage 7 — Governance
+
+**Run after Stage 4 is clean. Documentation-only — independent of source. Can run in parallel with Stages 5 and 6.**
+
+| # | Prompt | Scope | Report Location |
+|---|--------|-------|-----------------|
+| 7 | `external-context-ownership-audit.md` | `README.md` + `docs/raw/external-context/**` + `docs/raw/ownership/**` + referenced repositories | `docs/raw/report/governance/latest/` |
+
+**Why:** Validates that capability ownership is unique and complete, external context documents are within declared scope, Astra → Prati consumption is documentation-only (Design System + Localization), and repository boundaries are respected. Documentation-only scope means no source dependency — can run as soon as Stage 4 (README) is clean.
 
 ---
 
@@ -112,6 +124,7 @@ Stage 5  implementation-audit  ┐
          statelessness-audit   ├── parallel — after Stage 4
          build-audit           ┘
 Stage 6  security-audit              (after Stage 5)
+Stage 7  external-context-ownership-audit  (docs only — after Stage 4, parallel with 5+6)
 ```
 
 ---
@@ -123,12 +136,14 @@ Run only the affected stage and everything downstream of it.
 | What Changed | Re-run From |
 |---|---|
 | `docs/raw/architecture/**` | Stage 1 → all stages |
-| `docs/raw/feature/**` | Stage 2 → Stages 3, 4, 5, 6 |
-| `docs/raw/feature-technical/**` | Stage 3 → Stages 4, 5, 6 |
-| `README.md` | Stage 4 → Stages 5, 6 |
+| `docs/raw/feature/**` | Stage 2 → Stages 3, 4, 5, 6, 7 |
+| `docs/raw/feature-technical/**` | Stage 3 → Stages 4, 5, 6, 7 |
+| `README.md` | Stage 4 → Stages 5, 6, 7 |
 | `src/**` (behavior change) | Stage 5 (5a + 5b) → Stage 6 |
 | `vite.config.ts` / `tsconfig.json` / `package.json` | Stage 5c → Stage 6 |
 | `package-lock.json` (dependency update) | Stage 6 only |
+| `docs/raw/external-context/**` | Stage 7 only |
+| `docs/raw/ownership/**` | Stage 7 only |
 
 ---
 
@@ -156,3 +171,4 @@ Archive reports are compared against in the Score Improvement Summary section of
 | `statelessness-audit.md` | `mvvm-separation.md` invariant | Component/hook MVVM boundary compliance |
 | `build-audit.md` | `deterministic-build.md` invariant | Build reproducibility, type generation, ESM/UMD validity |
 | `security-audit.md` | OWASP / secure coding practices | XSS, data exposure, dependency CVEs, injection, build security |
+| `external-context-ownership-audit.md` | `docs/raw/external-context/**` + `docs/raw/ownership/**` | Capability ownership uniqueness and completeness, Astra → Prati scope compliance, repository boundary enforcement, context purity |

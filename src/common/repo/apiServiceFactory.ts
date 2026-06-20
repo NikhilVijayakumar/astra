@@ -6,12 +6,13 @@ const apiServiceCache = new Map<string, ApiService>();
 
 export const getApiService = (
   baseUrl: string,
-  literal: Record<string, string>
-): ApiService => {    
+  literal: Record<string, string>,
+  options?: { onError?: (error: unknown) => void },
+): ApiService => {
   if (apiServiceCache.has(baseUrl)) {
     return apiServiceCache.get(baseUrl)!;
   }
-  const newInstance = new ApiService(baseUrl, literal);
+  const newInstance = new ApiService(baseUrl, literal, options);
   apiServiceCache.set(baseUrl, newInstance);
   return newInstance;
 };
