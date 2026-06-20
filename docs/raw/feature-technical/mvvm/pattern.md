@@ -68,13 +68,33 @@ interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
   emptyCondition?: (data: T) => boolean;
   errorMessage?: string;
   children?: ReactNode;
+  loadingComponent?: ReactNode;
+  errorComponent?: ReactNode;
+  emptyComponent?: ReactNode;
 }
+```
+
+### From `src/common/components/organisms/AppStateContext.ts`
+
+```tsx
+export interface AppStateComponents {
+  Loading?: FC;
+  Error?: FC<{ message?: string }>;
+  Empty?: FC;
+}
+
+export const AppStateContext: React.Context<AppStateComponents>;
+export const AppStateProvider: React.Provider<AppStateComponents>;
 ```
 
 ### Import Contract
 
 ```tsx
-import { useDataState, AppState, StateType, AppStateHandler, AppStateHandlerProps } from 'astra';
+import {
+  useDataState, AppState, StateType, StateCode,
+  AppStateHandler, AppStateHandlerProps,
+  AppStateProvider, AppStateContext, AppStateComponents,
+} from 'astra';
 ```
 
 ---
@@ -129,19 +149,27 @@ execute(apiCall: () => Promise<ServerResponse<T>>): Promise<void>
 
 | Name | File Path | Purpose | Responsibilities | Imports From |
 |------|-----------|---------|------------------|--------------|
-| `AppStateHandler` | `src/common/components/organisms/AppStateHandler.tsx` | Conditional render based on AppState | Render `LoadingState` when LOADING; render `ErrorState` when error; render `EmptyState` when empty; render `SuccessComponent`/children when success | `AppState.ts`, `LoadingState`, `ErrorState`, `EmptyState` atoms |
+| `AppStateHandler` | `src/common/components/organisms/AppStateHandler.tsx` | Conditional render based on AppState | Route to consumer-injected Loading/Error/Empty/Success UI via context (`AppStateContext`) or slot props | `AppState.ts`, `AppStateContext.ts`, `HttpStatusCode.ts` |
 
 ### AppStateHandler Rendering Logic
 
+Slot props override context per-instance. Context is wired at root via `AppStateProvider`.
+
 ```
-appState.state === LOADING         → <LoadingState />
-appState.isError || status === 0   → <ErrorState message={errorMessage} />
+appState.state === LOADING
+  → loadingComponent slot || context.Loading || null
+
+appState.isError || status === 0
+  → errorComponent slot || context.Error(message=errorMessage) || null
+
 appState.isSuccess && data !== null
-  ├─ emptyCondition(data) === true → <EmptyState />
-  ├─ children provided             → render children
-  ├─ SuccessComponent provided     → <SuccessComponent appState={appState} />
-  └─ default                       → <EmptyState />
-default                            → <EmptyState />
+  ├─ emptyCondition(data) === true
+  │    → emptyComponent slot || context.Empty || null
+  ├─ children provided      → render children
+  └─ SuccessComponent       → <SuccessComponent appState={appState} />
+
+default (INIT)
+  → emptyComponent slot || context.Empty || null
 ```
 
 ---
@@ -150,7 +178,7 @@ default                            → <EmptyState />
 
 | Condition | Behavior | Severity |
 |-----------|----------|----------|
-| Component unmount during request | State update after unmount (React warning) | Warning — hook has no built-in cleanup |
+| Component unmount during request | `mountedRef` guard prevents state update after unmount | Safe — no stale update, no warning |
 | `execute()` called while already LOADING | New request starts; previous result may overwrite | Logic error — caller should guard |
 | API returns success with `data: null` | `isSuccess = true`, `data = null` | Edge case — AppStateHandler falls to `<EmptyState />` |
 | `apiCall` throws non-ServerResponse error | Caught by try/catch → `isError = true, status: 500, data: null` | Graceful |
@@ -191,8 +219,8 @@ default                            → <EmptyState />
 
 ## Gaps
 
-- No cleanup flag for unmounted component protection (React 18 strict mode double-mount)
-- No request deduplication or cancellation (AbortController)
+- No AbortController integration — `mountedRef` prevents stale state but the underlying request still completes
+- No request deduplication — concurrent `execute` calls race
 - No dependent query support (fetch B after A succeeds)
 - No optimistic update pattern
 - No cache layer — every execute() triggers a full request

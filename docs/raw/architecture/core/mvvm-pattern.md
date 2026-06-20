@@ -13,7 +13,7 @@ INIT → LOADING → COMPLETED (or ERROR)
 | `INIT` | Initial state, no data loaded | `StateType.INIT = 0` |
 | `LOADING` | Async operation in progress | `StateType.LOADING = 1` |
 | `COMPLETED` | Operation succeeded with data | `StateType.COMPLETED = 2` |
-| `ERROR` | Operation failed | `isError: true` |
+| `COMPLETED` (isError: true) | Operation failed | `appState.isError === true` |
 
 ## useDataState Pattern
 
@@ -144,13 +144,12 @@ export const useResources = () => {
 - **ViewModels are hooks** — implement in `hooks/use<Feature>.ts`, not as JSX components
 - **Pages are stateful** — `view/pages/` is the only layer that composes hooks with UI
 - **Components are stateless** — `view/components/` receives props only, no data fetching
-- **Never hardcode strings** — use localization
-- **Never hardcode colors** — use theme tokens
+- **Never hardcode strings** — use Prati's localization system if your consumer app requires i18n
+- **Never hardcode colors** — use Prati's theme tokens if your consumer app uses Prati theming
 
 ## Related
 
 - [Feature Structure](feature-structure.md) — Canonical feature folder layout
 - [State Management](state-management.md)
-- [Theming](theming.md)
 - [Repository](repository.md)
-- [Localization](localization.md)
+- Prati Documentation — theming, localization

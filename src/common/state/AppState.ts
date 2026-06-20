@@ -1,4 +1,4 @@
-//src\common\repo\AppState.ts
+// src/common/state/AppState.ts
 import { HttpStatusCode } from '../repo/HttpStatusCode';
 
 export enum StateType {

@@ -1,4 +1,6 @@
-# Security Audit Prompt
+# Security Audit — Prompt Engine
+
+## Purpose
 
 You are acting as:
 
@@ -7,52 +9,101 @@ You are acting as:
 - Secure Code Reviewer
 - Dependency Security Auditor
 
-Your task is to audit Astra's codebase and dependencies for security issues.
+Your responsibility is to audit Astra's codebase and dependencies for security issues against general secure coding best practices and OWASP guidelines relevant to a React pattern library.
 
-**Astra** is a core architecture and pattern library. Its source surface is:
+---
+
+# Understanding Astra
+
+Astra is a **core architecture and pattern library** for React and Electron applications.
+
+It exports:
 
 ```text
-src/common/hooks/         ← useDataState, other hooks
-src/common/components/    ← AppStateHandler only
-src/common/repo/          ← ApiService, ServerResponse
-src/common/state/         ← StateType, AppState
-src/types/                ← shared types
+useDataState<T>          ← async state hook (ViewModel primitive)
+AppState<T>, StateType   ← state contract types
+StateCode                ← synthetic status codes (IDLE = 1000)
+AppStateHandler          ← conditional-rendering component
+AppStateProvider         ← context provider for wiring in UI components (Loading/Error/Empty)
+AppStateContext           ← React context object for AppStateProvider
+AppStateComponents       ← type for AppStateProvider value
+AppStateHandlerProps     ← component prop types
+ApiService               ← Axios-based HTTP client (repository layer)
+ServerResponse<T>        ← typed response wrapper
+HttpStatusCode           ← HTTP status enum
+getApiService            ← singleton factory for ApiService
+getStatusMessage         ← status code → string resolver
 ```
 
-This is a standalone security audit suite — not derived from a single invariant document but applied against general secure coding best practices and OWASP guidelines relevant to a React pattern library.
+Astra source structure:
+
+```text
+src/
+  lib.ts                             ← public entry point (barrel)
+  common/
+    hooks/                           ← useDataState
+    components/organisms/            ← AppStateHandler, AppStateContext
+    repo/                            ← ApiService, ServerResponse, HttpStatusCode, getApiService
+    state/                           ← StateType, StateCode, AppState
+```
+
+Astra is **design-system independent**. It does not own: loading/error/empty UI components, theming, localization, atomic design hierarchy. Those are external design system concerns. `AppStateProvider` provides the wiring slot for any design system without coupling to one.
+
+Peer dependencies are React only. No MUI or other design system packages exist in Astra's dependency tree.
 
 ---
 
-## Mental Model
+# Scope
 
-| Attack Surface | Risk Type | Typical Location |
-|----------------|-----------|-----------------|
-| XSS (Cross-Site Scripting) | Injection | `dangerouslySetInnerHTML`, raw HTML, unescaped URLs |
-| Dependency vulnerabilities | Supply chain | `package.json`, lockfile |
-| Sensitive data exposure | Information disclosure | Logs, error messages, client-side tokens |
-| Prototype pollution | Object manipulation | Deep merge, recursive assign, object spread with untrusted input |
-| Insecure direct object reference | Access control | API calls exposing internal IDs |
-| Misconfigured CSP | Content security | Meta tags, server configuration |
-| Insecure randomness | Predictable tokens | `Math.random()` for security-sensitive values |
-| Local storage of secrets | Credential exposure | `localStorage.setItem('token', ...)` |
+Primary input:
 
----
+```text
+src/**
+```
 
-## Inputs
+Supporting inputs:
 
-You will receive:
-
-- All source files from `src/`
-- Package manifests: `package.json`, `package-lock.json`
-- Build configuration: `vite.config.ts`
-- HTML entry point: `index.html`
-- Environment configuration: `.env`, `.env.example`
+```text
+package.json
+package-lock.json
+vite.config.ts
+index.html
+.env, .env.example
+```
 
 ---
 
-## Audit Goal
+# Explicit Non-Goals
 
-Determine whether the codebase follows security best practices for a React UI library:
+The Security Audit MUST NOT:
+
+- evaluate visual design and styling
+- evaluate coding style or formatting
+- evaluate feature completeness
+- evaluate architectural layering (covered by implementation-audit)
+- evaluate test coverage
+
+unless they have direct security implications.
+
+---
+
+# Mental Model
+
+| Attack Surface             | Risk Type             | Typical Location                                  |
+|----------------------------|-----------------------|---------------------------------------------------|
+| XSS                        | Injection             | `dangerouslySetInnerHTML`, raw HTML, unescaped URLs |
+| Dependency vulnerabilities | Supply chain          | `package.json`, lockfile                          |
+| Sensitive data exposure    | Information disclosure| Logs, error messages, client-side tokens          |
+| Prototype pollution        | Object manipulation   | Deep merge, recursive assign, spread with untrusted input |
+| Insecure randomness        | Predictable tokens    | `Math.random()` for security-sensitive values     |
+| Local storage of secrets   | Credential exposure   | `localStorage.setItem('token', ...)`              |
+| Build security             | Source exposure       | Sourcemaps in production, eval in bundle          |
+
+---
+
+# Audit Goal
+
+Determine whether the codebase follows security best practices for a React pattern library:
 
 - no XSS vulnerabilities in component rendering
 - no sensitive data exposed in client-side bundles
@@ -66,27 +117,13 @@ Determine whether the codebase follows security best practices for a React UI li
 
 ---
 
-## Audit Scope
-
-Focus ONLY on security concerns.
-
-Ignore:
-- visual design and styling
-- coding style and formatting
-- feature completeness
-- architectural layering (covered by other audit suites)
-
-unless they have security implications.
-
----
-
-## Required Audit Dimensions
+# Required Audit Dimensions
 
 Analyze ALL of the following:
 
 ---
 
-### 1. Cross-Site Scripting (XSS)
+## 1. Cross-Site Scripting (XSS)
 
 Detect:
 - `dangerouslySetInnerHTML` usage
@@ -108,19 +145,19 @@ Forbidden:
 - [ ] No unsanitized URL assignment from untrusted input
 
 Severity mapping:
-- P0: dangerouslySetInnerHTML with untrusted data, eval() with user input, unvalidated postMessage
-- P1: dangerouslySetInnerHTML with trusted data but no sanitizer, dynamic href with unsanitized input
+- P0: `dangerouslySetInnerHTML` with untrusted data, `eval()` with user input, unvalidated `postMessage`
+- P1: `dangerouslySetInnerHTML` with trusted data but no sanitizer, dynamic href with unsanitized input
 - P2: documented XSS risk with sanitizer in place but no CSP
 - P3: no XSS vectors found
 
 ---
 
-### 2. Sensitive Data Exposure
+## 2. Sensitive Data Exposure
 
 Detect:
 - hardcoded API keys, tokens, or secrets in source files
 - `localStorage` or `sessionStorage` for sensitive data (auth tokens, credentials)
-- sensitive data in console.log, error messages exposed to UI
+- sensitive data in `console.log`, error messages exposed to UI
 - environment variables containing secrets leaked into client bundle
 - internal URLs, IP addresses, or credentials in source comments
 - exposed debugging endpoints or internal routes
@@ -137,17 +174,17 @@ Forbidden:
 
 Severity mapping:
 - P0: hardcoded API key, auth token, or credentials in source
-- P1: secrets committed but in .env (not gitignored properly), localStorage for auth tokens
+- P1: secrets committed but in `.env` (not gitignored properly), localStorage for auth tokens
 - P2: internal URLs or debug endpoints in client bundle (documented)
 - P3: no sensitive data exposure found
 
 ---
 
-### 3. Dependency Vulnerabilities
+## 3. Dependency Vulnerabilities
 
 Detect:
 - dependencies with known CVEs (run `npm audit`)
-- packages with high/ critical severity vulnerabilities without fix
+- packages with high/critical severity vulnerabilities without fix
 - deprecated packages with known security issues
 - packages with known supply chain attacks
 - missing lockfile preventing integrity verification
@@ -170,7 +207,7 @@ Severity mapping:
 
 ---
 
-### 4. Input Validation & Injection
+## 4. Input Validation & Injection
 
 Detect:
 - `JSON.parse()` on untrusted input without try/catch
@@ -198,7 +235,7 @@ Severity mapping:
 
 ---
 
-### 5. Build & Deployment Security
+## 5. Build & Deployment Security
 
 Detect:
 - sourcemaps enabled in production build (`.map` files deployed)
@@ -214,7 +251,7 @@ Allowed:
 
 Forbidden:
 - [ ] No sourcemaps in production (unless restricted)
-- [ ] No eval in production build
+- [ ] No eval in production bundle
 - [ ] No CSP bypass vectors
 
 Severity mapping:
@@ -225,7 +262,7 @@ Severity mapping:
 
 ---
 
-## Finding Format
+# Finding Format
 
 Each finding MUST include:
 
@@ -260,42 +297,226 @@ P0 / P1 / P2 / P3
 
 ---
 
-## Severity Classification
+# Severity Classification
 
-| Severity | Meaning | Action |
-|----------|---------|--------|
-| P0 | Critical — exploitable vulnerability | Must fix before release |
-| P1 | High — significant security risk | Must mitigate next release |
-| P2 | Moderate — defense-in-depth gap | Address in planned cycle |
-| P3 | Compliant — no security issues | No action required |
-
----
-
-## Output Specification
-
-The audit report MUST include:
-
-1. **Audit Metadata** — timestamp, commit, suite, module reviewed
-2. **Audited Files** — numbered list of files reviewed
-3. **Summary** — count per severity (P0-P3)
-4. **Overall Score** — per-category score out of 100
-5. **Findings** — detailed per-finding using the Finding Format above
-6. **Transitional Violations** — accepted risks with documented rationale
-7. **Audit Traceability** — reference to the audit suite and report location
-
-The report MUST be written to:
-
-```
-docs/raw/report/security/latest/security-{module}-{timestamp}.md
-```
+| Severity | Meaning                           | Action                          |
+|----------|-----------------------------------|---------------------------------|
+| P0       | Critical — exploitable vulnerability | Must fix before release      |
+| P1       | High — significant security risk  | Must mitigate next release      |
+| P2       | Moderate — defense-in-depth gap   | Address in planned cycle        |
+| P3       | Compliant — no security issues    | No action required              |
 
 ---
 
-## Invariant Authority
+# Scoring Model
+
+Score each dimension 0–10. Apply weights:
+
+| Dimension                  | Weight |
+|----------------------------|--------|
+| XSS                        | 25%    |
+| Sensitive Data Exposure    | 25%    |
+| Dependency Vulnerabilities | 20%    |
+| Input Validation           | 20%    |
+| Build & Deployment         | 10%    |
+
+Formula:
+
+```text
+Security Score =
+(
+  XSS × 0.25
+  + Sensitive Data × 0.25
+  + Dependencies × 0.20
+  + Input Validation × 0.20
+  + Build & Deployment × 0.10
+)
+```
+
+Start each dimension at 10. Deduct per finding in that dimension:
+
+| Severity | Deduction per Finding |
+|----------|-----------------------|
+| P0       | −3.0                  |
+| P1       | −1.5                  |
+| P2       | −0.5                  |
+| P3       | −0.0 (compliant)      |
+
+Floor per dimension: 0.0.
+
+---
+
+# Final Assessment
+
+| Score Range | Assessment              |
+|-------------|-------------------------|
+| 9.0–10.0    | Excellent               |
+| 7.0–8.9     | Good                    |
+| 5.0–6.9     | Needs Improvement       |
+| 3.0–4.9     | Major Revision Required |
+| 0.0–2.9     | Security Unsound        |
+
+---
+
+# Required Report Structure
+
+## 1. Executive Summary
+
+```text
+# Security Audit Report — Astra
+
+Overall Assessment:  {assessment}
+Final Score:         {score} / 10
+P0 Findings:         {n}
+P1 Findings:         {n}
+P2 Findings:         {n}
+P3 (Compliant):      {n}
+```
+
+Followed immediately by the Files Audited table:
+
+| File | Purpose |
+|------|---------|
+| `src/common/hooks/useDataState.ts` | ViewModel hook |
+| `src/common/components/organisms/AppStateHandler.tsx` | Conditional-render component |
+| `src/common/components/organisms/AppStateContext.ts` | Rendering context |
+| `src/common/repo/ApiService.ts` | HTTP client |
+| `src/common/repo/ServerResponse.ts` | Response wrapper |
+| `src/common/repo/HttpStatusCode.ts` | Status enum |
+| `src/common/state/AppState.ts` | State contract |
+| `src/lib.ts` | Public entry point |
+| `package.json` | Dependency manifest |
+| `vite.config.ts` | Build configuration |
+
+## 2. Source Inventory
+
+Summary of files reviewed with security-relevant characteristics.
+
+## 3. XSS Report
+
+Findings per check. Compliance table at end.
+
+## 4. Sensitive Data Exposure Report
+
+Findings per check. Compliance table at end.
+
+## 5. Dependency Vulnerability Report
+
+Findings per check. npm audit results. Compliance table at end.
+
+## 6. Input Validation Report
+
+Findings per check. Compliance table at end.
+
+## 7. Build & Deployment Security Report
+
+Findings per check. Compliance table at end.
+
+## 8. Findings Summary
+
+All findings grouped by severity:
+
+### P0 — Critical
+
+| ID | File | Finding |
+|----|------|---------|
+
+### P1 — High
+
+| ID | File | Finding |
+|----|------|---------|
+
+### P2 — Moderate
+
+| ID | File | Finding |
+|----|------|---------|
+
+## 9. Transitional Violations
+
+Accepted risks with documented rationale and remediation plan.
+
+## 10. Scoring Breakdown
+
+| Dimension                  | Raw Score | Weight | Weighted Score |
+|----------------------------|-----------|--------|----------------|
+| XSS                        |           | 25%    |                |
+| Sensitive Data Exposure    |           | 25%    |                |
+| Dependency Vulnerabilities |           | 20%    |                |
+| Input Validation           |           | 20%    |                |
+| Build & Deployment         |           | 10%    |                |
+
+```text
+Total Score: X.X / 10
+```
+
+## 11. Score Improvement Summary
+
+Compare against the previous report from `docs/raw/report/security/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
+
+```text
+Previous Report: {filename}
+Previous Score:  X.X / 10
+Current Score:   Y.Y / 10
+Change:          +N.N / −N.N / No change
+```
+
+| Dimension                  | Previous | Current | Change |
+|----------------------------|----------|---------|--------|
+| XSS                        | X        | Y       | +N     |
+| Sensitive Data Exposure    | X        | Y       | +N     |
+| Dependency Vulnerabilities | X        | Y       | +N     |
+| Input Validation           | X        | Y       | +N     |
+| Build & Deployment         | X        | Y       | +N     |
+
+List resolved findings from previous report. List new findings not in previous report.
+
+## 12. Final Verdict
+
+```text
+{Assessment} ({Score}/10)
+```
+
+Provide a concise security health summary.
+
+## 13. Audit Traceability
+
+| Reference       | Location                                                          |
+|-----------------|-------------------------------------------------------------------|
+| Source          | `src/**`                                                          |
+| Dependencies    | `package.json`, `package-lock.json`                               |
+| Build Config    | `vite.config.ts`                                                  |
+| OWASP Reference | OWASP Top 10 (external)                                           |
+| Audit Report    | `docs/raw/report/security/latest/security-audit-{timestamp}.md`   |
+| Previous Report | `docs/raw/report/security/archive/{previous-filename}`            |
+
+---
+
+# Report Rotation
+
+Before writing the new report, rotate the previous report:
+
+```text
+mv docs/raw/report/security/latest/* docs/raw/report/security/archive/
+mkdir -p docs/raw/report/security/latest
+```
+
+---
+
+# Output Location
+
+```text
+docs/raw/report/security/latest/security-audit-{timestamp}.md
+```
+
+Timestamp format: `YYYY-MM-DD-HHMM`
+
+---
+
+# Invariant Authority
 
 When checking compliance:
 
 - OWASP Top 10 and CWE are external references for severity calibration
 - Do NOT flag React's built-in escaping as insufficient — XSS findings must demonstrate actual injection paths
-- Dependency findings should cross-reference with library-governance audit to avoid duplication
+- Dependency findings should cross-reference with build audit to avoid duplication
 - Flagging a pattern as P0 requires demonstrating a realistic exploit path, not theoretical risk

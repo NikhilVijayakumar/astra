@@ -72,9 +72,12 @@ Beta or pre-release dependencies must not appear in runtime `dependencies`. If a
 ```json
 {
   "dependencies": {
-    "@mui/lab": "7.0.0-beta.14"  // ⚠ Beta — track MUI v7 stable release
+    "@mui/lab": "7.0.0-beta.14"
   }
 }
+```
+
+> ⚠ Beta — track MUI v7 stable release and migrate before shipping.
 
 ## Audit Policy
 

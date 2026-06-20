@@ -17,12 +17,14 @@ Maps `AppState<T>` transitions through runtime.
 
 ## Transitions
 
-| From | To | Trigger | Data |
-|------|----|---------|------|
-| INIT | LOADING | `execute()` called | Preserved |
-| LOADING | COMPLETED | API success | Updated |
-| LOADING | ERROR | API failure | null |
-| COMPLETED | LOADING | `execute()` recalled | Preserved |
+| From | To | Trigger | Data | isError |
+|------|----|---------|------|---------|
+| INIT | LOADING | `execute()` called | Preserved | false |
+| LOADING | COMPLETED | API success | Updated | false |
+| LOADING | COMPLETED | API failure | null | **true** |
+| COMPLETED | LOADING | `execute()` recalled | Preserved | false |
+
+There is no separate `ERROR` enum value. Error is `StateType.COMPLETED` with `isError: true`. Always check `appState.isError` to distinguish success from failure.
 
 ## Aligned Documents
 

@@ -167,6 +167,38 @@ if (appState.isError) {
 }
 ```
 
+## Composing Multiple API Calls
+
+When a repository operation requires chaining multiple API calls, use the `ServerResponse.success()` and `ServerResponse.error()` static factory methods to construct the final response manually. ApiService wraps single calls automatically, but composed operations must be assembled explicitly.
+
+```typescript
+export const OrderRepo = {
+  getFullOrder: async (orderId: string): Promise<ServerResponse<FullOrder>> => {
+    const order = await api.get<Order>(`/orders/${orderId}`);
+    if (order.isError) return order; // propagate error immediately
+
+    const items = await api.get<OrderItem[]>(`/orders/${orderId}/items`);
+    if (items.isError) return items;
+
+    return ServerResponse.success({
+      status: 200,
+      statusMessage: 'OK',
+      data: { ...order.data, items: items.data },
+    });
+  },
+};
+```
+
+### When to use each pattern
+
+| Scenario | Pattern |
+|----------|---------|
+| Single API call | `api.get()` / `api.post()` — ApiService wraps automatically |
+| Chained calls (fetch A then B) | `ServerResponse.success()` / `ServerResponse.error()` to compose |
+| Error propagation from intermediate call | Return the failing `ServerResponse` directly (already typed) |
+
+Never construct a raw object with `{ isError, isSuccess, status, ... }` — always use the factory methods to ensure all fields are set correctly.
+
 ## Rules
 
 - **Always use ServerResponse** for API returns
@@ -180,5 +212,3 @@ if (appState.isError) {
 - [Feature Structure](feature-structure.md) — Canonical feature folder layout
 - [MVVM Pattern](mvvm-pattern.md)
 - [State Management](state-management.md)
-- [Theming](theming.md)
-- [Localization](localization.md)

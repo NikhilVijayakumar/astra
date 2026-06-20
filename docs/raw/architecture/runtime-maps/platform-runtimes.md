@@ -1,26 +1,26 @@
 # Runtime Map: Platform Runtimes
 
-Maps which parts of Astra run in which runtime environments.
+Maps which parts of Astra run in which runtime environments. UI components, theming, and localization belong to **Prati** — see Prati documentation for Prati's platform runtime constraints.
 
 ```
 Browser                     Node/SSR                  Electron
 ─────────                   ────────                  ────────
-ThemeProvider  ───────────→ ThemeProvider  ──────────→ ThemeProvider
-LanguageProvider ─────────→ LanguageProvider ────────→ LanguageProvider
 useDataState   ───────────→ useDataState   ──────────→ useDataState
-ApiService     ───────────→ ApiService     ──────────→ ApiService
+AppStateHandler ──────────→ AppStateHandler ─────────→ AppStateHandler
+ApiService     ───────────→ ApiService     ──────────→ ApiService (HTTP)
                                                         │
-UI Components  ───────────→ ⚠ SSR-safe only            ├── ipcRenderer
-  (all tiers)               (ClientOnly wrapper)        └── WebkitAppRegion
+                                                        └── IPC adapter (consumer-managed)
 ```
+
+ThemeProvider, LanguageProvider, and UI components (atoms → templates) are Prati's — not mapped here.
 
 ## Platform-Specific Code
 
-| Runtime | Allowed | Not Allowed |
-|---------|---------|-------------|
-| Browser | All features | None |
-| Node/SSR | Theme, Language providers | UI components without ClientOnly guard |
-| Electron | All features + IPC | Electron imports in core library |
+| Runtime | Astra Allowed | Not Allowed in Core |
+|---------|--------------|---------------------|
+| Browser | useDataState, ApiService, AppStateHandler | Electron IPC, Node.js APIs |
+| Node/SSR | useDataState, ApiService (with SSR guards) | Browser-only APIs without guards |
+| Electron renderer | useDataState, AppStateHandler; IPC via consumer adapter | Electron imports in core library |
 
 ## Isolation Pattern
 

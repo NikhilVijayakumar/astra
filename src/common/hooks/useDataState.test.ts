@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useDataState } from './useDataState';
-import { StateType } from '../state/AppState';
+import { StateType, StateCode } from '../state/AppState';
 import { ServerResponse } from '../repo/ServerResponse';
 import { HttpStatusCode } from '../repo/HttpStatusCode';
 
@@ -13,7 +13,7 @@ describe('useDataState', () => {
       state: StateType.INIT,
       isError: false,
       isSuccess: false,
-      status: HttpStatusCode.IDLE,
+      status: StateCode.IDLE,
       statusMessage: '',
       data: null,
     });
@@ -87,7 +87,7 @@ describe('useDataState', () => {
           isSuccess: false,
           isError: true,
           status: HttpStatusCode.INTERNAL_SERVER_ERROR,
-          statusMessage: 'An unexpected error occurred.',
+          statusMessage: '',
           data: null,
       });
   });
@@ -125,5 +125,21 @@ describe('useDataState', () => {
       });
 
       expect(result.current[0].state).toBe(StateType.COMPLETED);
+  });
+
+  it('should allow direct state override via setAppState', async () => {
+    const { result } = renderHook(() => useDataState<{ id: number }>());
+    const overrideData = { id: 99 };
+
+    await act(async () => {
+      result.current[2]((prev) => ({
+        ...prev,
+        isSuccess: true,
+        data: overrideData,
+      }));
+    });
+
+    expect(result.current[0].isSuccess).toBe(true);
+    expect(result.current[0].data).toEqual(overrideData);
   });
 });

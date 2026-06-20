@@ -1,5 +1,5 @@
 //src/common/repo/ServerResponse.ts
-import { ResponseSucess, ResponseError } from './APITypes';
+import { ResponseSuccess, ResponseError } from './APITypes';
 import { HttpStatusCode } from './HttpStatusCode';
 
 export class ServerResponse<T> {
@@ -11,7 +11,7 @@ export class ServerResponse<T> {
 
   private constructor() {}
 
-  private static getSucessInstance<T>(success: ResponseSucess<T>) {
+  private static getSuccessInstance<T>(success: ResponseSuccess<T>) {
     const instance = new ServerResponse<T>();
     instance.isSuccess = true;
     instance.isError = false;
@@ -30,8 +30,8 @@ export class ServerResponse<T> {
     return instance;
   }
 
-  public static success<T>(success: ResponseSucess<T>): ServerResponse<T> {
-    return ServerResponse.getSucessInstance<T>(success);
+  public static success<T>(success: ResponseSuccess<T>): ServerResponse<T> {
+    return ServerResponse.getSuccessInstance<T>(success);
   }
 
   static error<T>(error: ResponseError): ServerResponse<T> {

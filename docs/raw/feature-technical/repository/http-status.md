@@ -4,7 +4,7 @@
 
 # Feature Summary
 
-Typed numeric enum of HTTP status codes used throughout the repository layer, plus a `getStatusMessage` helper that resolves localized messages from a literal dictionary. Covers standard statuses (200, 201, 400, 401, 404, 500) plus two synthetic codes: `INTERNET_ERROR` (0) for network failures and `IDLE` (1000) for uninitialized state management.
+Typed numeric enum of HTTP status codes used throughout the repository layer, plus a `getStatusMessage` helper that resolves localized messages from a literal dictionary. Covers standard statuses (200, 201, 400, 401, 404, 500) plus `INTERNET_ERROR` (0) for network failures. `IDLE` (1000) is deprecated — use `StateCode.IDLE` from `state/AppState` for uninitialized state status.
 
 ---
 
@@ -15,7 +15,6 @@ Implemented
 | File | Role |
 |------|------|
 | `src/common/repo/HttpStatusCode.ts` | Enum definition and `getStatusMessage` function |
-| `src/common/repo/HttpStatusCode.test.ts` | Unit tests |
 | `src/common/repo/index.ts` | Barrel re-export |
 ## Public API
 ```typescript
@@ -27,6 +26,7 @@ enum HttpStatusCode {
   NOT_FOUND = 404,
   INTERNAL_SERVER_ERROR = 500,
   INTERNET_ERROR = 0,
+  /** @deprecated Use StateCode.IDLE from state/AppState instead. */
   IDLE = 1000,
 }
 
@@ -46,8 +46,8 @@ Expected `literal` keys consumed by `getStatusMessage`:
 | `NOT_FOUND` | `not_found_message` |
 | `INTERNAL_SERVER_ERROR` | `internal_server_error` |
 | `INTERNET_ERROR` | `internet_error` |
-| `IDLE` | `idle_message` |
-| (default) | `unknown_message` |
+| `IDLE` (deprecated) | `idle_message` |
+| (default / unknown) | `''` (empty string) |
 
 ---
 
@@ -80,7 +80,7 @@ Expected `literal` keys consumed by `getStatusMessage`:
 | `NOT_FOUND` | 404 | HTTP | Resource missing |
 | `INTERNAL_SERVER_ERROR` | 500 | HTTP | Server failure |
 | `INTERNET_ERROR` | 0 | Synthetic | Network connectivity failure |
-| `IDLE` | 1000 | Synthetic | Uninitialized state placeholder |
+| `IDLE` (deprecated) | 1000 | Synthetic | Uninitialized state placeholder — use `StateCode.IDLE` instead |
 
 ---
 
@@ -106,7 +106,7 @@ AppStateHandler / UI — renders via getStatusMessage(literal)
 
 | Error Type | Cause | System Response | Consumer Response |
 |------------|-------|-----------------|-------------------|
-| Missing literal key | `getStatusMessage` called with key not in `literal` map | Returns `literal['unknown_message']` (falls back to `undefined` if that key also missing) | Ensure all status keys are present in the literal map |
+| Missing literal key | `getStatusMessage` called with key not in `literal` map | Returns the literal value for the matching key, or `''` (empty string) for unknown codes | Ensure status keys are present for expected codes |
 | Unknown numeric value | Caller casts arbitrary number to `HttpStatusCode` | Compiles — no runtime validation | Always reference enum members by name |
 | `IDLE` (1000) in HTTP context | Code reaches an API response parser | Treated as `IDLE` — no match for any real HTTP response | Safe — `IDLE` only used in state management internal paths |
 
@@ -131,7 +131,7 @@ AppStateHandler / UI — renders via getStatusMessage(literal)
 - **Public API**: Re-exported through repo barrel and `lib.ts` — compliant with `public-api-stability.md`
 
 ## Risks
-- `IDLE` (1000) in `HttpStatusCode` mixes HTTP semantics with internal state — the feature spec itself flags this as an open question
+- `IDLE` (1000) in `HttpStatusCode` is `@deprecated` — `StateCode.IDLE` is the canonical initial status; `HttpStatusCode.IDLE` retained for backward compatibility only
 - No `isError`/`isClientError`/`isServerError` classification helpers — consumers must manually interpret ranges
 - Missing 3xx redirect codes — not handled, may cause confusion if redirect responses reach the enum
 

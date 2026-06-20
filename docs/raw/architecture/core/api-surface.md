@@ -2,6 +2,20 @@
 
 Astra is a library with a defined public API contract. See [Public API Stability Invariant](../invariants/public-api-stability.md) for the authoritative rules.
 
+## Astra vs Design Systems
+
+Astra's public API is limited to state management, data access, and async lifecycle primitives. UI components, theming, and localization are design-system concerns — they belong in an external design system (e.g. Prati) and are wired into Astra's rendering slots via `AppStateProvider`.
+
+Astra has no dependency on any design system. Design systems depend on Astra, not the reverse.
+
+| Concern | Package | Exports |
+|---------|---------|---------|
+| State management | `astra` | `useDataState`, `AppStateHandler`, `AppStateProvider`, `AppStateContext`, `AppStateComponents`, `AppStateHandlerProps`, `StateType`, `StateCode`, `AppState` |
+| Data access | `astra` | `ApiService`, `ServerResponse`, `HttpStatusCode`, `getApiService` |
+| UI state rendering | external (e.g. `prati`) | `LoadingState`, `ErrorState`, `EmptyState` — wired via `AppStateProvider` |
+| Theming | external (e.g. `prati`) | `ThemeProvider`, `ThemeToggle`, `useTheme` |
+| Localization | external (e.g. `prati`) | `LanguageProvider`, `useLanguage` |
+
 ## Entry Points
 
 The public API surface is defined by two mechanisms:
@@ -12,13 +26,10 @@ The public API surface is defined by two mechanisms:
 
 ```typescript
 // src/lib.ts — only export intentional public symbols
-export { ThemeProvider, ThemeToggle } from "./common/theme";
-export { LanguageProvider, useLanguage } from "./common/localization";
 export { useDataState, AppStateHandler } from "./common/hooks";
 export { ApiService, ServerResponse, HttpStatusCode } from "./common/repo";
-export { HeroSection, PageHeader, SummaryPanel } from "./common/components/templates";
-export { spacing, typography } from "./theme";
-export type { TemplateManifest, TemplateVariable } from "./types/template.types";
+export type { AppState } from "./common/state/AppState";
+export { StateType } from "./common/state/AppState";
 ```
 
 ### Subpath Exports
@@ -28,9 +39,7 @@ Package.json declares subpath exports for scoped imports:
 ```json
 {
   "exports": {
-    ".": "./src/lib.ts",
-    "./theme": "./src/theme/index.ts",
-    "./components": "./src/common/components/index.ts"
+    ".": "./src/lib.ts"
   }
 }
 ```
@@ -51,12 +60,13 @@ Barrel files (`index.ts`) aggregate module exports. Follow these rules:
 
 ```typescript
 // Good: named exports of intentional public symbols
-export { ThemeProvider, ThemeToggle } from './theme';
-export { LanguageProvider, useLanguage } from './localization';
 export { useDataState, AppStateHandler } from './hooks';
+export { ApiService, ServerResponse, HttpStatusCode } from './repo';
+export { StateType } from './state/AppState';
+export type { AppState } from './state/AppState';
 
 // Bad: indiscriminate re-exports
-export * from './components';  // may expose internal components
+export * from './internal';  // may expose internal symbols
 ```
 
 ## Deprecation Policy
@@ -80,10 +90,10 @@ Deprecated APIs must:
 | Scope | Import Path | Stability |
 |-------|-------------|-----------|
 | Public | `astra` | Stable, semver |
-| Public subpath | `astra/theme` | Stable, semver |
 | Internal | `src/common/hooks` | Unstable, no guarantees |
+| Design System | external | See your design system's documentation |
 
-Consumers must never import from internal paths. Undocumented subpaths are not part of the public contract.
+Consumers must never import from internal paths. Undocumented subpaths are not part of the public contract. Design system symbols are never exported from `astra` — they are separate packages with independent versioning.
 
 ## Related
 

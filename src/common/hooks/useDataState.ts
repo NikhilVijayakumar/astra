@@ -1,4 +1,4 @@
-// src/common/hooks/useApiState.ts
+// src/common/hooks/useDataState.ts
 import { useState, useEffect, useRef } from 'react';
 import { AppState, StateType, StateCode } from '../state/AppState';
 import { ServerResponse } from '../repo/ServerResponse';
@@ -44,8 +44,8 @@ export function useDataState<T>(
         isError: response.isError,
         isSuccess: response.isSuccess,
         status: response.status,
-        statusMessage: response.statusMessage as string,
-        data: response.data || null,
+        statusMessage: response.statusMessage,
+        data: response.data ?? null,
       }));
     } catch (error) {
       if (!mountedRef.current) return;
@@ -54,6 +54,7 @@ export function useDataState<T>(
         ...prev,
         state: StateType.COMPLETED,
         isError: true,
+        isSuccess: false,
         status: HttpStatusCode.INTERNAL_SERVER_ERROR,
         statusMessage: options?.unexpectedErrorMessage ?? '',
         data: null,

@@ -158,12 +158,12 @@ URL construction: `` `${this.baseUrl}/${url}` `` — baseUrl and url are concate
 
 | Module | File Path | Exports | Imports From |
 |--------|-----------|---------|--------------|
-| `ApiService` | `src/common/repo/ApiService.ts` | `ApiService` (class) | `axios`, `./ServerResponse`, `./HttpStatusCode`, `./APITypes` |
+| `ApiService` | `src/common/repo/ApiService.ts` | `ApiService` (class) | `axios`, `./ServerResponse`, `./HttpStatusCode`, `./APITypes` (internal) |
 | `apiServiceFactory` | `src/common/repo/apiServiceFactory.ts` | `getApiService` (function) | `./ApiService` |
-| `ServerResponse` | `src/common/repo/ServerResponse.ts` | `ServerResponse` (class) | `./APITypes`, `./HttpStatusCode` |
-| `APITypes` | `src/common/repo/APITypes.ts` | `ResponseSucess<T>`, `ResponseError` | `./HttpStatusCode` |
+| `ServerResponse` | `src/common/repo/ServerResponse.ts` | `ServerResponse` (class) | `./APITypes` (internal), `./HttpStatusCode` |
+| `APITypes` | `src/common/repo/APITypes.ts` | `ResponseSuccess<T>`, `ResponseError` (internal — not re-exported) | `./HttpStatusCode` |
 | `HttpStatusCode` | `src/common/repo/HttpStatusCode.ts` | `HttpStatusCode`, `getStatusMessage` | none |
-| `index` (repo) | `src/common/repo/index.ts` | Re-exports all repo modules | `./APITypes`, `./ApiService`, `./apiServiceFactory`, `./HttpStatusCode`, `./ServerResponse` |
+| `index` (repo) | `src/common/repo/index.ts` | `ApiService`, `getApiService`, `HttpStatusCode`, `getStatusMessage`, `ServerResponse` | `./ApiService`, `./apiServiceFactory`, `./HttpStatusCode`, `./ServerResponse` |
 
 ---
 

@@ -2,7 +2,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { ServerResponse } from "./ServerResponse";
 import { HttpStatusCode } from "./HttpStatusCode";
-import { ResponseSucess, ResponseError } from "./APITypes";
+import { ResponseSuccess, ResponseError } from "./APITypes";
 
 enum HTTPMethod {
   GET = "GET",
@@ -25,12 +25,12 @@ export class ApiService {
   ): Promise<ServerResponse<T>> {
     try {
       const response: AxiosResponse<T> = await axios(config);
-      const responseSucess: ResponseSucess<T> = {
+      const responseSuccess: ResponseSuccess<T> = {
         status: response.status,
         statusMessage: response.statusText,
         data: response.data,
       };
-      return ServerResponse.success<T>(responseSucess);
+      return ServerResponse.success<T>(responseSuccess);
     } catch (error) {
       console.error(
         "API Error:",
@@ -39,7 +39,7 @@ export class ApiService {
       if (axios.isAxiosError(error)) {
         const axiosError: AxiosError = error;
         const status =
-          axiosError.response?.status || HttpStatusCode.INTERNAL_SERVER_ERROR;
+          axiosError.response?.status ?? HttpStatusCode.INTERNET_ERROR;
         const message =
           axiosError.message || this.literal["internal_server_error"];
         const responseError: ResponseError = {

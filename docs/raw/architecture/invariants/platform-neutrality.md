@@ -39,27 +39,6 @@ Platform-specific code must be isolated in:
 
 ---
 
-## Documented Exception: ThemeProvider Persistence
-
-Astra's `ThemeProvider` persists the `darkMode` preference via `localStorage`. This is a single, controlled exception to the localStorage prohibition.
-
-This exception is permitted only because:
-
-1. It is guarded with an SSR check: `typeof localStorage !== 'undefined'`
-2. It is limited to UX preference state (dark mode — not domain data)
-3. It is implemented exclusively in `ThemeProvider`, not in any other Astra component
-
-The SSR guard pattern is required — unguarded localStorage access is always a P1 violation:
-
-```tsx
-// Required guard pattern for any localStorage access in Astra core
-if (typeof localStorage !== 'undefined') {
-  localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-}
-```
-
-See [Stateless UI Invariant](stateless-ui.md) for the full exception definition. No other Astra library component may use `localStorage` or `sessionStorage`.
-
 ---
 
 ## Allowed Patterns

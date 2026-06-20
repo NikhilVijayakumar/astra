@@ -1,6 +1,24 @@
 # Getting Started with Astra
 
-A comprehensive guide to integrating the Astra library into your React application.
+A guide to integrating the Astra library into your application. Astra provides state management, async data flow, and the repository pattern. UI components, theming, and localization are provided by **Prati** — see the Prati documentation for those concerns.
+
+## What Astra Provides
+
+| Export | Description |
+|--------|-------------|
+| `useDataState` | MVVM state management hook for async operations |
+| `AppState<T>` | State interface (INIT → LOADING → COMPLETED) |
+| `AppStateHandler` | Conditional rendering for loading/error/empty/success states |
+| `StateType` | Enum: `INIT`, `LOADING`, `COMPLETED` |
+| `ApiService` | Type-safe Axios wrapper for HTTP API calls |
+| `ServerResponse<T>` | Typed response wrapper returned by all repositories |
+| `HttpStatusCode` | HTTP status code enum |
+
+## What Prati Provides
+
+`ThemeProvider`, `ThemeToggle`, `useTheme`, `LanguageProvider`, `useLanguage`, and all UI components (atoms, molecules, organisms, templates) are in the **Prati** package. Install and configure Prati separately. See the Prati integration guide for provider setup.
+
+---
 
 ## Installation
 
@@ -24,7 +42,7 @@ For production stability, target a specific version tag:
 
 ### Via Local File
 
-For local development or testing:
+For local development:
 
 ```json
 "dependencies": {
@@ -32,143 +50,20 @@ For local development or testing:
 }
 ```
 
-Then install dependencies:
+Then install:
 
 ```bash
 npm install
 ```
 
-## Basic Setup
+---
 
-### 1. Theme Provider
+## Using the MVVM Pattern
 
-Wrap your application with `ThemeProvider` to enable MUI theming with light/dark mode support:
+Astra's core pattern separates data access, state orchestration, and presentation into three layers.
 
-```tsx
-import { ThemeProvider } from "astra";
-import { createTheme, CssBaseline } from "@mui/material";
+### Repository — data access
 
-const lightTheme = createTheme({
-  palette: { mode: "light" },
-});
-
-const darkTheme = createTheme({
-  palette: { mode: "dark" },
-});
-
-function App() {
-  return (
-    <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
-      <CssBaseline />
-      <YourApp />
-    </ThemeProvider>
-  );
-}
-```
-
-### 2. Language Provider
-
-Add localization support with `LanguageProvider`:
-
-```tsx
-import { LanguageProvider } from "astra";
-
-const translations = {
-  en: { "app.greeting": "Hello", "app.welcome": "Welcome to our app" },
-  es: { "app.greeting": "Hola", "app.welcome": "Bienvenido a nuestra app" },
-};
-
-const availableLanguages = [
-  { code: "en", label: "English" },
-  { code: "es", label: "Español" },
-];
-
-function App() {
-  return (
-    <LanguageProvider
-      translations={translations}
-      availableLanguages={availableLanguages}
-      defaultLanguage="en"
-    >
-      <YourApp />
-    </LanguageProvider>
-  );
-}
-```
-
-### 3. Combined Providers
-
-For most applications, you'll compose both providers at your app root:
-
-```tsx
-import { ThemeProvider, LanguageProvider } from "astra";
-import { createTheme } from "@mui/material";
-
-const lightTheme = createTheme({ palette: { mode: "light" } });
-const darkTheme = createTheme({ palette: { mode: "dark" } });
-
-const translations = {
-  en: { "app.greeting": "Hello" },
-  es: { "app.greeting": "Hola" },
-};
-
-function App() {
-  return (
-    <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
-      <LanguageProvider
-        translations={translations}
-        availableLanguages={[{ code: "en", label: "English" }]}
-        defaultLanguage="en"
-      >
-        <YourMainComponent />
-      </LanguageProvider>
-    </ThemeProvider>
-  );
-}
-```
-
-## First Component Usage
-
-### Using a UI Component
-
-Astra provides ready-to-use UI components. All user-facing strings must use localization keys — never hardcoded literals. Here's how to use `HeroSection` with the localization system:
-
-```tsx
-import { HeroSection, useLanguage } from "astra";
-
-function HomePage() {
-  const { literal } = useLanguage();
-
-  return (
-    <HeroSection
-      headline={literal["home.hero.headline"]}
-      description={literal["home.hero.description"]}
-      primaryActionLabel={literal["home.hero.cta"]}
-      onPrimaryAction={() => {}}
-    />
-  );
-}
-```
-
-Translation file:
-
-```json
-{
-  "home": {
-    "hero": {
-      "headline": "Welcome to Our App",
-      "description": "Get started with Astra",
-      "cta": "Get Started"
-    }
-  }
-}
-```
-
-### Using the MVVM Pattern
-
-The recommended pattern for data-driven features separates concerns into three layers:
-
-**Repository** — handles data access:
 ```tsx
 // src/features/products/repo/productsApi.ts
 import { ApiService, ServerResponse } from "astra";
@@ -182,7 +77,8 @@ export const productsApi = {
 };
 ```
 
-**ViewModel** — orchestrates business logic:
+### ViewModel — state orchestration
+
 ```tsx
 // src/features/products/hooks/useProducts.ts
 import { useDataState } from "astra";
@@ -197,9 +93,43 @@ export const useProducts = () => {
 };
 ```
 
-**View** — renders UI, delegates logic to ViewModel:
+### Page — composes ViewModel with UI
+
 ```tsx
+// src/features/products/view/pages/ProductsPage.tsx
 import { useEffect } from "react";
+import { AppStateHandler } from "astra";
+import { useProducts } from "../../hooks/useProducts";
+
+function ProductsPage() {
+  const { productsState, loadProducts } = useProducts();
+
+  useEffect(() => { loadProducts(); }, []);
+
+  return (
+    <AppStateHandler
+      appState={productsState}
+      SuccessComponent={({ appState }) => (
+        <ul>
+          {appState.data?.map((p) => (
+            <li key={p.id}>{p.name}</li>
+          ))}
+        </ul>
+      )}
+      emptyCondition={(data) => data.length === 0}
+      errorMessage="Failed to load products"
+    />
+  );
+}
+```
+
+---
+
+## Manual State Handling
+
+Use `StateType` directly when `AppStateHandler` is not sufficient:
+
+```tsx
 import { StateType } from "astra";
 import { useProducts } from "../hooks/useProducts";
 
@@ -209,113 +139,96 @@ function ProductsPage() {
   useEffect(() => { loadProducts(); }, []);
 
   if (productsState.state === StateType.LOADING) return <Spinner />;
-  if (productsState.isError)
-    return <ErrorMessage message={productsState.statusMessage} />;
+  if (productsState.isError) return <ErrorMessage message={productsState.statusMessage} />;
 
   return <DataDisplay data={productsState.data} />;
 }
 ```
 
-### Using AppStateHandler
+---
 
-For automatic loading/error/empty state handling with a ViewModel:
+## Feature Module Structure
+
+Astra defines a canonical folder structure for consumer feature modules. See [Feature Structure](../core/feature-structure.md) for the full reference.
+
+```
+src/
+├── features/
+│   └── [feature-name]/
+│       ├── model/           # TypeScript types and DTOs
+│       │   └── <feature>.types.ts
+│       ├── repo/            # Data access via ApiService or IPC
+│       │   └── <feature>Api.ts
+│       ├── hooks/           # ViewModel custom hooks (useDataState)
+│       │   └── use<Feature>.ts
+│       └── view/
+│           ├── components/  # Presentational leaf components (props only)
+│           │   └── <Name>Component.tsx
+│           └── pages/       # Stateful page-level containers
+│               └── <Feature>Page.tsx
+├── common/
+│   └── repo/
+│       └── ApiClient.ts
+├── App.tsx
+└── main.tsx
+```
+
+---
+
+## Astra + Design System Together
+
+Astra has no dependency on any design system. The typical composition when using Prati (or any design system) alongside Astra:
+
+1. **Astra's `AppStateProvider`** wires in the design system's loading/error/empty components at app root.
+2. **Design system** (e.g. Prati) provides `ThemeProvider`, `LanguageProvider`, and UI components.
+3. **Astra** provides `useDataState`, `ApiService`, and `AppStateHandler` inside feature modules.
 
 ```tsx
-import { AppStateHandler, useLanguage } from "astra";
-import { useUsers } from "../hooks/useUsers";
+// App.tsx — wire design system into Astra's rendering slots once at root
+import { AppStateProvider } from "astra";
+import { ThemeProvider, LanguageProvider, LoadingState, ErrorState, EmptyState } from "prati";
 
-function UserList() {
-  const { usersState, loadUsers } = useUsers();
-  const { literal } = useLanguage();
-
-  useEffect(() => { loadUsers(); }, []);
-
+function App() {
   return (
-    <AppStateHandler
-      appState={usersState}
-      SuccessComponent={({ appState }) => (
-        <ul>
-          {appState.data?.map((user) => (
-            <li key={user.id}>{user.name}</li>
-          ))}
-        </ul>
-      )}
-      emptyCondition={(data) => data.length === 0}
-      errorMessage={literal["users.loadError"]}
-    />
+    <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
+      <LanguageProvider translations={translations} defaultLanguage="en">
+        <AppStateProvider value={{
+          Loading: LoadingState,
+          Error: ({ message }) => <ErrorState message={message} />,
+          Empty: EmptyState,
+        }}>
+          <Router />
+        </AppStateProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 ```
 
-## Export Surface
+All `AppStateHandler` instances in the tree automatically use these components — no per-instance wiring needed.
 
-### Core Exports
+---
 
-| Export             | Description                                        |
-| ------------------ | -------------------------------------------------- |
-| `ThemeProvider`    | MUI theming provider with light/dark mode          |
-| `ThemeToggle`      | Theme mode toggle button component                 |
-| `LanguageProvider` | i18n provider for translations                     |
-| `useLanguage`      | Hook to access translations and language switching |
-| `useTheme`         | Hook to access theme state and toggle              |
-| `useDataState`     | MVVM state management hook                         |
-| `ApiService`       | Type-safe Axios wrapper for API calls              |
-| `AppStateHandler`  | Automatic state UI handler component               |
-| `StateType`        | Enum: `INIT`, `LOADING`, `COMPLETED`               |
-
-### UI Components (Atomic Design)
-
-Astra includes 30+ ready-to-use components organized by Atomic Design tiers:
-
-| Tier | Description | Examples |
-|------|-------------|----------|
-| **Atoms** | Fundamental UI primitives | `StatusDot`, `SeverityBadge`, `ErrorState`, `EmptyState` |
-| **Molecules** | Composed functional units | `Card`, `Notification`, `TrendMetricCard` |
-| **Organisms** | Complex UI sections | `DataTable`, `FormLayout`, `TimelineNode`, `FileTree` |
-| **Templates** | Page-level layouts | `PageHeader`, `SummaryPanel`, `HeroSection` |
-
-For tier rules and classification guidance, see [Atomic Hierarchy Invariant](../invariants/atomic-hierarchy.md) and [Component Tiers](../core/component-tiers.md).
-
-> A full component catalogue with props, screenshots, and interactive examples is maintained separately from the architecture corpus. Consult your project's component documentation for the complete library listing.
-
-### Import Styles
+## Import Style
 
 ```ts
-// Root import (recommended)
-import { ThemeProvider, useDataState, HeroSection, spacing, typography } from "astra";
+// Astra — state, data access, and rendering context
+import { useDataState, AppStateHandler, AppStateProvider, ApiService, ServerResponse, StateType } from "astra";
 
-// Subpath imports
-import { HeroSection, Card } from "astra/components";
+// Design system (e.g. Prati) — UI, theming, localization
+import { ThemeProvider, LanguageProvider, useLanguage, Button } from "prati";
 ```
 
-## Component Architecture
+Design system symbols are never imported from `astra`. Astra symbols are never imported from the design system package.
 
-Astra's component library follows **Atomic Design** methodology, organizing components into four tiers:
-
-| Tier      | Description                                                  | Examples                              |
-| --------- | ------------------------------------------------------------ | ------------------------------------- |
-| Atoms     | Fundamental UI primitives (smallest building blocks)         | StatusDot, SeverityBadge              |
-| Molecules | Composed functional units (combine atoms into working units) | Card, Notification, TrendMetricCard   |
-| Organisms | Complex UI sections (composed of molecules and atoms)        | DataTable, FormLayout                 |
-| Templates | Page-level layouts (structural composition for pages)        | PageHeader, HeroSection, SummaryPanel |
-
-### Why Atomic Design?
-
-This structure provides:
-
-- **Predictability**: Components have consistent patterns based on their tier
-- **Maintainability**: Clear boundaries make updates localized
-- **Reusability**: Lower-tier components can be recombined in many ways
-
-For tier rules and import direction constraints, see [Atomic Hierarchy Invariant](../invariants/atomic-hierarchy.md) and the [Component Tiers Runtime Map](../runtime-maps/component-tiers.md).
+---
 
 ## Next Steps
 
-- [React Integration Guide](react.md) - Framework-specific setup
-- [Electron Integration Guide](electron.md) - Desktop app integration
-- [Feature Structure](../core/feature-structure.md) - Canonical feature folder layout
-- [MVVM Architecture](../core/mvvm-pattern.md) - Architecture patterns
-- [Theming](../core/theming.md) - Custom theming guide
-- [Localization](../core/localization.md) - i18n patterns including interpolation
-- [Atomic Hierarchy Invariant](../invariants/atomic-hierarchy.md) - Component tier rules
-- [Component Tiers Runtime Map](../runtime-maps/component-tiers.md) - Visual tier hierarchy
+- [Feature Structure](../core/feature-structure.md) — Canonical feature folder layout
+- [MVVM Pattern](../core/mvvm-pattern.md) — Architecture deep dive
+- [Repository Pattern](../core/repository.md) — API and data access patterns
+- [State Management](../core/state-management.md) — `AppState`, `StateType`, `AppStateHandler`
+- [React Integration Guide](react.md) — Framework-specific setup
+- [Electron Integration Guide](electron.md) — Desktop app integration
+- Prati Documentation — UI components, theming, localization

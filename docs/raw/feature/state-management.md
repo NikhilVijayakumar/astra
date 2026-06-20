@@ -1,6 +1,6 @@
 # State Management
 
-Astra's async state lifecycle for data operations. Every API call, form submission, or async operation follows the same three-phase pattern through a shared `AppState<T>` contract.
+Astra's async state lifecycle for data operations. Every API call, form submission, or async operation follows the same three-phase pattern through a shared `AppState` contract.
 
 ## State Lifecycle
 
@@ -10,30 +10,36 @@ Astra's async state lifecycle for data operations. Every API call, form submissi
 | Loading | `LOADING = 1` | Request in flight |
 | Completed | `COMPLETED = 2` | Finished — check `isError`/`isSuccess` |
 
-## `AppState<T>` — the shared contract
+## AppState — the shared contract
 
-```typescript
-interface AppState<T> {
-  state: StateType;                      // lifecycle phase
-  isError: boolean;
-  isSuccess: boolean;
-  status: HttpStatusCode | StateCode;    // HTTP code or internal code
-  statusMessage: string;
-  data: T | null;
-}
-```
+| Field | Description |
+|-------|-------------|
+| `state` | Current lifecycle phase: `INIT`, `LOADING`, or `COMPLETED` |
+| `isError` | True when the last operation completed with an error |
+| `isSuccess` | True when the last operation completed successfully |
+| `status` | HTTP response code, or `StateCode.IDLE` (1000) before any HTTP activity |
+| `statusMessage` | Human-readable status description |
+| `data` | Result payload; null until a successful response populates it |
 
-Initial value (from `useDataState`):
-```typescript
-{ state: StateType.INIT, isError: false, isSuccess: false,
-  status: StateCode.IDLE, statusMessage: '', data: null }
-```
+`AppState` is parameterized over the data payload type — each feature defines the shape of `data` it expects.
+
+Initial value: `state = INIT`, `isError = false`, `isSuccess = false`, `status = StateCode.IDLE` (1000), `statusMessage = ''`, `data = null`.
 
 ## Status Codes
 
-`StateCode.IDLE = 1000` — initial status before any HTTP activity. Use this, not `HttpStatusCode.IDLE` (deprecated).
+`StateCode.IDLE = 1000` — initial status before any HTTP activity. Defined [below](#statecode).
 
 `HttpStatusCode.INTERNET_ERROR = 0` — no network / connection refused. `AppStateHandler` uses this to detect offline conditions.
+
+## StateCode
+
+Non-HTTP status values used before or outside HTTP activity:
+
+| Value | Code | Meaning |
+|-------|------|---------|
+| `IDLE` | `1000` | Initial status — no operation has started |
+
+`StateCode.IDLE` is the initial value of `AppState.status`. `HttpStatusCode` has no `IDLE` value — the historical `HttpStatusCode.IDLE` alias was removed and replaced by `StateCode.IDLE`.
 
 ## State Transitions
 
@@ -41,6 +47,7 @@ Initial value (from `useDataState`):
 |------|----|---------|
 | INIT | LOADING | `execute()` called |
 | LOADING | COMPLETED | API call resolves or throws |
+| LOADING | LOADING | `execute()` called again (concurrent) — last call wins; earlier result discarded on completion |
 | COMPLETED | LOADING | `execute()` called again (retry/refresh) |
 
 ## When to Use
@@ -48,10 +55,19 @@ Initial value (from `useDataState`):
 - **Yes**: API calls, form submissions, any async operation
 - **No**: UI-only local state, global app configuration
 
+## Non-Responsibilities
+
+State management does not:
+
+- execute API calls — that is `useDataState.execute()`
+- render UI from state — that is `AppStateHandler`
+- normalize HTTP errors — that is `ApiService` in the Repository layer
+- manage global or cross-component state — each `useDataState` instance is local to its ViewModel hook
+
 ## Building Blocks
 
 - [repository.md](./repository.md) — HTTP client, response normalization (`ApiService`, `ServerResponse`, `HttpStatusCode`)
-- [use-data-state.md](./use-data-state.md) — React hook that manages `AppState` transitions
+- [use-data-state.md](./use-data-state.md) — hook that manages `AppState` transitions
 - [app-state-handler.md](./app-state-handler.md) — component that routes UI based on `AppState`
 - [mvvm-wiring.md](./mvvm-wiring.md) — full pattern: Repository → ViewModel → View
 

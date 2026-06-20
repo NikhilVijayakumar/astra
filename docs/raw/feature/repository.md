@@ -4,53 +4,47 @@ HTTP client and response normalization. All network access in Astra goes through
 
 ## `HttpStatusCode`
 
-```typescript
-enum HttpStatusCode {
-  SUCCESS = 200,
-  CREATED = 201,
-  BAD_REQUEST = 400,
-  UNAUTHORIZED = 401,
-  NOT_FOUND = 404,
-  INTERNAL_SERVER_ERROR = 500,
-  INTERNET_ERROR = 0,   // no network / connection refused
-}
-```
+| Value | Name | Meaning |
+|-------|------|---------|
+| 200 | SUCCESS | Request succeeded |
+| 201 | CREATED | Resource created |
+| 400 | BAD_REQUEST | Client error — invalid request |
+| 401 | UNAUTHORIZED | Authentication required |
+| 404 | NOT_FOUND | Resource not found |
+| 500 | INTERNAL_SERVER_ERROR | Server-side failure |
+| 0 | INTERNET_ERROR | No network / connection refused |
 
-Helper: `getStatusMessage(status, literal)` maps a code to a localized string from a `literal` record.
+`HttpStatusCode` does not include an `IDLE` value — use `StateCode.IDLE` (defined in [state-management.md](./state-management.md)) for pre-HTTP status.
 
-## `ServerResponse<T>`
+### `getStatusMessage`
 
-Normalized return type from all `ApiService` methods. Construct via static factories:
+Maps an `HttpStatusCode` to a localized error string:
 
-```typescript
-ServerResponse.success<T>({ status, statusMessage, data })  // isSuccess=true, isError=false
-ServerResponse.error<T>({ status, statusMessage })          // isError=true, isSuccess=false
-```
+- Input: an `HttpStatusCode` value and a `literal` record (key → string map)
+- Output: the matching string from `literal`, or an empty string if no match
+- Used by `ApiService` internally; consumers may call it to display error messages outside `ApiService`
 
-Fields mirror `AppState<T>` — `useDataState.execute()` maps a `ServerResponse<T>` directly into `AppState<T>` on completion.
+## `ServerResponse`
 
-`APITypes.ts` defines the input shapes:
-```typescript
-type ResponseSucess<T> = { status: HttpStatusCode; statusMessage: string; data: T };
-type ResponseError    = { status: HttpStatusCode; statusMessage: string };
-```
+Normalized return type from all `ApiService` methods. Constructed via two factory methods:
+
+- **success**: accepts `status`, `statusMessage`, and `data` — sets `isSuccess = true`, `isError = false`
+- **error**: accepts `status` and `statusMessage` — sets `isError = true`, `isSuccess = false`
+
+Fields mirror `AppState` — `useDataState.execute()` maps a `ServerResponse` directly into `AppState` on completion.
 
 ## `ApiService`
 
-Axios-based HTTP client. Requires `baseUrl` and a localization `literal` record.
+Axios-based HTTP client. Requires `baseUrl` (string) and a localization `literal` (key → string map).
 
-```typescript
-class ApiService {
-  constructor(baseUrl: string, literal: Record<string, string>)
+| Method | Parameters | Returns |
+|--------|------------|---------|
+| `get` | `url`, optional `config` | Promise of ServerResponse |
+| `post` | `url`, optional `data`, optional `config` | Promise of ServerResponse |
+| `put` | `url`, optional `data`, optional `config` | Promise of ServerResponse |
+| `delete` | `url`, optional `config` | Promise of ServerResponse |
 
-  get<T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>>
-  post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ServerResponse<T>>
-  put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ServerResponse<T>>
-  delete<T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>>
-}
-```
-
-URL construction: `` `${baseUrl}/${url}` `` — strip trailing slash from `baseUrl` to avoid double slashes.
+URL construction: `baseUrl + "/" + url` — strip trailing slash from `baseUrl`. No normalization is applied; a trailing slash on `baseUrl` produces a double-slash URL and the request will fail at the HTTP level.
 
 **Error normalization** — all errors are caught and returned as `ServerResponse.error(...)`, never thrown:
 
@@ -62,33 +56,32 @@ URL construction: `` `${baseUrl}/${url}` `` — strip trailing slash from `baseU
 
 ## `getApiService` — singleton factory
 
-```typescript
-import { getApiService } from 'astra';
-
-const api = getApiService(baseUrl, literal);
-```
-
-Returns a cached `ApiService` keyed by `baseUrl`. Safe to call at module scope inside a repository class — repeated calls with the same `baseUrl` return the same instance.
+Returns a cached `ApiService` keyed by `baseUrl`. Import from `astra`. Safe to call at module scope inside a repository — repeated calls with the same `baseUrl` return the same instance.
 
 ## Usage in a Feature Repository
 
-```typescript
-import { getApiService, ServerResponse } from 'astra';
-
-export class UserRepository {
-  private api = getApiService(import.meta.env.VITE_API_URL, literal);
-
-  getUser(id: string): Promise<ServerResponse<User>> {
-    return this.api.get<User>(`users/${id}`);
-  }
-
-  updateUser(id: string, data: Partial<User>): Promise<ServerResponse<User>> {
-    return this.api.put<User>(`users/${id}`, data);
-  }
-}
 ```
+api = getApiService(API_BASE_URL, literal)
+
+userRepository:
+  getUser(id)          → api.get("users/" + id)
+  updateUser(id, data) → api.put("users/" + id, data)
+```
+
+`API_BASE_URL` and `literal` are application-level constants — not repository concerns.
+
+`RequestConfig` — optional per-request options (headers, timeout, abort signal, etc.) passed through to the underlying HTTP client.
+
+## Non-Responsibilities
+
+The Repository layer does not:
+
+- manage React state — that is `useDataState`
+- render loading/error/success UI — that is `AppStateHandler`
+- decide when to fetch — that is the ViewModel (`useEffect` in a hook)
+- re-throw exceptions — `ApiService` catches all errors and normalizes them into `ServerResponse`
 
 ## See Also
 
-- [state-management.md](./state-management.md) — `AppState<T>` contract that `ServerResponse` maps into
+- [state-management.md](./state-management.md) — `AppState` contract that `ServerResponse` maps into
 - [use-data-state.md](./use-data-state.md) — hook that calls the repository and updates `AppState`

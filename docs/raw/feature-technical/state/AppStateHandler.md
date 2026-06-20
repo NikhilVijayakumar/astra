@@ -16,19 +16,24 @@ Implemented
 | File | Purpose |
 |------|---------|
 | `src/common/components/organisms/AppStateHandler.tsx` | Component implementation |
+| `src/common/components/organisms/AppStateContext.ts` | `AppStateComponents` interface, `AppStateContext`, `AppStateProvider` |
 | `src/common/components/organisms/AppStateHandler.test.tsx` | Unit tests (vitest) |
-| `src/common/components/organisms/AppStateHandler.stories.tsx` | Storybook stories |
 | `src/common/state/AppState.ts` | `AppState<T>` interface, `StateType` enum |
 | `src/common/repo/HttpStatusCode.ts` | `HttpStatusCode` enum for INTERNET_ERROR detection |
-| `src/common/components/atoms/LoadingState.tsx` | Rendered on LOADING |
-| `src/common/components/atoms/ErrorState.tsx` | Rendered on error |
-| `src/common/components/atoms/EmptyState.tsx` | Rendered on empty/fallback |
 
 ## Public API
 
 ```typescript
-// Exported via state/index.ts barrel (alongside AppState, StateType)
-// Also re-exported via components/organisms barrel path
+// Exported via components/organisms barrel → common/index.ts → lib.ts
+
+export interface AppStateComponents {
+  Loading?: FC;
+  Error?: FC<{ message?: string }>;
+  Empty?: FC;
+}
+
+export const AppStateContext: React.Context<AppStateComponents>;
+export const AppStateProvider: React.Provider<AppStateComponents>;
 
 export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
   appState: S;
@@ -36,11 +41,14 @@ export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
   emptyCondition?: (data: T) => boolean;
   errorMessage?: string;
   children?: ReactNode;
+  loadingComponent?: ReactNode;  // slot prop — overrides context Loading
+  errorComponent?: ReactNode;    // slot prop — overrides context Error
+  emptyComponent?: ReactNode;    // slot prop — overrides context Empty
 }
 
 export default function AppStateHandler<T, S extends AppState<T>>(
-  props: AppStateHandlerProps<T, S> & { children?: ReactNode },
-): ReactElement;
+  props: AppStateHandlerProps<T, S>,
+): ReactElement | null;
 ```
 
 ---
@@ -48,12 +56,12 @@ export default function AppStateHandler<T, S extends AppState<T>>(
 # Architecture Mapping
 | Pattern | Feature Usage | Reason |
 |---------|--------------|--------|
-| Atomic Hierarchy | Organism tier | Composes atoms (LoadingState, ErrorState, EmptyState). Orchestrates data-flow routing. Template-agnostic (no layout assumptions). |
+| Atomic Hierarchy | Organism tier | Orchestrates conditional rendering via context and slot props. No internal atom dependencies — UI components are consumer-provided. Template-agnostic. |
 | Stateless UI | Enforcer | `AppStateHandler` is the mechanism that keeps parent components stateless — owns the conditional routing so parents don't need state or branching. |
-| Theme Sovereignty | Delegated | No direct visual output — delegates to child atoms which must handle their own theming. |
-| Localization | Partially | `errorMessage` prop accepts a translated string. The auto-fallback uses `appState.statusMessage` which may carry localized content. No hardcoded strings in this component. |
-| Dependency Safety | Minimal | Depends on React, internal AppState types, and 3 internal atom components (LoadingState, ErrorState, EmptyState). |
-| Public API Stability | Stable (default export) | Exported as default from `AppStateHandler.tsx`. Public API includes `AppStateHandlerProps<T, S>`. |
+| Design System Independence | Enforced | No import of any design system. Loading/Error/Empty UI provided by consumer via `AppStateProvider` context or slot props. |
+| Localization | Full | `errorMessage` prop accepts a translated string. No hardcoded strings in this component or its rendering path. |
+| Dependency Safety | Minimal | Depends only on React, internal AppState types, and `AppStateContext`. |
+| Public API Stability | Stable | Default export from `AppStateHandler.tsx`. Public API: `AppStateHandlerProps<T, S>`, `AppStateProvider`, `AppStateContext`, `AppStateComponents`. |
 
 ---
 
@@ -62,7 +70,7 @@ export default function AppStateHandler<T, S extends AppState<T>>(
 ## Views
 | View | File Path | Purpose | Responsibilities | Imports From |
 |------|-----------|---------|------------------|--------------|
-| AppStateHandler | `src/common/components/organisms/AppStateHandler.tsx` | Conditional state router | Evaluate appState in priority order: LOADING → ERROR → EMPTY → SUCCESS → fallback EMPTY | `react`, `state/AppState`, `repo/HttpStatusCode`, `atoms/LoadingState`, `atoms/ErrorState`, `atoms/EmptyState` |
+| AppStateHandler | `src/common/components/organisms/AppStateHandler.tsx` | Conditional state router | Evaluate appState in priority order: LOADING → ERROR → EMPTY → SUCCESS → fallback EMPTY; reads context via `useContext(AppStateContext)`; slot props override context | `react`, `state/AppState`, `repo/HttpStatusCode`, `components/organisms/AppStateContext` |
 
 ## State Model
 | State | File Path | Type Declaration | Transitions | Owner |
@@ -70,14 +78,32 @@ export default function AppStateHandler<T, S extends AppState<T>>(
 | AppState<T> | `src/common/state/AppState.ts` | `interface AppState<T> { state: StateType; isError: boolean; isSuccess: boolean; status: HttpStatusCode; statusMessage: string; data: T \| null; }` | INIT → LOADING → COMPLETED (with isError/isSuccess) | `useDataState` hook |
 
 ## State Evaluation Priority (fixed order)
+
+Slot props (per-instance) take precedence over context (root-level). Context is provided by `AppStateProvider`.
+
 ```
-1. state === StateType.LOADING       → <LoadingState />
-2. isError || status === INTERNET_ERROR → <ErrorState message={errorMessage} />
+1. state === StateType.LOADING
+   ├── loadingComponent slot → render slot
+   ├── context.Loading       → <Loading />
+   └── (neither)             → null
+
+2. isError || status === INTERNET_ERROR
+   ├── errorComponent slot   → render slot
+   ├── context.Error         → <Error message={errorMessage} />
+   └── (neither)             → null
+
 3. isSuccess && data !== null
-   ├── emptyCondition?.(data) === true → <EmptyState />
-   ├── children provided               → children
-   └── SuccessComponent provided       → <SuccessComponent appState={appState} />
-4. fallback                            → <EmptyState />
+   ├── emptyCondition?.(data) === true
+   │   ├── emptyComponent slot → render slot
+   │   ├── context.Empty       → <Empty />
+   │   └── (neither)           → null
+   ├── children provided       → children
+   └── SuccessComponent        → <SuccessComponent appState={appState} />
+
+4. fallback (INIT / no flags)
+   ├── emptyComponent slot → render slot
+   ├── context.Empty       → <Empty />
+   └── (neither)           → null
 ```
 
 ## Generic Type Parameters
@@ -93,13 +119,15 @@ Parent passes appState: AppState<T>
 ```
 
 ## Invariant Rules
-- Evaluation order is fixed: LOADING > ERROR > EMPTY > SUCCESS
+- Evaluation order is fixed: LOADING > ERROR > EMPTY > SUCCESS > fallback EMPTY
+- Slot props override context: `loadingComponent` overrides `context.Loading`, `errorComponent` overrides `context.Error`, `emptyComponent` overrides `context.Empty`
 - `emptyCondition` is called only when `isSuccess && data !== null`
 - `children` takes precedence over `SuccessComponent` when both provided
-- Fallback state (INIT, no success, no error) renders `<EmptyState />`
-- `errorMessage` is passed to `<ErrorState message={...} />` — if omitted, ErrorState uses its own default
+- Fallback state (INIT, no success, no error) renders empty slot or `context.Empty` or null
+- `errorMessage` is passed to `context.Error` as `message` prop — if omitted, consumer's Error component receives `undefined`
 - `SuccessComponent` receives the full `appState` as prop (not just `data`)
 - Component is generic — reusable across any async data type
+- No design system imports — all UI is consumer-injected
 
 ---
 
@@ -130,8 +158,8 @@ Parent passes appState: AppState<T>
 # Non-Functional Requirements
 - **Performance**: O(1) decision tree. No re-render amplification — re-renders only when `appState` reference changes.
 - **Accessibility**: Delegates to child atoms. LoadingState should have `aria-busy`; ErrorState should have `role="alert"`.
-- **Bundle**: ~45 lines of logic. Depends on 3 internal atom components (tree-shakeable if unused).
-- **Testability**: 6 tests cover loading, error (isError), error (INTERNET_ERROR), success, empty, fallback.
+- **Bundle**: ~60 lines of logic. No external design system dependencies.
+- **Testability**: 9 tests cover loading (context), loading (slot), error (context), error (slot), error (INTERNET_ERROR), success, empty, fallback (INIT), null return (no context/no slot).
 
 ---
 
@@ -148,22 +176,20 @@ Parent passes appState: AppState<T>
 - Component is not memoized — `React.memo()` could prevent re-renders when parent re-renders with same `appState` reference
 
 ## Gaps
-- No retry button in ErrorState (delegated to atom, but no `onRetry` prop chain)
-- No `LoadingComponent` customization — always renders `LoadingState` atom
+- No retry prop — retry is ViewModel's responsibility; consumers re-expose `execute()` as a retry function
 - No animation transitions between states (loading→success flash)
-- No `LoadingComponent` customization — always renders `LoadingState` atom
+- No ErrorBoundary — `SuccessComponent` errors propagate to parent
 
 ---
 
 # Module Map
 | Module | File Path | Exports | Imports From |
 |--------|-----------|---------|--------------|
-| AppStateHandler | `src/common/components/organisms/AppStateHandler.tsx` | `AppStateHandlerProps<T,S>`, default export `AppStateHandler` | `react`, `state/AppState`, `repo/HttpStatusCode`, `atoms/LoadingState`, `atoms/ErrorState`, `atoms/EmptyState` |
-| AppState | `src/common/state/AppState.ts` | `AppState<T>`, `StateType` | `repo/HttpStatusCode` |
-| state barrel | `src/common/state/index.ts` | `AppState`, `StateType` | re-exports from `AppState` |
-| LoadingState | `src/common/components/atoms/LoadingState.tsx` | default export | — |
-| ErrorState | `src/common/components/atoms/ErrorState.tsx` | default export | — |
-| EmptyState | `src/common/components/atoms/EmptyState.tsx` | default export | — |
+| AppStateHandler | `src/common/components/organisms/AppStateHandler.tsx` | `AppStateHandlerProps<T,S>`, default export `AppStateHandler` | `react`, `state/AppState`, `repo/HttpStatusCode`, `components/organisms/AppStateContext` |
+| AppStateContext | `src/common/components/organisms/AppStateContext.ts` | `AppStateComponents`, `AppStateContext`, `AppStateProvider` | `react` |
+| AppState | `src/common/state/AppState.ts` | `AppState<T>`, `StateType`, `StateCode` | `repo/HttpStatusCode` |
+| state barrel | `src/common/state/index.ts` | `AppState`, `StateType`, `StateCode` | re-exports from `AppState` |
+| organisms barrel | `src/common/components/organisms/index.ts` | `AppStateHandler`, `AppStateHandlerProps`, `AppStateProvider`, `AppStateContext`, `AppStateComponents` | re-exports |
 
 ---
 

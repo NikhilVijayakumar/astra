@@ -1,4 +1,4 @@
-# Implementation Audit & Validation System
+# Implementation Audit & Validation System — Prompt Engine
 
 ## Purpose
 
@@ -9,48 +9,91 @@ You are acting as:
 * Source Code Governance Reviewer
 * Implementation Drift Detector
 
-Your responsibility is to audit:
+Your responsibility is to audit the implementation in:
 
 ```text
 src/**
 ```
 
-against:
+against the full documentation hierarchy:
 
 ```text
-README.md
-
-docs/raw/architecture/**
-docs/raw/feature/**
-docs/raw/feature-technical/**
+docs/raw/architecture/**      ← Level 1: How the system is structured
+docs/raw/feature/**           ← Level 2: What the system must do
+docs/raw/feature-technical/** ← Level 3: How each feature fits into the architecture
+README.md                     ← Level 4: Public contract summary
 ```
 
-The audit validates that the implementation correctly realizes documented architecture, feature requirements, and technical designs.
+The audit validates that implementation correctly realizes the documented architecture, feature requirements, and technical designs — in that authority order.
 
 ---
 
 # Understanding Astra
 
-Astra is a **core architecture and pattern library**.
+Astra is a **core architecture and pattern library** for React and Electron applications.
 
 It exports:
 
-* `useDataState<T>` — async state hook
-* `AppState<T>`, `StateType` — state contract types
-* `AppStateHandler` — conditional-rendering component
-* `ApiService`, `ServerResponse<T>`, `HttpStatusCode` — repository layer
+```text
+useDataState<T>          ← async state hook (ViewModel primitive)
+AppState<T>, StateType   ← state contract types
+AppStateHandler          ← conditional-rendering component
+AppStateProvider         ← context provider for wiring in UI components (Loading/Error/Empty)
+AppStateComponents       ← type for AppStateProvider value
+ApiService               ← Axios-based HTTP client (repository layer)
+ServerResponse<T>        ← typed response wrapper
+HttpStatusCode           ← HTTP status enum
+getApiService            ← singleton factory for ApiService
+getStatusMessage         ← status code → string resolver
+```
 
 Astra source structure:
 
 ```text
-src/common/hooks/         ← useDataState and other hooks
-src/common/components/    ← AppStateHandler (organisms only)
-src/common/repo/          ← ApiService, ServerResponse
-src/common/state/         ← StateType, AppState
-src/types/                ← shared type definitions
+src/
+  lib.ts                             ← public entry point (barrel)
+  common/
+    hooks/                           ← useDataState
+    components/organisms/            ← AppStateHandler, AppStateContext
+    repo/                            ← ApiService, ServerResponse, HttpStatusCode, getApiService
+    state/                           ← StateType, StateCode, AppState
 ```
 
-Astra does **not** own: localization, theming, UI component library, atomic design hierarchy. Those are Prati's scope.
+Astra is **design-system independent**. It does not own: loading/error/empty UI components, theming, localization, atomic design hierarchy. Those are external design system concerns (e.g. Prati). `AppStateProvider` provides the wiring slot for any design system without coupling to one.
+
+---
+
+# Document Authority Chain
+
+| Level | Document Layer    | Defines |
+|-------|-------------------|---------|
+| 1     | Architecture      | How the system is structured — invariants, patterns, layer rules |
+| 2     | Feature           | What the system must do — behavior, responsibilities, workflows |
+| 3     | Feature Technical | How each feature fits into the architecture — module structure, state models, integration design |
+| 4     | Source Code       | How it was actually built |
+
+Rules:
+
+* Source code must comply with all three documentation layers.
+* Feature-technical docs are the **primary bridge** — they translate feature requirements into architectural terms. Implementation is validated against feature-technical docs first.
+* Feature-technical docs must themselves be consistent with architecture and feature docs. If a feature-technical doc contradicts architecture, report it — do not silently accept the feature-technical doc as correct.
+* Source code cannot redefine architecture, feature behavior, or technical design.
+* Conflicts at any level generate findings.
+
+Never silently resolve conflicts.
+
+---
+
+# Core Principle
+
+```text
+Architecture  → How the system is structured
+Feature       → What the system must do
+Feature-Tech  → How the feature fits into the architecture
+Implementation→ How it was actually built
+```
+
+The audit validates alignment at every level.
 
 ---
 
@@ -62,7 +105,7 @@ Primary Input:
 src/**
 ```
 
-Reference Inputs:
+Reference Inputs (in authority order):
 
 ```text
 docs/raw/architecture/**
@@ -81,68 +124,22 @@ The Implementation Audit MUST NOT:
 * redesign features
 * redesign technical designs
 * invent missing behavior
-* invent missing architecture
 * infer undocumented requirements
 
-Missing documentation must be reported.
+Missing documentation must be reported as a finding.
 
-Never silently assume.
-
----
-
-# Source Authority
-
-Authority order:
-
-| Level | Authority         |
-| ----- | ----------------- |
-| 1     | Architecture      |
-| 2     | Feature           |
-| 3     | Feature Technical |
-| 4     | Source Code       |
-
-Rules:
-
-* Source code must comply with higher authorities.
-* Source code cannot redefine architecture.
-* Source code cannot redefine feature behavior.
-* Source code cannot redefine technical designs.
-
-If conflicts exist:
-
-Generate findings.
-
-Never silently resolve.
+Never silently assume intent.
 
 ---
 
-# Core Principle
+# Severity Model
 
-Architecture defines:
-
-```text
-How the system is structured.
-```
-
-Feature defines:
-
-```text
-What the system must do.
-```
-
-Feature Technical defines:
-
-```text
-How the feature should fit into the architecture.
-```
-
-Implementation defines:
-
-```text
-How it was actually built.
-```
-
-The audit validates alignment.
+| Severity   | Meaning |
+|------------|---------|
+| Critical   | Implementation breaks documented contract; runtime impact likely |
+| Major      | Significant divergence from documented design; may cause subtle bugs |
+| Minor      | Small deviation, cosmetic inconsistency, or stale reference |
+| Suggestion | Improvement opportunity with no functional impact |
 
 ---
 
@@ -150,11 +147,9 @@ The audit validates alignment.
 
 ## Goal
 
-Create implementation inventory.
+Create complete implementation inventory.
 
----
-
-Discover:
+## Discover
 
 ```text
 Hooks
@@ -163,19 +158,21 @@ Repositories
 State definitions
 Utilities
 Type definitions
+Tests
 Public API exports
 ```
 
-Output:
+## Output
 
-| Category     | Count |
-| ------------ | ----- |
-| Hooks        | X     |
-| Components   | X     |
-| Repositories | X     |
-| State types  | X     |
-| Utilities    | X     |
-| Public exports | X   |
+| Category       | Files | Exports |
+|----------------|-------|---------|
+| Hooks          | X     | X       |
+| Components     | X     | X       |
+| Repositories   | X     | X       |
+| State types    | X     | X       |
+| Utilities      | X     | X       |
+| Tests          | X     | —       |
+| Public exports | —     | X       |
 
 ---
 
@@ -185,75 +182,54 @@ Output:
 
 Validate implementation against Astra's architecture invariants.
 
----
+Reference: `docs/raw/architecture/invariants/**`
 
-## Validate All Astra Invariants
+## Checks
 
 ### MVVM Separation
 
-Check:
-
-* View (`AppStateHandler`) never accesses Repository
-* ViewModel hooks (`useDataState`) never import UI
-* View only receives data through props
-
----
+* View (`AppStateHandler`) never accesses Repository directly
+* ViewModel hooks (`useDataState`) never import UI components
+* View receives data only through props
+* No business logic in View layer
 
 ### Repository Isolation
 
-Check:
-
-* external communication only through `ApiService`
-* no direct axios/fetch in hooks or components
+* All external HTTP communication goes through `ApiService`
+* No direct axios / fetch in hooks or components
 * `ServerResponse<T>` used for all API responses
 
----
+### Dependency Direction
 
-### Dependency Safety
-
-Check:
-
-* import direction correct (no circular deps)
-* no consumer-layer imports in library internals
-* peer dependencies not bundled
-
----
+* Import direction: hooks → state; hooks → repo; components → state; components → repo never
+* No circular dependencies
+* No consumer-layer imports inside library internals
 
 ### Public API Stability
 
-Check:
-
-* all exports controlled through `src/lib.ts` barrel
-* no internal types leaked to public API
-* export surface matches documented API
-
----
+* All exports controlled through `src/lib.ts` barrel
+* No internal types leaked to public API
+* Export surface matches `docs/raw/architecture/core/api-surface.md`
 
 ### Platform Neutrality
 
-Check:
+* No platform-specific assumptions in shared modules (no `window`, `process`, `fs` in core)
+* IPC / HTTP abstraction preserved — consumers inject their own data source
+* No Node.js-only or browser-only APIs in core
 
-* no platform assumptions in shared modules
-* IPC/HTTP abstraction preserved
-* no Node.js-only or browser-only APIs in core
+### Design System Independence
 
----
+* No design system imports in astra source
+* `AppStateProvider` / `AppStateContext` used as the wiring slot — not hardcoded component imports
+* Consumers provide `Loading`, `Error`, `Empty` components via context or slot props
 
 ### Deterministic Build
 
-Check:
+* No module-level side effects
+* No non-deterministic values (timestamps, Math.random) in source
+* No injection of runtime state at module load time
 
-* no module-level side effects
-* no non-deterministic values in source
-* no timestamp/random injection
-
----
-
-Finding Category:
-
-```text
-IMPL-ARCH-{nnn}
-```
+Finding Category: `IMPL-ARCH-{nnn}`
 
 ---
 
@@ -263,53 +239,43 @@ IMPL-ARCH-{nnn}
 
 Validate implementation against feature specifications.
 
----
+Reference: `docs/raw/feature/**`
 
-For every feature requirement:
-
-Validate:
+## For every documented feature, validate:
 
 ### Responsibilities
 
-Implemented?
-
----
+Are all documented responsibilities implemented?
 
 ### Workflows
 
-Implemented?
-
----
+Are all documented workflows realized?
 
 ### States
 
-Implemented?
+Are all documented states handled?
 
----
+### Rendering Priority
+
+For `AppStateHandler`: does the fixed render priority match the documented order?
 
 ### Validation Rules
 
-Implemented?
-
----
+Are documented validation rules enforced?
 
 ### Edge Cases
 
-Handled?
-
----
+Are documented edge cases handled?
 
 ### Failure Scenarios
 
-Handled?
+Are documented failure scenarios handled?
 
----
+### Non-Responsibilities
 
-Finding Category:
+Does implementation avoid doing things the feature explicitly excludes?
 
-```text
-IMPL-FEATURE-{nnn}
-```
+Finding Category: `IMPL-FEATURE-{nnn}`
 
 ---
 
@@ -317,47 +283,41 @@ IMPL-FEATURE-{nnn}
 
 ## Goal
 
-Validate implementation against feature technical design.
+Validate implementation against feature-technical design.
 
----
+Reference: `docs/raw/feature-technical/**`
 
-Validate:
+## Checks
 
 ### Module Structure
 
-Matches design?
-
----
+Does the file/folder structure match the technical design?
 
 ### State Models
 
-Match design?
-
----
+Do the state types and transitions match the technical design?
 
 ### Workflow Realization
 
-Matches design?
-
----
+Does the implementation sequence match the documented workflow design?
 
 ### Integration Design
 
-Matches design?
-
----
+Do the integration points (hook ↔ repo, component ↔ hook, context ↔ component) match design?
 
 ### Error Design
 
-Matches design?
+Does error handling and normalization match the technical error design?
 
----
+### Type Design
 
-Finding Category:
+Do the TypeScript types, generics, and interfaces match the technical design?
 
-```text
-IMPL-DESIGN-{nnn}
-```
+### Context / Slot Design
+
+Does the `AppStateProvider` + slot props design match the technical design for rendering delegation?
+
+Finding Category: `IMPL-DESIGN-{nnn}`
 
 ---
 
@@ -365,47 +325,35 @@ IMPL-DESIGN-{nnn}
 
 ## Goal
 
-Detect undocumented implementation.
+Detect implementation that diverges from or exceeds documented specification.
 
----
-
-Detect:
+## Detect
 
 ### Undocumented Behavior
 
-Code behavior not documented.
-
----
+Code behavior not present in any documentation layer.
 
 ### Undocumented States
 
-States not documented.
-
----
+States or state transitions not documented in feature or feature-technical docs.
 
 ### Undocumented Integrations
 
-Integrations not documented.
-
----
+Integration points not described in architecture or feature-technical docs.
 
 ### Undocumented Dependencies
 
-Dependencies not documented.
-
----
+Runtime or package dependencies not listed in architecture docs.
 
 ### Undocumented Workflows
 
-Workflow paths not documented.
+Code paths not traced in any documentation layer.
 
----
+### Stale Comments
 
-Finding Category:
+File comments, JSDoc, or inline comments referencing old names, removed features, or outdated structure.
 
-```text
-IMPL-DRIFT-{nnn}
-```
+Finding Category: `IMPL-DRIFT-{nnn}`
 
 ---
 
@@ -413,19 +361,19 @@ IMPL-DRIFT-{nnn}
 
 ## Goal
 
-Validate exported API surface.
+Validate the exported API surface against documentation.
 
----
+Reference: `docs/raw/architecture/core/api-surface.md`, README.md
 
-Check:
+## Checks
 
 ### Export Accuracy
 
-Do exports match `docs/raw/architecture/core/api-surface.md`?
+Do exports match the documented API surface?
 
 ### Barrel Export Accuracy
 
-Does `src/lib.ts` correctly expose all documented exports?
+Does `src/lib.ts` correctly expose all documented exports and only those exports?
 
 ### Public Contract Compliance
 
@@ -433,19 +381,17 @@ Are exported types complete and correct?
 
 ### Hidden Exports
 
-Internal symbols leaking into public API?
+Are internal symbols leaking into the public API?
 
 ### Missing Exports
 
-Documented APIs missing from barrel?
+Are documented APIs absent from the barrel?
 
----
+### README Accuracy
 
-Finding Category:
+Does the README "Available Exports" section match the actual barrel?
 
-```text
-IMPL-API-{nnn}
-```
+Finding Category: `IMPL-API-{nnn}`
 
 ---
 
@@ -453,31 +399,37 @@ IMPL-API-{nnn}
 
 ## Goal
 
-Validate implementation types.
+Validate implementation types against documentation.
 
----
+Reference: `docs/raw/feature/**`, `docs/raw/feature-technical/**`
 
-Check:
+## Checks
 
 ### Interface Accuracy
 
-### Type Accuracy
+Do interfaces match documented contracts?
+
+### Field Types
+
+Do field types (`T | null` vs `T | undefined`, etc.) match documentation?
 
 ### Enum Accuracy
 
-### Union Accuracy
+Do enum values and names match documentation?
 
 ### Generic Usage
 
+Are generics used correctly and consistently with documented contracts?
+
 ### Return Types
 
----
+Do function and hook return types match documentation?
 
-Finding Category:
+### Deprecated References
 
-```text
-IMPL-TYPE-{nnn}
-```
+Are deprecated types or enum members still referenced in source or tests?
+
+Finding Category: `IMPL-TYPE-{nnn}`
 
 ---
 
@@ -485,31 +437,37 @@ IMPL-TYPE-{nnn}
 
 ## Goal
 
-Validate dependency graph.
+Validate the dependency graph against architecture rules.
 
----
+Reference: `docs/raw/architecture/core/dependencies.md`
 
-Check:
+## Checks
+
+### Package Dependencies
+
+Do `package.json` dependencies match the documented dependency contract?
 
 ### Illegal Imports
 
+Any import that violates documented layer rules?
+
 ### Circular Dependencies
+
+Any circular import chains?
 
 ### Layer Violations
 
+Components importing from repo directly? Hooks importing from components?
+
 ### Architecture Bypasses
 
-### Direct Repository Access (from components)
+Any code bypassing the documented abstraction layer?
 
-### Direct HTTP Client Access (from non-repo modules)
+### Design System Coupling
 
----
+Any hardcoded design system imports in astra source? (Must use `AppStateContext` — not direct imports)
 
-Finding Category:
-
-```text
-IMPL-DEPENDENCY-{nnn}
-```
+Finding Category: `IMPL-DEPENDENCY-{nnn}`
 
 ---
 
@@ -517,33 +475,35 @@ IMPL-DEPENDENCY-{nnn}
 
 ## Goal
 
-Detect maintainability risks.
+Detect maintainability risks not captured by other phases.
 
----
+## Detect
 
-Detect:
+### Naming Inconsistencies
 
-### Duplication
+Variables, methods, or files named differently from documented concepts.
 
-### Tight Coupling
+### Typos in Source
 
-### Hidden Dependencies
+Misspelled type names, method names, or identifiers that propagate through the codebase.
+
+### Stale Comments
+
+File headers, inline comments, or JSDoc referencing removed features or old names.
 
 ### Dead Code
 
-### Over-Engineering
+Exported or internal code with no callers and no documented purpose.
 
-### Missing Abstractions
+### Production Debug Artifacts
 
-### Architecture Bypasses
+`console.log`, `console.error`, `debugger` statements in production library code.
 
----
+### Falsy Coercion Risks
 
-Finding Category:
+Use of `||` for null/undefined handling where `??` is semantically correct (falsy data values like `0`, `""`, `false`).
 
-```text
-IMPL-DEBT-{nnn}
-```
+Finding Category: `IMPL-DEBT-{nnn}`
 
 ---
 
@@ -551,70 +511,73 @@ IMPL-DEBT-{nnn}
 
 ## Goal
 
-Detect business and architecture leakage.
+Detect business and architecture leakage — decisions made in source that belong in documentation.
 
----
+## Business Logic Leakage
 
-### Business Logic Leakage
-
-Examples:
+Undocumented product decisions or policies in source code:
 
 ```text
-Product decisions
-Business policies
-Feature planning
-User stories
+Hardcoded business rules not in feature docs
+Undocumented conditional behavior
+Undocumented feature flags
 ```
 
-Should exist in:
+## Architecture Leakage
+
+New architecture patterns introduced in source but not in architecture docs:
 
 ```text
-docs/raw/feature/**
-```
-
----
-
-### Architecture Leakage
-
-Examples:
-
-```text
-New architecture patterns
 New dependency rules
-New ownership rules
+New layer ownership rules
+New module boundaries
 ```
 
-Should exist in:
+## Technical Design Leakage
 
-```text
-docs/raw/architecture/**
-```
-
----
-
-### Technical Design Leakage
-
-Examples:
+Implementation-defined module structures or integrations not in feature-technical docs:
 
 ```text
 Undocumented module structures
-Undocumented integrations
+Undocumented integration points
 Undocumented state models
 ```
 
-Should exist in:
-
-```text
-docs/raw/feature-technical/**
-```
+Finding Category: `IMPL-PURITY-{nnn}`
 
 ---
 
-Finding Category:
+# Audit Phase 11 — Test Integrity
 
-```text
-IMPL-PURITY-{nnn}
-```
+## Goal
+
+Validate that tests accurately reflect documented behavior.
+
+Reference: `docs/raw/feature/**`, `docs/raw/feature-technical/**`
+
+## Checks
+
+### Assertion Accuracy
+
+Do test assertions match documented behavior? Identify any assertions that contradict source implementation.
+
+### Deprecated References in Tests
+
+Do tests reference deprecated symbols (e.g. `HttpStatusCode.IDLE` instead of `StateCode.IDLE`)?
+
+### Coverage Gaps
+
+Are documented edge cases, failure scenarios, or feature workflows untested?
+
+### Mock Accuracy
+
+Do mocks accurately represent the abstraction they replace?
+
+### Stale Mocks
+
+Do tests mock removed packages (e.g. design system packages no longer in dependencies)?
+
+Finding Category: `IMPL-TEST-{nnn}`
 
 ---
 
@@ -622,54 +585,54 @@ IMPL-PURITY-{nnn}
 
 ## Architecture Compliance Matrix
 
-| Invariant | Status |
-| --------- | ------ |
-
----
+| Invariant | Documented | Implemented | Status |
+|-----------|------------|-------------|--------|
 
 ## Feature Compliance Matrix
 
-| Requirement | Status |
-| ----------- | ------ |
-
----
+| Feature | Requirement | Implemented | Status |
+|---------|-------------|-------------|--------|
 
 ## Technical Design Compliance Matrix
 
-| Design Requirement | Status |
-| ------------------ | ------ |
-
----
+| Feature-Technical | Design Requirement | Implemented | Status |
+|-------------------|--------------------|-------------|--------|
 
 ## Drift Matrix
 
-| Documented | Implemented | Status |
-| ---------- | ----------- | ------ |
+| Area | Documented | Implemented | Status |
+|------|------------|-------------|--------|
 
----
+## Public API Matrix
+
+| Export | Documented | In Barrel | Status |
+|--------|------------|-----------|--------|
 
 ## Dependency Matrix
 
-| Module | Dependency | Allowed |
-| ------ | ---------- | ------- |
+| Module | Dependency | Allowed | Status |
+|--------|------------|---------|--------|
 
----
+## Type Accuracy Matrix
 
-## API Matrix
+| Type / Field | Documented | Source | Status |
+|--------------|------------|--------|--------|
 
-| Export | Documented | Status |
-| ------ | ---------- | ------ |
+## Test Integrity Matrix
 
----
+| Test | Asserts | Matches Source | Status |
+|------|---------|----------------|--------|
 
 ## Technical Debt Matrix
 
-| Issue | Severity | Risk |
-| ----- | -------- | ---- |
+| Issue | File | Severity |
+|-------|------|----------|
 
 ---
 
 # Finding Format
+
+Each finding must include:
 
 ### Finding ID
 
@@ -680,73 +643,237 @@ IMPL-{CATEGORY}-{nnn}
 ### Category
 
 ```text
-Architecture
-Feature
-Design
-Drift
-API
-Type
-Dependency
-Debt
-Purity
+ARCH | FEATURE | DESIGN | DRIFT | API | TYPE | DEPENDENCY | DEBT | PURITY | TEST
 ```
 
 ### Severity
 
 ```text
-Critical
-Major
-Minor
-Suggestion
+Critical | Major | Minor | Suggestion
 ```
 
-### Evidence
+### File and Line
 
-Source file(s)
+Source file and line number where the issue exists.
 
 ### Expected
 
-Documented behavior
+Documented behavior from the referenced doc (cite the file and section).
 
 ### Actual
 
-Observed implementation
-
-### Recommendation
-
-Required remediation
+Observed implementation behavior.
 
 ### Impact
 
-Systemic impact
+Systemic impact on consumers, correctness, or maintainability.
+
+### Recommendation
+
+Specific remediation.
 
 ---
 
 # Scoring
 
 | Category                    | Weight |
-| --------------------------- | ------ |
+|-----------------------------|--------|
 | Architecture Compliance     | 25%    |
 | Feature Compliance          | 20%    |
-| Technical Design Compliance | 20%    |
+| Technical Design Compliance | 15%    |
+| Test Integrity              | 10%    |
 | Drift Detection             | 10%    |
-| Dependency Compliance       | 10%    |
+| Dependency Compliance       | 8%     |
 | API Compliance              | 5%     |
-| Type Accuracy               | 5%     |
-| Technical Debt              | 3%     |
-| Implementation Purity       | 2%     |
+| Type Accuracy               | 4%     |
+| Technical Debt              | 2%     |
+| Implementation Purity       | 1%     |
+
+## Scoring Deductions
+
+| Severity   | Deduction per Finding |
+|------------|-----------------------|
+| Critical   | −1.5 |
+| Major      | −0.5 |
+| Minor      | −0.2 |
+| Suggestion | −0.0 (no deduction) |
+
+Start from 10.0. Apply deductions. Floor at 0.0.
 
 ---
 
 # Final Assessment
 
-| Score      | Assessment              |
-| ---------- | ----------------------- |
-| 9.0 – 10.0 | Excellent               |
-| 7.0 – 8.9  | Good                    |
-| 5.0 – 6.9  | Needs Improvement       |
-| 3.0 – 4.9  | Major Revision Required |
-| 0.0 – 2.9  | Implementation Unsound  |
+| Score Range | Assessment              |
+|-------------|-------------------------|
+| 9.0–10.0    | Excellent               |
+| 7.0–8.9     | Good                    |
+| 5.0–6.9     | Needs Improvement       |
+| 3.0–4.9     | Major Revision Required |
+| 0.0–2.9     | Implementation Unsound  |
+
+---
+
+# Required Report Structure
+
+## 1. Executive Summary
+
+```text
+# Implementation Audit Report — Astra
+
+Overall Assessment:  {assessment}
+Final Score:         {score} / 10
+Critical Findings:   {n}
+Major Findings:      {n}
+Minor Findings:      {n}
+Suggestions:         {n}
+```
+
+Followed immediately by the Documents Audited table:
+
+| Document | Layer | Purpose |
+|----------|-------|---------|
+| `src/lib.ts` | Source | Public entry point |
+| `src/common/hooks/useDataState.ts` | Source | MVVM hook |
+| `src/common/components/organisms/AppStateHandler.tsx` | Source | Conditional-render component |
+| `src/common/components/organisms/AppStateContext.ts` | Source | Rendering context |
+| `src/common/repo/ApiService.ts` | Source | HTTP client |
+| `src/common/repo/ServerResponse.ts` | Source | Response wrapper |
+| `src/common/repo/HttpStatusCode.ts` | Source | Status enum |
+| `src/common/repo/apiServiceFactory.ts` | Source | Singleton factory |
+| `src/common/state/AppState.ts` | Source | State contract |
+| `docs/raw/architecture/**` | Architecture | System structure |
+| `docs/raw/feature/**` | Feature | System behavior |
+| `docs/raw/feature-technical/**` | Feature-Technical | Implementation design |
+
+## 2. Source Inventory
+
+Complete file and export inventory.
+
+## 3. Architecture Compliance Report
+
+One section per invariant. Matrix at end.
+
+## 4. Feature Compliance Report
+
+One section per feature. Matrix at end.
+
+## 5. Technical Design Compliance Report
+
+One section per feature-technical document. Matrix at end.
+
+## 6. Drift Detection Report
+
+All drift findings with matrix.
+
+## 7. Public API Audit Report
+
+Export surface verification with matrix.
+
+## 8. Type Accuracy Report
+
+All type findings with matrix.
+
+## 9. Dependency Audit Report
+
+Dependency graph findings with matrix.
+
+## 10. Technical Debt Report
+
+Debt findings with matrix.
+
+## 11. Implementation Purity Report
+
+Purity findings.
+
+## 12. Test Integrity Report
+
+Test findings with matrix.
+
+## 13. Findings Summary
+
+All findings grouped by severity:
+
+### Critical
+
+| ID | File | Finding |
+|----|------|---------|
+
+### Major
+
+| ID | File | Finding |
+|----|------|---------|
+
+### Minor
+
+| ID | File | Finding |
+|----|------|---------|
+
+### Suggestions
+
+| ID | File | Finding |
+|----|------|---------|
+
+## 14. Scoring Breakdown
+
+| Category | Raw Score | Weight | Weighted Score |
+|----------|-----------|--------|----------------|
+
+```text
+Total Score: X.X / 10
+```
+
+## 15. Score Improvement Summary
+
+Compare against the previous report from `docs/raw/report/implementation/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
+
+```text
+Previous Report: {filename}
+Previous Score:  X.X / 10
+Current Score:   Y.Y / 10
+Change:          +N.N / −N.N / No change
+```
+
+List resolved findings from previous report. List new findings not in previous report.
+
+## 16. Recommended Fix Priority
+
+Group fixes into:
+
+```text
+P0 — Build / Install Breaking
+P1 — Silent Bugs (wrong behavior)
+P2 — API Surface / Contract
+P3 — Hygiene / Debt
+```
+
+## 17. Final Verdict
+
+```text
+{Assessment} ({Score}/10)
+```
+
+## 18. Audit Traceability
+
+| Reference | Location |
+|-----------|----------|
+| Architecture Docs | `docs/raw/architecture/**` |
+| Feature Docs | `docs/raw/feature/**` |
+| Feature-Technical Docs | `docs/raw/feature-technical/**` |
+| Source | `src/**` |
+| Audit Report | `docs/raw/report/implementation/latest/implementation-audit-{timestamp}.md` |
+| Previous Report | `docs/raw/report/implementation/archive/{previous-filename}` |
+
+---
+
+# Report Rotation
+
+Before writing the new report, rotate the previous report:
+
+```text
+mv docs/raw/report/implementation/latest/* docs/raw/report/implementation/archive/
+mkdir -p docs/raw/report/implementation/latest
+```
 
 ---
 
@@ -756,11 +883,4 @@ Systemic impact
 docs/raw/report/implementation/latest/implementation-audit-{timestamp}.md
 ```
 
-# Report Rotation
-
-Before writing the new report:
-
-```text
-mv docs/raw/report/implementation/latest/* docs/raw/report/implementation/archive/
-mkdir -p docs/raw/report/implementation/latest
-```
+Timestamp format: `YYYY-MM-DD-HHMM`

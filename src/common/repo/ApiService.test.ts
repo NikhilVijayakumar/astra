@@ -62,6 +62,23 @@ describe('ApiService', () => {
       expect(result.statusMessage).toBe('Network Error');
     });
 
+    it('should return INTERNET_ERROR (status 0) when no response (network failure)', async () => {
+      const networkError = {
+        isAxiosError: true,
+        message: 'Network Error',
+        response: undefined,
+      };
+
+      (axios as any).mockRejectedValue(networkError);
+      (axios.isAxiosError as any).mockReturnValue(true);
+
+      const result = await apiService.get('test');
+
+      expect(result.isSuccess).toBe(false);
+      expect(result.isError).toBe(true);
+      expect(result.status).toBe(HttpStatusCode.INTERNET_ERROR);
+    });
+
     it('should handle unknwon errors gracefully', async () => {
         const unknownError = new Error('Unknown error');
         (axios as any).mockRejectedValue(unknownError);

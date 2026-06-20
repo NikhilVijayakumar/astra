@@ -232,12 +232,12 @@ Forbidden:
 
 ```tsx
 // repo/UserRepo.ts
-import { UserCard } from '../components/UserCard';
-import { useTheme } from 'astra';
+import { UserCard } from '../components/UserCard';  // UI component (Prati)
+import { useTheme } from 'prati';                   // theme hook (Prati)
 ```
 
 Reason:
-Repository must not know about UI — data access is infrastructure, not presentation.
+Repository must not know about UI — data access is infrastructure, not presentation. This applies regardless of whether UI symbols come from Prati or any other source.
 
 ---
 

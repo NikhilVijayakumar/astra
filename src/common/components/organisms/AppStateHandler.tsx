@@ -1,107 +1,57 @@
-import { FC, ReactElement, ReactNode } from "react";
+import { FC, ReactElement, ReactNode, useContext } from "react";
 import { AppState, StateType } from "../../state/AppState";
 import { HttpStatusCode } from "../../repo/HttpStatusCode";
-import { LoadingState, ErrorState, EmptyState } from "prati";
+import { AppStateContext } from "./AppStateContext";
 
-/**
- * Defines the props for the AppStateHandler component.
- * @template T The type of the data managed by the AppState.
- * @template S The specific type of the AppState, extending the base AppState<T>.
- */
 export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {
-  /**
-   * The application state object that determines which UI state to render.
-   */
   appState: S;
-  /**
-   * The component to render when the appState is in a success state and not empty.
-   * It receives the entire appState object as a prop.
-   */
   SuccessComponent?: FC<{ appState: S }>;
-  /**
-   * An optional function that receives the success data and returns `true` if the state
-   * should be considered "empty". For example, for an array, this could be `(data) => data.length === 0`.
-   * If not provided, no empty check is performed.
-   */
   emptyCondition?: (data: T) => boolean;
-  /**
-   * An optional custom error message to pass to the `ErrorState` component.
-   * If not provided, `ErrorState` will use its default localized message.
-   */
   errorMessage?: string;
-  /**
-   * Optional children to act as the Success component.
-   */
   children?: ReactNode;
+  loadingComponent?: ReactNode;
+  errorComponent?: ReactNode;
+  emptyComponent?: ReactNode;
 }
 
-/**
- * `AppStateHandler` is a generic state-management component that abstracts the
- * common pattern of rendering different UI based on the current application state
- * (loading, success, error, or empty).
- *
- * It acts as a controller, inspecting the `appState` object and rendering the
- * appropriate child component (`LoadingState`, `ErrorState`, `EmptyState`, or the
- * provided `SuccessComponent`). This greatly reduces boilerplate conditional
- * rendering logic in feature components.
- *
- * @component
- * @template T The type of the data managed by the AppState.
- * @template S The specific type of the AppState, extending the base AppState<T>.
- * @param {AppStateHandlerProps<T, S>} props The props for the component.
- * @returns {React.ReactElement} The React element corresponding to the current app state.
- *
- * @example
- * // In a component that fetches a list of users:
- * const { userListState } = useUserListViewModel();
- * return (
- * <AppStateHandler
- * appState={userListState}
- * SuccessComponent={UserListComponent}
- * emptyCondition={(data) => data.length === 0}
- * errorMessage="Failed to load users."
- * />
- * );
- */
 const AppStateHandler = <T, S extends AppState<T>>({
   appState,
   SuccessComponent,
   children,
   emptyCondition,
   errorMessage,
-}: AppStateHandlerProps<T, S> & { children?: ReactNode }): ReactElement => {
+  loadingComponent,
+  errorComponent,
+  emptyComponent,
+}: AppStateHandlerProps<T, S>): ReactElement | null => {
+  const { Loading, Error: ErrorComp, Empty } = useContext(AppStateContext);
   const { state, isError, isSuccess, data, status } = appState;
 
-  // 1. Handle Loading State
   if (state === StateType.LOADING) {
-    return <LoadingState />;
+    if (loadingComponent !== undefined) return <>{loadingComponent}</>;
+    if (Loading) return <Loading />;
+    return null;
   }
 
-  // 2. Handle Error State (includes explicit check for internet connection error)
   if (isError || status === HttpStatusCode.INTERNET_ERROR) {
-    return <ErrorState message={errorMessage} />;
+    if (errorComponent !== undefined) return <>{errorComponent}</>;
+    if (ErrorComp) return <ErrorComp message={errorMessage} />;
+    return null;
   }
 
-  // 3. Handle Success State
   if (isSuccess && data !== null) {
-    // Check for an empty condition if a function is provided
     if (emptyCondition?.(data)) {
-      return <EmptyState />;
+      if (emptyComponent !== undefined) return <>{emptyComponent}</>;
+      if (Empty) return <Empty />;
+      return null;
     }
-
-    // Support children as the success view
-    if (children) {
-      return <>{children}</>;
-    }
-
-    // Support legacy/alternative SuccessComponent
-    if (SuccessComponent) {
-      return <SuccessComponent appState={appState} />;
-    }
+    if (children) return <>{children}</>;
+    if (SuccessComponent) return <SuccessComponent appState={appState} />;
   }
 
-  // 4. Fallback: Render EmptyState if no data or no success view provided
-  return <EmptyState />;
+  if (emptyComponent !== undefined) return <>{emptyComponent}</>;
+  if (Empty) return <Empty />;
+  return null;
 };
 
 export default AppStateHandler;

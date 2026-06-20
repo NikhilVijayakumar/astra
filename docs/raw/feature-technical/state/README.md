@@ -18,7 +18,7 @@ interface AppState<T> {
   state: StateType;
   isError: boolean;
   isSuccess: boolean;
-  status: HttpStatusCode;
+  status: HttpStatusCode | StateCode;
   statusMessage: string;
   data: T | null;
 }
@@ -26,7 +26,13 @@ interface AppState<T> {
 enum HttpStatusCode {
   SUCCESS = 200, CREATED = 201, BAD_REQUEST = 400,
   UNAUTHORIZED = 401, NOT_FOUND = 404,
-  INTERNAL_SERVER_ERROR = 500, INTERNET_ERROR = 0, IDLE = 1000,
+  INTERNAL_SERVER_ERROR = 500, INTERNET_ERROR = 0,
+  /** @deprecated use StateCode.IDLE instead */
+  IDLE = 1000,
+}
+
+enum StateCode {
+  IDLE = 1000,  // initial status before any HTTP activity
 }
 ```
 
@@ -80,7 +86,7 @@ Consumer calls ViewModel hook action
         setAppState({ state: COMPLETED, isError: true, data: null, ... })
     → on exception (throw/crash):
         setAppState({ state: COMPLETED, isError: true, status: 500,
-                      statusMessage: 'An unexpected error occurred.' })
+                      statusMessage: options?.unexpectedErrorMessage ?? '' })
 ```
 
 ### Response Flow
@@ -126,25 +132,27 @@ External API → ApiService (Axios wrapper) → ServerResponse<T>
 - Exception catch sets `status: HttpStatusCode.INTERNAL_SERVER_ERROR` (500)
 - Return type is `readonly [AppState<T>, execute, setAppState]` via `as const`
 - No AbortController integration — concurrent `execute` calls race
-- No unmount guard — `setAppState` after unmount produces React warning (no crash)
+- Unmount guard via `mountedRef` — `setAppState` is skipped after component unmounts
 
 ### `AppStateHandler` Detail (from `src/common/components/organisms/AppStateHandler.tsx`)
 
 - `children` takes precedence over `SuccessComponent` when both provided
 - `emptyCondition` is called only when `isSuccess && data !== null`
-- Fallback (INIT, no flags set) renders `<EmptyState />`
+- Slot props (`loadingComponent`, `errorComponent`, `emptyComponent`) override context components per-instance
+- Fallback (INIT, no flags set) renders `emptyComponent` slot or `context.Empty` or null
 - `INTERNET_ERROR` (status 0) triggers error state even if `isError` is `false`
+- Returns `null` when neither context nor slot is available for a given state
 - Generic type params `<T, S extends AppState<T>>` allow extension
 
 ## 5. Styling Implementation
 
-State management has **no direct visual output**. Visual rendering is delegated to:
+State management has **no direct visual output**. Visual rendering is delegated to consumer-provided components injected via `AppStateProvider` or slot props:
 
-- **`LoadingState`** (atom at `src/common/components/atoms/LoadingState.tsx`) — rendered on `state === LOADING`
-- **`ErrorState`** (atom at `src/common/components/atoms/ErrorState.tsx`) — rendered on `isError || INTERNET_ERROR`
-- **`EmptyState`** (atom at `src/common/components/atoms/EmptyState.tsx`) — rendered on empty data or fallback
+- **`Loading`** — rendered on `state === LOADING`; provided by consumer via `AppStateProvider` value or `loadingComponent` slot prop
+- **`Error`** — rendered on `isError || INTERNET_ERROR`; receives `message?: string` prop; provided via `AppStateProvider` or `errorComponent` slot
+- **`Empty`** — rendered on empty data or fallback; provided via `AppStateProvider` or `emptyComponent` slot
 
-These atoms follow Theme Sovereignty per `docs/raw/architecture/core/theming.md` — all styling via MUI theme paths, no hardcoded colors.
+Astra has no UI dependencies. Theming and styling are the consumer's responsibility (e.g., via prati's ThemeProvider + LoadingState/ErrorState/EmptyState).
 
 ## 6. Interaction Design
 
@@ -165,8 +173,8 @@ These atoms follow Theme Sovereignty per `docs/raw/architecture/core/theming.md`
 | Condition | Layer | Behavior |
 |---|---|---|
 | API returns error `ServerResponse` | `execute()` in `useDataState` | Sets `isError=true`, `data=null`, propagates `status` and `statusMessage` from response |
-| API call throws exception | `execute()` catch | Sets `isError=true`, `status=500`, `statusMessage='An unexpected error occurred.'` (hardcoded English) |
-| Component unmounts during request | React lifecycle | `setAppState` called on unmounted component — no guard in current implementation (React warning in dev, silently ignored in prod) |
+| API call throws exception | `execute()` catch | Sets `isError=true`, `status=500`, `statusMessage=options?.unexpectedErrorMessage ?? ''` |
+| Component unmounts during request | React lifecycle | `mountedRef` guard prevents `setAppState` after unmount — no stale update |
 | Concurrent `execute` calls | Consumer pattern | Race condition — last call wins. Consumer must debounce or use abort |
 | `execute` called with non-`ServerResponse` return | Runtime | Exception catch branch — treated as error with status 500 |
 | Missing `errorMessage` on `AppStateHandler` | Consumer omission | Passes `undefined` to ErrorState — ErrorState uses its own default message |
@@ -187,22 +195,22 @@ These atoms follow Theme Sovereignty per `docs/raw/architecture/core/theming.md`
 | **ViewModel hooks** | `hooks/use<Feature>.ts` wraps `useDataState<T>()`, calls repository methods, returns `appState` + actions to page containers. |
 | **Page containers** | `view/pages/<Feature>Page.tsx` calls ViewModel hook, passes `appState` to `AppStateHandler`. |
 | **Repository** | `repo/<Feature>Api.ts` returns `ServerResponse<T>`. `useDataState.execute()` expects `() => Promise<ServerResponse<T>>`. |
-| **AppStateHandler** | Consumes `AppState<T>` from ViewModel hook, renders atoms (LoadingState, ErrorState, EmptyState) or success content. |
-| **ErrorState atom** | Receives `message` prop from `AppStateHandler.errorMessage` or defaults. |
-| **Theming** | Atoms (LoadingState, ErrorState, EmptyState) consume MUI ThemeProvider for visual styling. |
+| **AppStateHandler** | Consumes `AppState<T>` from ViewModel hook; renders context or slot Loading/Error/Empty components or success content. |
+| **AppStateProvider** | Consumer wraps app root to wire Loading/Error/Empty components into `AppStateContext`; all `AppStateHandler` instances in the subtree use these automatically. |
+| **Theming** | Consumer-provided UI components (via `AppStateProvider`) handle their own theming — Astra has no theme dependency. |
 | **Localization** | `errorMessage` prop on `AppStateHandler` accepts translated strings. `statusMessage` from `ServerResponse` carries localized content. |
 
-### Provider Hierarchy (from `docs/raw/architecture/runtime-maps/provider-hierarchy.md`)
+### Provider Hierarchy
 
 ```
 App Root
-  └── <ThemeProvider>            ← creates ThemeContext
-        └── <LanguageProvider>   ← creates i18n context
-              └── <Router>
-                    └── <Page>
-                          ├── useTheme()
-                          ├── useLanguage() → literal['key']
-                          └── useDataState()   ← state management operates here
+  └── <ThemeProvider>            ← consumer design system (e.g. prati) — not Astra
+        └── <LanguageProvider>   ← consumer i18n — not Astra
+              └── <AppStateProvider value={{ Loading, Error, Empty }}>  ← Astra
+                    └── <Router>
+                          └── <Page>
+                                ├── useDataState()         ← Astra state management
+                                └── <AppStateHandler>      ← reads AppStateContext
 ```
 
 ## 11. Open Questions

@@ -1,7 +1,7 @@
 //src/common/repo/APITypes.ts
 import { HttpStatusCode } from './HttpStatusCode';
 
-export type ResponseSucess<T> = {
+export type ResponseSuccess<T> = {
   status: HttpStatusCode;
   statusMessage: string;
   data: T;

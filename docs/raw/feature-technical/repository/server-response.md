@@ -26,17 +26,17 @@ class ServerResponse<T> {
   isError: boolean;       // default false
   isSuccess: boolean;     // default false
   status: HttpStatusCode; // default INTERNAL_SERVER_ERROR
-  statusMessage: String;  // default ''
+  statusMessage: string;  // default ''
   data?: T;
 
-  static success<T>(success: ResponseSucess<T>): ServerResponse<T>;
+  static success<T>(success: ResponseSuccess<T>): ServerResponse<T>;
   static error<T>(error: ResponseError): ServerResponse<T>;
 }
 ```
 
 ```typescript
-// Input types (APITypes.ts)
-type ResponseSucess<T> = {
+// Internal input types (APITypes.ts — not part of public API)
+type ResponseSuccess<T> = {
   status: HttpStatusCode;
   statusMessage: string;
   data: T;
@@ -66,8 +66,8 @@ type ResponseError = {
 ## Services table
 | Service | File Path | Purpose | Dependencies |
 |---------|-----------|---------|--------------|
-| `ServerResponse.success()` | `src/common/repo/ServerResponse.ts:33` | Creates success response with typed data | `ResponseSucess<T>` from `APITypes.ts` |
-| `ServerResponse.error()` | `src/common/repo/ServerResponse.ts:37` | Creates error response with status and message | `ResponseError` from `APITypes.ts` |
+| `ServerResponse.success()` | `src/common/repo/ServerResponse.ts:33` | Creates success response with typed data | `ResponseSuccess<T>` from `APITypes.ts` (internal) |
+| `ServerResponse.error()` | `src/common/repo/ServerResponse.ts:37` | Creates error response with status and message | `ResponseError` from `APITypes.ts` (internal) |
 
 ## State Model table
 | State | Condition | `isError` | `isSuccess` | `data` |
@@ -125,7 +125,7 @@ Page component reads AppState for conditional rendering
 - **Stateless**: `ServerResponse` is a passive data carrier — compliant with `stateless-ui.md`
 
 ## Risks
-- `statusMessage` typed as `String` (object wrapper) instead of `string` (primitive) — inconsistent with `ResponseSucess.statusMessage: string` and may cause unexpected comparison behavior
+- Internal types `ResponseSuccess<T>` and `ResponseError` (in `APITypes.ts`) are not exported — consumers use factory methods only
 - Private constructor pattern prevents extension via subclassing — intentional, but limits future polymorphic response types
 - `isSuccess` and `isError` are independent booleans (not a discriminated union) — both could theoretically be set to the same value, though factory methods prevent this
 
@@ -141,10 +141,10 @@ Page component reads AppState for conditional rendering
 
 | Module | File Path | Exports | Imports From |
 |--------|-----------|---------|--------------|
-| `ServerResponse` | `src/common/repo/ServerResponse.ts` | `ServerResponse` (class) | `./APITypes` (`ResponseSucess`, `ResponseError`), `./HttpStatusCode` (`HttpStatusCode`) |
-| `APITypes` | `src/common/repo/APITypes.ts` | `ResponseSucess<T>`, `ResponseError` | `./HttpStatusCode` (`HttpStatusCode`) |
+| `ServerResponse` | `src/common/repo/ServerResponse.ts` | `ServerResponse` (class) | `./APITypes` (internal — `ResponseSuccess`, `ResponseError`), `./HttpStatusCode` |
+| `APITypes` | `src/common/repo/APITypes.ts` | `ResponseSuccess<T>`, `ResponseError` (internal — not re-exported via barrel) | `./HttpStatusCode` |
 | `HttpStatusCode` | `src/common/repo/HttpStatusCode.ts` | `HttpStatusCode`, `getStatusMessage` | none |
-| `index` (repo) | `src/common/repo/index.ts` | Re-exports all repo modules | `./APITypes`, `./ApiService`, `./apiServiceFactory`, `./HttpStatusCode`, `./ServerResponse` |
+| `index` (repo) | `src/common/repo/index.ts` | `ApiService`, `getApiService`, `HttpStatusCode`, `getStatusMessage`, `ServerResponse` | `./ApiService`, `./apiServiceFactory`, `./HttpStatusCode`, `./ServerResponse` |
 | `index` (common) | `src/common/index.ts` | Re-exports common modules | `./repo` |
 
 ---

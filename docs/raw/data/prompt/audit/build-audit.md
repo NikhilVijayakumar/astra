@@ -1,4 +1,6 @@
-# Build Integrity Audit Prompt
+# Build Integrity Audit — Prompt Engine
+
+## Purpose
 
 You are acting as:
 
@@ -6,9 +8,7 @@ You are acting as:
 - CI/CD Pipeline Reviewer
 - Bundle Integrity Inspector
 
-Your task is to audit Astra's build system for integrity and correctness.
-
-**Astra** is a core architecture and pattern library that builds as a dual-format package (ESM + UMD). It exports `useDataState`, `AppState`, `AppStateHandler`, `ApiService`, `ServerResponse`, `HttpStatusCode`, `StateType`. Peer dependencies (React, MUI if present) must not be bundled.
+Your responsibility is to audit Astra's build system for integrity and correctness against the documented Deterministic Build invariant.
 
 Focused audit dimension: **Deterministic Build**
 
@@ -16,39 +16,93 @@ This is a focused audit on the build system dimension of library governance.
 
 ---
 
-## Mental Model
+# Understanding Astra
 
-| Build Concern | Requirement | Detection |
-|---------------|-------------|-----------|
-| Configuration | Explicit, environment-independent | `vite.config.ts`, `tsconfig.json` |
-| Output | Deterministic, bit-identical on re-build | Two consecutive builds |
-| Dependencies | Pinned, lockfile-verified | Lockfile committed, no wildcards |
-| Environment | Documented env vars with defaults | `.env.example`, fallbacks |
-| Scripts | No source mutation, no network deps | `package.json` scripts |
-| Type generation | Reproducible type definitions | `tsc` / `vite` type plugin |
-| Bundle format | Valid ESM + UMD output | Package exports, format testing |
+Astra is a **core architecture and pattern library** for React and Electron applications.
+
+It exports:
+
+```text
+useDataState<T>          ← async state hook (ViewModel primitive)
+AppState<T>, StateType   ← state contract types
+StateCode                ← synthetic status codes (IDLE = 1000)
+AppStateHandler          ← conditional-rendering component
+AppStateProvider         ← context provider for wiring in UI components (Loading/Error/Empty)
+AppStateContext           ← React context object for AppStateProvider
+AppStateComponents       ← type for AppStateProvider value
+AppStateHandlerProps     ← component prop types
+ApiService               ← Axios-based HTTP client (repository layer)
+ServerResponse<T>        ← typed response wrapper
+HttpStatusCode           ← HTTP status enum
+getApiService            ← singleton factory for ApiService
+getStatusMessage         ← status code → string resolver
+```
+
+Astra source structure:
+
+```text
+src/
+  lib.ts                             ← public entry point (barrel)
+  common/
+    hooks/                           ← useDataState
+    components/organisms/            ← AppStateHandler, AppStateContext
+    repo/                            ← ApiService, ServerResponse, HttpStatusCode, getApiService
+    state/                           ← StateType, StateCode, AppState
+```
+
+Astra is **design-system independent**. It does not own: loading/error/empty UI components, theming, localization, atomic design hierarchy. Those are external design system concerns. `AppStateProvider` provides the wiring slot for any design system without coupling to one.
+
+Peer dependencies are React only. No MUI or other design system packages exist in Astra's dependency tree.
 
 ---
 
-## Inputs
+# Scope
 
-You will receive:
+Audit only:
 
-- Build configuration: `vite.config.ts`
-- TypeScript configuration: `tsconfig.json`
-- Package manifest: `package.json` (scripts, exports, build config)
-- Bundle output: `dist/` directory (if built)
-- CI configuration (if available)
-- Environment files: `.env`, `.env.example`
-- Build scripts referenced in `package.json` scripts
-- Invariant document:
-  - `docs/raw/architecture/invariants/deterministic-build.md`
+```text
+vite.config.ts
+tsconfig.json
+package.json
+dist/           ← if built
+.env, .env.example
+```
+
+Reference invariant: `docs/raw/architecture/invariants/deterministic-build.md`
 
 The invariant document overrides all assumptions.
 
 ---
 
-## Audit Goal
+# Explicit Non-Goals
+
+The Build Audit MUST NOT:
+
+- inspect component implementation details
+- evaluate feature completeness
+- evaluate test coverage
+- evaluate runtime behavior
+- evaluate architectural layering
+
+unless they directly intersect with build configuration.
+
+---
+
+# Mental Model
+
+| Build Concern    | Requirement                                 | Detection                          |
+|------------------|---------------------------------------------|------------------------------------|
+| Configuration    | Explicit, environment-independent           | `vite.config.ts`, `tsconfig.json`  |
+| Output           | Deterministic, bit-identical on re-build    | Two consecutive builds             |
+| Dependencies     | Pinned, lockfile-verified                   | Lockfile committed, no wildcards   |
+| Environment      | Documented env vars with defaults           | `.env.example`, fallbacks          |
+| Scripts          | No source mutation, no network deps         | `package.json` scripts             |
+| Type generation  | Reproducible type definitions               | `tsc` / `vite` type plugin         |
+| Bundle format    | Valid ESM + UMD output                      | Package exports, format testing    |
+
+---
+
+# Audit Goal
 
 Determine whether the build system behaves as:
 
@@ -69,33 +123,18 @@ OR whether it has drifted into:
 
 ---
 
-## Audit Scope
-
-Focus ONLY on build integrity and reproducibility.
-
-Ignore:
-- component implementation details
-- visual design and styling
-- feature completeness
-- test coverage
-- runtime behavior
-
-unless they intersect with build configuration.
-
----
-
-## Required Audit Dimensions
+# Required Audit Dimensions
 
 Analyze ALL of the following:
 
 ---
 
-### 1. Vite Correctness
+## 1. Vite Correctness
 
 Detect:
 - missing or incorrect `build.outDir` configuration
 - incorrect `build.lib` configuration for library mode
-- missing `rollupOptions.external` for peer dependencies (React, MUI in bundle)
+- missing `rollupOptions.external` for peer dependencies (React in bundle)
 - incorrect or missing `build.sourcemap` configuration
 - missing or incorrect `build.cssCodeSplit` for library mode
 - incorrect `resolve.alias` configuration that works in dev but not build
@@ -108,20 +147,20 @@ Allowed:
 - [ ] All necessary Vite plugins installed and configured
 
 Forbidden:
-- [ ] No React/MUI bundled in library output
+- [ ] No React bundled in library output
 - [ ] No missing required plugins
 - [ ] No incorrect path resolution
 - [ ] No sourcemap misconfiguration
 
 Severity mapping:
-- P0: React or MUI bundled in library output (breaks consumer)
+- P0: React bundled in library output (breaks consumer)
 - P1: missing dts plugin (no type declarations), incorrect sourcemap config
 - P2: suboptimal but working build config
 - P3: build configuration correct and complete
 
 ---
 
-### 2. Bundle Determinism
+## 2. Bundle Determinism
 
 Detect:
 - `new Date()` or `Date.now()` in build configuration files
@@ -151,7 +190,7 @@ Severity mapping:
 
 ---
 
-### 3. Type Generation
+## 3. Type Generation
 
 Detect:
 - missing `dist/*.d.ts` files in build output
@@ -182,7 +221,7 @@ Severity mapping:
 
 ---
 
-### 4. ESM/UMD Validity
+## 4. ESM/UMD Validity
 
 Detect:
 - missing or incorrect `"type": "module"` in package.json
@@ -215,7 +254,7 @@ Severity mapping:
 
 ---
 
-## Finding Format
+# Finding Format
 
 Each finding MUST include:
 
@@ -253,43 +292,212 @@ deterministic-build.md §{Section} — {rule}
 
 ---
 
-## Severity Classification
+# Severity Classification
 
-| Severity | Meaning | Action |
-|----------|---------|--------|
-| P0 | Critical — broken build or resolution | Must fix before release |
-| P1 | High — suboptimal build config | Must fix next release |
-| P2 | Transitional — documented build debt | Allowed temporarily with plan |
-| P3 | Compliant — build integrity intact | No action required |
-
----
-
-## Output Specification
-
-The audit report MUST include:
-
-1. **Audit Metadata** — timestamp, commit, suite, build configuration files reviewed
-2. **Audited Files** — numbered list of configuration files reviewed
-3. **Summary** — count per severity (P0-P3)
-4. **Overall Score** — per-dimension score out of 100
-5. **Findings** — detailed per-finding using the Finding Format above
-6. **Cross-Suite Overlap** — findings shared with library-governance audit (Deterministic Build dimension); deduplication guidance for fix plan
-7. **Transitional Violations** — known documented tech debt
-8. **Audit Traceability** — reference to the audit suite and report location
-
-The report MUST be written to:
-
-```
-docs/raw/report/xbuild/latest/xbuild-{module}-{timestamp}.md
-```
+| Severity | Meaning                                  | Action                              |
+|----------|------------------------------------------|-------------------------------------|
+| P0       | Critical — broken build or resolution    | Must fix before release             |
+| P1       | High — suboptimal build config           | Must fix next release               |
+| P2       | Transitional — documented build debt     | Allowed temporarily with plan       |
+| P3       | Compliant — build integrity intact       | No action required                  |
 
 ---
 
-## Invariant Document Authority
+# Scoring Model
+
+Score each dimension 0–10. Apply weights:
+
+| Dimension            | Weight |
+|----------------------|--------|
+| Vite Correctness     | 30%    |
+| Bundle Determinism   | 30%    |
+| Type Generation      | 25%    |
+| ESM/UMD Validity     | 15%    |
+
+Formula:
+
+```text
+Build Score =
+(
+  Vite Correctness × 0.30
+  + Bundle Determinism × 0.30
+  + Type Generation × 0.25
+  + ESM/UMD Validity × 0.15
+)
+```
+
+Start each dimension at 10. Deduct per finding in that dimension:
+
+| Severity | Deduction per Finding |
+|----------|-----------------------|
+| P0       | −3.0                  |
+| P1       | −1.5                  |
+| P2       | −0.5                  |
+| P3       | −0.0 (compliant)      |
+
+Floor per dimension: 0.0.
+
+---
+
+# Final Assessment
+
+| Score Range | Assessment              |
+|-------------|-------------------------|
+| 9.0–10.0    | Excellent               |
+| 7.0–8.9     | Good                    |
+| 5.0–6.9     | Needs Improvement       |
+| 3.0–4.9     | Major Revision Required |
+| 0.0–2.9     | Build Unsound           |
+
+---
+
+# Required Report Structure
+
+## 1. Executive Summary
+
+```text
+# Build Audit Report — Astra
+
+Overall Assessment:  {assessment}
+Final Score:         {score} / 10
+P0 Findings:         {n}
+P1 Findings:         {n}
+P2 Findings:         {n}
+P3 (Compliant):      {n}
+```
+
+Followed immediately by the Files Audited table:
+
+| File | Purpose |
+|------|---------|
+| `vite.config.ts` | Build configuration |
+| `tsconfig.json` | TypeScript configuration |
+| `package.json` | Package manifest, exports, scripts |
+| `dist/` | Build output (if present) |
+| `docs/raw/architecture/invariants/deterministic-build.md` | Invariant authority |
+
+## 2. Build Configuration Inventory
+
+Summary of active build configuration.
+
+## 3. Vite Correctness Report
+
+Findings per check. Compliance table at end.
+
+## 4. Bundle Determinism Report
+
+Findings per check. Compliance table at end.
+
+## 5. Type Generation Report
+
+Findings per check. Compliance table at end.
+
+## 6. ESM/UMD Validity Report
+
+Findings per check. Compliance table at end.
+
+## 7. Findings Summary
+
+All findings grouped by severity:
+
+### P0 — Critical
+
+| ID | File | Finding |
+|----|------|---------|
+
+### P1 — High
+
+| ID | File | Finding |
+|----|------|---------|
+
+### P2 — Transitional
+
+| ID | File | Finding |
+|----|------|---------|
+
+## 8. Transitional Violations
+
+Known documented tech debt accepted for this release with rationale.
+
+## 9. Scoring Breakdown
+
+| Dimension            | Raw Score | Weight | Weighted Score |
+|----------------------|-----------|--------|----------------|
+| Vite Correctness     |           | 30%    |                |
+| Bundle Determinism   |           | 30%    |                |
+| Type Generation      |           | 25%    |                |
+| ESM/UMD Validity     |           | 15%    |                |
+
+```text
+Total Score: X.X / 10
+```
+
+## 10. Score Improvement Summary
+
+Compare against the previous report from `docs/raw/report/build/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
+
+```text
+Previous Report: {filename}
+Previous Score:  X.X / 10
+Current Score:   Y.Y / 10
+Change:          +N.N / −N.N / No change
+```
+
+| Dimension            | Previous | Current | Change |
+|----------------------|----------|---------|--------|
+| Vite Correctness     | X        | Y       | +N     |
+| Bundle Determinism   | X        | Y       | +N     |
+| Type Generation      | X        | Y       | +N     |
+| ESM/UMD Validity     | X        | Y       | +N     |
+
+List resolved findings from previous report. List new findings not in previous report.
+
+## 11. Final Verdict
+
+```text
+{Assessment} ({Score}/10)
+```
+
+Provide a concise build health summary.
+
+## 12. Audit Traceability
+
+| Reference          | Location                                                      |
+|--------------------|---------------------------------------------------------------|
+| Invariant Doc      | `docs/raw/architecture/invariants/deterministic-build.md`    |
+| Source             | `src/**`                                                      |
+| Build Config       | `vite.config.ts`, `tsconfig.json`, `package.json`            |
+| Audit Report       | `docs/raw/report/build/latest/build-audit-{timestamp}.md`    |
+| Previous Report    | `docs/raw/report/build/archive/{previous-filename}`           |
+
+---
+
+# Report Rotation
+
+Before writing the new report, rotate the previous report:
+
+```text
+mv docs/raw/report/build/latest/* docs/raw/report/build/archive/
+mkdir -p docs/raw/report/build/latest
+```
+
+---
+
+# Output Location
+
+```text
+docs/raw/report/build/latest/build-audit-{timestamp}.md
+```
+
+Timestamp format: `YYYY-MM-DD-HHMM`
+
+---
+
+# Invariant Document Authority
 
 When checking compliance:
 
 - The invariant document is the source of truth
-- For each finding, reference the specific Allowed or Forbidden pattern section from deterministic-build.md
+- For each finding, reference the specific Allowed or Forbidden pattern section from `deterministic-build.md`
 - Do NOT override invariant rules based on perceived convenience
-- Findings overlapping with library-governance audit must be flagged for deduplication in the fix plan
+- Findings that also affect library governance must be flagged for cross-suite deduplication in the fix plan

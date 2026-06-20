@@ -8,8 +8,9 @@ Core modules must not depend on platform-specific APIs. Separate platform concer
 
 | Layer | Allowed APIs | Example |
 |-------|-------------|---------|
-| Core library | React DOM, MUI abstractions | `ThemeProvider`, `useDataState` |
+| Core library | React DOM, MUI abstractions | `useDataState`, `AppStateHandler`, `ApiService` |
 | Platform adapters | Browser, Node, Electron | `ApiService` (browser HTTP), IPC adapter (Electron) |
+| Prati (separate package) | Theming, localization, UI | `ThemeProvider`, `LanguageProvider`, UI components |
 
 ## Browser-Only Features
 
@@ -53,19 +54,7 @@ import path from 'path';
 
 ## Node.js-Only Features
 
-Node.js APIs (`fs`, `path`, `process`) must not be imported in modules exported from the public entry point. If a feature requires Node.js, it must be:
-
-1. Behind a lazy-loaded import
-2. Not re-exported from `lib.ts`
-3. Documented as Node.js-only
-
-```typescript
-// ✅ Acceptable: lazy-loaded, not in public barrel
-const renderTemplate = async (template: string, data: unknown) => {
-  const { compile } = await import('handlebars');
-  return compile(template)(data);
-};
-```
+Node.js APIs (`fs`, `path`, `process`) are forbidden in all Astra core modules. See [Platform Neutrality Invariant](../invariants/platform-neutrality.md) for the authoritative rule. There are no exceptions for lazy-loaded Node.js imports — any feature requiring Node.js APIs must be implemented in consumer-managed code, not in the Astra library.
 
 ## CSS Platform Guards
 

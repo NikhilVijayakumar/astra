@@ -47,23 +47,15 @@ export default defineConfig({
 
 ## Provider Setup
 
-Wrap your renderer root with Astra's providers exactly as in a browser app. Provider order is identical — `ThemeProvider` outermost, then `LanguageProvider`. See [Provider Hierarchy](../runtime-maps/provider-hierarchy.md) for the nesting rules.
+Astra provides `AppStateProvider` to wire in your design system's loading/error/empty components once at app root. `ThemeProvider`, `LanguageProvider`, and UI components come from your design system (e.g. Prati), not from Astra.
 
 ```tsx
-// src/App.tsx
-import { ThemeProvider, LanguageProvider } from "astra";
-import { createTheme } from "@mui/material";
+// src/App.tsx — wire Astra + design system at renderer root
+import { AppStateProvider } from "astra";
+import { ThemeProvider, LanguageProvider, LoadingState, ErrorState, EmptyState } from "prati";
 import { MainLayout } from "./layout/MainLayout";
 import enTranslations from "./localization/en.json";
 import esTranslations from "./localization/es.json";
-
-const lightTheme = createTheme({
-  palette: { mode: "light", primary: { main: brandColors.primary } },
-});
-
-const darkTheme = createTheme({
-  palette: { mode: "dark", primary: { main: brandColors.primaryDark } },
-});
 
 function App() {
   return (
@@ -76,7 +68,13 @@ function App() {
         ]}
         defaultLanguage="en"
       >
-        <MainLayout />
+        <AppStateProvider value={{
+          Loading: LoadingState,
+          Error: ({ message }) => <ErrorState message={message} />,
+          Empty: EmptyState,
+        }}>
+          <MainLayout />
+        </AppStateProvider>
       </LanguageProvider>
     </ThemeProvider>
   );
@@ -137,11 +135,11 @@ export const useResources = () => {
 
 ## Localization Compliance
 
-All user-facing strings must use `useLanguage` and `literal['key']`. This applies to every component in the renderer, including titles, buttons, and window chrome text.
+All user-facing strings should come from your app's localization system. If using Prati, use `useLanguage` (from `prati`, not `astra`). This applies to every component in the renderer, including titles, buttons, and window chrome text.
 
 ```tsx
 // src/features/shell/view/components/TitleBar.tsx
-import { useLanguage } from "astra";
+import { useLanguage } from "prati";
 
 export function TitleBar() {
   const { literal } = useLanguage();
@@ -241,7 +239,7 @@ my-electron-app/
 2. **Use Preload Scripts** — Expose only necessary APIs via the context bridge
 3. **Return `ServerResponse<T>` from IPC** — Ensures `useDataState` processes results correctly
 4. **Never import Electron in renderer components** — Use `window.electronAPI` only
-5. **Localize all strings** — Including window controls, tooltips, and menu labels
+5. **Localize all strings** — Use your app's localization system for window controls, tooltips, and labels; if using Prati, use `useLanguage` from `prati`
 
 ## See Also
 
@@ -249,5 +247,5 @@ my-electron-app/
 - [React Integration Guide](react.md) — React-specific patterns
 - [Platform Neutrality Invariant](../invariants/platform-neutrality.md) — Core/platform isolation rules
 - [Repository Pattern](../core/repository.md) — Data access patterns
-- [Localization](../core/localization.md) — Translation key patterns
+- Prati Documentation — ThemeProvider, LanguageProvider, localization, UI components
 - [Electron documentation](https://www.electronjs.org/docs) — Main process, IPC handlers, menus

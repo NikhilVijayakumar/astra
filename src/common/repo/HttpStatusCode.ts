@@ -33,6 +33,6 @@ export function getStatusMessage(
     case HttpStatusCode.IDLE:
       return literal['idle_message'];
     default:
-      return literal['unknown_message'];
+      return '';
   }
 }

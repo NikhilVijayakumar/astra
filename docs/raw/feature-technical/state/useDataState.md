@@ -44,11 +44,13 @@ export function useDataState<T>(
 // src/common/state/AppState.ts
 export enum StateType { INIT = 0, LOADING = 1, COMPLETED = 2 }
 
+export enum StateCode { IDLE = 1000 }  // initial status — not an HTTP code
+
 export interface AppState<T> {
   state: StateType;
   isError: boolean;
   isSuccess: boolean;
-  status: HttpStatusCode;
+  status: HttpStatusCode | StateCode;  // IDLE until first execute()
   statusMessage: string;
   data: T | null;
 }
@@ -101,10 +103,11 @@ export interface AppState<T> {
 
 ## Invariant Rules
 - `customInitialState` merges with defaults via spread: `{ ...getInitialState(), ...customInitialState }`
+- Initial `status` is `StateCode.IDLE` (1000) — not an HTTP code; changes to `HttpStatusCode` after first `execute()`
 - `execute` is async, always returns `Promise<void>`
 - LOADING state preserves `prev.data` — allows stale-while-reloading UX
-- Exception catch sets `status: HttpStatusCode.INTERNAL_SERVER_ERROR` (value 500)
-- No unmount guard — `setAppState` after unmount produces React warning in development
+- Exception catch sets `status: HttpStatusCode.INTERNAL_SERVER_ERROR` (500), `statusMessage: options?.unexpectedErrorMessage ?? ''`
+- Unmount guard via `mountedRef` — `if (!mountedRef.current) return` prevents stale state updates after unmount
 - Return type is `readonly [AppState<T>, execute, setAppState]` via `as const`
 
 ---
@@ -113,7 +116,7 @@ export interface AppState<T> {
 | Rule | Trigger | Failure Behavior | Recovery Behavior |
 |------|---------|-----------------|-------------------|
 | `apiCall` returns non-ServerResponse | Runtime | Exception catch branch activated | Status=500, generic error message |
-| Component unmounts mid-request | React lifecycle | `setAppState` called on unmounted component — **no guard** in current implementation | React warning in dev; no UI impact (state discarded) |
+| Component unmounts mid-request | React lifecycle | `mountedRef.current` check in `execute` — state update is skipped after unmount | No warning, no stale update |
 | `customInitialState` has type mismatch | TypeScript | Compilation error (partial of AppState<T>) | Fix type |
 | Rapid consecutive `execute` calls | Runtime | Each call sets LOADING — intermediate success states overwritten | Consumer must debounce or use abort |
 
@@ -123,7 +126,7 @@ export interface AppState<T> {
 | Error Type | Cause | System Response | User Response |
 |------------|-------|-----------------|---------------|
 | API returns error ServerResponse | Backend error | `isError=true, status=errorStatusCode, data=null` | Consumer checks `isError` and renders ErrorState |
-| API call throws exception | Network failure, crash | `isError=true, status=500, statusMessage=options?.unexpectedErrorMessage ?? ''` | Consumer passes `literal['common.errors.unexpected']` as `options.unexpectedErrorMessage` |
+| API call throws exception | Network failure, crash | `isError=true, status=500, statusMessage=options?.unexpectedErrorMessage ?? ''`; mountedRef guard prevents update after unmount | Consumer passes `literal['common.errors.unexpected']` as `options.unexpectedErrorMessage` |
 | Missing `data` in success response | Backend returns empty body | `data=null` though `isSuccess=true` | Consumer must handle `data !== null` check |
 | `customInitialState` overrides `state` | Consumer sets LOADING as initial | Hook starts in LOADING | Valid use case (e.g. rehydrating) |
 
@@ -131,7 +134,7 @@ export interface AppState<T> {
 
 # Non-Functional Requirements
 - **Performance**: O(1) state updates. No memoization. `execute` creates a new closure on each call.
-- **Abort/cleanup**: No AbortController integration. No unmount guard for `setState` after unmount — potential React warning (harmless in production).
+- **Abort/cleanup**: No AbortController integration. Unmount guard via `mountedRef` prevents stale state updates after unmount.
 - **Type safety**: Fully generic `<T>`. TypeScript enforces `ServerResponse<T>` return from `apiCall`.
 - **Testability**: 5 tests cover default init, custom init, success flow, error flow, exception flow, loading transition.
 - **Bundle**: ~55 lines, no external dependencies beyond React and internal types.
@@ -146,8 +149,7 @@ export interface AppState<T> {
 - Partial initialization via `customInitialState`
 
 ## Risks
-- **No unmount safety**: `execute` resolves after unmount → `setAppState` on unmounted component. Should use `useRef` mount guard.
-- No unmount guard — `setAppState` called after component unmount produces React warning. Future: integrate `AbortController` or `useRef` mounted flag.
+- **No AbortController**: `execute` has no cancellation mechanism — concurrent calls race (last one wins); network request may complete after guard check
 - **No request deduplication**: Concurrent `execute` calls race — last one wins regardless of order.
 - **LOADING preserves prev.data**: Intended for stale-while-reloading but no explicit documentation warning consumers about UI flash.
 
@@ -165,7 +167,7 @@ export interface AppState<T> {
 | useDataState | `src/common/hooks/useDataState.ts` | `useDataState` | `react`, `src/common/state/AppState`, `src/common/repo/ServerResponse`, `src/common/repo/HttpStatusCode` |
 | hooks barrel | `src/common/hooks/index.ts` | `useDataState` | re-exports from `useDataState` |
 | AppState | `src/common/state/AppState.ts` | `AppState<T>`, `StateType` | `src/common/repo/HttpStatusCode` |
-| AppState barrel | `src/common/state/index.ts` | `AppState`, `StateType` | re-exports from `AppState` |
+| AppState barrel | `src/common/state/index.ts` | `AppState`, `StateType`, `StateCode` | re-exports from `AppState` |
 
 ---
 

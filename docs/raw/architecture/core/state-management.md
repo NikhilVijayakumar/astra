@@ -9,19 +9,18 @@ Astra provides a **centralized state management** system based on MVVM patterns.
 enum StateType {
   INIT = 0,        // Initial state
   LOADING = 1,     // Loading in progress
-  COMPLETED = 2,   // Completed successfully
+  COMPLETED = 2,   // Terminal state — check isError for success vs failure
 }
 ```
 
 ## State Transitions
 
 ```
-[INIT] ────────→ [LOADING] ────────→ [COMPLETED]
-   ↑                ↓                    ↓
-   ↑                ↓                isError = true
-   ↑                ↓                isError = false
-   ←────────────────                   [ERROR]
+[INIT] ────────→ [LOADING] ────────→ [COMPLETED / isError=false]  ← success
+                                  └─→ [COMPLETED / isError=true]   ← error
 ```
+
+There is no separate `ERROR` enum value. Error is represented by `state === StateType.COMPLETED && isError === true`. Always check `appState.isError` to distinguish success from failure after the async operation completes.
 
 ## AppState Interface
 
@@ -100,11 +99,10 @@ enum HttpStatusCode {
 - **Always use useDataState** for async API calls
 - **Use useState** only for UI state (selections, dialogs)
 - **Never store sensitive data** in volatile state
-- **Astra is stateless** — persistence is the consumer's responsibility (exception: ThemeProvider persists darkMode preference via localStorage as a UX convenience)
+- **Astra is stateless** — persistence is the consumer's responsibility
 
 ## Related
 
 - [MVVM Pattern](mvvm-pattern.md)
-- [Theming](theming.md)
 - [Repository](repository.md)
-- [Localization](localization.md)
+- Prati Documentation — ThemeProvider, LanguageProvider, theming, localization

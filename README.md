@@ -1,29 +1,26 @@
 # Astra
 
-A robust **React + Electron** library providing **MVVM architecture**, **state management**, **localization**, a **type-safe API layer**, and **Handlebars template rendering** as a boilerplate foundation for scalable web and desktop applications.
+Core architecture and pattern library for React and Electron applications. Provides **MVVM**, **async state management**, and a **type-safe API layer**.
 
-UI components and the design system are provided by [Prati](https://github.com/NikhilVijayakumar/prati) — Astra depends on Prati and re-exports everything from it, so a single `import { X } from "astra"` gives you the full stack.
+Eliminates the boilerplate of managing async loading, error, and empty states so features can focus on business logic.
 
 > **For full documentation and AI context, see [docs/index.md](docs/index.md)** — the LLM-optimized knowledge map with module mapping, dependency stack, and file manifest.
 
 ## Features
 
-- **MVVM Architecture**: `useDataState` hook manages data fetching and state transitions (`INIT → LOADING → COMPLETED`).
-- **State Management**: Structured `AppState<T>` with `isError`, `isSuccess`, `status`, `statusMessage`, `data` — **stateless**, persistence delegated to consumer.
-- **AppStateHandler**: UI state router that renders `LoadingState` / `ErrorState` / `EmptyState` / success view based on current `AppState`.
-- **Localization (i18n)**: `LanguageProvider` injects translations; `useLanguage` and `LanguageSelector` are provided by Prati.
-- **API Repository**: Type-safe Axios wrapper (`ApiService`) with `ServerResponse<T>`, `HttpStatusCode`, and `getStatusMessage`.
-- **Template Renderer**: Handlebars-based `createTemplateRenderer` / `templateRenderer` for server-side or Node rendering.
-- **Electron Support**: First-class integration with Electron 28+ via context bridge pattern.
-- **UI Components via Prati**: 47 components (Atoms → Templates), theming with MUI 7, and design tokens — all re-exported from Prati.
-- **Type Safety**: Fully written in TypeScript.
+- **MVVM Architecture**: `useDataState` hook manages async data with clean Repository → ViewModel → View separation; ViewModels are hooks, Views use `AppStateHandler`, repositories use `ApiService`
+- **State Management**: `AppState` with `INIT → LOADING → COMPLETED` lifecycle; `isError`, `isSuccess`, `status`, `statusMessage`, `data` — stateless, persistence delegated to consumer; concurrent `execute()` calls race (last one wins)
+- **AppStateHandler**: UI state router — fixed rendering priority: LOADING → error (`isError` or `status === 0`) → success/empty → INIT fallback; no manual branching required
+- **API Repository**: `getApiService` singleton wrapping Axios; all errors normalized to `ServerResponse` — axios HTTP errors (actual status), network failures (`status = 0`), unexpected exceptions (`status = 500`); never throws
+- **Electron Support**: First-class IPC integration — `useDataState` works with any async data source, including `window.electronAPI`
 
 ### What Astra Is Not
 
-- **Not a UI framework** — components come from Prati; Astra is the architecture layer
+- **Not a UI framework** — bring your own components; Astra provides only `AppStateHandler` as a conditional-render utility
+- **Not a localization library** — string management is the consumer's responsibility
 - **Not a state persistence library** — stateless; persistence (localStorage, SQLite, IndexedDB) is the consumer's responsibility
-- **Not a design system** — design tokens, brand guidelines, and component visual rules live in Prati
-- **Not a backend** — purely client-side; consumes APIs but does not provide server-side functionality
+- **Not a design system** — theming and brand guidelines are external concerns
+- **Not a backend** — purely client-side; consumes APIs but does not implement server-side functionality
 
 ## Installation
 
@@ -49,7 +46,7 @@ Local development:
 }
 ```
 
-> `astra` is open-source (`"private": false`) but currently GitHub-hosted. Astra automatically pulls Prati as a dependency — you do not need to install Prati separately unless you want to import from it directly.
+> `astra` is open-source (`"private": false`) but currently GitHub-hosted.
 
 ## Quick Start
 
@@ -59,80 +56,119 @@ Local development:
 npm install git+https://github.com/NikhilVijayakumar/astra.git
 ```
 
-### 2. Wrap Providers
+### 2. Wire UI Components (once at app root)
+
+Astra provides no built-in loading/error/empty UI — bring your own. Configure once via `AppStateProvider`; all `AppStateHandler` instances in the tree use it automatically.
 
 ```tsx
-import { ThemeProvider, LanguageProvider, lightTheme, darkTheme } from "astra";
-
-const translations = {
-  en: { hello: "Hello World" },
-};
+import { AppStateProvider } from "astra";
+// Use any design system — prati, shadcn, MUI, your own
+import { LoadingState, ErrorState, EmptyState } from "prati";
 
 function App() {
   return (
-    <ThemeProvider lightTheme={lightTheme} darkTheme={darkTheme}>
-      <LanguageProvider
-        translations={translations}
-        availableLanguages={[{ code: "en", label: "English" }]}
-        defaultLanguage="en"
-      >
-        <YourApp />
-      </LanguageProvider>
-    </ThemeProvider>
+    <AppStateProvider value={{
+      Loading: LoadingState,
+      Error: ({ message }) => <ErrorState message={message} />,
+      Empty: EmptyState,
+    }}>
+      <Router />
+    </AppStateProvider>
   );
 }
+```
+
+Or pass components per-instance via slot props (overrides context):
+
+```tsx
+<AppStateHandler
+  appState={state}
+  loadingComponent={<Spinner />}
+  errorComponent={<ErrorBanner message="Failed to load." />}
+  emptyComponent={<EmptyList />}
+>
+  {/* success content */}
+</AppStateHandler>
 ```
 
 ### 3. Fetch Data with MVVM
 
 ```tsx
-import { useDataState, AppStateHandler, ApiService } from "astra";
-import { DataTable } from "astra"; // re-exported from prati
+import { getApiService, useDataState, AppStateHandler, ServerResponse } from "astra";
 import { useEffect } from "react";
 
-const api = new ApiService("https://api.example.com", {
+// Repository — one ApiService instance per base URL
+const api = getApiService("https://api.example.com", {
   internal_server_error: "Something went wrong.",
 });
 
 const UserRepo = {
-  getUsers: () => api.get<User[]>("users"),
+  getUsers: (): Promise<ServerResponse<User[]>> => api.get("users"),
 };
 
-function UserList() {
+// ViewModel hook
+function useUserViewModel() {
   const [userState, fetchUsers] = useDataState<User[]>();
 
   useEffect(() => {
-    fetchUsers(UserRepo.getUsers);
+    fetchUsers(() => UserRepo.getUsers());
   }, []);
+
+  return {
+    userState,
+    retry: () => fetchUsers(() => UserRepo.getUsers()),
+  };
+}
+
+// View
+function UserList() {
+  const { userState, retry } = useUserViewModel();
 
   return (
     <AppStateHandler
       appState={userState}
-      SuccessComponent={({ appState }) => (
-        <DataTable rows={appState.data ?? []} columns={columns} />
-      )}
       emptyCondition={(data) => data.length === 0}
       errorMessage="Unable to load users."
-    />
+    >
+      {/* success: userState.data is populated */}
+      <ul>
+        {userState.data?.map((u) => <li key={u.id}>{u.name}</li>)}
+      </ul>
+    </AppStateHandler>
   );
 }
 ```
 
-### 4. Electron Usage
+### 3. Electron Usage
 
 ```tsx
-import { useDataState } from "astra";
+import { useDataState, AppStateHandler, ServerResponse } from "astra";
 import { useEffect } from "react";
 
-function SettingsPage() {
-  const [settings, loadSettings] = useDataState();
+// IPC repository (consumer-managed)
+const settingsRepo = {
+  get: (): Promise<ServerResponse<Settings>> =>
+    window.electronAPI.getSettings(),
+};
+
+function useSettingsViewModel() {
+  const [settingsState, loadSettings] = useDataState<Settings>();
 
   useEffect(() => {
-    loadSettings(() => window.electronAPI.getSettings());
+    loadSettings(() => settingsRepo.get());
   }, []);
 
-  if (settings.isError) return <div>Failed to load settings</div>;
-  return <pre>{JSON.stringify(settings.data, null, 2)}</pre>;
+  return { settingsState };
+}
+
+function SettingsPage() {
+  const { settingsState } = useSettingsViewModel();
+
+  return (
+    <AppStateHandler appState={settingsState} errorMessage="Failed to load settings.">
+      <pre>{JSON.stringify(settingsState.data, null, 2)}</pre>
+    </AppStateHandler>
+  );
 }
 ```
 
@@ -142,34 +178,21 @@ See [Electron integration guide](docs/raw/architecture/integration-contracts/ele
 
 **State & MVVM (Astra-native):**
 
-- `useDataState` — MVVM hook, returns `[appState, execute, setAppState]`
-- `AppStateHandler` — UI state router component
-- `AppState<T>`, `StateType`, `StateCode` — state types and enums
+- `useDataState` — MVVM hook, returns `[appState, execute, setAppState]`; `execute(apiCall)` drives the INIT → LOADING → COMPLETED lifecycle; `setAppState` for optimistic updates and manual resets
+- `AppStateHandler` — UI state router; props: `appState` (required), `SuccessComponent`, `children`, `emptyCondition`, `errorMessage`, `loadingComponent`, `errorComponent`, `emptyComponent`; slot props override context; `children` takes precedence over `SuccessComponent`
+- `AppStateProvider` — React context provider; configure `Loading`, `Error`, `Empty` render components once at app root; any design system works
+- `AppStateContext` — React context object; access provider value directly when building custom wrappers around `AppStateHandler`
+- `AppStateComponents` — type for `AppStateProvider` value: `{ Loading?, Error?, Empty? }`
+- `AppState`, `StateType`, `StateCode` — state contract, lifecycle enum, internal status codes (`StateCode.IDLE = 1000` is the initial status before any HTTP activity)
 - `AppStateHandlerProps` — component prop types
 
 **API Layer (Astra-native):**
 
-- `ApiService` — type-safe Axios wrapper
-- `ServerResponse<T>` — typed response wrapper
-- `HttpStatusCode` — HTTP status enum
-- `getStatusMessage` — localized status message helper
-- `APITypes`, `apiServiceFactory` — supporting types and factory
-
-**Localization (Astra-native):**
-
-- `LanguageProvider` — wraps app, injects translations into context
-
-**Template Rendering (Astra-native):**
-
-- `createTemplateRenderer`, `templateRenderer` — Handlebars renderer
-- `TemplateRendererConfig`, `RenderTemplateOptions`, `RenderResult` — types
-
-**UI Components + Design (via Prati — re-exported):**
-
-- All 47 components: `StatusDot`, `Card`, `DataTable`, `PageHeader`, `HeroSection`, etc.
-- `ThemeProvider`, `ThemeToggle`, `useTheme`, `lightTheme`, `darkTheme`, `createAstraTheme`
-- `useLanguage`, `LanguageSelector`, `LanguageContext`
-- Design tokens: `colors`, `spacing`, `typography`, `fonts`
+- `getApiService(baseUrl, literal)` — singleton factory (recommended); `literal` is a `{ statusKey: message }` map used by `getStatusMessage` for error string resolution; returns cached `ApiService` keyed by `baseUrl`
+- `ApiService` — Axios-based HTTP client (`get`, `post`, `put`, `delete`); never throws — all errors returned as `ServerResponse`
+- `ServerResponse` — typed response wrapper; construct via `ServerResponse.success({ status, statusMessage, data })` or `ServerResponse.error({ status, statusMessage })`
+- `HttpStatusCode` — HTTP status enum (200, 201, 400, 401, 404, 500, 0 = INTERNET_ERROR)
+- `getStatusMessage(code, literal)` — maps `HttpStatusCode` to a string from `literal`; returns empty string if no match
 
 ## Architecture
 
@@ -180,24 +203,66 @@ Astra follows **MVVM** with a **stateless** design.
 │  ASTRA                                      │
 │  ViewModel  →  useDataState hook            │
 │  Model      →  ApiService / Repository      │
-│  State      →  AppState<T>, StateType       │
+│  State      →  AppState, StateType          │
 │  Bridge     →  AppStateHandler              │
-│  i18n       →  LanguageProvider             │
-├─────────────────────────────────────────────┤
-│  PRATI (dependency)                         │
-│  View       →  React components (47)        │
-│  Design     →  tokens, ThemeProvider        │
-│  i18n UI    →  useLanguage, LanguageSelector│
 └─────────────────────────────────────────────┘
 ```
 
 ### State Flow
 
 ```
-INIT → LOADING → COMPLETED | ERROR
+INIT → LOADING → COMPLETED (check isError / isSuccess)
 ```
 
+There is no separate error state — errors are represented by `state === COMPLETED && isError === true`. Always read `appState.isError` after `COMPLETED` to distinguish success from failure.
+
 Astra manages transient state only. Persistent state (localStorage, SQLite, IndexedDB) is the consumer's responsibility.
+
+### AppState Contract
+
+| Field | Description |
+|-------|-------------|
+| `state` | `INIT` / `LOADING` / `COMPLETED` |
+| `isError` | True when last operation failed |
+| `isSuccess` | True when last operation succeeded |
+| `status` | `HttpStatusCode` or `StateCode` (initial value: `StateCode.IDLE = 1000`) |
+| `statusMessage` | Human-readable status string |
+| `data` | Result payload; null until a successful response populates it |
+
+LOADING preserves the previous `data` value — supports stale-while-reloading. `setAppState` updates are dropped after component unmount (mountedRef guard inside `execute`).
+
+### AppStateHandler Rendering Priority
+
+Fixed order — first matching condition renders:
+
+```
+1. state === LOADING              → LoadingState
+2. isError || status === 0        → ErrorState   (status 0 = INTERNET_ERROR / offline)
+3. isSuccess && data !== null
+   ├── emptyCondition(data) = true → EmptyState
+   ├── children provided           → children
+   └── SuccessComponent provided   → SuccessComponent(appState)
+4. fallback (INIT / no data)       → EmptyState
+```
+
+`emptyCondition` is only evaluated when `isSuccess && data !== null`. Retry is the ViewModel's responsibility — re-expose `execute()` as a `retry` function and wire it to a button; `AppStateHandler` does not manage retry.
+
+### MVVM Rules
+
+- **Repositories use `ApiService`** — never import axios directly
+- **Views use `AppStateHandler`** — no manual `isError` / `isSuccess` branching in JSX
+- **ViewModels are hooks** — no class-based ViewModels; implement in `hooks/use<Feature>.ts`
+- **One `useDataState` per async operation** — compose multiple operations with multiple hook instances
+
+### Error Normalization
+
+`ApiService` catches all errors and normalizes them into `ServerResponse` — it never throws:
+
+| Cause | `status` |
+|-------|----------|
+| Axios HTTP error (4xx / 5xx) | Actual HTTP status code |
+| Network failure / no response | `0` (`HttpStatusCode.INTERNET_ERROR`) |
+| Non-axios / unexpected exception | `500` (`HttpStatusCode.INTERNAL_SERVER_ERROR`) |
 
 ## Project Structure
 
@@ -205,21 +270,17 @@ Astra manages transient state only. Persistent state (localStorage, SQLite, Inde
 src/
   common/
     hooks/         # useDataState
-    repo/          # ApiService, HttpStatusCode, ServerResponse
+    repo/          # ApiService, HttpStatusCode, ServerResponse, getApiService, APITypes
     state/         # AppState, StateType, StateCode
     components/
-      organisms/   # AppStateHandler (bridges Astra state + Prati atoms)
-    localization/  # LanguageProvider (context provided by Prati)
-  services/        # templateRenderer (Handlebars)
-  templates/       # bundled .hbs templates
-  types/           # template types
-  lib.ts           # entry: re-exports prati + own modules
+      organisms/   # AppStateHandler
+  lib.ts           # entry point — public exports only
 ```
 
 ## Documentation
 
 ### Architecture
-- `docs/raw/architecture/core/` — MVVM, hooks, repository, state, localization
+- `docs/raw/architecture/core/` — MVVM, hooks, repository, state, API surface
 - `docs/raw/architecture/invariants/` — dependency safety, MVVM separation, repository isolation
 - `docs/raw/architecture/integration-contracts/` — getting-started, React, Electron guides
 - `docs/raw/architecture/runtime-maps/` — data flow, state flow, import resolution
@@ -228,10 +289,6 @@ src/
 - `docs/raw/feature-technical/mvvm/` — MVVM pattern and best practices
 - `docs/raw/feature-technical/repository/` — ApiService, HttpStatusCode, ServerResponse
 - `docs/raw/feature-technical/state/` — useDataState, AppStateHandler
-- `docs/raw/feature-technical/localization/` — LanguageProvider, hooks, patterns
-
-### UI Components & Design System
-> Documented in [Prati](https://github.com/NikhilVijayakumar/prati): component catalog, design tokens, BAVANS brand guidelines.
 
 ## Development
 
@@ -242,5 +299,3 @@ npm test         # vitest
 npm run coverage # istanbul coverage
 npm run lint     # eslint
 ```
-
-> Prati must be built before building Astra locally. Run `npm run build` in `E:/Python/Prati` first, or use `npm install --ignore-scripts` in Astra if Prati is pre-built.

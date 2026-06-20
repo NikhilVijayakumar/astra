@@ -28,7 +28,7 @@ A View may:
 - emit user events via callbacks
 - manage UI interaction state (open, close, selected)
 - compose sub-components
-- use theme and localization
+- use Prati theming and localization primitives (ThemeProvider context, useLanguage) if the consumer app depends on Prati
 
 A View may NOT:
 - fetch data
@@ -53,7 +53,7 @@ A ViewModel may NOT:
 - import UI components
 - access DOM or rendering APIs
 - contain JSX or template logic
-- manage component lifecycle (useEffect for data only)
+- use useEffect for purposes other than data loading (DOM access, subscriptions, and browser API calls must remain in the View layer or platform adapters)
 - persist data directly
 
 ### Repository/Model (Data Access)
