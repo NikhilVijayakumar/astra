@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { useDataState } from './useDataState';
 import { StateType, StateCode } from '../state/AppState';
 import { ServerResponse } from '../repo/ServerResponse';
-import { HttpStatusCode } from '../repo/HttpStatusCode';
+import { HttpStatusCode } from '../state/HttpStatusCode';
 
 describe('useDataState', () => {
   it('should initialize with default state', () => {

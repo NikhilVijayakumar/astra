@@ -1,5 +1,5 @@
 //src/common/repo/APITypes.ts
-import { HttpStatusCode } from './HttpStatusCode';
+import { HttpStatusCode } from '../state/HttpStatusCode';
 
 export type ResponseSuccess<T> = {
   status: HttpStatusCode;

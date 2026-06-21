@@ -1,4 +1,5 @@
-//src/common/repo/HttpStatusCode.ts
+import { StateCode } from './StateCode';
+
 export enum HttpStatusCode {
   SUCCESS = 200,
   CREATED = 201,
@@ -7,12 +8,12 @@ export enum HttpStatusCode {
   NOT_FOUND = 404,
   INTERNAL_SERVER_ERROR = 500,
   INTERNET_ERROR = 0,
-  /** @deprecated Use StateCode.IDLE from src/common/state/AppState instead. */
+  /** @deprecated Use StateCode.IDLE instead. */
   IDLE = 1000,
 }
 
 export function getStatusMessage(
-  status: HttpStatusCode,
+  status: HttpStatusCode | StateCode,
   literal: Record<string, string>
 ): string {
   switch (status) {

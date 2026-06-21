@@ -7,6 +7,7 @@ import {
   ApiService,
   ServerResponse,
   HttpStatusCode,
+  getStatusMessage,
   StateType,
   StateCode,
   IpcService,
@@ -55,6 +56,14 @@ describe("root public exports", () => {
     expect(HttpStatusCode.NOT_FOUND).toBe(404);
     expect(HttpStatusCode.INTERNAL_SERVER_ERROR).toBe(500);
     expect(HttpStatusCode.INTERNET_ERROR).toBe(0);
+  });
+
+  it("getStatusMessage resolves literal keys", () => {
+    const literal = { success_message: "OK", internet_error: "Offline" };
+    expect(getStatusMessage(HttpStatusCode.SUCCESS, literal)).toBe("OK");
+    expect(getStatusMessage(HttpStatusCode.INTERNET_ERROR, literal)).toBe("Offline");
+    expect(getStatusMessage(HttpStatusCode.NOT_FOUND, literal)).toBe(undefined);
+    expect(getStatusMessage(999 as HttpStatusCode, literal)).toBe("");
   });
 
   it("ApiService can be instantiated", () => {

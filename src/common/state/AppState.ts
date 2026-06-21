@@ -1,15 +1,11 @@
 // src/common/state/AppState.ts
-import { HttpStatusCode } from '../repo/HttpStatusCode';
+import { HttpStatusCode } from './HttpStatusCode';
+export { StateCode } from './StateCode';
 
 export enum StateType {
   INIT = 0,
   LOADING = 1,
   COMPLETED = 2,
-}
-
-// Synthetic status codes for internal state management — not HTTP codes.
-export enum StateCode {
-  IDLE = 1000,
 }
 
 export interface AppState<T> {

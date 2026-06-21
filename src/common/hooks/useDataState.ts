@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { AppState, StateType, StateCode } from '../state/AppState';
 import { ServerResponse } from '../repo/ServerResponse';
-import { HttpStatusCode } from '../repo/HttpStatusCode';
+import { HttpStatusCode } from '../state/HttpStatusCode';
 
 
 const getInitialState = <T>(): AppState<T> => ({

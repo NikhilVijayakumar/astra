@@ -16,7 +16,7 @@ export type { AppStateComponents } from './common/components/organisms/AppStateC
 // Repository layer — WEB
 export { ApiService } from './common/repo/ApiService';
 export { getApiService } from './common/repo/apiServiceFactory';
-export { HttpStatusCode, getStatusMessage } from './common/repo/HttpStatusCode';
+export { HttpStatusCode, getStatusMessage } from './common/state/HttpStatusCode';
 export { ServerResponse } from './common/repo/ServerResponse';
 
 // Repository layer — ELECTRON

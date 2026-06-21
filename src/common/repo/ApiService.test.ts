@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ApiService } from './ApiService';
 import { ServerResponse } from './ServerResponse';
-import { HttpStatusCode } from './HttpStatusCode';
+import { HttpStatusCode } from '../state/HttpStatusCode';
 import axios from 'axios';
 
 // Mock axios
@@ -79,7 +79,7 @@ describe('ApiService', () => {
       expect(result.status).toBe(HttpStatusCode.INTERNET_ERROR);
     });
 
-    it('should handle unknwon errors gracefully', async () => {
+    it('should handle unknown errors gracefully', async () => {
         const unknownError = new Error('Unknown error');
         (axios as any).mockRejectedValue(unknownError);
         (axios.isAxiosError as any).mockReturnValue(false);
@@ -133,7 +133,7 @@ describe('ApiService', () => {
 
   describe('put', () => {
     it('should send data correctly in put request', async () => {
-        const payload = { name: 'Updated Ifem' };
+        const payload = { name: 'Updated Item' };
         const mockResponse = { status: 200, statusText: 'OK', data: { id: 1, ...payload } };
         (axios as any).mockResolvedValue(mockResponse);
 

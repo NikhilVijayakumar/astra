@@ -1,6 +1,6 @@
 //src/common/repo/ServerResponse.ts
 import { ResponseSuccess, ResponseError } from './APITypes';
-import { HttpStatusCode } from './HttpStatusCode';
+import { HttpStatusCode } from '../state/HttpStatusCode';
 
 export class ServerResponse<T> {
   public isError: boolean = false;

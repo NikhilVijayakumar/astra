@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import AppStateHandler from "./AppStateHandler";
 import { AppStateProvider } from "./AppStateContext";
 import { StateType, StateCode } from "../../state/AppState";
-import { HttpStatusCode } from "../../repo/HttpStatusCode";
+import { HttpStatusCode } from "../../state/HttpStatusCode";
 
 const TestProvider = ({ children }: { children: ReactNode }) => (
   <AppStateProvider

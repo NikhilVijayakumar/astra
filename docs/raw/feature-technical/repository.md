@@ -385,7 +385,7 @@ Callback fires with data  →  consumer calls setAppState() from useDataState
 | Bundle Size (IpcService) | No external dependencies beyond `ServerResponse` and `HttpStatusCode` |
 | Bundle Size (HttpStatusCode) | Minimal — single enum (8 members) + one switch function |
 | Bundle Size (ServerResponse) | No external dependencies beyond `HttpStatusCode` enum; negligible |
-| Factory Cache (ApiService) | `Map<string, ApiService>` grows unbounded per unique `baseUrl` — acceptable for typical app (1-3 endpoints) |
+| Factory Cache (ApiService) | `Map<string, ApiService>` grows unbounded per unique `baseUrl` — acceptable for typical app (1-3 endpoints); repeated calls with the same `baseUrl` return the cached instance and **ignore** updated `literal` or `options` arguments |
 | Type Safety (ApiService) | All methods generic `<T>`; no runtime type enforcement on response data |
 | Type Safety (IpcService) | `invoke` is generic `<T>`; no runtime type enforcement on response data |
 | Type Safety (HttpStatusCode) | Enum members are the only valid values at compile time; no runtime validation |
@@ -496,15 +496,16 @@ Ownership boundaries per **boilerplate-ownership.md** invariant:
 
 | Module | File Path | Exports | Imports From |
 |--------|-----------|---------|--------------|
-| `ApiService` | `src/common/repo/ApiService.ts` | `ApiService` (class) | `axios`, `./ServerResponse`, `./HttpStatusCode`, `./APITypes` (internal) |
+| `HttpStatusCode` | `src/common/state/HttpStatusCode.ts` | `HttpStatusCode` (enum), `getStatusMessage` (function) | `./StateCode` |
+| `StateCode` | `src/common/state/StateCode.ts` | `StateCode` (enum) | none |
+| `ApiService` | `src/common/repo/ApiService.ts` | `ApiService` (class) | `axios`, `./ServerResponse`, `../state/HttpStatusCode`, `./APITypes` (internal) |
 | `apiServiceFactory` | `src/common/repo/apiServiceFactory.ts` | `getApiService` (function) | `./ApiService` |
-| `IpcService` | `src/common/repo/IpcService.ts` | `IpcService` (class) | `./ServerResponse`, `./HttpStatusCode` |
-| `ServerResponse` | `src/common/repo/ServerResponse.ts` | `ServerResponse` (class) | `./APITypes` (internal), `./HttpStatusCode` |
-| `APITypes` | `src/common/repo/APITypes.ts` | `ResponseSuccess<T>`, `ResponseError` (internal — not re-exported via barrel) | `./HttpStatusCode` |
-| `HttpStatusCode` | `src/common/repo/HttpStatusCode.ts` | `HttpStatusCode` (enum), `getStatusMessage` (function) | none |
-| `index` (repo) | `src/common/repo/index.ts` | `ApiService`, `getApiService`, `IpcService`, `HttpStatusCode`, `getStatusMessage`, `ServerResponse` | `./ApiService`, `./apiServiceFactory`, `./IpcService`, `./HttpStatusCode`, `./ServerResponse` |
-| `index` (common) | `src/common/index.ts` | Re-exports common modules | `./repo` |
-| `index` (lib) | `src/lib.ts` | Public entry point | `./common` |
+| `IpcService` | `src/common/repo/IpcService.ts` | `IpcService` (class) | `./ServerResponse`, `../state/HttpStatusCode` |
+| `ServerResponse` | `src/common/repo/ServerResponse.ts` | `ServerResponse` (class) | `./APITypes` (internal), `../state/HttpStatusCode` |
+| `APITypes` | `src/common/repo/APITypes.ts` | `ResponseSuccess<T>`, `ResponseError` (internal — not re-exported via barrel) | `../state/HttpStatusCode` |
+| `index` (repo) | `src/common/repo/index.ts` | `ApiService`, `getApiService`, `IpcService`, `ServerResponse`, `ITransportService`, `Platform` | `./ApiService`, `./apiServiceFactory`, `./IpcService`, `./ServerResponse`, `./types` |
+| `index` (common) | `src/common/index.ts` | Re-exports common modules | `./repo`, `./state`, `./hooks`, `./components/organisms` |
+| `lib` | `src/lib.ts` | Public entry point — explicit named exports only | Direct source paths (`./common/repo/*`, `./common/state/*`, `./common/hooks/*`, `./common/components/organisms/*`) |
 
 ---
 

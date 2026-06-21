@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { IpcService } from './IpcService';
 import { ServerResponse } from './ServerResponse';
-import { HttpStatusCode } from './HttpStatusCode';
+import { HttpStatusCode } from '../state/HttpStatusCode';
 
 function createMockElectronAPI() {
   let listeners: Map<string, Array<(data: unknown) => void>> = new Map();

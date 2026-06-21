@@ -1,6 +1,6 @@
 import { FC, ReactElement, ReactNode, useContext } from "react";
 import { AppState, StateType } from "../../state/AppState";
-import { HttpStatusCode } from "../../repo/HttpStatusCode";
+import { HttpStatusCode } from "../../state/HttpStatusCode";
 import { AppStateContext } from "./AppStateContext";
 
 export interface AppStateHandlerProps<T, S extends AppState<T> = AppState<T>> {

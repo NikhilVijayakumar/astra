@@ -1,5 +1,5 @@
 import { ServerResponse } from './ServerResponse';
-import { HttpStatusCode } from './HttpStatusCode';
+import { HttpStatusCode } from '../state/HttpStatusCode';
 import { ITransportService, Platform } from './types';
 import { ResponseError } from './APITypes';
 
