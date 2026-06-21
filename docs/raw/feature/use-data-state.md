@@ -67,7 +67,7 @@ Pass `options.unexpectedErrorMessage` from your app's localization system. When 
 
 `useDataState` does not:
 
-- make HTTP calls — that is the Repository (`ApiService`)
+- make HTTP or IPC calls — that is the Repository (`ApiService` for WEB, `IpcService` for ELECTRON)
 - render loading/error/empty/success UI — that is `AppStateHandler`
 - provide localization strings — pass `unexpectedErrorMessage` via options using your app's localization system
 - manage global state — each `useDataState` instance is scoped to its ViewModel hook
@@ -75,6 +75,7 @@ Pass `options.unexpectedErrorMessage` from your app's localization system. When 
 ## See Also
 
 - [state-management.md](./state-management.md) — `AppState` shape and `StateType` enum
-- [repository.md](./repository.md) — `ServerResponse` that `execute` consumes
+- [repository.md](./repository.md) — `ServerResponse` that `execute` consumes (WEB)
+- [ipc-service.md](./ipc-service.md) — `IpcService` that `execute` consumes (ELECTRON)
 - [app-state-handler.md](./app-state-handler.md) — component that renders UI from `appState`
 - [mvvm-wiring.md](./mvvm-wiring.md) — full Repository → ViewModel → View pattern

@@ -4,573 +4,876 @@
 
 Astra enforces a strict Repository pattern for all external communication.
 
-All API calls, network requests, and data access must flow exclusively through Repository abstractions built on `ApiService`. Components, hooks, and ViewModels must never access network APIs directly.
+All external communication, data access, and platform interaction must flow exclusively through Repository abstractions and Astra-approved Service abstractions.
 
-Repository isolation guarantees:
-- centralized error handling
+Components, Views, ViewModels, Hooks, and State Management layers must never access platform runtimes directly.
+
+Repository Isolation guarantees:
+
+- centralized data access
+- transport abstraction
+- runtime isolation
+- platform separation
 - typed response contracts
-- swappable data sources
-- testable API boundaries
-- consistent HTTP status handling
-- single-point monitoring and logging
+- swappable implementations
+- testable boundaries
+- consistent error handling
+- centralized monitoring and logging
 
 ---
 
-## Architectural Rule
+# Architectural Rule
 
-External communication must flow only through Repository abstractions.
+External communication must follow:
+
+```text
+View
+    ↓
+
+ViewModel
+    ↓
+
+Repository
+    ↓
+
+Service Abstraction
+    ↓
+
+Platform Runtime
+```
+
+No layer may bypass the layer below it.
+
+---
+
+# Supported Platform Flows
+
+## WEB
+
+```text
+View
+    ↓
+
+ViewModel
+    ↓
+
+Repository
+    ↓
+
+ApiService
+    ↓
+
+Axios
+    ↓
+
+REST API
+```
+
+---
+
+## ELECTRON
+
+```text
+View
+    ↓
+
+ViewModel
+    ↓
+
+Repository
+    ↓
+
+IpcService
+    ↓
+
+Prana IPC Runtime
+```
+
+---
+
+# Repository Responsibilities
 
 A Repository may:
-- use `ApiService` for HTTP requests
-- define typed request/response contracts
-- handle error mapping and status code interpretation
-- compose multiple API calls into cohesive data operations
-- provide domain-specific data methods
 
-A Repository must NOT:
-- be imported by components (Views) directly
-- contain UI logic or formatting
-- know about ViewModel or View structure
+- use Astra-approved Service abstractions
+- define typed request contracts
+- define typed response contracts
+- compose multiple operations
+- map errors
+- interpret status codes
+- expose domain-specific operations
+- aggregate multiple data sources
 
-Any code outside a Repository may NOT:
-- use `axios`, `fetch`, or any HTTP client directly
-- access external APIs without going through a Repository
-- bypass `ApiService` for network communication
-- make raw HTTP requests for data access
+Examples:
+
+```text
+UserRepository
+
+TaskRepository
+
+ProjectRepository
+
+DocumentRepository
+```
 
 ---
 
-## Allowed Patterns
+# Repository Non-Responsibilities
 
-### Typed Repository With ApiService
+A Repository must not:
+
+- contain UI logic
+- contain formatting logic
+- contain theme logic
+- contain localization logic
+- contain component logic
+- contain routing logic
+- contain navigation logic
+- contain ViewModel logic
+- contain View logic
+- contain runtime infrastructure
+
+---
+
+# Allowed Service Dependencies
+
+Repositories may use:
+
+```text
+ApiService
+
+IpcService
+
+ServerResponse
+
+DTO Contracts
+
+Request Contracts
+
+Response Contracts
+```
+
+---
+
+# Forbidden Service Dependencies
+
+Repositories must not directly use:
+
+```text
+axios
+
+fetch
+
+XMLHttpRequest
+
+window.electronAPI
+
+ipcRenderer
+
+ipcMain
+
+contextBridge
+
+BrowserWindow
+
+SQLite APIs
+
+File System APIs
+
+Storage Runtime APIs
+```
+
+These belong to Service or Runtime layers.
+
+---
+
+# Runtime Ownership Boundary
+
+## Astra Owns
+
+```text
+Repository Pattern
+
+Repository Templates
+
+ApiService
+
+IpcService
+
+ServerResponse
+
+Request Contracts
+
+Response Contracts
+```
+
+---
+
+## Prana Owns
+
+```text
+Electron Runtime
+
+IPC Runtime
+
+contextBridge
+
+ipcMain
+
+ipcRenderer
+
+SQLite Runtime
+
+Storage Runtime
+
+File System Runtime
+
+BrowserWindow
+```
+
+---
+
+## Prati Owns
+
+```text
+Design Tokens
+
+Theme Runtime
+
+Localization Runtime
+
+Component Library
+
+Prototype Runtime
+
+Navigation Runtime
+
+MockDB Runtime
+```
+
+---
+
+# Repository Boundary Rule
+
+Repositories may consume:
+
+```text
+Astra Services
+```
+
+Repositories may not consume:
+
+```text
+Prana Runtime Infrastructure
+
+Prati Presentation Infrastructure
+```
+
+---
+
+# Allowed Patterns
+
+## Typed Repository With ApiService
 
 Allowed:
 
-```tsx
+```typescript
 import { ApiService, ServerResponse } from 'astra';
 
-const api = new ApiService('https://api.example.com', {
-  internal_server_error: 'Something went wrong.',
-});
+const api = new ApiService('/api');
 
-export interface UserResponse {
-  id: string;
-  name: string;
-  email: string;
-}
+export const UserRepository = {
+    getAll: async (): Promise<ServerResponse<User[]>> =>
+        api.get('/users'),
 
-export const UserRepo = {
-  getAll: async (): Promise<ServerResponse<UserResponse[]>> => api.get('/users'),
-
-  getById: async (id: string): Promise<ServerResponse<UserResponse>> => api.get(`/users/${id}`),
-
-  create: async (data: CreateUserRequest): Promise<ServerResponse<UserResponse>> =>
-    api.post('/users', data),
+    getById: async (
+        id: string
+    ): Promise<ServerResponse<User>> =>
+        api.get(`/users/${id}`)
 };
 ```
 
 Reason:
-All network access is centralized, typed, and error-handled.
+
+Repository delegates communication to ApiService.
 
 ---
 
-### Composed Repository Operation
+## Typed Repository With IpcService
 
 Allowed:
 
-```tsx
-export const OrderRepo = {
-  getFullOrder: async (orderId: string): Promise<ServerResponse<FullOrder>> => {
-    const order = await api.get<Order>(`/orders/${orderId}`);
-    if (order.isError) return order;
+```typescript
+import { IpcService, ServerResponse } from 'astra';
 
-    const items = await api.get<OrderItem[]>(`/orders/${orderId}/items`);
-    if (items.isError) return items;
+const ipc = new IpcService();
 
-    return ServerResponse.success({
-      status: 200,
-      statusMessage: 'OK',
-      data: { ...order.data, items: items.data },
-    });
-  },
+export const TaskRepository = {
+    getAll: async (): Promise<ServerResponse<Task[]>> =>
+        ipc.invoke('tasks:list'),
+
+    getById: async (
+        id: string
+    ): Promise<ServerResponse<Task>> =>
+        ipc.invoke('tasks:get', { id })
 };
 ```
 
 Reason:
-Repository composes multiple API calls into a cohesive data operation.
+
+Repository delegates communication to IpcService.
 
 ---
 
-### Error Mapping in Repository
+## Repository Composition
 
 Allowed:
 
-```tsx
-const api = new ApiService('/api', {
-  internal_server_error: 'Service unavailable. Please try again.',
-  not_found: 'The requested resource was not found.',
-  unauthorized: 'Your session has expired. Please login again.',
-  bad_request: 'Invalid request. Please check your input.',
-});
+```typescript
+export const OrderRepository = {
+    getFullOrder: async (
+        orderId: string
+    ): Promise<ServerResponse<FullOrder>> => {
+
+        const order =
+            await api.get<Order>(
+                `/orders/${orderId}`
+            );
+
+        if (order.isError) {
+            return order;
+        }
+
+        const items =
+            await api.get<OrderItem[]>(
+                `/orders/${orderId}/items`
+            );
+
+        if (items.isError) {
+            return items;
+        }
+
+        return ServerResponse.success({
+            status: 200,
+            statusMessage: 'OK',
+            data: {
+                ...order.data,
+                items: items.data
+            }
+        });
+    }
+};
 ```
 
 Reason:
-Error messages are centralized at the API layer, not scattered across components.
+
+Repositories may compose multiple operations into a domain-specific operation.
 
 ---
 
-### Repository Used by ViewModel Only
+## Repository Consumed By ViewModel
 
 Allowed:
 
-```tsx
-// ViewModel
-import { UserRepo } from '../repo/UserRepo';
+```typescript
+export function useTaskListViewModel() {
 
-export function useUserListViewModel() {
-  const [state, execute] = useDataState<User[]>();
+    const [state, execute] =
+        useDataState<Task[]>();
 
-  useEffect(() => {
-    execute(() => UserRepo.getAll());
-  }, []);
+    useEffect(() => {
+        execute(
+            () => TaskRepository.getAll()
+        );
+    }, []);
 
-  return { users: state.data, isLoading: state.state === StateType.LOADING };
+    return {
+        tasks: state.data
+    };
 }
 ```
 
 Reason:
-Repository is consumed by the ViewModel layer only — Views never touch it.
+
+ViewModel consumes Repository.
+
+View does not.
 
 ---
 
-## Forbidden Patterns
+# Forbidden Patterns
 
-### Direct API Call in Component
+## Direct HTTP Call In View
 
 Forbidden:
 
-```tsx
+```typescript
 function UserList() {
-  const [users, setUsers] = useState();
 
-  useEffect(() => {
-    axios.get('/api/users').then((res) => setUsers(res.data));
-  }, []);
+    useEffect(() => {
 
-  return <div>{users?.map(u => u.name)}</div>;
+        axios.get('/api/users');
+
+    }, []);
 }
 ```
 
 Reason:
-Bypasses all Repository error handling, typing, and testability.
+
+Bypasses Repository and ApiService.
 
 ---
 
-### Raw Fetch in ViewModel
+## Direct Fetch In ViewModel
 
 Forbidden:
 
-```tsx
+```typescript
 export function useUserViewModel() {
-  const [state, setState] = useState();
 
-  const load = async () => {
-    const res = await fetch('/api/users');
-    const data = await res.json();
-    setState(data);
-  };
+    const load = async () => {
 
-  return { load, state };
+        const response =
+            await fetch('/api/users');
+
+    };
 }
 ```
 
 Reason:
-ViewModel should use Repository — raw fetch duplicates error handling and bypasses ApiService.
+
+ViewModel must use Repository.
 
 ---
 
-### Inline Axios Instance in Service File
+## Direct IPC Usage In Repository
 
 Forbidden:
 
-```tsx
-// outside repo/ directory
-import axios from 'axios';
-const api = axios.create({ baseURL: '/api' });
+```typescript
+export const UserRepository = {
+
+    getAll: async () => {
+
+        return window.electronAPI.invoke(
+            'users:list'
+        );
+
+    }
+};
 ```
 
 Reason:
-Axios instances must be created only through `ApiService` inside repository modules.
+
+Repository must use IpcService.
+
+Not runtime APIs.
 
 ---
 
-### View Importing Repository Directly
+## Runtime Infrastructure In Repository
 
 Forbidden:
 
-```tsx
-// View.tsx
-import { UserRepo } from '../repo/UserRepo';
+```typescript
+import { ipcRenderer } from 'electron';
+
+export const UserRepository = {
+    ...
+};
+```
+
+Reason:
+
+Runtime infrastructure belongs to Prana.
+
+---
+
+## Repository Importing UI
+
+Forbidden:
+
+```typescript
+import { UserCard } from '../components/UserCard';
+
+import { useTheme } from 'prati';
+```
+
+Reason:
+
+Repository must not know presentation concerns.
+
+---
+
+## View Importing Repository
+
+Forbidden:
+
+```typescript
+import { UserRepository }
+from '../repo/UserRepository';
 
 function UserList() {
-  const [data, setData] = useState();
-  useEffect(() => {
-    UserRepo.getAll().then(setData); // View calling Repo directly
-  }, []);
-  return <div>...</div>;
+
 }
 ```
 
 Reason:
-View bypasses ViewModel — couples presentation to data layer.
+
+View must consume ViewModel.
+
+Not Repository.
 
 ---
 
-### Repository Importing UI Concerns
+## Repository Returning Raw Data
 
 Forbidden:
 
-```tsx
-// repo/UserRepo.ts
-import { UserCard } from '../components/UserCard';  // UI component (Prati)
-import { useTheme } from 'prati';                   // theme hook (Prati)
-```
+```typescript
+export const UserRepository = {
 
-Reason:
-Repository must not know about UI — data access is infrastructure, not presentation. This applies regardless of whether UI symbols come from Prati or any other source.
+    getAll: async () => {
 
----
+        const response =
+            await api.get('/users');
 
-### Direct HTTP Client Outside Repository
-
-Forbidden:
-
-```tsx
-// services/notificationService.ts (outside repo/)
-import axios from 'axios';
-
-export const sendNotification = async (message: string) => {
-  await axios.post('/api/notify', { message });
+        return response.data;
+    }
 };
 ```
 
 Reason:
-All HTTP communication must funnel through Repository abstractions.
 
----
+Repository must return:
 
-### Unwrapped Response Handling
-
-Forbidden:
-
-```tsx
-export const UserRepo = {
-  getAll: async () => {
-    const res = await axios.get('/api/users');
-    return res.data; // raw response without ServerResponse wrapper
-  },
-};
+```text
+ServerResponse<T>
 ```
 
-Reason:
-Repository must return typed `ServerResponse` for consistent consumer handling.
+for consistent handling.
 
 ---
 
-## Detection Heuristics
+# Detection Heuristics
 
-### Direct HTTP Usage
+## Direct HTTP Usage
 
 Detect:
 
-```tsx
+```typescript
 axios.get
 axios.post
 axios.put
 axios.delete
+
 fetch(
 ```
 
-outside of `repo/` directory files.
+outside Service implementations.
 
 ---
 
-### ApiService Usage Outside Repo
+## Direct IPC Usage
 
 Detect:
 
-```tsx
-ApiService
-new ApiService
+```typescript
+window.electronAPI
+
+ipcRenderer
+
+ipcMain
+
+contextBridge
 ```
 
-inside component, hook, or viewmodel files (outside `repo/` directory).
+inside:
+
+```text
+Repositorys
+
+ViewModels
+
+Views
+
+Hooks
+```
 
 ---
 
-### Raw Response Returns
+## Runtime Leakage
 
-Detect repositories that return data without `ServerResponse` wrapping:
+Detect:
 
-```tsx
-return res.data
+```typescript
+BrowserWindow
+
+SQLite
+
+fs
+
+path
+```
+
+inside repositories.
+
+---
+
+## Repository Importing UI
+
+Detect:
+
+```typescript
+../components/
+
+../views/
+
+../pages/
+
+prati
+```
+
+inside repositories.
+
+---
+
+## View Importing Repository
+
+Detect:
+
+```typescript
+../repo/
+
+../repository/
+```
+
+inside:
+
+```text
+Views
+
+Pages
+
+Components
+```
+
+---
+
+## Raw Response Returns
+
+Detect:
+
+```typescript
+return response.data
+
 return data
-return response
+
+return result
 ```
 
-without `ServerResponse.success()` or `ServerResponse.error()`.
+without:
+
+```typescript
+ServerResponse.success()
+
+ServerResponse.error()
+```
 
 ---
 
-### HTTP Client Imports Outside Repo
+# Severity Levels
 
-Detect:
+## P0 — Critical
 
-```tsx
-import axios from 'axios'
-```
-
-in files outside the `repo/` directory.
-
----
-
-### View Files Importing From Repo
-
-Detect:
-
-```tsx
-import { ...Repo } from '../repo/'
-```
-
-inside component/view files (.tsx).
-
----
-
-### Repository Importing From UI
-
-Detect:
-
-```tsx
-import ... from '../components/'
-import ... from '../hooks/'
-```
-
-inside repository files.
-
----
-
-## Severity Levels
-
-### P0 — Critical
-
-Direct HTTP access exists outside Repository layer.
+Repository boundary completely bypassed.
 
 Examples:
 
-- axios/fetch in components
-- raw API calls in ViewModel
-- network access bypassing ApiService
+- axios in View
+- fetch in ViewModel
+- runtime APIs in Repository
+- direct IPC usage
 
 Must fix before release.
 
 ---
 
-### P1 — High
+## P1 — High
 
 Repository boundary partially violated.
 
 Examples:
 
-- View importing Repository directly
-- Repository returning raw (unwrapped) responses
-- HTTP client instance outside repo directory
+- View importing Repository
+- Repository importing UI
+- raw response handling
+- bypassing Service abstractions
 
 Must migrate.
 
 ---
 
-### P2 — Transitional
+## P2 — Transitional
 
-Legacy code with documented Repository bypass.
+Legacy code with migration plan.
 
 Examples:
 
-- existing service files that need migration to repo pattern
-- temporary direct access with migration plan
+- temporary direct access
+- deprecated Repository bypass
 
 Allowed temporarily only.
 
 ---
 
-### P3 — Informational
+## P3 — Informational
 
-All external communication flows through typed Repositories.
+Repository architecture fully compliant.
 
 No action required.
 
 ---
 
-## Refactoring Guidance
+# Refactoring Guidance
 
-### Replace Direct Axios With Repository
+## Replace Direct HTTP Calls
 
 BAD:
 
-```tsx
-// component code
-const res = await axios.get('/api/users');
-setUsers(res.data);
+```typescript
+const response =
+    await axios.get('/users');
 ```
 
 GOOD:
 
-```tsx
-// repo/UserRepo.ts
-export const UserRepo = {
-  getAll: () => api.get<User[]>('/users'),
-};
-
-// ViewModel
-const [state, execute] = useDataState<User[]>();
-useEffect(() => { execute(() => UserRepo.getAll()); }, []);
+```typescript
+await UserRepository.getAll();
 ```
 
 ---
 
-### Wrap Raw Responses in ServerResponse
+## Replace Direct IPC Calls
 
 BAD:
 
-```tsx
-export const UserRepo = {
-  getAll: async () => {
-    const res = await axios.get('/api/users');
-    return res.data;
-  },
-};
+```typescript
+await window.electronAPI.invoke(
+    'users:list'
+);
 ```
 
 GOOD:
 
-```tsx
-export const UserRepo = {
-  getAll: () => api.get<User[]>('/users'),
-};
+```typescript
+await UserRepository.getAll();
 ```
-
-where `api.get` already returns `ServerResponse<T>`.
 
 ---
 
-### Move HTTP Access Into Repository
+## Replace Runtime Usage
 
 BAD:
 
-```tsx
-// hooks/useUserData.ts
-import axios from 'axios';
+```typescript
+ipcRenderer.invoke(...)
 ```
 
 GOOD:
 
-```tsx
-// repo/UserRepo.ts
-export const UserRepo = { ... };
-
-// hooks/useUserData.ts — imports UserRepo, not axios
+```typescript
+ipcService.invoke(...)
 ```
 
 ---
 
-### Remove Repository Imports From Views
+## Move Platform Access Into Services
 
 BAD:
 
-```tsx
-// View.tsx
-import { UserRepo } from '../repo/UserRepo';
+```typescript
+Repository
+    ->
+Electron Runtime
 ```
 
 GOOD:
 
-```tsx
-// View.tsx — uses ViewModel, not Repo directly
-import { useUserListViewModel } from './useUserListViewModel';
+```text
+Repository
+    ->
+IpcService
+    ->
+Prana Runtime
 ```
 
 ---
 
-## Library Impact
+# Validation Requirements
 
-Violating Repository Isolation causes:
+Repository Isolation is compliant only if:
 
-- scattered error handling (inconsistent user-facing messages)
-- untestable data access (mocking required in view tests)
-- impossible data source swapping (tight coupling to HTTP)
-- duplicated HTTP configuration across files
-- inconsistent response handling patterns
-- security gaps (unvalidated responses)
-- monitoring blind spots (distributed API calls)
-
-Without Repository Isolation:
-Astra becomes an untestable web of direct network dependencies
-instead of a maintainable, testable data access architecture.
-
----
-
-## Migration Notes
-
-### Transitional Repository Bypass Must Include
-
-```tsx
-/**
- * @deprecated-direct-access
- * Target: <what API endpoint>
- * Repository: <target repository>
- * Reason: <why direct>
- * Removal target: <version>
- */
-```
+- Views do not access Repositories
+- ViewModels access Repositories only
+- Repositories access Services only
+- Services access Platform Runtimes only
+- no direct HTTP access exists outside Services
+- no direct IPC access exists outside Services
+- no runtime infrastructure exists inside Repositories
+- all Repository responses use ServerResponse<T>
+- Repositorys remain presentation-agnostic
+- Repositorys remain runtime-agnostic
+- Repository implementations are swappable
 
 ---
 
-### Migration Strategy
+# Compliance Goal
 
-1. Identify all direct HTTP calls (axios, fetch) outside repo/
-2. Create/update Repository with typed ApiService methods
-3. Replace direct calls with Repository calls in ViewModels
-4. Remove HTTP client imports from non-repo files
-5. Verify error handling is consistent after migration
+Repositories must behave as:
 
----
-
-## Validation Requirements
-
-A data access layer is compliant only if:
-
-- no axios/fetch calls exist outside repo/ directory
-- all ApiService instances live inside repository files
-- all repositories return typed ServerResponse
-- no View imports Repository directly
-- no Repository imports UI components or hooks
-- error messages are centralized in ApiService configuration
-- data sources can be swapped by replacing a Repository implementation
-
----
-
-## Compliance Goal
-
-Astra components must behave as:
-
-- Repository-gated data accessors
-- ApiService-routed network communicators
-- typed-response consumers
-- ViewModel-mediated data users
+- domain-specific data providers
+- typed-response providers
+- service-mediated communicators
+- runtime-isolated adapters
+- testable boundaries
 
 NOT:
 
-- raw HTTP callers
-- direct network requestors
-- untyped response handlers
-- view-coupled data accessors
+- HTTP clients
+- IPC clients
+- runtime controllers
+- UI-aware services
+- direct infrastructure consumers
+
+---
+
+# Final Invariant
+
+Views communicate with ViewModels.
+
+ViewModels communicate with Repositories.
+
+Repositories communicate with Astra Services.
+
+Astra Services communicate with Platform Runtimes.
+
+Platform Runtimes communicate with external systems.
+
+No layer may bypass the layer below it.
+
+This separation guarantees:
+
+- maintainability
+- testability
+- platform flexibility
+- runtime isolation
+- architectural consistency
+
+across all Astra-supported targets:
+
+```text
+WEB
+
+ELECTRON
 ```

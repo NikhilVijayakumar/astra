@@ -1,12 +1,13 @@
 # Architecture: Repository Pattern
 
-Astra provides a **Repository pattern** for API and data access, built on `ApiService` (Axios wrapper) with typed response contracts.
+Astra provides a **Repository pattern** for API and data access, built on `ApiService` (Axios wrapper) for WEB targets and `IpcService` for ELECTRON targets, with typed response contracts.
 
 ## Repository Structure
 
 ```
 Repository Pattern
-├── ApiService        # HTTP client wrapper
+├── ApiService        # HTTP client wrapper (WEB)
+├── IpcService        # IPC service wrapper (ELECTRON)
 ├── ServerResponse    # Response wrapper
 ├── HttpStatusCode    # Status enum
 └── Repository        # Feature-specific repos
@@ -118,10 +119,14 @@ const modelApi = {
 
 ### 2. Electron IPC (Desktop)
 ```typescript
-// Consumer-managed IPC abstraction
+// Consumer-managed IPC abstraction using IpcService
+import { IpcService } from 'astra';
+
+const ipc = new IpcService();
+
 const modelApi = {
-  list: () => window.electronAPI.invoke('resource:list'),
-  get: (id) => window.electronAPI.invoke('resource:get', id),
+  list: () => ipc.invoke('resource:list'),
+  get: (id) => ipc.invoke('resource:get', id),
 };
 ```
 
@@ -202,8 +207,8 @@ Never construct a raw object with `{ isError, isSuccess, status, ... }` — alwa
 ## Rules
 
 - **Always use ServerResponse** for API returns
-- **Use ApiService** for HTTP calls
-- **Use IPC abstractions** for Electron calls (consumer-managed)
+- **Use ApiService** for HTTP calls (WEB)
+- **Use IpcService** for IPC calls (ELECTRON)
 - **Return errors via ServerResponse** — do not use try/catch (ApiService handles that)
 - **Return proper status codes** for all operations
 

@@ -1,6 +1,8 @@
-# Repository Layer
+# Repository Layer (WEB)
 
-HTTP client and response normalization. All network access in Astra goes through this layer — feature repositories never import axios directly.
+HTTP client and response normalization for WEB targets. All HTTP access in Astra goes through this layer — feature repositories never import axios directly.
+
+For ELECTRON targets, see [ipc-service.md](./ipc-service.md).
 
 ## `HttpStatusCode`
 
@@ -83,5 +85,6 @@ The Repository layer does not:
 
 ## See Also
 
+- [ipc-service.md](./ipc-service.md) — IPC service abstraction for ELECTRON targets
 - [state-management.md](./state-management.md) — `AppState` contract that `ServerResponse` maps into
 - [use-data-state.md](./use-data-state.md) — hook that calls the repository and updates `AppState`

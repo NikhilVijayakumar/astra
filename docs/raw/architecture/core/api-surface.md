@@ -11,7 +11,8 @@ Astra has no dependency on any design system. Design systems depend on Astra, no
 | Concern | Package | Exports |
 |---------|---------|---------|
 | State management | `astra` | `useDataState`, `AppStateHandler`, `AppStateProvider`, `AppStateContext`, `AppStateComponents`, `AppStateHandlerProps`, `StateType`, `StateCode`, `AppState` |
-| Data access | `astra` | `ApiService`, `ServerResponse`, `HttpStatusCode`, `getApiService` |
+| Data access (WEB) | `astra` | `ApiService`, `ServerResponse`, `HttpStatusCode`, `getApiService` |
+| Data access (ELECTRON) | `astra` | `IpcService`, `ServerResponse` |
 | UI state rendering | external (e.g. `prati`) | `LoadingState`, `ErrorState`, `EmptyState` — wired via `AppStateProvider` |
 | Theming | external (e.g. `prati`) | `ThemeProvider`, `ThemeToggle`, `useTheme` |
 | Localization | external (e.g. `prati`) | `LanguageProvider`, `useLanguage` |
@@ -27,7 +28,7 @@ The public API surface is defined by two mechanisms:
 ```typescript
 // src/lib.ts — only export intentional public symbols
 export { useDataState, AppStateHandler } from "./common/hooks";
-export { ApiService, ServerResponse, HttpStatusCode } from "./common/repo";
+export { ApiService, IpcService, ServerResponse, HttpStatusCode } from "./common/repo";
 export type { AppState } from "./common/state/AppState";
 export { StateType } from "./common/state/AppState";
 ```
@@ -61,7 +62,7 @@ Barrel files (`index.ts`) aggregate module exports. Follow these rules:
 ```typescript
 // Good: named exports of intentional public symbols
 export { useDataState, AppStateHandler } from './hooks';
-export { ApiService, ServerResponse, HttpStatusCode } from './repo';
+export { ApiService, IpcService, ServerResponse, HttpStatusCode } from './repo';
 export { StateType } from './state/AppState';
 export type { AppState } from './state/AppState';
 

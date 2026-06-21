@@ -10,7 +10,8 @@ A guide to integrating the Astra library into your application. Astra provides s
 | `AppState<T>` | State interface (INIT → LOADING → COMPLETED) |
 | `AppStateHandler` | Conditional rendering for loading/error/empty/success states |
 | `StateType` | Enum: `INIT`, `LOADING`, `COMPLETED` |
-| `ApiService` | Type-safe Axios wrapper for HTTP API calls |
+| `ApiService` | Type-safe Axios wrapper for HTTP API calls (WEB) |
+| `IpcService` | IPC service wrapper for Electron communication (ELECTRON) |
 | `ServerResponse<T>` | Typed response wrapper returned by all repositories |
 | `HttpStatusCode` | HTTP status code enum |
 
@@ -64,6 +65,8 @@ Astra's core pattern separates data access, state orchestration, and presentatio
 
 ### Repository — data access
 
+#### WEB — ApiService
+
 ```tsx
 // src/features/products/repo/productsApi.ts
 import { ApiService, ServerResponse } from "astra";
@@ -76,6 +79,21 @@ export const productsApi = {
   list: (): Promise<ServerResponse<Product[]>> => api.get("/products"),
 };
 ```
+
+#### ELECTRON — IpcService
+
+```tsx
+// src/features/products/repo/productsIpc.ts
+import { IpcService, ServerResponse } from "astra";
+
+const ipc = new IpcService();
+
+export const productsIpc = {
+  list: (): Promise<ServerResponse<Product[]>> => ipc.invoke("products:list"),
+};
+```
+
+The ViewModel layer remains identical — only the repository's transport differs.
 
 ### ViewModel — state orchestration
 

@@ -26,7 +26,7 @@ It provides:
 
 * MVVM pattern (`useDataState`, `AppState`, `AppStateHandler`)
 * Async state lifecycle (`StateType`, `INIT → LOADING → COMPLETED/ERROR`)
-* Repository pattern (`ApiService`, `ServerResponse`, `HttpStatusCode`)
+* Repository pattern (`ApiService`, `IpcService`, `ServerResponse`, `HttpStatusCode`)
 * Platform abstraction (web HTTP / Electron IPC)
 * Deterministic build and public API surface
 
@@ -150,7 +150,9 @@ repository-isolation.md
 dependency-safety.md
 public-api-stability.md
 deterministic-build.md
-platform-neutrality.md
+boilerplate-ownership.md
+runtime-boundary.md
+target-consistency.md
 ```
 
 ---

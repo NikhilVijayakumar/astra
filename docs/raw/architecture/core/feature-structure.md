@@ -9,7 +9,7 @@ Astra provides state management and data access primitives:
 | Layer | What Astra Provides |
 |-------|-------------------|
 | **State Hooks** | `useDataState<T>`, `AppState<T>`, `StateType` for async data flow |
-| **Data Layer** | `ApiService`, `ServerResponse<T>`, `HttpStatusCode` for API communication |
+| **Data Layer** | `ApiService` (HTTP), `IpcService` (Electron IPC), `ServerResponse<T>`, `HttpStatusCode` for API communication |
 | **UI Utilities** | `AppStateHandler` for conditional rendering of loading/error/empty/success states |
 
 UI components (atoms, molecules, organisms, templates), theming (`ThemeProvider`, `useTheme`), and localization (`LanguageProvider`, `useLanguage`) are provided by **Prati**. See the Prati documentation for setup and usage.
@@ -66,7 +66,9 @@ export interface UserState extends AppState<User[]> {
 
 ### `repo/` — Data Access
 
-Handles all external communication (HTTP APIs, Electron IPC). Built on Astra's `ApiService`. No UI concerns.
+Handles all external communication (HTTP APIs, Electron IPC). Built on Astra's `ApiService` (WEB) or `IpcService` (ELECTRON). No UI concerns.
+
+#### WEB — ApiService
 
 ```typescript
 // src/features/users/repo/usersApi.ts
@@ -80,6 +82,23 @@ export const usersApi = {
   get: (id: string): Promise<ServerResponse<User>> => api.get(`/users/${id}`),
 };
 ```
+
+#### ELECTRON — IpcService
+
+```typescript
+// src/features/tasks/repo/tasksIpc.ts
+import { IpcService, ServerResponse } from 'astra';
+import { Task } from '../model/task.types';
+
+const ipc = new IpcService();
+
+export const tasksIpc = {
+  list: (): Promise<ServerResponse<Task[]>> => ipc.invoke('tasks:list'),
+  get: (id: string): Promise<ServerResponse<Task>> => ipc.invoke('tasks:get', { id }),
+};
+```
+
+The repository contract remains identical. Only the service abstraction differs.
 
 ### `hooks/` — ViewModel Layer
 

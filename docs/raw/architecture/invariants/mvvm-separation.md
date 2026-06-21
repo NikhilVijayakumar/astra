@@ -148,6 +148,8 @@ ViewModel owns state orchestration, returns data and callbacks.
 
 Allowed:
 
+#### WEB — ApiService
+
 ```tsx
 // userRepo.ts
 import { ApiService, ServerResponse } from 'astra';
@@ -163,7 +165,26 @@ export const UserRepo = {
 ```
 
 Reason:
-Repository abstracts data source — ViewModel depends on contract, not implementation.
+Repository abstracts HTTP data source. ViewModel depends on contract, not transport.
+
+#### ELECTRON — IpcService
+
+```tsx
+// taskRepo.ts
+import { IpcService, ServerResponse } from 'astra';
+
+const ipc = new IpcService();
+
+export const TaskRepo = {
+  list: (): Promise<ServerResponse<Task[]>> => ipc.invoke('tasks:list'),
+  get: (id: string): Promise<ServerResponse<Task>> => ipc.invoke('tasks:get', { id }),
+};
+```
+
+Reason:
+Repository abstracts IPC data source. ViewModel depends on contract, not transport.
+
+The repository contract remains identical. Only the service abstraction differs.
 
 ---
 

@@ -117,21 +117,24 @@ export function ListView({ state }: Props) {
 
 ## Integration with Electron
 
-Astra's MVVM pattern works with any data source. For Electron apps, repositories use IPC calls instead of HTTP:
+Astra's MVVM pattern works with any data source. For Electron apps, repositories use IpcService instead of HTTP:
 
 ```typescript
-// repo/resourceApi.ts — Electron repository using IPC
-export const resourceApi = {
+// repo/resourceIpc.ts — Electron repository using IpcService
+import { IpcService, ServerResponse } from 'astra';
+
+const ipc = new IpcService();
+
+export const resourceIpc = {
   list: async (): Promise<ServerResponse<Resource[]>> => {
-    const response = await window.electronAPI.invoke('resource:list');
-    return response;
+    return ipc.invoke('resource:list');
   },
 };
 
 // hooks/useResources.ts — ViewModel wraps the IPC repository
 export const useResources = () => {
   const [state, execute] = useDataState<Resource[]>();
-  const load = () => execute(() => resourceApi.list());
+  const load = () => execute(() => resourceIpc.list());
   return { state, load };
 };
 ```

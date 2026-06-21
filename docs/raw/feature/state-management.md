@@ -61,12 +61,13 @@ State management does not:
 
 - execute API calls — that is `useDataState.execute()`
 - render UI from state — that is `AppStateHandler`
-- normalize HTTP errors — that is `ApiService` in the Repository layer
+- normalize transport errors — that is `ApiService` (WEB) or `IpcService` (ELECTRON) in the Repository layer
 - manage global or cross-component state — each `useDataState` instance is local to its ViewModel hook
 
 ## Building Blocks
 
-- [repository.md](./repository.md) — HTTP client, response normalization (`ApiService`, `ServerResponse`, `HttpStatusCode`)
+- [repository.md](./repository.md) — HTTP client, response normalization (`ApiService`, `ServerResponse`, `HttpStatusCode`) for WEB
+- [ipc-service.md](./ipc-service.md) — IPC service abstraction (`IpcService`, `ServerResponse`) for ELECTRON
 - [use-data-state.md](./use-data-state.md) — hook that manages `AppState` transitions
 - [app-state-handler.md](./app-state-handler.md) — component that routes UI based on `AppState`
 - [mvvm-wiring.md](./mvvm-wiring.md) — full pattern: Repository → ViewModel → View

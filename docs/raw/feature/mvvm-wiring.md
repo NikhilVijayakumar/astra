@@ -2,11 +2,23 @@
 
 How Repository, ViewModel hook, and View connect using Astra's building blocks. All async data flow follows this pattern.
 
+## WEB
+
 ```
 Repository          →  ViewModel (hook)    →  View
 ApiService calls       useDataState wraps     AppStateHandler renders
 ServerResponse         AppState               loading/error/empty/success
 ```
+
+## ELECTRON
+
+```
+Repository          →  ViewModel (hook)    →  View
+IpcService calls       useDataState wraps     AppStateHandler renders
+ServerResponse         AppState               loading/error/empty/success
+```
+
+The ViewModel and View layers are identical. Only the transport differs.
 
 ## Full Example
 
@@ -54,7 +66,7 @@ Error state is rendered automatically by `AppStateHandler`. Wire `retry` to a re
 
 ## Rules
 
-- Feature repositories must use `ApiService` — never import axios directly
+- Feature repositories must use `ApiService` (WEB) or `IpcService` (ELECTRON) — never import axios or `window.electronAPI` directly
 - Feature views must use `AppStateHandler` — no manual branching on `isError`/`isSuccess`
 - ViewModels are hooks — no class-based ViewModels
 - One `useDataState` per async operation — compose multiple calls with multiple hook instances
@@ -70,14 +82,15 @@ Error state is rendered automatically by `AppStateHandler`. Wire `retry` to a re
 
 MVVM Wiring does not define:
 
-- the internal implementation of `ApiService`, `useDataState`, or `AppStateHandler` — see individual feature docs
+- the internal implementation of `ApiService`, `IpcService`, `useDataState`, or `AppStateHandler` — see individual feature docs
 - global state management — each ViewModel hook instance is local to its component tree
 - routing or navigation — those are application concerns outside this pattern
 - authentication or authorization — those are handled at the Repository or application layer
 
 ## See Also
 
-- [repository.md](./repository.md) — `ApiService`, `ServerResponse`
+- [repository.md](./repository.md) — `ApiService`, `ServerResponse` (WEB)
+- [ipc-service.md](./ipc-service.md) — `IpcService`, `ServerResponse` (ELECTRON)
 - [use-data-state.md](./use-data-state.md) — hook internals
 - [app-state-handler.md](./app-state-handler.md) — component API
 - [state-management.md](./state-management.md) — `AppState` contract

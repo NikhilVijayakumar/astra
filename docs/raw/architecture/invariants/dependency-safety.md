@@ -1,271 +1,521 @@
-# Dependency Safety Invariant
+# Dependency Governance Invariant
 
 ## Purpose
 
-Astra is a production UI library with a controlled dependency surface.
+Astra is an Application Engineering Platform with a controlled dependency ecosystem.
 
-All dependencies must remain auditable, minimal, actively maintained, and version-pinned. The library must not introduce risk through abandoned packages, high-severity vulnerabilities, or unpredictable transitive dependencies.
+Dependencies must remain:
 
-Dependency safety guarantees:
-- reproducible installs across environments
-- predictable upgrade paths
-- minimized attack surface
-- controlled bundle size
-- clear licensing compliance
-- long-term maintainability
+* auditable
+* minimal
+* actively maintained
+* version-controlled
+* ownership-compliant
+* platform-compliant
+
+Dependency governance guarantees:
+
+* reproducible builds
+* predictable upgrades
+* controlled dependency surface
+* platform consistency
+* repository boundary enforcement
+* licensing compliance
+* long-term maintainability
 
 ---
 
-## Architectural Rule
+# Architectural Rule
 
-Dependencies must meet all safety criteria before inclusion.
+Every dependency must satisfy:
+
+```text
+Safety
+Ownership
+Boundary Compliance
+Platform Compliance
+Version Control
+Licensing Compliance
+```
+
+before inclusion.
 
 A dependency is acceptable only if:
-- it is actively maintained (commits within last 12 months)
-- it has no known high-severity CVEs
-- it is MIT, Apache 2.0, or BSD licensed
-- it is pinned to a specific semver range (no wildcard `*`)
-- it has a clear, documented API
-- it is the minimal dependency needed (no bundled extras)
 
-Core runtime dependencies (react, mui, axios) must be:
-- version-pinned in package.json
-- listed as peer dependencies where appropriate
-- audited for breaking changes before upgrade
+* actively maintained
+* documented
+* auditable
+* version controlled
+* ownership compliant
+* platform compliant
+* license approved
 
 ---
 
-## Allowed Patterns
+# Supported Platforms
 
-### Version-Pinned Dependencies
+Astra explicitly supports:
 
-Allowed:
+```text
+WEB
+ELECTRON
+```
+
+Astra is not platform-neutral.
+
+Astra provides:
+
+```text
+Web Boilerplates
+
+Electron Boilerplates
+
+Repository Templates
+
+Hooks
+
+MVVM
+
+Code Generation
+```
+
+for approved targets.
+
+---
+
+# Repository Ownership Model
+
+## Astra Owns
+
+### Architecture
+
+* MVVM
+* Repository Pattern
+* Validation Architecture
+* State Management
+* Feature Structure
+
+### Generation
+
+* Boilerplates
+* Templates
+* Generators
+
+### Platform Support
+
+* Web Integration
+* Electron Integration
+
+### Contracts
+
+* Application Contracts
+* Runtime Contracts
+* Repository Contracts
+
+---
+
+## Prana Owns
+
+### Runtime Infrastructure
+
+* Electron Runtime
+* IPC Runtime
+* SQLite Runtime
+* Storage Runtime
+* Scheduler
+* Plugin Host
+* Virtual Drive
+
+### Runtime Services
+
+* IPC Providers
+* Storage Providers
+* Runtime Adapters
+
+---
+
+## Prati Owns
+
+### Design System
+
+* Design Tokens
+* Theme System
+* Localization Assets
+* Component Contracts
+* Component Library
+
+### Prototype Runtime
+
+* Navigation Runtime
+* MockDB Runtime
+* Presentation Runtime
+* Prototype Components
+
+---
+
+# Dependency Categories
+
+Every dependency must belong to one category.
+
+---
+
+## Shared Dependencies
+
+Used by all Astra targets.
+
+Examples:
 
 ```json
 {
-  "dependencies": {
-    "@mui/material": "7.2.0",
-    "axios": "1.15.0",
-    "framer-motion": "^11.18.2"
-  }
+  "react": "^19.0.0",
+  "react-dom": "^19.0.0",
+  "typescript": "^5.8.0"
+}
+```
+
+---
+
+## Web Dependencies
+
+Used only by Web targets.
+
+Examples:
+
+```json
+{
+  "axios": "^1.15.0",
+  "react-router-dom": "^7.0.0"
+}
+```
+
+---
+
+## Electron Dependencies
+
+Used only by Electron targets.
+
+Examples:
+
+```text
+IPC Contracts
+
+Electron Integration Contracts
+
+Prana Runtime Contracts
+```
+
+---
+
+## Development Dependencies
+
+Build and development only.
+
+Examples:
+
+```json
+{
+  "vite": "^7.0.0",
+  "eslint": "^9.0.0",
+  "vitest": "^3.0.0"
+}
+```
+
+---
+
+## Documentation Dependencies
+
+Documentation-only consumption.
+
+Examples:
+
+```text
+Prati Design Documentation
+
+Prati Theme Documentation
+
+Prati Localization Documentation
+
+Prati Component Contracts
+```
+
+These are not runtime dependencies.
+
+---
+
+# Dependency Safety Rules
+
+Dependencies must satisfy:
+
+* maintained within last 12 months
+* no active high-severity CVEs
+* approved license
+* documented API
+* predictable upgrade path
+* justified inclusion
+
+---
+
+# Allowed Licenses
+
+Approved:
+
+```text
+MIT
+
+Apache 2.0
+
+BSD
+```
+
+---
+
+# Restricted Licenses
+
+Require explicit review:
+
+```text
+GPL
+
+AGPL
+
+LGPL
+
+Custom Licenses
+```
+
+---
+
+# Version Governance
+
+---
+
+## Allowed
+
+Pinned versions:
+
+```json
+{
+  "axios": "1.15.0"
+}
+```
+
+or controlled ranges:
+
+```json
+{
+  "axios": "^1.15.0"
+}
+```
+
+---
+
+## Forbidden
+
+```json
+{
+  "axios": "*"
+}
+```
+
+```json
+{
+  "axios": "latest"
+}
+```
+
+```json
+{
+  "axios": "x.x.x"
 }
 ```
 
 Reason:
-Explicit versions enable reproducible installs and controlled upgrades.
+
+Non-deterministic builds.
 
 ---
 
-### Peer Dependencies for Core Libraries
+# Lockfile Governance
 
-Allowed:
+Required:
 
-```json
-{
-  "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@mui/material": "^7.0.0"
-  }
-}
+```text
+package-lock.json
 ```
 
-Reason:
-Consumer controls the core framework version — avoids duplicate copies.
+or equivalent lockfile.
+
+Must be committed.
+
+Purpose:
+
+```text
+Reproducible Builds
+```
 
 ---
 
-### Lockfile Committed
+# Platform Dependency Rules
+
+---
+
+## WEB
 
 Allowed:
 
 ```text
-package-lock.json (committed to repository)
+Axios
+
+REST Clients
+
+Browser APIs
+
+React Router
 ```
 
-Reason:
-Lockfile ensures bit-for-bit identical installs across all environments.
+Forbidden:
+
+```text
+Electron Runtime Infrastructure
+```
 
 ---
 
-### Explicit Type Definitions
+## ELECTRON
 
 Allowed:
 
-```json
-{
-  "dependencies": {
-    "@types/react": "19.1.8",
-    "@types/uuid": "10.0.0"
-  }
-}
+```text
+IPC Contracts
+
+IpcService
+
+Electron Repository Templates
 ```
-
-Reason:
-Type packages are explicitly declared — not relying on transitive or bundled types.
-
----
-
-### Minimal Import Scope
-
-Allowed:
-
-```tsx
-import { Button } from '@mui/material';
-import { motion } from 'framer-motion';
-```
-
-Reason:
-Tree-shakeable imports allow consumers to exclude unused code.
-
----
-
-## Forbidden Patterns
-
-### Abandoned Packages
 
 Forbidden:
 
-```json
-{
-  "dependencies": {
-    "unmaintained-package": "^1.0.0"
-  }
-}
+```text
+Direct Runtime Ownership
 ```
-
-where the package has no commits, releases, or issue responses in over 12 months.
-
-Reason:
-Unmaintained packages accumulate CVEs and compatibility issues.
 
 ---
 
-### Wildcard Version Ranges
+# Runtime Infrastructure Ownership
+
+Astra may provide:
+
+```text
+IpcService
+
+IPC Repository Templates
+
+Electron Application Templates
+
+IPC Contracts
+```
+
+Astra may not own:
+
+```text
+ipcMain
+
+ipcRenderer
+
+contextBridge
+
+BrowserWindow
+
+Electron Lifecycle
+```
+
+These belong to:
+
+```text
+Prana
+```
+
+---
+
+# Repository Boundary Rules
+
+---
+
+## Allowed
+
+```text
+Astra
+    -> Prana Contracts
+
+Astra
+    -> Prati Documentation
+
+Astra
+    -> Prati Contracts
+```
+
+---
+
+## Forbidden
+
+```text
+Astra
+    -> Prati Prototype Runtime
+
+Astra
+    -> Prati Component Runtime
+
+Astra
+    -> Prana Runtime Infrastructure
+```
+
+---
+
+## Forbidden Circular Dependencies
+
+```text
+Prana -> Astra -> Prana
+
+Prati -> Astra -> Prati
+```
+
+Circular ownership is prohibited.
+
+---
+
+# Documentation Dependency Rules
+
+Documentation dependencies must be derived from:
+
+```text
+README.md
+
+docs/raw/**
+```
+
+only.
 
 Forbidden:
 
-```json
-{
-  "dependencies": {
-    "some-lib": "*"
-  }
-}
+```text
+src/**
+
+package.json
+
+runtime implementations
+
+component implementations
 ```
 
-Reason:
-Wildcard versions produce non-reproducible installs.
+Documentation is authoritative.
 
 ---
 
-### Duplicated Core Libraries
-
-Forbidden:
-
-```json
-{
-  "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "peerDependencies": {
-    "react": "^18.0.0"
-  }
-}
-```
-
-where runtime and peer versions conflict.
-
-Reason:
-Duplicate React instances cause hook errors and increased bundle size.
+# Dependency Detection Heuristics
 
 ---
 
-### Unused Dependencies
-
-Forbidden:
-
-```json
-{
-  "dependencies": {
-    "lodash": "^4.17.21"
-  }
-}
-```
-
-where lodash is not imported anywhere in the library source.
-
-Reason:
-Every dependency increases install time, audit surface, and bundle size.
-
----
-
-### High-Severity Vulnerability Introduction
-
-Forbidden:
-
-Any dependency with:
-- known CVE with CVSS >= 7.0
-- unpatched security advisory
-- malicious package provenance
-
-Reason:
-Library consumers inherit all transitive vulnerabilities.
-
----
-
-### Direct Dependency on Electron in Core
-
-Forbidden:
-
-```json
-{
-  "dependencies": {
-    "electron": "^35.0.0"
-  }
-}
-```
-
-inside the core library package.json.
-
-Reason:
-Electron coupling violates platform neutrality — belongs in consumer project.
-
----
-
-### Unpinned Build Tooling
-
-Forbidden:
-
-```json
-{
-  "devDependencies": {
-    "vite": "^6.0.0"
-  }
-}
-```
-
-without lockfile commitment.
-
-Reason:
-Build tool version drift produces non-reproducible build artifacts.
-
----
-
-## Detection Heuristics
-
-### Unmaintained Packages
-
-Detect packages in package.json where:
-
-- last publish > 12 months ago
-- no commit activity in 12 months
-- open issues without response
-- archived GitHub repository
-
----
-
-### Known Vulnerabilities
+## Vulnerabilities
 
 Run:
 
@@ -273,283 +523,278 @@ Run:
 npm audit
 ```
 
-and flag:
+Flag:
 
-- CRITICAL severities
-- HIGH severities
-- packages without fix available
+* CRITICAL
+* HIGH
 
 ---
 
-### Duplicate Core Libraries
+## Duplicate Core Libraries
 
-Detect in lockfile:
+Run:
 
 ```bash
 npm ls react
+npm ls react-dom
 npm ls @mui/material
 ```
 
-where multiple versions of the same core library are installed.
+Flag:
+
+* multiple versions
 
 ---
 
-### Wildcard Version Specifiers
+## Unused Dependencies
 
-Detect in package.json:
+Detect:
 
-```json
-"*"
-"x.x.x"
-"latest"
+```text
+Declared but never imported
 ```
 
 ---
 
-### Unused Package Imports
+## Wildcard Versions
 
-Detect packages declared in `dependencies` that are never imported in `src/`.
+Detect:
 
----
-
-### Large Transitive Dependency Trees
-
-Flag packages whose transitive dependency count exceeds reasonable thresholds (>50).
-
----
-
-### License Violations
-
-Detect packages with:
-
-- GPL/AGPL licenses (unless explicitly accepted)
-- unknown or proprietary licenses
-- custom licenses without review
+```text
+*
+latest
+x.x.x
+```
 
 ---
 
-## Severity Levels
+## Large Dependency Trees
 
-### P0 — Critical
+Flag:
 
-Active vulnerability or abandoned core dependency.
+```text
+>50 transitive dependencies
+```
+
+without documented justification.
+
+---
+
+## License Violations
+
+Flag:
+
+```text
+Unknown License
+
+GPL
+
+AGPL
+
+Proprietary
+```
+
+without approval.
+
+---
+
+# Severity Levels
+
+## P0 — Critical
 
 Examples:
 
-- dependency with unpatched CVE >= 9.0
-- core library (React, MUI, axios) abandoned
-- malicious package detected
+* Active CVE >= 9.0
+* Malicious dependency
+* Missing ownership
+* Runtime ownership violation
 
 Must fix before release.
 
 ---
 
-### P1 — High
-
-Vulnerability or stability risk in non-core dependency.
+## P1 — High
 
 Examples:
 
-- dependency with CVE >= 7.0
-- unmaintained transitive dependency
-- duplicate core library versions
-- wildcard version specifier
+* CVE >= 7.0
+* Duplicate core libraries
+* Boundary violations
+* Wildcard versions
+* Circular dependency
 
-Must migrate within release cycle.
+Must fix within release cycle.
 
 ---
 
-### P2 — Transitional
-
-Unused dependency or license concern.
+## P2 — Transitional
 
 Examples:
 
-- declared but unused dependency
-- GPL-licensed transitive dependency
-- large bundle contribution without value
+* Unused dependency
+* Large dependency tree
+* License review pending
 
-Allowed temporarily with migration plan.
+Requires migration plan.
 
 ---
 
-### P3 — Informational
+## P3 — Informational
 
-All dependencies audited and clean.
+Fully compliant dependency ecosystem.
 
 No action required.
 
 ---
 
-## Refactoring Guidance
+# Refactoring Guidance
 
-### Replace Unmaintained Package
+## Replace Unmaintained Packages
 
 BAD:
 
 ```json
-"deprecated-lib": "^1.0.0"
+{
+  "deprecated-lib": "^1.0.0"
+}
 ```
 
 GOOD:
 
 ```json
-"active-lib": "^2.0.0"
+{
+  "active-lib": "^2.0.0"
+}
 ```
-
-or implement the functionality inline if small.
 
 ---
 
-### Pin Version Ranges
+## Remove Unused Dependencies
 
 BAD:
 
 ```json
-"lib": "*"
+{
+  "lodash": "^4.17.21"
+}
 ```
+
+unused.
 
 GOOD:
 
-```json
-"lib": "^1.2.3"
+```text
+Remove dependency
 ```
 
 ---
 
-### Remove Unused Dependencies
+## Align Core Libraries
 
 BAD:
 
-```json
-"lodash": "^4.17.21"
-```
-
-(unused)
+Multiple React versions.
 
 GOOD:
 
-```json
-// remove from dependencies
+Single React version across:
+
+```text
+peerDependencies
+devDependencies
 ```
 
 ---
 
-### Deduplicate Core Libraries
+## Reduce Dependency Surface
 
-BAD:
+Prefer:
 
-```bash
-npm ls react
-# react@18.0.0, react@19.0.0
+```text
+Native APIs
+
+Smaller Libraries
+
+Internal Utilities
 ```
 
-GOOD:
-
-```json
-// Align peer and runtime react versions
-"peerDependencies": { "react": "^19.0.0" }
-"devDependencies": { "react": "^19.0.0" }
-```
+when reasonable.
 
 ---
 
-### Replace Large Libraries With Smaller Alternatives
+# Validation Requirements
 
-BAD:
+Dependency governance is compliant only when:
 
-```json
-"moment": "^2.29.0"
-```
-
-GOOD:
-
-```json
-"dayjs": "^1.11.0"
-```
-
-or native Intl APIs if sufficient.
-
----
-
-## Library Impact
-
-Violating Dependency Safety causes:
-
-- consumer inherits vulnerabilities
-- non-reproducible installs across team members
-- duplicate bundled dependencies (bloated consumer bundles)
-- breaking changes from unpinned transitive updates
-- audit fatigue (too many dependencies to track)
-- license compliance risk
-- stale security posture
-- build instability from tooling drift
-
-Without Dependency Safety:
-Astra becomes a liability for consumers
-instead of a trusted, auditable library dependency.
+* all dependencies are maintained
+* all dependencies are licensed appropriately
+* no CRITICAL vulnerabilities exist
+* no HIGH vulnerabilities exist
+* versions are controlled
+* lockfile is committed
+* ownership is documented
+* repository boundaries are respected
+* no circular dependencies exist
+* platform rules are respected
+* runtime ownership is respected
+* documentation dependencies are documented
 
 ---
 
-## Migration Notes
-
-### Transitional Dependency Exceptions Must Include
-
-```json
-/**
- * @deprecated-dependency
- * Package: <name>
- * Version: <version>
- * Risk: <what risk>
- * Replacement: <target>
- * Removal target: <version>
- */
-```
-
----
-
-### Migration Strategy
-
-1. Run `npm audit` and fix all CRITICAL and HIGH vulnerabilities
-2. Remove all unused dependencies
-3. Pin all version ranges (no wildcards)
-4. Align peer dependencies with runtime versions
-5. Replace unmaintained packages with active alternatives
-6. Review transitive dependency tree for bloat
-7. Commit lockfile
-8. Add `npm audit` to CI pipeline
-
----
-
-## Validation Requirements
-
-The dependency set is compliant only if:
-
-- all packages are actively maintained
-- no high-severity vulnerabilities exist
-- all version ranges are pinned (no wildcards)
-- no unused dependencies are declared
-- no duplicate core library versions exist
-- all licenses are compatible
-- lockfile is committed and up to date
-- `npm audit` passes with no CRITICAL or HIGH items
-- bundle size impact of each dependency is justified
-
----
-
-## Compliance Goal
+# Compliance Goal
 
 Astra must behave as:
 
-- a minimal-dependency UI library
-- an auditable dependency tree
-- a CVE-monitored package set
-- a reproducible install substrate
+```text
+An Application Engineering Platform
+
+A Controlled Dependency Ecosystem
+
+A Dual-Platform Framework
+
+A Reproducible Build Substrate
+
+A Boilerplate Generation Platform
+```
 
 NOT:
 
-- a vulnerability vector for consumers
-- an unmaintained dependency sink
-- a duplicate-library host
-- a wildcard-versioned risk source
+```text
+A Dependency Sink
+
+A Runtime Platform
+
+A Design System
+
+A Prototype Runtime
+
+A Circular Dependency Host
+```
+
+---
+
+# Final Invariant
+
+Every dependency introduced into Astra must be:
+
+* safe
+* maintained
+* version controlled
+* ownership compliant
+* platform compliant
+* boundary compliant
+* license compliant
+* auditable
+
+and must not violate the architectural separation between:
+
+```text
+Prana
+    Runtime Platform
+
+Astra
+    Application Engineering Platform
+
+Prati
+    Design System Platform
 ```

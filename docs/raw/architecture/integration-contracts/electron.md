@@ -85,21 +85,23 @@ export default App;
 
 ## IPC Repository Pattern
 
-In Electron, the repository layer uses `window.electronAPI` (exposed via a preload context bridge) instead of HTTP. The ViewModel and View layers are unchanged — only the repository's data source differs.
+In Electron, the repository layer uses `IpcService` (Astra's service abstraction over `window.electronAPI`) instead of HTTP. The ViewModel and View layers are unchanged — only the repository's data source differs.
 
 ```typescript
-// src/features/resources/repo/resourcesApi.ts
-import { ServerResponse } from "astra";
+// src/features/resources/repo/resourcesIpc.ts
+import { IpcService, ServerResponse } from "astra";
 import { Resource } from "../model/resource.types";
 
-// Consumer-managed IPC adapter — aligns with Astra's ServerResponse contract.
-// window.electronAPI is exposed by the preload context bridge (see Electron docs).
-export const resourcesApi = {
+// IpcService is Astra's service abstraction over Electron IPC.
+// It delegates to window.electronAPI under the hood (exposed by Prana's preload context bridge).
+const ipc = new IpcService();
+
+export const resourcesIpc = {
   list: async (): Promise<ServerResponse<Resource[]>> => {
-    return window.electronAPI.invoke("resource:list");
+    return ipc.invoke("resource:list");
   },
   get: async (id: string): Promise<ServerResponse<Resource>> => {
-    return window.electronAPI.invoke("resource:get", id);
+    return ipc.invoke("resource:get", id);
   },
 };
 ```
@@ -107,7 +109,7 @@ export const resourcesApi = {
 The IPC response must return a `ServerResponse<T>` shape so that `useDataState` can process it correctly:
 
 ```typescript
-// electron/ipc/resource.handlers.ts (main process — consumer-owned)
+// electron/ipc/resource.handlers.ts (main process — Prana or consumer-owned)
 import { ipcMain } from "electron";
 import { ServerResponse } from "astra";
 
@@ -124,11 +126,11 @@ The ViewModel hook is identical to the browser pattern — it wraps the reposito
 ```typescript
 // src/features/resources/hooks/useResources.ts
 import { useDataState } from "astra";
-import { resourcesApi } from "../repo/resourcesApi";
+import { resourcesIpc } from "../repo/resourcesIpc";
 
 export const useResources = () => {
   const [state, execute] = useDataState<Resource[]>();
-  const load = () => execute(() => resourcesApi.list());
+  const load = () => execute(() => resourcesIpc.list());
   return { state, load };
 };
 ```
@@ -190,15 +192,18 @@ Translation file:
 
 ## Platform Neutrality
 
-Astra's core library never imports Electron or Node.js APIs. IPC adapters live exclusively in consumer-managed files and are never re-exported from the public API. See [Platform Neutrality Invariant](../invariants/platform-neutrality.md) for the full rules.
+Astra's core library never imports Electron or Node.js APIs. Astra provides `IpcService` as a runtime-neutral service abstraction that delegates to `window.electronAPI` — it never imports Electron directly. See [Runtime Boundary Invariant](../invariants/runtime-boundary.md) for the full rules.
 
 ```typescript
 // ❌ Never in Astra core library
 import { ipcRenderer } from "electron";
 
-// ✅ Always in consumer-managed adapter (not exported from lib.ts)
-const resourcesApi = {
-  list: () => window.electronAPI.invoke("resource:list"),
+// ✅ IpcService wraps window.electronAPI — no direct Electron import
+import { IpcService } from "astra";
+
+const ipc = new IpcService();
+const resourcesIpc = {
+  list: () => ipc.invoke("resource:list"),
 };
 ```
 
@@ -220,7 +225,7 @@ my-electron-app/
 │   │       ├── model/
 │   │       │   └── resource.types.ts
 │   │       ├── repo/
-│   │       │   └── resourcesApi.ts      # IPC adapter
+│   │   │   └── resourcesIpc.ts       # IPC adapter (IpcService)
 │   │       ├── hooks/
 │   │       │   └── useResources.ts      # ViewModel
 │   │       └── view/
@@ -238,14 +243,14 @@ my-electron-app/
 1. **Enable Context Isolation** — Always use `contextIsolation: true` in `BrowserWindow.webPreferences`
 2. **Use Preload Scripts** — Expose only necessary APIs via the context bridge
 3. **Return `ServerResponse<T>` from IPC** — Ensures `useDataState` processes results correctly
-4. **Never import Electron in renderer components** — Use `window.electronAPI` only
+4. **Never import Electron in renderer components** — Use `IpcService` instead of `window.electronAPI`
 5. **Localize all strings** — Use your app's localization system for window controls, tooltips, and labels; if using Prati, use `useLanguage` from `prati`
 
 ## See Also
 
 - [Getting Started Guide](getting-started.md) — Basic Astra setup
 - [React Integration Guide](react.md) — React-specific patterns
-- [Platform Neutrality Invariant](../invariants/platform-neutrality.md) — Core/platform isolation rules
+- [Runtime Boundary Invariant](../invariants/runtime-boundary.md) — Core/platform isolation rules
 - [Repository Pattern](../core/repository.md) — Data access patterns
 - Prati Documentation — ThemeProvider, LanguageProvider, localization, UI components
 - [Electron documentation](https://www.electronjs.org/docs) — Main process, IPC handlers, menus

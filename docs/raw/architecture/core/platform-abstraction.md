@@ -1,6 +1,6 @@
 # Architecture: Platform Abstraction
 
-Astra is a runtime-agnostic UI library. See [Platform Neutrality Invariant](../invariants/platform-neutrality.md) for the authoritative rules.
+Astra is a runtime-agnostic UI library. See [Runtime Boundary Invariant](../invariants/runtime-boundary.md) for the authoritative rules.
 
 ## Core vs Platform-Specific
 
@@ -27,16 +27,17 @@ export function ClientOnly({ children }: { children: React.ReactNode }) {
 
 ## Electron Abstraction
 
-Electron-specific code must be isolated in consumer-managed abstractions, never in the core library:
+Astra provides `IpcService` as the service abstraction over Electron IPC. Repositories consume `IpcService`, never raw `window.electronAPI`:
 
 ```typescript
-// Consumer-managed IPC abstraction for Electron
-import { ServerResponse } from 'astra';
+// Consumer-managed IPC repository for Electron
+import { IpcService, ServerResponse } from 'astra';
 
-export const resourceApi = {
+const ipc = new IpcService();
+
+export const resourceIpc = {
   list: async (): Promise<ServerResponse<Resource[]>> => {
-    const response = await window.electronAPI.invoke('resource:list');
-    return response;
+    return ipc.invoke('resource:list');
   },
 };
 ```
@@ -54,7 +55,7 @@ import path from 'path';
 
 ## Node.js-Only Features
 
-Node.js APIs (`fs`, `path`, `process`) are forbidden in all Astra core modules. See [Platform Neutrality Invariant](../invariants/platform-neutrality.md) for the authoritative rule. There are no exceptions for lazy-loaded Node.js imports — any feature requiring Node.js APIs must be implemented in consumer-managed code, not in the Astra library.
+Node.js APIs (`fs`, `path`, `process`) are forbidden in all Astra core modules. See [Runtime Boundary Invariant](../invariants/runtime-boundary.md) for the authoritative rule. There are no exceptions for lazy-loaded Node.js imports — any feature requiring Node.js APIs must be implemented in consumer-managed code, not in the Astra library.
 
 ## CSS Platform Guards
 
