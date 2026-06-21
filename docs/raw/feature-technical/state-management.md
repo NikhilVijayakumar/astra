@@ -1,4 +1,4 @@
-# State Management: Feature Technical
+# State Management
 
 ## 1. Technical Overview
 
@@ -39,13 +39,15 @@ enum StateCode {
 ## 2. Architecture Realization
 
 | Architecture Pattern | Realization |
-|---|---|
+|---|---|---|
 | **MVVM Pattern** | `useDataState` is the ViewModel primitive — centralizes async state so components remain stateless. ViewModel hooks in `hooks/use<Feature>.ts` wrap `useDataState`, call repositories, and expose clean interfaces to views. See `docs/raw/architecture/core/mvvm-pattern.md`. |
-| **Feature Structure** | Canonical placement: `model/` (types), `repo/` (data access via `ApiService`), `hooks/` (ViewModel wrapping `useDataState`), `view/components/` (props-only), `view/pages/` (stateful containers using `AppStateHandler`). See `docs/raw/architecture/core/feature-structure.md`. |
-| **Stateless UI** | `useDataState` is the mechanism that enforces Stateless UI — it owns async state so components never call `fetch`, `axios`, or persist data directly. See `docs/raw/architecture/invariants/stateless-ui.md`. |
-| **Repository Isolation** | `useDataState.execute()` consumes `ServerResponse<T>` from `ApiService`. Components never access repositories directly — flow is: ViewModel → `execute` → repository → `ServerResponse` → state update. See `docs/raw/architecture/core/repository.md`. |
-| **Public API Stability** | Stable — `useDataState`, `AppState`, `StateType`, `AppStateHandler`, `ApiService`, `ServerResponse`, `HttpStatusCode` all exported via `src/lib.ts`. See `docs/raw/architecture/core/api-surface.md`. |
-| **Localization** | `statusMessage` carries localized strings from `ServerResponse`. `AppStateHandler`'s `errorMessage` prop accepts translated strings. `useDataState` has a hardcoded English fallback `'An unexpected error occurred.'` on exception — violates Localization invariant. See `docs/raw/architecture/core/localization.md`. |
+| **Feature Structure** | Canonical placement: `model/` (types), `repo/` (data access via `ApiService` for WEB or `IpcService` for ELECTRON), `hooks/` (ViewModel wrapping `useDataState`), `view/components/` (props-only), `view/pages/` (stateful containers using `AppStateHandler`). See `docs/raw/architecture/core/feature-structure.md`. |
+| **Target Consistency** | ViewModel and View identical across WEB and ELECTRON — only the repository transport differs. `useDataState` and `AppStateHandler` are transport-agnostic. See `docs/raw/architecture/invariants/target-consistency.md`. |
+| **Service Abstraction** | Repository delegates to `ApiService` (WEB) or `IpcService` (ELECTRON). `useDataState.execute()` consumes `ServerResponse<T>` regardless of transport. See `docs/raw/architecture/invariants/runtime-boundary.md`. |
+| **Stateless UI** | `useDataState` is the mechanism that enforces Stateless UI — it owns async state so components never call `fetch`, `axios`, `window.electronAPI`, or persist data directly. See `docs/raw/architecture/invariants/stateless-ui.md`. |
+| **Repository Isolation** | `useDataState.execute()` consumes `ServerResponse<T>` from repositories (backed by `ApiService` or `IpcService`). Components never access repositories directly — flow is: ViewModel → `execute` → repository → `ServerResponse` → state update. See `docs/raw/architecture/core/repository.md`. |
+| **Public API Stability** | Stable — `useDataState`, `AppState`, `StateType`, `AppStateHandler`, `ApiService`, `IpcService`, `ServerResponse`, `HttpStatusCode` all exported via `src/lib.ts`. See `docs/raw/architecture/core/api-surface.md`. |
+| **Localization** | `statusMessage` carries localized strings from `ServerResponse`. `AppStateHandler`'s `errorMessage` prop accepts translated strings. `useDataState` uses `options?.unexpectedErrorMessage ?? ''` on exception — empty string default, no hardcoded English. Consumer passes the translated string via `options.unexpectedErrorMessage`. See `docs/raw/architecture/core/localization.md`. |
 
 ### State Flow (from `docs/raw/architecture/runtime-maps/state-flow.md`)
 
@@ -65,10 +67,29 @@ enum StateCode {
 ### Data Flow (from `docs/raw/architecture/runtime-maps/data-flow.md`)
 
 ```
-User Action → Page (view/pages/) → ViewModel (hooks/) → Repository (repo/) → External API
+User Action → Page (view/pages/) → ViewModel (hooks/) → Repository (repo/)
+                                                              │
+                                                    ┌─────────┴──────────┐
+                                                    ▼                    ▼
+                                              ApiService (WEB)    IpcService (ELECTRON)
+                                                    │                    │
+                                              HTTP / Axios      window.electronAPI / IPC
                                                                                   ↓
 User ←──── Page (AppStateHandler) ←── ViewModel (useDataState) ←── Repository (ServerResponse)
 ```
+
+## Feature Requirements Traceability
+
+| Feature Spec Requirement | Technical Implementation | Section |
+|---|---|---|
+| State lifecycle: INIT→LOADING→COMPLETED | State Machine table | Technical Structure |
+| AppState\<T\> interface definition | AppState Detail section | Technical Structure |
+| StateType enum (INIT, LOADING, COMPLETED) | State Machine table | Technical Structure |
+| StateCode.IDLE for initial status | State Machine table | Technical Structure |
+| State transitions table | Complete transition matrix | Technical Structure |
+| Error state: COMPLETED + isError (no ERROR enum) | State Machine: error branch | Technical Structure |
+| When to use / when not to use | Key Implementation Details | Technical Structure |
+| Dual-platform data flow | Dual-platform diagrams | Data Flow |
 
 ## 3. Data Flow
 
@@ -78,8 +99,9 @@ User ←──── Page (AppStateHandler) ←── ViewModel (useDataState) �
 Consumer calls ViewModel hook action
   → execute(apiCall) called
     → setAppState({ ...prev, state: LOADING })
-    → await apiCall()  (typically a repository method using ApiService)
-      → ApiService.get/post/put/delete → Axios → External API
+    → await apiCall()  (typically a repository method using ApiService or IpcService)
+      → WEB:      ApiService.get/post/put/delete → Axios → REST API
+      → ELECTRON: IpcService.invoke(channel) → window.electronAPI → Prana IPC → Main Process
     → on success:
         setAppState({ state: COMPLETED, isSuccess: true, data: response.data, ... })
     → on ServerResponse error:
@@ -92,7 +114,8 @@ Consumer calls ViewModel hook action
 ### Response Flow
 
 ```
-External API → ApiService (Axios wrapper) → ServerResponse<T>
+WEB:      REST API → ApiService (Axios wrapper) → ServerResponse<T>
+ELECTRON: IPC Handler → IpcService (window.electronAPI wrapper) → ServerResponse<T>
   → execute() extracts ServerResponse fields
   → useDataState internal reducer sets AppState<T>
   → AppStateHandler evaluates priority: LOADING → ERROR → EMPTY → SUCCESS
@@ -216,7 +239,7 @@ App Root
 ## 11. Open Questions
 
 - Should `useDataState` integrate `AbortController` for request cancellation on unmount or re-trigger?
-- Should the hardcoded English error message `'An unexpected error occurred.'` be replaced with a localization key or customizable via `customInitialState`?
+- Should `useDataState` validate that `options.unexpectedErrorMessage` is provided at call sites (lint rule) to prevent silent empty status messages on exception?
 - Should `useDataState` support a deduplication strategy for concurrent `execute` calls?
 - Should `AppStateHandler` support a customizable `LoadingComponent` prop (not just the default `LoadingState` atom)?
 - Should state tracking include timestamps for staleness checks (cache invalidation)?
@@ -225,4 +248,24 @@ App Root
 
 ## 12. Authorization
 
-**Visibility:** Public — stateless Astra library component/primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.
+### TECH-PERM-001: Differentiate Authorization
+
+- `AppState<T>` and `StateType` are pure data contracts with no runtime behavior
+- They represent the state of an async operation but have no mechanism to enforce access control
+- Authorization is irrelevant at the state contract layer — it belongs in the Repository/Application layer
+- State is populated by `useDataState` based on `execute()` results; the contract itself has no auth semantics
+
+## 13. Architecture Compliance Review
+
+### Cross-References
+
+- `use-data-state.md` — produces AppState instances from this contract
+- `app-state-handler.md` — consumes AppState instances for conditional rendering
+- `repository.md` — ServerResponse.status maps to AppState.status
+- `mvvm-wiring.md` — AppState is the Model layer in the MVVM pattern
+
+### Ownership
+
+- **Astra owns**: AppState\<T\> interface, StateType enum, StateCode
+- **Application owns**: consumer-side state interpretation and extension
+- **Shared**: the contract is shared across all layers (Repository → ViewModel → View)

@@ -335,11 +335,13 @@ GOOD:
 
 ```tsx
 // lib.ts — only export intentional public symbols
-export { ThemeProvider, ThemeToggle } from './common/theme';
-export { LanguageProvider, useLanguage } from './common/localization';
-export { useDataState, AppStateHandler } from './common/hooks';
-export { ApiService, ServerResponse } from './common/repo';
+export { useDataState, AppStateHandler, AppStateProvider } from './common/hooks';
+export { ApiService, IpcService, ServerResponse, HttpStatusCode, getApiService } from './common/repo';
+export type { AppState } from './common/state/AppState';
+export { StateType, StateCode } from './common/state/AppState';
 ```
+
+Note: `ThemeProvider`, `LanguageProvider`, `useTheme`, `useLanguage`, and UI components are owned by Prati, not Astra. They must never appear in `src/lib.ts`.
 
 ---
 

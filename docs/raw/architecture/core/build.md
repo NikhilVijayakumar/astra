@@ -79,8 +79,85 @@ npm run build && mv dist dist2
 diff -r dist1 dist2  # must produce no output
 ```
 
+## Electron Build
+
+Electron applications require a dual-process build: the **renderer** (React UI) and the **main process** (Node.js). Use `vite-plugin-electron` to bundle both from a single Vite config.
+
+### Vite Configuration
+
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import electron from 'vite-plugin-electron';
+import renderer from 'vite-plugin-electron-renderer';
+
+export default defineConfig({
+  plugins: [
+    react(),
+    electron([
+      {
+        entry: 'electron/main.ts',       // main process entry (consumer-owned)
+        onstart(args) { args.startup(); },
+      },
+      {
+        entry: 'electron/preload.ts',    // preload script (consumer-owned, Prana contract)
+        onstart(args) { args.reload(); },
+      },
+    ]),
+    renderer(),
+  ],
+});
+```
+
+### Entry Points
+
+| File | Process | Owner |
+|------|---------|-------|
+| `electron/main.ts` | Main | Consumer (Prana-provided or consumer-owned) |
+| `electron/preload.ts` | Preload | Consumer — exposes `window.electronAPI` via `contextBridge` |
+| `src/main.tsx` | Renderer | Consumer (Astra-powered React app) |
+
+### Packaging
+
+Use `electron-builder` to produce distributable artifacts:
+
+```json
+{
+  "scripts": {
+    "build": "vite build",
+    "build:electron": "electron-builder"
+  }
+}
+```
+
+Define build targets in `electron-builder.config.js` or the `build` field of `package.json`.
+
+### Environment Variables
+
+| Context | Access | Convention |
+|---------|--------|------------|
+| Renderer (React) | `import.meta.env.VITE_*` | Prefix with `VITE_` |
+| Main process (Node.js) | `process.env.*` | No prefix restriction |
+
+Main process variables must not be prefixed `VITE_` — they are not injected into the renderer bundle.
+
+### Determinism Rules
+
+Electron builds must satisfy the same determinism invariant as web builds:
+
+- no timestamps in bundle output
+- no random identifiers
+- all env vars have documented defaults in `.env.example`
+- lockfile committed
+
+See [Deterministic Build Invariant](../invariants/deterministic-build.md) for the full rule set.
+
+---
+
 ## Related
 
 - [Feature Structure](feature-structure.md)
 - [Repository](repository.md)
 - [Dependencies](dependencies.md)
+- [Electron Integration Guide](../integration-contracts/electron.md)

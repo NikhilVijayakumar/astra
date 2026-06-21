@@ -3,6 +3,7 @@ import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { ServerResponse } from "./ServerResponse";
 import { HttpStatusCode } from "./HttpStatusCode";
 import { ResponseSuccess, ResponseError } from "./APITypes";
+import { ITransportService, Platform } from "./types";
 
 enum HTTPMethod {
   GET = "GET",
@@ -11,10 +12,11 @@ enum HTTPMethod {
   DELETE = "DELETE",
 }
 
-export class ApiService {
+export class ApiService implements ITransportService {
+  readonly platform: Platform = 'WEB';
   private baseUrl: string;
   private literal: Record<string, string>;
-  private onError?: (error: unknown) => void;
+  onError?: (error: unknown) => void;
 
   constructor(
     baseUrl: string,

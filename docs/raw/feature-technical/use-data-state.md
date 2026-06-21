@@ -4,7 +4,7 @@
 
 # Feature Summary
 
-A generic React hook (`useDataState<T>`) that manages async data operation lifecycle through three states (INIT → LOADING → COMPLETED). Returns a readonly tuple `[appState, execute, setAppState]`. Core ViewModel primitive for all async data flow in Astra.
+A generic React hook (`useDataState<T>`) that manages async data operation lifecycle through three states (INIT → LOADING → COMPLETED). Returns a readonly tuple `[appState, execute, setAppState]`. Core ViewModel primitive for all async data flow in Astra, agnostic of the underlying transport — works identically for both WEB (via `ApiService`) and ELECTRON (via `IpcService`) targets.
 
 ---
 
@@ -63,10 +63,28 @@ export interface AppState<T> {
 |---------|--------------|--------|
 | Atomic Hierarchy | Not applicable | This is a hook, not a component. Used by Organism and Template tiers via ViewModel pattern. |
 | Stateless UI | Enforcer | `useDataState` is the mechanism that keeps UI components stateless — it owns async state so components don't have to. |
+| Target Consistency | ✅ Enforcer | `useDataState` API identical across WEB and ELECTRON — consumes `ServerResponse<T>` from either `ApiService` or `IpcService`. ViewModel unaware of transport per `target-consistency.md`. |
 | Theme Sovereignty | Not applicable | No visual output. |
 | Localization | ✅ Compliant | `statusMessage` from `ServerResponse` carries localized strings. Exception fallback uses `options?.unexpectedErrorMessage ?? ''` — consumer passes `literal['common.errors.unexpected']` from `useLanguage()`. |
 | Dependency Safety | Minimal deps | Depends on React `useState`, internal `AppState`, `ServerResponse`, `HttpStatusCode`. |
 | Public API Stability | Stable | Exported via `hooks/index.ts` barrel. `useDataState` is a core public API surface of Astra. |
+
+---
+
+## Feature Requirements Traceability
+
+| Feature Spec Requirement | Technical Implementation | Section |
+|---|---|---|
+| Signature: [appState, execute, setAppState] = useDataState(customInitialState?, options?) | Public API | Implementation Reference |
+| execute behavior: LOADING → await → success/error/throw | Generic execute pipeline | Technical Structure |
+| Basic usage | Minimal Usage example | Technical Structure |
+| Custom initial state | Custom Initial State section | Technical Structure |
+| Error message localization | Error Handling table | Error Handling |
+| apiCall must return ServerResponse | Validation: type contract | Validation & Rules |
+| Concurrent execute races | Edge Cases section | Edge Cases |
+| setAppState rules | Rules section | Validation & Rules |
+| mountedRef guard | Edge Cases section | Edge Cases |
+| Non-Responsibilities | Boundaries section | Boundaries |
 
 ---
 
@@ -75,7 +93,7 @@ export interface AppState<T> {
 ## State Model
 | State | File Path | Type Declaration | Transitions | Owner |
 |-------|-----------|-----------------|-------------|-------|
-| AppState<T> | `src/common/state/AppState.ts` | `interface AppState<T> { state: StateType.INIT \| LOADING \| COMPLETED; isError: boolean; isSuccess: boolean; status: HttpStatusCode; statusMessage: string; data: T \| null; }` | INIT → LOADING → COMPLETED (with isError/isSuccess branching) | ViewModel hooks (consumer app) |
+| AppState<T> | `src/common/state/AppState.ts` | `interface AppState<T> { state: StateType.INIT \| LOADING \| COMPLETED; isError: boolean; isSuccess: boolean; status: HttpStatusCode \| StateCode; statusMessage: string; data: T \| null; }` | INIT → LOADING → COMPLETED (with isError/isSuccess branching) | ViewModel hooks (consumer app) |
 
 ## Data Flow Sequence
 ```
@@ -148,6 +166,17 @@ export interface AppState<T> {
 - Tuple return with `as const` for destructuring
 - Partial initialization via `customInitialState`
 
+### Cross-References
+- `app-state-handler.md` — consumes the AppState that useDataState produces
+- `state-management.md` — AppState contract definition
+- `repository.md` — ServerResponse type consumed by execute()
+- `mvvm-wiring.md` — where useDataState is used as the ViewModel layer
+
+### Ownership
+- **Astra**: owns useDataState hook
+- **Application**: owns apiCall functions and custom initial states
+- **Prati**: owns the UI consuming the returned AppState
+
 ## Risks
 - **No AbortController**: `execute` has no cancellation mechanism — concurrent calls race (last one wins); network request may complete after guard check
 - **No request deduplication**: Concurrent `execute` calls race — last one wins regardless of order.
@@ -173,8 +202,11 @@ export interface AppState<T> {
 
 # Final Rule
 
-`useDataState` is the single source of async state management in Astra. All data fetching operations must flow through this hook — components must never call `fetch`, `axios`, or API services directly. Pass `options.unexpectedErrorMessage` from `useLanguage().literal['common.errors.unexpected']` to satisfy the Localization invariant. No data caching, deduplication, or business logic may be added — these belong in the consumer's ViewModel layer.
+`useDataState` is the single source of async state management in Astra. All data fetching operations must flow through this hook — components must never call `fetch`, `axios`, `window.electronAPI`, or API services directly. Works identically for WEB (repositories backed by `ApiService`) and ELECTRON (repositories backed by `IpcService`) — the hook is transport-agnostic. Pass `options.unexpectedErrorMessage` from `useLanguage().literal['common.errors.unexpected']` to satisfy the Localization invariant. No data caching, deduplication, or business logic may be added — these belong in the consumer's ViewModel layer.
 
 ## Authorization
 
-**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.
+- useDataState is a state management primitive with no data access or transport interaction
+- It manages AppState transitions (INIT→LOADING→COMPLETED) based on execute() results
+- Authorization is irrelevant at this layer — it belongs in the Repository/Application layer
+- The hook executes whatever apiCall function it receives; auth enforcement is the caller's responsibility

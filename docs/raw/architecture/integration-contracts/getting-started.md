@@ -243,10 +243,41 @@ Design system symbols are never imported from `astra`. Astra symbols are never i
 
 ## Next Steps
 
+Choose your target:
+
+### Building a WEB application
+
+```text
+Getting Started (this guide)
+    ↓
+React Integration Guide → react.md
+    ↓
+Feature Structure → core/feature-structure.md
+```
+
+- [React Integration Guide](react.md) — Vite / Next.js setup, AppStateProvider wiring, full WEB examples
 - [Feature Structure](../core/feature-structure.md) — Canonical feature folder layout
-- [MVVM Pattern](../core/mvvm-pattern.md) — Architecture deep dive
-- [Repository Pattern](../core/repository.md) — API and data access patterns
+- [Repository Pattern](../core/repository.md) — `ApiService`, `ServerResponse`
+
+### Building an ELECTRON application
+
+```text
+Getting Started (this guide)
+    ↓
+Electron Integration Guide → electron.md
+    ↓
+Feature Structure → core/feature-structure.md
+    ↓
+Runtime Boundary Invariant → invariants/runtime-boundary.md
+```
+
+- [Electron Integration Guide](electron.md) — Vite + electron setup, preload scripts, IPC repository pattern, full ELECTRON examples
+- [Feature Structure](../core/feature-structure.md) — Canonical feature folder layout (includes `electron/` project root)
+- [Runtime Boundary Invariant](../invariants/runtime-boundary.md) — What Astra owns vs Prana owns
+
+### Common references
+
+- [MVVM Pattern](../core/mvvm-pattern.md) — Architecture deep dive (applies to both targets)
 - [State Management](../core/state-management.md) — `AppState`, `StateType`, `AppStateHandler`
-- [React Integration Guide](react.md) — Framework-specific setup
-- [Electron Integration Guide](electron.md) — Desktop app integration
+- [Target Consistency Invariant](../invariants/target-consistency.md) — What must be identical across targets
 - Prati Documentation — UI components, theming, localization

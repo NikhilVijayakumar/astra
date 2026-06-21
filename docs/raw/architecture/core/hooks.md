@@ -115,7 +115,9 @@ See [Feature Structure](feature-structure.md) for the canonical ViewModel placem
 
 ### Pattern: ViewModel as Orchestrator
 
-For features needing multiple API calls (CRUD), compose multiple hooks within one ViewModel:
+For features needing multiple API calls (CRUD), compose multiple hooks within one ViewModel.
+
+#### WEB — ApiService
 
 ```typescript
 import { useEffect } from 'react';
@@ -162,6 +164,39 @@ export const useUsers = () => {
   };
 };
 ```
+
+#### ELECTRON — IpcService
+
+The ViewModel is structurally identical. Only the repository import differs — the hook itself has no knowledge of the transport:
+
+```typescript
+import { useDataState } from 'astra';
+import { tasksIpc } from '../repo/tasksIpc'; // IpcService-backed repository
+
+export const useTasks = () => {
+  const [listState, executeList] = useDataState<Task[]>();
+  const [deleteState, executeDelete] = useDataState<boolean>();
+
+  const loadTasks = () => executeList(() => tasksIpc.list());
+  const deleteTask = (id: string) => executeDelete(() => tasksIpc.delete(id));
+
+  useEffect(() => {
+    if (deleteState.isSuccess) {
+      loadTasks();
+    }
+  }, [deleteState.isSuccess]);
+
+  return {
+    tasks: listState.data,
+    isListLoading: listState.state === StateType.LOADING,
+    isDeleting: deleteState.state === StateType.LOADING,
+    loadTasks,
+    deleteTask,
+  };
+};
+```
+
+The `AppState` transitions, `useDataState` API, and return interface shape are identical across both targets. See [Target Consistency Invariant](../invariants/target-consistency.md).
 
 ## Related
 

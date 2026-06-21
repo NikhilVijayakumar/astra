@@ -33,6 +33,8 @@ export default defineConfig({
 
   build: {
     sourcemap: false,
+    minify: "esbuild",
+    target: "es2020",
     lib: {
       entry: path.resolve(__dirname, "src/lib.ts"),
       name: "Astra",

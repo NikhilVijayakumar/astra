@@ -41,12 +41,10 @@
     "coverage": "vitest run --coverage",
     "prepare": "npm run build"
   },
-  "dependencies": {
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
-  },
   "peerDependencies": {
-    "axios": ">=1.0.0"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "axios": "^1.18.0"
   },
   "overrides": {
     "esbuild": "^0.28.1"
@@ -68,6 +66,8 @@
     "globals": "16.3.0",
     "happy-dom": "^20.0.11",
     "prettier": "3.3.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "typescript": "5.8.3",
     "typescript-eslint": "8.35.1",
     "vite": "^7.3.5",

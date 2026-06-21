@@ -22,12 +22,19 @@ It does **not** evaluate implementation, source code, feature behavior, runtime 
 
 Astra is a **core architecture and pattern library**.
 
+Astra explicitly supports two first-class application targets:
+
+```text
+WEB       React + Axios + REST APIs
+ELECTRON  React + Electron + Prana IPC
+```
+
 It provides:
 
-* MVVM pattern (`useDataState`, `AppState`, `AppStateHandler`)
+* MVVM pattern (`useDataState`, `AppState`, `AppStateHandler`, `AppStateProvider`)
 * Async state lifecycle (`StateType`, `INIT → LOADING → COMPLETED/ERROR`)
-* Repository pattern (`ApiService`, `IpcService`, `ServerResponse`, `HttpStatusCode`)
-* Platform abstraction (web HTTP / Electron IPC)
+* Repository pattern (`ApiService`, `IpcService`, `ServerResponse`, `HttpStatusCode`, `StateCode`)
+* Platform abstraction (WEB: HTTP via `ApiService` / ELECTRON: IPC via `IpcService`)
 * Deterministic build and public API surface
 
 Astra does **not** own:
@@ -36,12 +43,21 @@ Astra does **not** own:
 * Localization system (`LanguageProvider`, `useLanguage`) — Prati
 * Theming system (`ThemeProvider`, `useTheme`, design tokens) — Prati
 * Atomic design hierarchy — Prati
+* Electron runtime infrastructure (`contextBridge`, `ipcMain`, `ipcRenderer`, `BrowserWindow`) — Prana
+* IPC handler registration (`ipcMain.handle`) — Prana
+* Storage, scheduler, plugin, virtual drive runtimes — Prana
+
+Platform boundary rules:
+
+* Astra provides `IpcService` as service abstraction over `window.electronAPI`
+* Astra consumes `window.electronAPI` only — never imports Electron directly
+* All runtime infrastructure is owned by Prana
 
 Architecture guidance must remain:
 
 * implementation-agnostic
 * feature-agnostic
-* platform-neutral
+* dual-platform consistent (WEB and ELECTRON both first-class)
 * reusable across all consumer applications
 
 Architecture documentation must never depend on any specific consumer feature.
@@ -163,11 +179,14 @@ The audit must answer:
 
 1. Are architectural invariants internally consistent?
 2. Are invariants adequately explained by guidance documents?
-3. Can a consumer build a compliant application using only architecture documentation?
-4. Are architectural concepts consistently defined?
-5. Is every architectural concept traceable to a canonical owner?
-6. Are architectural responsibilities clearly separated?
-7. Are there contradictions anywhere in the architecture corpus?
+3. Can a consumer build a compliant WEB application using only architecture documentation?
+4. Can a consumer build a compliant ELECTRON application using only architecture documentation?
+5. Are WEB and ELECTRON documented with equal completeness?
+6. Are architectural concepts consistently defined?
+7. Is every architectural concept traceable to a canonical owner?
+8. Are architectural responsibilities clearly separated between Astra, Prana, and Prati?
+9. Does the runtime boundary between Astra and Prana have no contradictions?
+10. Are there contradictions anywhere in the architecture corpus?
 
 ---
 
@@ -226,11 +245,13 @@ Evaluate all architecture documents against one another.
 Required checks:
 
 * naming consistency
-* state management consistency
-* repository guidance consistency
-* MVVM consistency
+* state management consistency (`StateCode.IDLE` vs `HttpStatusCode.IDLE` — only `StateCode.IDLE` is valid)
+* repository guidance consistency (WEB: `ApiService`, ELECTRON: `IpcService`)
+* MVVM consistency across both platforms
 * platform abstraction consistency
 * integration contract consistency
+* dual-platform symmetry: WEB and ELECTRON docs must document equivalent layers at equivalent depth
+* `applicationTarget` config: if referenced, must be defined in at least one authoritative doc
 
 Detect:
 
@@ -238,6 +259,8 @@ Detect:
 * incompatible examples
 * duplicated contracts
 * competing ownership
+* WEB-only guidance presented as platform-neutral
+* ELECTRON gaps where WEB equivalents exist
 
 Score:
 
@@ -251,7 +274,9 @@ Score:
 
 Evaluate whether a new consumer can build a compliant application using architecture documentation alone.
 
-Required flow:
+Both target paths must be evaluable:
+
+### WEB Path
 
 ```text
 Getting Started
@@ -260,19 +285,38 @@ Feature Structure
     ↓
 ViewModel (useDataState)
     ↓
-Repository (ApiService)
+Repository (ApiService + ServerResponse)
     ↓
-State Management (AppState / AppStateHandler)
+State Management (AppState / AppStateHandler / AppStateProvider)
     ↓
-Platform Integration (web / Electron)
+React Integration Contract
 ```
 
-Check:
+### ELECTRON Path
+
+```text
+Getting Started
+    ↓
+Feature Structure (with electron/ project root)
+    ↓
+ViewModel (useDataState — identical to WEB)
+    ↓
+Repository (IpcService + ServerResponse)
+    ↓
+State Management (AppState / AppStateHandler / AppStateProvider)
+    ↓
+Electron Integration Contract
+    ↓
+Runtime Boundary (Astra consumes window.electronAPI / Prana owns contextBridge)
+```
+
+Check for both paths:
 
 * missing steps
 * ambiguous instructions
 * unexplained dependencies
 * hidden assumptions
+* WEB-only guidance where ELECTRON guidance is also required
 
 Score:
 
@@ -306,6 +350,22 @@ Required checks:
 ### Repository vs Runtime
 
 * no runtime coupling
+* repositories use `ApiService` (WEB) or `IpcService` (ELECTRON) — never `axios` or `window.electronAPI` directly
+
+### Astra vs Prana Runtime Boundary
+
+* Astra never imports Electron APIs (`ipcRenderer`, `contextBridge`, `BrowserWindow`, `ipcMain`)
+* Astra never owns `contextBridge.exposeInMainWorld`
+* Astra never registers `ipcMain.handle` handlers
+* Astra only consumes `window.electronAPI` through `IpcService`
+* All runtime infrastructure (`BrowserWindow`, `ipcMain`, storage, scheduler) belongs to Prana
+
+### Astra vs Prati Design Boundary
+
+* Astra does not own localization system (`LanguageProvider`, `useLanguage`)
+* Astra does not own theming system (`ThemeProvider`, `useTheme`, design tokens)
+* Astra does not own UI component library
+* Astra exposes only `AppStateProvider` as a wiring interface for design system components
 
 Score:
 
@@ -345,13 +405,42 @@ Score:
 
 Produce:
 
-| Invariant   | Defined | Guidance Exists | Integration Contract Exists | Coverage                 |
-| ----------- | ------- | --------------- | --------------------------- | ------------------------ |
-| {Invariant} | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| Invariant              | Defined | Guidance Exists | Integration Contract Exists | Coverage                 |
+| ---------------------- | ------- | --------------- | --------------------------- | ------------------------ |
+| mvvm-separation        | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| repository-isolation   | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| dependency-safety      | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| public-api-stability   | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| deterministic-build    | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| boilerplate-ownership  | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| runtime-boundary       | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| target-consistency     | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
+| {Additional Invariant} | Yes/No  | Yes/No          | Yes/No                      | Complete/Partial/Missing |
 
 Purpose:
 
 Detect architecture rules that exist but lack guidance.
+
+---
+
+## Platform Symmetry Matrix
+
+For each layer, evaluate whether WEB and ELECTRON are documented at equivalent depth:
+
+| Layer                    | WEB Documented | ELECTRON Documented | Symmetric | Gap                      |
+| ------------------------ | -------------- | ------------------- | --------- | ------------------------ |
+| Service (transport)      | Yes/No         | Yes/No              | Yes/No    | {description or none}    |
+| Repository pattern       | Yes/No         | Yes/No              | Yes/No    | {description or none}    |
+| ViewModel (hooks)        | Yes/No         | Yes/No              | Yes/No    | {description or none}    |
+| State management         | Yes/No         | Yes/No              | Yes/No    | {description or none}    |
+| Feature structure        | Yes/No         | Yes/No              | Yes/No    | {description or none}    |
+| Integration contract     | Yes/No         | Yes/No              | Yes/No    | {description or none}    |
+| Build configuration      | Yes/No         | Yes/No              | Yes/No    | {description or none}    |
+| Onboarding path          | Yes/No         | Yes/No              | Yes/No    | {description or none}    |
+
+Purpose:
+
+Detect ELECTRON documentation gaps relative to WEB equivalents.
 
 ---
 
@@ -615,49 +704,55 @@ Table.
 
 ---
 
-## 5. Architecture Concept Matrix
+## 5. Platform Symmetry Matrix
 
 Table.
 
 ---
 
-## 6. Terminology Audit
+## 6. Architecture Concept Matrix
 
 Table.
 
 ---
 
-## 7. Duplication Audit
+## 7. Terminology Audit
 
 Table.
 
 ---
 
-## 8. Cross-Document Consistency Matrix
+## 8. Duplication Audit
 
 Table.
 
 ---
 
-## 9. Architecture Traceability Matrix
+## 9. Cross-Document Consistency Matrix
 
 Table.
 
 ---
 
-## 10. Scoring Breakdown
+## 10. Architecture Traceability Matrix
+
+Table.
+
+---
+
+## 11. Scoring Breakdown
 
 Per-document scores.
 
 ---
 
-## 11. Findings
+## 12. Findings
 
 All findings.
 
 ---
 
-## 12. Score Improvement Summary
+## 13. Score Improvement Summary
 
 Compare against the previous report from `docs/raw/report/architecture/archive/` (highest timestamp). If no previous report exists, state "Baseline — no prior report to compare."
 
@@ -681,7 +776,7 @@ If score improved, highlight the categories that drove the improvement and what 
 
 ---
 
-## 13. Final Verdict
+## 14. Final Verdict
 
 ```text
 {Assessment} ({Score}/10)
@@ -691,7 +786,7 @@ Provide a concise architectural health summary.
 
 ---
 
-## 14. Audit Traceability
+## 15. Audit Traceability
 
 | Reference             | Location                                                              |
 | --------------------- | --------------------------------------------------------------------- |

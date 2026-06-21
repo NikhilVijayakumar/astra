@@ -9,6 +9,7 @@ import {
   HttpStatusCode,
   StateType,
   StateCode,
+  IpcService,
 } from "./lib";
 
 describe("root public exports", () => {
@@ -82,6 +83,15 @@ describe("root public exports", () => {
     expect(error.isError).toBe(true);
     expect(error.isSuccess).toBe(false);
     expect(error.data).toBeUndefined();
+  });
+
+  it("exports IpcService and ITransportService types", () => {
+    expect(Astra).toHaveProperty("IpcService");
+    const ipc = new IpcService();
+    expect(ipc.invoke).toBeTypeOf("function");
+    expect(ipc.send).toBeTypeOf("function");
+    expect(ipc.receive).toBeTypeOf("function");
+    expect(ipc.platform).toBe("ELECTRON");
   });
 
   it("does not export internal types (ResponseSuccess, ResponseError)", () => {

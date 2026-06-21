@@ -90,9 +90,22 @@ enum HttpStatusCode {
   NOT_FOUND = 404,
   INTERNAL_SERVER_ERROR = 500,
   INTERNET_ERROR = 0,
-  IDLE = 1000,
 }
 ```
+
+`HttpStatusCode` does not include `IDLE`. Use `StateCode.IDLE` for the pre-HTTP initial status.
+
+## StateCode
+
+Non-HTTP status values used before or outside HTTP activity:
+
+```typescript
+enum StateCode {
+  IDLE = 1000,  // Initial status — no operation has started
+}
+```
+
+`StateCode.IDLE` is the initial value of `AppState.status`. It is exported separately from `HttpStatusCode` to make clear it is not an HTTP response code.
 
 ## Rules
 

@@ -11,8 +11,9 @@ Astra has no dependency on any design system. Design systems depend on Astra, no
 | Concern | Package | Exports |
 |---------|---------|---------|
 | State management | `astra` | `useDataState`, `AppStateHandler`, `AppStateProvider`, `AppStateContext`, `AppStateComponents`, `AppStateHandlerProps`, `StateType`, `StateCode`, `AppState` |
-| Data access (WEB) | `astra` | `ApiService`, `ServerResponse`, `HttpStatusCode`, `getApiService` |
+| Data access (WEB) | `astra` | `ApiService`, `ServerResponse`, `HttpStatusCode`, `getApiService`, `getStatusMessage` |
 | Data access (ELECTRON) | `astra` | `IpcService`, `ServerResponse` |
+| Transport interface | `astra` | `ITransportService`, `Platform` |
 | UI state rendering | external (e.g. `prati`) | `LoadingState`, `ErrorState`, `EmptyState` — wired via `AppStateProvider` |
 | Theming | external (e.g. `prati`) | `ThemeProvider`, `ThemeToggle`, `useTheme` |
 | Localization | external (e.g. `prati`) | `LanguageProvider`, `useLanguage` |
@@ -27,10 +28,19 @@ The public API surface is defined by two mechanisms:
 
 ```typescript
 // src/lib.ts — only export intentional public symbols
-export { useDataState, AppStateHandler } from "./common/hooks";
-export { ApiService, IpcService, ServerResponse, HttpStatusCode } from "./common/repo";
-export type { AppState } from "./common/state/AppState";
-export { StateType } from "./common/state/AppState";
+export { useDataState } from './common/hooks/useDataState';
+export type { AppState } from './common/state/AppState';
+export { StateType, StateCode } from './common/state/AppState';
+export { default as AppStateHandler } from './common/components/organisms/AppStateHandler';
+export type { AppStateHandlerProps } from './common/components/organisms/AppStateHandler';
+export { AppStateProvider, AppStateContext } from './common/components/organisms/AppStateContext';
+export type { AppStateComponents } from './common/components/organisms/AppStateContext';
+export { ApiService } from './common/repo/ApiService';
+export { getApiService } from './common/repo/apiServiceFactory';
+export { HttpStatusCode, getStatusMessage } from './common/repo/HttpStatusCode';
+export { ServerResponse } from './common/repo/ServerResponse';
+export { IpcService } from './common/repo/IpcService';
+export type { ITransportService, Platform } from './common/repo/types';
 ```
 
 ### Subpath Exports

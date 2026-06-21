@@ -14,10 +14,11 @@ Core modules must not depend on platform-specific APIs. Separate platform concer
 
 ## Browser-Only Features
 
-When a component uses browser APIs, guard it for SSR compatibility:
+When a component uses browser APIs, guard it for SSR compatibility. Consumers must implement this pattern in their own codebase — Astra does not export a `ClientOnly` component:
 
 ```typescript
-export function ClientOnly({ children }: { children: React.ReactNode }) {
+// src/common/ClientOnly.tsx — consumer-implemented, not an Astra export
+function ClientOnly({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;

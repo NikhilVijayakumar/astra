@@ -8,29 +8,12 @@ Dependencies fall into three categories:
 
 | Category | Examples | Placement |
 |----------|----------|-----------|
-| **Runtime** | `axios`, `@mui/material` | `dependencies` |
-| **Peer** | `react`, `react-dom` | `peerDependencies` |
+| **Peer** | `react`, `react-dom`, `axios` | `peerDependencies` |
 | **Dev** | `typescript`, `vite`, `@types/*` | `devDependencies` |
 
 ## Runtime Dependencies
 
-Minimize runtime dependencies. Each must be:
-
-- actively maintained (commits within last 12 months)
-- MIT, Apache 2.0, or BSD licensed
-- pinned to an exact version
-- the minimal dependency needed (no bundled extras)
-
-```json
-{
-  "dependencies": {
-    "@mui/material": "7.0.2",
-    "@mui/icons-material": "7.0.2",
-    "@emotion/react": "11.14.0",
-    "axios": "1.15.0"
-  }
-}
-```
+Astra has **no runtime `dependencies`**. It is a dependency-minimal library — all heavy-lifting packages (`axios`, `react`, `react-dom`) are peer dependencies supplied by the consumer. This prevents duplicate instances and keeps the bundle lean.
 
 ## Peer Dependencies
 
@@ -40,10 +23,15 @@ Peer dependencies are provided by the consumer. They must use a caret range to a
 {
   "peerDependencies": {
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "axios": "^1.18.0"
   }
 }
 ```
+
+`axios` is a peer dependency because Astra's `ApiService` wraps it — forcing a second copy into a consumer's bundle would cause version conflicts and size bloat.
+
+Astra has **no dependency on any design system** (`@mui/material`, `@emotion/react`, `prati`, etc.). Design systems depend on Astra, not the reverse. See [Public API Surface](api-surface.md) for the invariant.
 
 Peer dependencies must never appear in `dependencies` — doing so causes duplicate instances.
 
@@ -67,17 +55,7 @@ Never place `@types/*` packages in `dependencies` — they are build-time only.
 
 ## Beta Dependencies
 
-Beta or pre-release dependencies must not appear in runtime `dependencies`. If a beta is required, document the rationale and timeline for stable migration:
-
-```json
-{
-  "dependencies": {
-    "@mui/lab": "7.0.0-beta.14"
-  }
-}
-```
-
-> ⚠ Beta — track MUI v7 stable release and migrate before shipping.
+Beta or pre-release dependencies must not appear in `peerDependencies` or `devDependencies` without documentation. If a beta is required, record the rationale and migration timeline in this file.
 
 ## Audit Policy
 

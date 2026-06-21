@@ -8,11 +8,11 @@ Eliminates the boilerplate of managing async loading, error, and empty states so
 
 ## Features
 
-- **MVVM Architecture**: `useDataState` hook manages async data with clean Repository → ViewModel → View separation; ViewModels are hooks, Views use `AppStateHandler`, repositories use `ApiService`
-- **State Management**: `AppState` with `INIT → LOADING → COMPLETED` lifecycle; `isError`, `isSuccess`, `status`, `statusMessage`, `data` — stateless, persistence delegated to consumer; concurrent `execute()` calls race (last one wins)
+- **MVVM Architecture**: `useDataState` hook manages async data with clean Repository → ViewModel → View separation; ViewModels are hooks, Views use `AppStateHandler`, repositories use `ApiService` (WEB) or `IpcService` (ELECTRON)
+- **State Management**: `AppState` with `INIT → LOADING → COMPLETED` lifecycle; `isError`, `isSuccess`, `status`, `statusMessage`, `data` — stateless, persistence delegated to consumer; concurrent `execute()` calls race (last one wins); rapid re-triggers may cycle LOADING → COMPLETED before render — debounce `execute()` if needed
 - **AppStateHandler**: UI state router — fixed rendering priority: LOADING → error (`isError` or `status === 0`) → success/empty → INIT fallback; no manual branching required
 - **API Repository**: `getApiService` singleton wrapping Axios; all errors normalized to `ServerResponse` — axios HTTP errors (actual status), network failures (`status = 0`), unexpected exceptions (`status = 500`); never throws
-- **Electron Support**: First-class IPC integration — `useDataState` works with any async data source, including `window.electronAPI`
+- **IPC Service (ELECTRON)**: `IpcService` wraps `window.electronAPI` with `ServerResponse` normalization — invoke (request/response), send (fire-and-forget), and receive (push events) patterns
 
 ### What Astra Is Not
 
@@ -91,6 +91,20 @@ Or pass components per-instance via slot props (overrides context):
 </AppStateHandler>
 ```
 
+For reusable success layouts, use the `SuccessComponent` prop — it receives `appState` as a prop:
+
+```tsx
+function UserList({ appState }: { appState: AppState<User[]> }) {
+  return <ul>{appState.data?.map((u) => <li key={u.id}>{u.name}</li>)}</ul>;
+}
+
+<AppStateHandler
+  appState={userState}
+  SuccessComponent={UserList}
+  errorMessage="Unable to load users."
+/>
+```
+
 ### 3. Fetch Data with MVVM
 
 ```tsx
@@ -142,13 +156,15 @@ function UserList() {
 ### 3. Electron Usage
 
 ```tsx
-import { useDataState, AppStateHandler, ServerResponse } from "astra";
+import { useDataState, AppStateHandler, ServerResponse, IpcService } from "astra";
 import { useEffect } from "react";
 
-// IPC repository (consumer-managed)
+// IPC repository using IpcService
+const ipc = new IpcService();
+
 const settingsRepo = {
   get: (): Promise<ServerResponse<Settings>> =>
-    window.electronAPI.getSettings(),
+    ipc.invoke("settings:get"),
 };
 
 function useSettingsViewModel() {
@@ -178,7 +194,7 @@ See [Electron integration guide](docs/raw/architecture/integration-contracts/ele
 
 **State & MVVM (Astra-native):**
 
-- `useDataState` — MVVM hook, returns `[appState, execute, setAppState]`; `execute(apiCall)` drives the INIT → LOADING → COMPLETED lifecycle; `setAppState` for optimistic updates and manual resets
+- `useDataState` — MVVM hook, returns `[appState, execute, setAppState]`; `execute(apiCall)` drives the INIT → LOADING → COMPLETED lifecycle; `apiCall` must return `ServerResponse` — non-conforming calls produce `COMPLETED / isError / status 500`; `setAppState` for optimistic updates and manual resets
 - `AppStateHandler` — UI state router; props: `appState` (required), `SuccessComponent`, `children`, `emptyCondition`, `errorMessage`, `loadingComponent`, `errorComponent`, `emptyComponent`; slot props override context; `children` takes precedence over `SuccessComponent`
 - `AppStateProvider` — React context provider; configure `Loading`, `Error`, `Empty` render components once at app root; any design system works
 - `AppStateContext` — React context object; access provider value directly when building custom wrappers around `AppStateHandler`
@@ -188,11 +204,14 @@ See [Electron integration guide](docs/raw/architecture/integration-contracts/ele
 
 **API Layer (Astra-native):**
 
-- `getApiService(baseUrl, literal)` — singleton factory (recommended); `literal` is a `{ statusKey: message }` map used by `getStatusMessage` for error string resolution; returns cached `ApiService` keyed by `baseUrl`
-- `ApiService` — Axios-based HTTP client (`get`, `post`, `put`, `delete`); never throws — all errors returned as `ServerResponse`
+- `getApiService(baseUrl, literal, options?)` — singleton factory (recommended); `options.onError` is called on caught errors for monitoring/logging; `literal` is a `{ statusKey: message }` map used by `getStatusMessage` for error string resolution; returns cached `ApiService` keyed by `baseUrl`; baseUrl must not have a trailing slash — double-slash URLs fail at the HTTP level with no Astra-level warning
+- `ApiService` — Axios-based HTTP client (`get`, `post`, `put`, `delete`); never throws — all errors returned as `ServerResponse`; constructor `(baseUrl, literal, options?)`
 - `ServerResponse` — typed response wrapper; construct via `ServerResponse.success({ status, statusMessage, data })` or `ServerResponse.error({ status, statusMessage })`
 - `HttpStatusCode` — HTTP status enum (200, 201, 400, 401, 404, 500, 0 = INTERNET_ERROR)
-- `getStatusMessage(code, literal)` — maps `HttpStatusCode` to a string from `literal`; returns empty string if no match
+- `getStatusMessage(code, literal)` — maps `HttpStatusCode` to a string from `literal`; expected literal keys: `success_message`, `created_message`, `bad_request_message`, `unauthorized_message`, `not_found_message`, `internal_server_error`, `internet_error`, `idle_message`; returns empty string if no match
+- `IpcService` — IPC service abstraction (`invoke`, `send`, `receive`); wraps `window.electronAPI` and normalizes all responses to `ServerResponse`; constructor `(options?)` with `options.onError` for error monitoring
+- `ITransportService` — interface implemented by both `ApiService` and `IpcService`; exposes `readonly platform: Platform` and `onError?: (error: unknown) => void`
+- `Platform` — type: `'WEB' | 'ELECTRON'`
 
 ## Architecture
 
@@ -202,7 +221,8 @@ Astra follows **MVVM** with a **stateless** design.
 ┌─────────────────────────────────────────────┐
 │  ASTRA                                      │
 │  ViewModel  →  useDataState hook            │
-│  Model      →  ApiService / Repository      │
+│  Model      →  ApiService (WEB) /           │
+│                IpcService (ELECTRON)         │
 │  State      →  AppState, StateType          │
 │  Bridge     →  AppStateHandler              │
 └─────────────────────────────────────────────┘
@@ -249,14 +269,22 @@ Fixed order — first matching condition renders:
 
 ### MVVM Rules
 
-- **Repositories use `ApiService`** — never import axios directly
+- **Repositories use `ApiService` (WEB) or `IpcService` (ELECTRON)** — never import axios or `window.electronAPI` directly
 - **Views use `AppStateHandler`** — no manual `isError` / `isSuccess` branching in JSX
 - **ViewModels are hooks** — no class-based ViewModels; implement in `hooks/use<Feature>.ts`
 - **One `useDataState` per async operation** — compose multiple operations with multiple hook instances
 
+### MVVM Edge Cases
+
+- **Multiple async operations**: Use one `useDataState` per operation — each is an independent state machine
+- **Shared ViewModel across Views**: Each View mounts its own ViewModel hook instance; state is not shared unless lifted into context
+- **Unmount mid-request**: `mountedRef` guard inside `execute` drops the response if the component unmounts before the request completes — no manual cleanup needed
+
 ### Error Normalization
 
-`ApiService` catches all errors and normalizes them into `ServerResponse` — it never throws:
+`ApiService` (WEB) and `IpcService` (ELECTRON) catch all errors and normalize them into `ServerResponse` — they never throw:
+
+**ApiService:**
 
 | Cause | `status` |
 |-------|----------|
@@ -264,13 +292,21 @@ Fixed order — first matching condition renders:
 | Network failure / no response | `0` (`HttpStatusCode.INTERNET_ERROR`) |
 | Non-axios / unexpected exception | `500` (`HttpStatusCode.INTERNAL_SERVER_ERROR`) |
 
+**IpcService:**
+
+| Cause | `status` |
+|-------|----------|
+| IPC handler returns error | Status from the response |
+| `window.electronAPI` unavailable | `500` (`HttpStatusCode.INTERNAL_SERVER_ERROR`) |
+| Unexpected exception | `500` (`HttpStatusCode.INTERNAL_SERVER_ERROR`) |
+
 ## Project Structure
 
 ```
 src/
   common/
     hooks/         # useDataState
-    repo/          # ApiService, HttpStatusCode, ServerResponse, getApiService, APITypes
+    repo/          # ApiService, IpcService, ServerResponse, HttpStatusCode, getApiService, ITransportService, Platform
     state/         # AppState, StateType, StateCode
     components/
       organisms/   # AppStateHandler
@@ -286,9 +322,12 @@ src/
 - `docs/raw/architecture/runtime-maps/` — data flow, state flow, import resolution
 
 ### Features
-- `docs/raw/feature-technical/mvvm/` — MVVM pattern and best practices
-- `docs/raw/feature-technical/repository/` — ApiService, HttpStatusCode, ServerResponse
-- `docs/raw/feature-technical/state/` — useDataState, AppStateHandler
+- `docs/raw/feature-technical/mvvm-wiring.md` — MVVM pattern, best practices, rules
+- `docs/raw/feature/ipc-service.md` — IPC service abstraction (ELECTRON target)
+- `docs/raw/feature-technical/repository.md` — ApiService, IpcService, HttpStatusCode, ServerResponse
+- `docs/raw/feature-technical/app-state-handler.md` — AppStateHandler component
+- `docs/raw/feature-technical/use-data-state.md` — useDataState hook
+- `docs/raw/feature-technical/state-management.md` — AppState contract, state machine
 
 ## Development
 

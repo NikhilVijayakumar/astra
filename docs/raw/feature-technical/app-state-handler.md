@@ -4,7 +4,7 @@
 
 # Feature Summary
 
-A generic conditional-rendering component that inspects an `AppState<T>` object and renders the appropriate UI: LoadingState → ErrorState → EmptyState → Success content (children or SuccessComponent). Eliminates repetitive loading/error/empty conditional trees in feature containers.
+A generic conditional-rendering component that inspects an `AppState<T>` object and renders the appropriate UI: LoadingState → ErrorState → EmptyState → Success content (children or SuccessComponent). Eliminates repetitive loading/error/empty conditional trees in feature containers. AppStateHandler is target-agnostic — it renders AppState identically for both WEB and ELECTRON targets since the transport difference is invisible to it.
 
 ---
 
@@ -62,6 +62,21 @@ export default function AppStateHandler<T, S extends AppState<T>>(
 | Localization | Full | `errorMessage` prop accepts a translated string. No hardcoded strings in this component or its rendering path. |
 | Dependency Safety | Minimal | Depends only on React, internal AppState types, and `AppStateContext`. |
 | Public API Stability | Stable | Default export from `AppStateHandler.tsx`. Public API: `AppStateHandlerProps<T, S>`, `AppStateProvider`, `AppStateContext`, `AppStateComponents`. |
+| Platform Transport | Agnostic | AppStateHandler consumes AppState — transport (ApiService/IpcService) is invisible; identical rendering across WEB and ELECTRON targets |
+
+---
+
+## Feature Requirements Traceability
+| Feature Spec Requirement | Technical Implementation | Section |
+| AppStateHandler conditional rendering | State Evaluation Priority (4-step fixed order) | Technical Structure |
+| Loading/Error/Empty/Success states | State Evaluation Priority tree | Technical Structure |
+| AppStateProvider and AppStateComponents | Architecture Mapping row + AppStateContext source file | Implementation Reference |
+| Slot props override context | Invariant Rules | Technical Structure |
+| emptyCondition | Invariant Rules: only called when isSuccess && data !== null | Technical Structure |
+| No retry wiring | Gaps section | Architecture Compliance Review |
+| INIT fallback → empty render | State Evaluation Priority step 4 | Technical Structure |
+| children vs SuccessComponent precedence | Invariant Rules | Technical Structure |
+| SuccessComponent receives appState as prop | Public API: `FC<{ appState: S }>` | Implementation Reference |
 
 ---
 
@@ -180,6 +195,16 @@ Parent passes appState: AppState<T>
 - No animation transitions between states (loading→success flash)
 - No ErrorBoundary — `SuccessComponent` errors propagate to parent
 
+## Cross-References
+- `use-data-state.md` — produces the AppState that AppStateHandler consumes
+- `state-management.md` — AppState contract definition
+- `mvvm-wiring.md` — full View rendering pattern
+
+## Ownership
+- Astra owns AppStateHandler
+- Application owns UI components injected via slots/context
+- Prati owns the design system atoms rendered inside AppStateHandler slots
+
 ---
 
 # Module Map
@@ -199,4 +224,4 @@ AppStateHandler is the single declarative boundary for async UI routing in Astra
 
 ## Authorization
 
-**Visibility:** Public — stateless Astra library primitive. No authentication or role requirement enforced by Astra. Authorization enforcement is consumer-managed at the application layer.
+AppStateHandler is a pure rendering component — it receives an already-resolved AppState and routes to UI. No data access, no transport interaction, no auth enforcement. Authorization is irrelevant at this layer — it belongs in the Repository/Application layer. Files under test should include AppStateHandler in their auth-guard test suites only if parent components enforce auth.
