@@ -42,9 +42,9 @@
     "prepare": "npm run build"
   },
   "peerDependencies": {
+    "axios": "^1.18.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "axios": "^1.18.0"
+    "react-dom": "^19.2.3"
   },
   "overrides": {
     "esbuild": "^0.28.1"
@@ -72,6 +72,7 @@
     "typescript-eslint": "8.35.1",
     "vite": "^7.3.5",
     "vite-plugin-dts": "4.5.4",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "yaml": "^2.9.0"
   }
 }
