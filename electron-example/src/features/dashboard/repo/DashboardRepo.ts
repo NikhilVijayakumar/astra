@@ -8,7 +8,7 @@ export class DashboardRepo {
     try {
       // Simulate fetching dashboard data
       // In a real app, this would call an actual API endpoint
-      const response = await this.api.get<any[]>('/users');
+      const response = await this.api.get<unknown[]>('/users');
       
       if (response.isSuccess && response.data) {
         // Mock dashboard data based on user count

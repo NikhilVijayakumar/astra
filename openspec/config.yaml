@@ -1,0 +1,21 @@
+schema: frontend
+
+context: |
+  Astra is a React and TypeScript library for MVVM, async state, and API/IPC integration.
+  Read README.md, relevant code and knowledge/index.md before proposing work.
+  Use knowledge-first for durable concepts; draft knowledge is not proof of implementation.
+  Assess public exports, compatibility, error handling and test coverage where relevant.
+  UI, accessibility and localization concerns apply only when affected; Astra is not a design system.
+  Preserve unrelated changes and report verification evidence honestly.
+
+rules:
+  proposal:
+    - Describe scope, exclusions, affected public APIs and relevant knowledge.
+  specs:
+    - Write observable, testable requirements and scenarios; reference relevant knowledge.
+  ui-spec:
+    - Describe affected interaction and accessibility behavior, or explain why UI is not applicable.
+  design:
+    - Describe boundaries, interfaces, dependencies, failure modes and compatibility; assess the need for an ADR.
+  tasks:
+    - Include implementation, documentation and proportionate verification.

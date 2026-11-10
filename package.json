@@ -1,9 +1,9 @@
 {
-  "name": "astra",
+  "name": "@nikhilvijayakumar/astra",
   "private": false,
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
-  "main": "./dist/astra.umd.js",
+  "main": "./dist/astra.umd.cjs",
   "module": "./dist/astra.es.js",
   "types": "./dist/lib.d.ts",
   "sideEffects": false,
@@ -11,40 +11,40 @@
     ".": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js",
-      "default": "./dist/astra.umd.js"
+      "require": "./dist/astra.umd.cjs",
+      "default": "./dist/astra.es.js"
     },
     "./common": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js",
-      "default": "./dist/astra.umd.js"
+      "require": "./dist/astra.umd.cjs",
+      "default": "./dist/astra.es.js"
     },
     "./common/*": {
       "types": "./dist/lib.d.ts",
       "import": "./dist/astra.es.js",
-      "require": "./dist/astra.umd.js",
-      "default": "./dist/astra.umd.js"
+      "require": "./dist/astra.umd.cjs",
+      "default": "./dist/astra.es.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/clean-dist.js",
+    "dev": "vite --config vite.config.ts",
+    "build": "vite build --config vite.config.ts && node scripts/clean-dist.js",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "vite preview --config vite.config.ts",
     "format": "prettier --write .",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage",
+    "test": "vitest --config vite.config.ts",
+    "test:ui": "vitest --ui --config vite.config.ts",
+    "coverage": "vitest run --coverage --config vite.config.ts",
     "prepare": "npm run build"
   },
   "peerDependencies": {
+    "axios": "^1.18.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "axios": "^1.18.0"
+    "react-dom": "^19.2.3"
   },
   "overrides": {
     "esbuild": "^0.28.1"
@@ -63,6 +63,7 @@
     "eslint": "9.30.1",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.20",
+    "eslint-plugin-storybook": "^10.6.6",
     "globals": "16.3.0",
     "happy-dom": "^20.0.11",
     "prettier": "3.3.3",
@@ -72,6 +73,16 @@
     "typescript-eslint": "8.35.1",
     "vite": "^7.3.5",
     "vite-plugin-dts": "4.5.4",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "yaml": "^2.9.0"
+  },
+  "description": "React and Electron MVVM, state and transport library",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVijayakumar/astra.git"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

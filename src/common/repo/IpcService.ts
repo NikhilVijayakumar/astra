@@ -1,7 +1,7 @@
 import { ServerResponse } from './ServerResponse';
 import { HttpStatusCode } from '../state/HttpStatusCode';
-import { ITransportService, Platform } from './types';
-import { ResponseError } from './APITypes';
+import type { ITransportService, Platform } from './types';
+import type { ResponseError } from './APITypes';
 
 interface ElectronAPI {
   invoke(channel: string, ...args: unknown[]): Promise<unknown>;

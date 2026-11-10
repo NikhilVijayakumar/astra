@@ -10,7 +10,6 @@ const REMOVE_EXACT = new Set([
   resolve(distDir, "main.d.ts"),
   resolve(distDir, "App.d.ts"),
   resolve(distDir, "vite.svg"),
-  resolve(distDir, join("common", "repo", "APITypes.d.ts")),
 ]);
 
 function clean(dir) {

@@ -21,7 +21,7 @@ describe('useDataState', () => {
 
   it('should initialize with custom state', () => {
       const customState = { isSuccess: true, data: { id: 1 } };
-      const { result } = renderHook(() => useDataState(customState as any));
+      const { result } = renderHook(() => useDataState(customState as unknown as Parameters<typeof useDataState>[0]));
 
       expect(result.current[0]).toEqual(expect.objectContaining(customState));
   });
@@ -96,7 +96,7 @@ describe('useDataState', () => {
       const { result } = renderHook(() => useDataState());
       
       // Create a promise that we can control
-      let resolvePromise: (value: any) => void;
+      let resolvePromise: (value: unknown) => void;
       const delayedPromise = new Promise((resolve) => {
           resolvePromise = resolve;
       });

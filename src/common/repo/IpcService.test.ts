@@ -4,7 +4,7 @@ import { ServerResponse } from './ServerResponse';
 import { HttpStatusCode } from '../state/HttpStatusCode';
 
 function createMockElectronAPI() {
-  let listeners: Map<string, Array<(data: unknown) => void>> = new Map();
+  const listeners: Map<string, Array<(data: unknown) => void>> = new Map();
 
   return {
     invoke: vi.fn(),
@@ -37,13 +37,13 @@ describe('IpcService', () => {
 
   beforeEach(() => {
     mockElectronAPI = createMockElectronAPI();
-    (window as any).electronAPI = mockElectronAPI;
+    (window as unknown as { electronAPI?: typeof mockElectronAPI }).electronAPI = mockElectronAPI;
     ipcService = new IpcService();
   });
 
   afterEach(() => {
     mockElectronAPI._clear();
-    delete (window as any).electronAPI;
+    delete (window as unknown as { electronAPI?: typeof mockElectronAPI }).electronAPI;
   });
 
   describe('invoke', () => {
@@ -88,7 +88,7 @@ describe('IpcService', () => {
     });
 
     it('should return error when window.electronAPI is unavailable', async () => {
-      delete (window as any).electronAPI;
+      delete (window as unknown as { electronAPI?: typeof mockElectronAPI }).electronAPI;
 
       const result = await ipcService.invoke('tasks:list');
 
@@ -128,7 +128,7 @@ describe('IpcService', () => {
     });
 
     it('should not throw when window.electronAPI is unavailable', () => {
-      delete (window as any).electronAPI;
+      delete (window as unknown as { electronAPI?: typeof mockElectronAPI }).electronAPI;
 
       expect(() => ipcService.send('tasks:notify')).not.toThrow();
     });
@@ -171,7 +171,7 @@ describe('IpcService', () => {
     });
 
     it('should return no-op unsubscribe when window.electronAPI is unavailable', () => {
-      delete (window as any).electronAPI;
+      delete (window as unknown as { electronAPI?: typeof mockElectronAPI }).electronAPI;
 
       const callback = vi.fn();
       const unsubscribe = ipcService.receive('progress:update', callback);

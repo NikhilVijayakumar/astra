@@ -1,4 +1,5 @@
-import { FC, createContext } from 'react';
+import { createContext } from 'react';
+import type { FC } from 'react';
 
 export interface AppStateComponents {
   Loading?: FC;

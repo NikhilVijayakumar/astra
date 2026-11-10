@@ -1,5 +1,5 @@
 //src/common/repo/ServerResponse.ts
-import { ResponseSuccess, ResponseError } from './APITypes';
+import type { ResponseSuccess, ResponseError } from './APITypes';
 import { HttpStatusCode } from '../state/HttpStatusCode';
 
 export class ServerResponse<T> {

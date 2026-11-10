@@ -1,6 +1,7 @@
 // src/common/hooks/useDataState.ts
 import { useState, useEffect, useRef } from 'react';
-import { AppState, StateType, StateCode } from '../state/AppState';
+import { StateType, StateCode } from '../state/AppState';
+import type { AppState } from '../state/AppState';
 import { ServerResponse } from '../repo/ServerResponse';
 import { HttpStatusCode } from '../state/HttpStatusCode';
 
@@ -47,7 +48,7 @@ export function useDataState<T>(
         statusMessage: response.statusMessage,
         data: response.data ?? null,
       }));
-    } catch (error) {
+    } catch {
       if (!mountedRef.current) return;
 
       setAppState((prev) => ({
