@@ -5,3 +5,5 @@ These requirements are extracted from historical raw documentation and are **dra
 - [Draft requirements and source inventory](raw-inventory.md)
 - [Section review queue](section-review.md) — source headings and remaining claim-level review.
 - [Review findings and recommendations](review-findings.md) — evidence, risks, and decisions still needed.
+
+- [npm release](npm-release/requirement.md) — draft distribution and staged-release requirements.

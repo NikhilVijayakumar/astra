@@ -35,7 +35,7 @@ export const CharacterCard = ({ character }: Props) => {
             <Typography gutterBottom variant="h6" component="div">
             {character.name}
             </Typography>
-            <Chip label={getStatusLabel(character.status)} color={statusColor as any} size="small" />
+            <Chip label={getStatusLabel(character.status)} color={statusColor} size="small" />
         </Box>
         
         <Typography variant="body2" color="text.secondary">

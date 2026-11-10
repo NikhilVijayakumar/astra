@@ -26,7 +26,7 @@ describe('ApiService', () => {
         data: mockData,
       };
       
-      (axios as any).mockResolvedValue(mockResponse);
+      vi.mocked(axios).mockResolvedValue(mockResponse);
 
       const result = await apiService.get('test');
 
@@ -51,8 +51,8 @@ describe('ApiService', () => {
         },
       };
       
-      (axios as any).mockRejectedValue(mockError);
-      (axios.isAxiosError as any).mockReturnValue(true);
+      vi.mocked(axios).mockRejectedValue(mockError);
+      vi.mocked(axios.isAxiosError).mockReturnValue(true);
 
       const result = await apiService.get('test');
 
@@ -69,8 +69,8 @@ describe('ApiService', () => {
         response: undefined,
       };
 
-      (axios as any).mockRejectedValue(networkError);
-      (axios.isAxiosError as any).mockReturnValue(true);
+      vi.mocked(axios).mockRejectedValue(networkError);
+      vi.mocked(axios.isAxiosError).mockReturnValue(true);
 
       const result = await apiService.get('test');
 
@@ -81,8 +81,8 @@ describe('ApiService', () => {
 
     it('should handle unknown errors gracefully', async () => {
         const unknownError = new Error('Unknown error');
-        (axios as any).mockRejectedValue(unknownError);
-        (axios.isAxiosError as any).mockReturnValue(false);
+        vi.mocked(axios).mockRejectedValue(unknownError);
+        vi.mocked(axios.isAxiosError).mockReturnValue(false);
 
         const result = await apiService.get('test');
 
@@ -96,8 +96,8 @@ describe('ApiService', () => {
       const onError = vi.fn();
       const serviceWithCallback = new ApiService(baseUrl, literal, { onError });
       const mockError = { isAxiosError: true, message: 'Network Error', response: { status: 500 } };
-      (axios as any).mockRejectedValue(mockError);
-      (axios.isAxiosError as any).mockReturnValue(true);
+      vi.mocked(axios).mockRejectedValue(mockError);
+      vi.mocked(axios.isAxiosError).mockReturnValue(true);
 
       await serviceWithCallback.get('test');
 
@@ -107,8 +107,8 @@ describe('ApiService', () => {
 
     it('should not invoke onError when no options provided', async () => {
       const mockError = { isAxiosError: true, message: 'Network Error', response: { status: 500 } };
-      (axios as any).mockRejectedValue(mockError);
-      (axios.isAxiosError as any).mockReturnValue(true);
+      vi.mocked(axios).mockRejectedValue(mockError);
+      vi.mocked(axios.isAxiosError).mockReturnValue(true);
 
       await expect(apiService.get('test')).resolves.toBeInstanceOf(ServerResponse);
     });
@@ -118,7 +118,7 @@ describe('ApiService', () => {
       it('should send data correctly in post request', async () => {
           const payload = { name: 'New Item' };
           const mockResponse = { status: 201, statusText: 'Created', data: { id: 2, ...payload } };
-          (axios as any).mockResolvedValue(mockResponse);
+          vi.mocked(axios).mockResolvedValue(mockResponse);
 
           const result = await apiService.post('items', payload);
 
@@ -135,7 +135,7 @@ describe('ApiService', () => {
     it('should send data correctly in put request', async () => {
         const payload = { name: 'Updated Item' };
         const mockResponse = { status: 200, statusText: 'OK', data: { id: 1, ...payload } };
-        (axios as any).mockResolvedValue(mockResponse);
+        vi.mocked(axios).mockResolvedValue(mockResponse);
 
         const result = await apiService.put('items/1', payload);
 
@@ -151,7 +151,7 @@ describe('ApiService', () => {
   describe('delete', () => {
       it('should send delete request correctly', async () => {
           const mockResponse = { status: 204, statusText: 'No Content', data: null };
-          (axios as any).mockResolvedValue(mockResponse);
+          vi.mocked(axios).mockResolvedValue(mockResponse);
 
           const result = await apiService.delete('items/1');
 

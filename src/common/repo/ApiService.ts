@@ -1,9 +1,10 @@
 //src/common/repo/ApiService.ts
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import { ServerResponse } from "./ServerResponse";
 import { HttpStatusCode } from "../state/HttpStatusCode";
-import { ResponseSuccess, ResponseError } from "./APITypes";
-import { ITransportService, Platform } from "./types";
+import type { ResponseSuccess, ResponseError } from "./APITypes";
+import type { ITransportService, Platform } from "./types";
 
 enum HTTPMethod {
   GET = "GET",

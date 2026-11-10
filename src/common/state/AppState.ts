@@ -1,5 +1,6 @@
 // src/common/state/AppState.ts
 import { HttpStatusCode } from './HttpStatusCode';
+import type { StateCode } from './StateCode';
 export { StateCode } from './StateCode';
 
 export enum StateType {

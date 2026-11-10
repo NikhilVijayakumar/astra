@@ -24,36 +24,18 @@ Eliminates the boilerplate of managing async loading, error, and empty states so
 
 ## Installation
 
-```json
-"dependencies": {
-  "astra": "git+https://github.com/NikhilVijayakumar/astra.git"
-}
+```bash
+npm install @nikhilvijayakumar/astra
 ```
 
-Specific version (recommended for production):
-
-```json
-"dependencies": {
-  "astra": "git+https://github.com/NikhilVijayakumar/astra.git#v1.1.1"
-}
-```
-
-Local development:
-
-```json
-"dependencies": {
-  "astra": "file:../astra"
-}
-```
-
-> `astra` is open-source (`"private": false`) but currently GitHub-hosted.
+The first registry release is pending. Until it is published, continue using the existing Git dependency. To retain existing `astra` imports after publication, use the npm alias `npm install astra@npm:@nikhilvijayakumar/astra`. See [release guidance](docs/releasing.md) for trusted publishing and approval.
 
 ## Quick Start
 
 ### 1. Install
 
 ```bash
-npm install git+https://github.com/NikhilVijayakumar/astra.git
+npm install @nikhilvijayakumar/astra
 ```
 
 ### 2. Wire UI Components (once at app root)
@@ -61,7 +43,7 @@ npm install git+https://github.com/NikhilVijayakumar/astra.git
 Astra provides no built-in loading/error/empty UI — bring your own. Configure once via `AppStateProvider`; all `AppStateHandler` instances in the tree use it automatically.
 
 ```tsx
-import { AppStateProvider } from "astra";
+import { AppStateProvider } from "@nikhilvijayakumar/astra";
 // Use any design system — prati, shadcn, MUI, your own
 import { LoadingState, ErrorState, EmptyState } from "prati";
 
@@ -108,7 +90,7 @@ function UserList({ appState }: { appState: AppState<User[]> }) {
 ### 3. Fetch Data with MVVM
 
 ```tsx
-import { getApiService, useDataState, AppStateHandler, ServerResponse } from "astra";
+import { getApiService, useDataState, AppStateHandler, ServerResponse } from "@nikhilvijayakumar/astra";
 import { useEffect } from "react";
 
 // Repository — one ApiService instance per base URL
@@ -156,7 +138,7 @@ function UserList() {
 ### 3. Electron Usage
 
 ```tsx
-import { useDataState, AppStateHandler, ServerResponse, IpcService } from "astra";
+import { useDataState, AppStateHandler, ServerResponse, IpcService } from "@nikhilvijayakumar/astra";
 import { useEffect } from "react";
 
 // IPC repository using IpcService
@@ -338,3 +320,7 @@ npm test         # vitest
 npm run coverage # istanbul coverage
 npm run lint     # eslint
 ```
+
+## License
+
+Copyright (c) 2025 Nikhil Vijayakumar. Licensed under the [MIT License](LICENSE).

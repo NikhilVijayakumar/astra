@@ -1,5 +1,7 @@
-import { FC, ReactElement, ReactNode, useContext } from "react";
-import { AppState, StateType } from "../../state/AppState";
+import { useContext } from "react";
+import type { FC, ReactElement, ReactNode } from "react";
+import { StateType } from "../../state/AppState";
+import type { AppState } from "../../state/AppState";
 import { HttpStatusCode } from "../../state/HttpStatusCode";
 import { AppStateContext } from "./AppStateContext";
 

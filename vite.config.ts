@@ -17,7 +17,6 @@ export default defineConfig({
       exclude: [
         "src/main.tsx",
         "src/App.tsx",
-        "src/common/repo/APITypes.ts",
         "**/*.test.ts",
         "**/*.test.tsx",
         "**/*.spec.ts",
@@ -38,8 +37,7 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, "src/lib.ts"),
       name: "Astra",
-      formats: ["es", "umd"],
-      fileName: (format) => `astra.${format}.js`,
+      fileName: (format) => format === "umd" ? "astra.umd.cjs" : "astra.es.js",
     },
     rollupOptions: {
       external: PEER_EXTERNALS,

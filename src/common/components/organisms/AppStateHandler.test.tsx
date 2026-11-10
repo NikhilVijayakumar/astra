@@ -21,7 +21,7 @@ const TestProvider = ({ children }: { children: ReactNode }) => (
 );
 
 describe("AppStateHandler", () => {
-  const mockSuccessComponent = ({ appState }: { appState: any }) => (
+  const mockSuccessComponent = ({ appState }: { appState: { data: unknown } }) => (
     <div data-testid="success-component">{JSON.stringify(appState.data)}</div>
   );
 
@@ -151,7 +151,7 @@ describe("AppStateHandler", () => {
   });
 
   it("renders Empty from context when emptyCondition is met", () => {
-    const data: any[] = [];
+    const data: unknown[] = [];
     const appState = {
       state: StateType.COMPLETED,
       isError: false,
@@ -166,7 +166,7 @@ describe("AppStateHandler", () => {
         <AppStateHandler
           appState={appState}
           SuccessComponent={mockSuccessComponent}
-          emptyCondition={(d: any[]) => d.length === 0}
+          emptyCondition={(d: unknown[]) => d.length === 0}
         />
       </TestProvider>,
     );

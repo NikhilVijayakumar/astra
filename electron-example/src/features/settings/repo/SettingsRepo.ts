@@ -20,7 +20,7 @@ export class SettingsRepo {
         statusMessage: 'Settings loaded',
         data: settings,
       });
-    } catch (error) {
+    } catch {
       return ServerResponse.error({
         status: 500,
         statusMessage: 'Failed to load settings',
@@ -36,7 +36,7 @@ export class SettingsRepo {
         statusMessage: 'Settings saved',
         data: settings,
       });
-    } catch (error) {
+    } catch {
       return ServerResponse.error({
         status: 500,
         statusMessage: 'Failed to save settings',

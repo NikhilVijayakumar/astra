@@ -27,8 +27,12 @@ sources:
 
 # Public API and build
 
-The documented package boundary is an explicit public barrel and declared package exports, with React and Axios supplied as peers. Changes to public exports, generated declarations and build artifacts require compatibility checks. The documentation calls for a committed lockfile for reproducible installs, but the current repository ignores package-lock.json. Runtime maps and sample paths can drift and should be checked against package configuration and code.
+The documented package boundary is an explicit public barrel and declared package exports, with React and Axios supplied as peers. Changes to public exports, generated declarations and build artifacts require compatibility checks. The documentation calls for a committed lockfile for reproducible installs; verify the actual lockfile and package manager configuration. Runtime maps and sample paths can drift and should be checked against package configuration and code.
 
 ## Packaging and compatibility
 
-The public entry point exports state, hook, rendering and transport primitives. The package also declares common subpaths that resolve to its built artifacts; raw examples showing only a root source export are incomplete. The build config generates ES and UMD bundles and declarations while externalizing React, React DOM, JSX runtimes and Axios. The package declares React, React DOM and Axios as peers. Build reproducibility, lockfile policy and future support ranges require explicit project decisions rather than being inferred from historical documentation.
+The public entry point exports state, hook, rendering and transport primitives. The package also declares common subpaths that resolve to its built artifacts; raw examples showing only a root source export are incomplete. The build config generates ES and UMD bundles and declarations while externalizing React, React DOM, JSX runtimes and Axios. The package declares React, React DOM and Axios as peers. Reproducibility and supported peer ranges require verification against the current package and lockfile rather than being inferred from historical documentation.
+
+## Package distribution and releases
+
+For a public package, the package name and export map, included build artifacts, declarations, peer ranges, license and consumer installation instructions together define its distribution boundary. Tagged release automation can build and validate a package, then stage it with short-lived trusted publisher credentials. A maintainer reviews and approves a staged version with two-factor authentication before it becomes publicly available. A successful staging job is not proof of publication. The target branch and account configuration must match the hosting repository and registry.
